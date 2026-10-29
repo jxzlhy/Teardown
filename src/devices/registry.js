@@ -98,6 +98,7 @@ import smegToaster from './smeg-toaster.js';
 import tourbillonMovement from './tourbillon-movement.js';
 import grandPiano from './grand-piano.js';
 import gameboy from './gameboy.js';
+import doorLockMechanism from './door-lock-mechanism.js';
 
 export const devices = [
   /* DJI */
@@ -151,6 +152,8 @@ export const devices = [
   tourbillonMovement,
   /* NINTENDO */
   gameboy,
+  /* REANIMATE */
+  doorLockMechanism,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

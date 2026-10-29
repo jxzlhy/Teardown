@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**96 台设备** · 788 个部件 · 96 套 GLB · 31 个品牌
+> 当前：**97 台设备** · 793 个部件 · 97 套 GLB · 32 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -271,4 +271,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | tourbillon-movement | 陀飞轮机芯（3D 打印怀表） | 钟表 | 7 | 社区 | tourbillon-movement.glb | 855 KB |
+
+### REANIMATE（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| door-lock-mechanism | 门锁机构（百年老锁） | 精密机械 | 5 | 社区 | door-lock-mechanism.glb | 785 KB |
 
