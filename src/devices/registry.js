@@ -97,6 +97,7 @@ import gramophone from './gramophone.js';
 import smegToaster from './smeg-toaster.js';
 import tourbillonMovement from './tourbillon-movement.js';
 import grandPiano from './grand-piano.js';
+import gameboy from './gameboy.js';
 
 export const devices = [
   /* DJI */
@@ -148,6 +149,8 @@ export const devices = [
   smegToaster,
   /* LAIMER */
   tourbillonMovement,
+  /* NINTENDO */
+  gameboy,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

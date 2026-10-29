@@ -406,6 +406,19 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       if(token !== loadSeq) return;
       {
         const root = gltf.scene;
+        /* 基础姿态修正（俯仰）：平躺展示模型转正。
+           以几何中心建 pivot 旋转——模型长轴常偏离原点，绕 root 原点转会甩飞 */
+        if(device.baseRotation){
+          root.updateMatrixWorld(true);
+          const bb = new THREE.Box3().setFromObject(root);
+          const pivot = new THREE.Group();
+          pivot.position.copy(root.worldToLocal(bb.getCenter(new THREE.Vector3())));
+          pivot.rotation.set(device.baseRotation[0] || 0, device.baseRotation[1] || 0, device.baseRotation[2] || 0);
+          for(const ch of [...root.children]) pivot.attach(ch);
+          root.add(pivot);
+          root.updateMatrixWorld(true);
+          console.log('[baseRotation] applied, pivot children =', pivot.children.length, 'root children =', root.children.length);
+        }
         /* 朝向声明：把模型原生机头轴转到 +Z */
         if(device.frontAxis && device.frontAxis !== '+z'){
           root.rotation.y = { '+x': -Math.PI/2, '-x': Math.PI/2, '-z': Math.PI }[device.frontAxis] || 0;

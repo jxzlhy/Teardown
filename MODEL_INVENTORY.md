@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**95 台设备** · 781 个部件 · 95 套 GLB · 31 个品牌
+> 当前：**96 台设备** · 788 个部件 · 96 套 GLB · 31 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -168,12 +168,13 @@
 |---|---|---|---|---|---|---|
 | perseverance-rover | 毅力号火星车 | 航天 | 12 | 官方 | perseverance-rover.glb | 2.8 MB |
 
-### NINTENDO（2 台）
+### NINTENDO（3 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | switch-oled | Nintendo Switch OLED | 游戏机 | 6 | 社区 | switch-oled.glb | 228 KB |
 | switch-2 | Nintendo Switch 2 | 游戏机 | 6 | 社区 | switch-2.glb | 975 KB |
+| gameboy | Game Boy（DMG-01） | 游戏 | 7 | 社区 | gameboy.glb | 1.1 MB |
 
 ### FLIPPER（1 台）
 
