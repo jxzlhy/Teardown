@@ -19,5 +19,5 @@
 | P2 | 设备配置 chunk 加载失败态（发版后旧 chunk 404 / 弱网） | 可恢复性 | 低 | 请求拦截 abort + 浏览器 | 已完成（错误面板 + 重试/返回） |
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
-| P2 | 新设备研究接入：本批已接 3 台（blender/grinder/pinball）；下一批候选见 /tmp/dji-next-batch-research.md（陀飞轮/转子发动机/三缸摩托发动机/Smeg 烤面包机/Walkman 等 CC-BY 10 候选）与品类缺口备忘（钢琴击弦机/Game Boy/手风琴需换渠道） | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP | 持续滚动 |
+| P2 | 新设备研究接入：已接 5 台（blender/grinder/pinball/triple-engine/gramophone，达 92 台）；落选记录：陀飞轮（3 匿名网格）/转子发动机（7 份重叠拷贝）/smeg-toaster（匿名待映射）；研究报告 /tmp/dji-next-batch-research.md 余下候选 + 品类缺口需换渠道（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴） | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | 待办 |

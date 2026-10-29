@@ -11,6 +11,29 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 验证：lint 90/90、build 1.91s、smoke 全通过、生产 preview 抽查（统计 35 官方/55 社区、
 3 台装载、无 HTTP 失败/页面错误）、5 台 tour 步数/首步正确。推送 f818dec。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 新设备 2 台 + 3 台落选（92 台 / 761 部件）
+
+### 接入
+- **triple-engine**（jamie3d，CC-BY，108 网格全语义命名 → 10 部件，618KB）：
+  mappingPrefix 长前缀优先（throttle 前于 throttle_cables 等）；
+- **gramophone**（dylanheyes，CC-BY，10 网格 → 4 部件，924KB）：喇叭/唱盘组/箱体/摇柄。
+- 下载通道：IAB Sketchfab 登录态（User-419afc4fcb）+ `/i/archives/latest` + node https 落盘；
+  长会话中该 tab 可能丢失（socket hang up），重取 `browser.tabs.list()` 恢复。
+
+### 落选（inspect 后淘汰，未接入——原始件已备份 originals）
+- astronomical-tourbillon（Binkley-Piratepants，CC-BY）：仅 3 个匿名网格（Object_2…），不可拆；
+- motor-wankel（museoETSII，CC-BY）：7 份重叠几何拷贝（mainMeshNode×7，疑似导出损坏）；
+- smeg-toaster（Thefreshlab，CC-BY）：18 个匿名 Object_N，映射成本高留待后续。
+- 教训印证 SOP：研究报告"描述明示可拆"不等于 GLB 可拆，必须 inspect 后判定。
+
+### 验证
+- lint 92/92、gen:inventory 92 台/761 部件/29 品牌、build 2.13s、smoke 全通过、thumbs 2/2、
+  真机截图目检两台（结构/材质/曝光正确，gramophone 黄铜喇叭质感佳）。推送 58aac76。
+
 ## 2026-10-30 · 本会话总状态（续跑交接点）
 
 > 当前分支：main @ Gitee（本会话 13 个提交，全部通过 lint/build/smoke + 浏览器验证后推送）。
@@ -25,21 +48,20 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 6. 部件特写小图：引擎 capturePartThumb 离屏捕获，详情卡全量生效（aace665）
 7. pinball 弹射板核对修正（f782d23）
 8. 剖切可读性：切腔 DoubleSide 内壁 + 半透明指示板（5129158）
-9. 策展第二/三批：手机/平板/显示器 + mac/audio/穿戴家族 22 台（733a01e / 5fd42b5）
-   —— 累计 40 台有策展 tour + xrayShellIds；**marshall-jcm800 刻意保持无策展**（smoke 兜底断言依赖）
+9. 策展第二/三/四批：手机/平板/显示器 + mac/audio/穿戴 + 无人机/相机/发动机家族 36 台（733a01e/5fd42b5/f818dec）——累计 54 台策展
+10. 新设备 2 台：直列三缸摩托车发动机/手摇留声机（58aac76）+ 3 台 inspect 落选记录
+
+### 规模：**92 台设备 / 761 部件 / 29 品牌**（MODEL_INVENTORY.md 自动生成）
 
 ### 下一项（按优先级）
-1. 策展第四批（剩余 ~50 台：相机家族 action5pro✓/avata2/mini4pro/mavic3pro✓/nikon×2/polaroid 等；
-   发动机家族 v6✓?/v8/combustion/jet/hypoid——逐台读 parts 后插 tour/xrayShellIds，流程已成熟：
-   parts dump → glb 锚点插入 → lint → 抽查 KeyT）
-2. 第三批设备接入（研究报告 /tmp/dji-next-batch-research.md：陀飞轮/转子发动机/三缸摩托发动机/
-   Smeg 烤面包机/Walkman，全部 CC-BY；下载通道走 IAB 登录态 + node https 落盘，流程见 0824b89 日志）
-3. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴）
-4. 综合回归（生产 preview 14 项 + 移动端横屏）
+1. smeg-toaster 补映射接入（原始件在 originals，18 匿名网格按位置聚类；或换用可拆模型）
+2. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴/天文陀飞轮替代品）
+3. 真机横向回归（需环境）；综合生产 preview 回归已在本会话做过一轮（14 项基线）
+4. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
 
 ### 验证基线（本会话末次全绿）
-- `npm run lint:devices` 90/90（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
-- Gitee main 同步至 5fd42b5；vendor/assets/originals 保持本地（gitignore）。
+- `npm run lint:devices` 92/92（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
+- Gitee main 同步至 58aac76；vendor/assets/originals 保持本地（gitignore）。
 
 ## 2026-10-30 · 策展第三批（mac/audio/穿戴/输入家族 12 台）
 
