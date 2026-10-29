@@ -2,6 +2,42 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 本会话总状态（续跑交接点）
+
+> 当前分支：main @ Gitee（本会话 13 个提交，全部通过 lint/build/smoke + 浏览器验证后推送）。
+> 规模：**90 台设备 / 747 部件 / 29 品牌**（MODEL_INVENTORY.md 自动生成）。
+
+### 本会话已完成（按序）
+1. Gitee 仓库接入 + cad2glb 路径守卫加固（6d4a18a；Mimosa 门规则见 memory）
+2. 37 台社区模型署名查证：作者/许可证/来源链接 + lint 强制校验（2989033）
+3. Poly Haven 13 台来源链接（ee8be62）
+4. 设备页来源徽章修正（COMMUNITY/OFFICIAL 口径统一到 src/lib/model-class.js）+ 14 台 Tour/X-Ray 策展（d302174）
+5. 新设备 3 台：厨房搅拌机/DeWalt 角磨机/弹珠台（0824b89；mapByPosition 增第 5 参材质名）
+6. 部件特写小图：引擎 capturePartThumb 离屏捕获，详情卡全量生效（aace665）
+7. pinball 弹射板核对修正（f782d23）
+8. 剖切可读性：切腔 DoubleSide 内壁 + 半透明指示板（5129158）
+9. 策展第二/三批：手机/平板/显示器 + mac/audio/穿戴家族 22 台（733a01e / 5fd42b5）
+   —— 累计 40 台有策展 tour + xrayShellIds；**marshall-jcm800 刻意保持无策展**（smoke 兜底断言依赖）
+
+### 下一项（按优先级）
+1. 策展第四批（剩余 ~50 台：相机家族 action5pro✓/avata2/mini4pro/mavic3pro✓/nikon×2/polaroid 等；
+   发动机家族 v6✓?/v8/combustion/jet/hypoid——逐台读 parts 后插 tour/xrayShellIds，流程已成熟：
+   parts dump → glb 锚点插入 → lint → 抽查 KeyT）
+2. 第三批设备接入（研究报告 /tmp/dji-next-batch-research.md：陀飞轮/转子发动机/三缸摩托发动机/
+   Smeg 烤面包机/Walkman，全部 CC-BY；下载通道走 IAB 登录态 + node https 落盘，流程见 0824b89 日志）
+3. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴）
+4. 综合回归（生产 preview 14 项 + 移动端横屏）
+
+### 验证基线（本会话末次全绿）
+- `npm run lint:devices` 90/90（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
+- Gitee main 同步至 5fd42b5；vendor/assets/originals 保持本地（gitignore）。
+
+## 2026-10-30 · 策展第三批（mac/audio/穿戴/输入家族 12 台）
+
+mac-studio/mac-mini、macbook-air/pro、imac、airpods-pro/airpods-5/airpods-max、
+watch-ultra、airtag、flipper-zero、cherry-mx-switch。lint 90/90 + 4 台抽查通过（5fd42b5）。
+
+
 ## 2026-10-30 · 策展第二批（手机/平板/显示器家族 10 台）
 
 s25 / s25-plus（同构 s25-ultra 14 步）、zflip7（外屏→铰链→两半→内屏）、
