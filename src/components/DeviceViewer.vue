@@ -196,6 +196,7 @@
         <div class="d-tip" v-if="device.modelCredit">
           MODEL CREDIT · {{ device.modelCredit }}
           <i v-if="creditUnverified" class="credit-flag" title="仅标注社区来源，作者与许可证尚未核实">来源待核实</i>
+          <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 ↗</a>
         </div>
         <div class="d-tip">{{ device.glb ? (device.source || '官方实机模型') : '程序化建模' }} · {{ device.parts.length }} 组核心部件</div>
         <button class="hud-glow-btn primary info-close" @click="infoOpen = false">关闭</button>

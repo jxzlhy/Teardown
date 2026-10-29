@@ -28,6 +28,7 @@ export default makeDevice({
   accent: '#e60012',
   source: 'NAIT Studio（Sketchfab · CC-BY 4.0）',
   modelCredit: 'Nintendo Switch 2 Realistic by NAIT Studio (CC-BY 4.0), via Sketchfab',
+  modelSource: 'https://sketchfab.com/3d-models/nintendo-switch-2-realistic-3d-model-03e83c4832fc4cdcacb7724937509908',
   targetWidth: 13.0,
   camDist: 1.15,
   glb: '/assets/switch-2.glb',

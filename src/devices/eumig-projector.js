@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#d9a441',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Eumig Film Projector by AleixoAlonso (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/eumig-film-projector-151d8ee40b244a9b9666822ddeb08557',
   targetWidth: 9.5,
   normalize: 'full',
   glb: '/assets/eumig-projector.glb',

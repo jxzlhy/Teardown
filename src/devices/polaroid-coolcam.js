@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#3fa7d6',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Polaroid 600 Vintage Cool Cam by perry_wubben (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/polaroid-600-vintage-cool-cam-8fdc1e32d83b43d0b8daf83e863e639f',
   targetWidth: 10,
   camDist: 1.05,
   normalize: 'full',

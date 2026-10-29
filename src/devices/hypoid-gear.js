@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#8899aa',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Hypoid Gear by cyamahat (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/hypoid-gear-6592b808326541dd8b887bcf3da44619',
   targetWidth: 9,
   normalize: 'full',
   glb: '/assets/hypoid-gear.glb',

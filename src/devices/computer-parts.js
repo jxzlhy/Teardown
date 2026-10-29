@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#5fd0a5',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Computer Components by crimsonfalcon (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/computer-components-4daeb72925d140809bdfd51634a1908e',
   targetWidth: 12,
   camDist: 1.25,
   normalize: 'full',

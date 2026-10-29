@@ -67,6 +67,19 @@ for(const d of devices){
     }
   }
 
+  /* 社区模型署名必须落实到作者与许可证；Sketchfab 来源必须给出模型主页链接 */
+  const credit = d.modelCredit || '';
+  const isCommunity = /社区|Sketchfab|Poly Haven/i.test(credit) || /社区/i.test(d.source || '');
+  if(isCommunity){
+    if(!credit) fail('社区模型缺少 modelCredit');
+    else if(/by community/i.test(credit)) fail('modelCredit 仍是泛化署名 "by community"（必须写明作者与许可证）');
+    if(/Sketchfab/i.test(credit) && !/^https:\/\/(sketchfab\.com|www\.sketchfab\.com)\//.test(d.modelSource || ''))
+      fail('Sketchfab 模型缺少 modelSource（sketchfab.com 模型主页链接）');
+    if(/NASA/i.test(credit) && !/^https:\/\/(science\.nasa\.gov|www\.nasa\.gov)\//.test(d.modelSource || ''))
+      fail('NASA 模型缺少 modelSource（science.nasa.gov 资源页链接）');
+    if(d.modelSource && !/^https:\/\//.test(d.modelSource)) fail('modelSource 必须是 https:// 链接');
+  }
+
   if(!badCount && !warnCount) console.log('  ✓ 通过');
 }
 

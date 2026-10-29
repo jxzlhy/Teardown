@@ -24,6 +24,7 @@ export default makeDevice({
   accent: '#c0c7d1',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Sony TC-510-2 Tape Recorder by Dolgov12 (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/sony-tc-510-2-tape-recorder-32acbe50ba0f4abc99af88e0d76f28f9',
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/sony-tc510.glb',

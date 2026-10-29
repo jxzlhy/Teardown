@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#e0a63f',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Swiss lever escapement mechanism by cyamahat (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/swiss-lever-escapement-mechanism-96cf82a6bdcd4ddda7635fbd33d0e016',
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/swiss-escapement.glb',

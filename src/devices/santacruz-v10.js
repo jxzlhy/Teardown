@@ -33,6 +33,7 @@ export default makeDevice({
   accent: '#ff5a1f',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Santa Cruz V10 Downhill Mountain Bicycle by fdgasd7 (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/santa-cruz-v10-downhill-mountain-bicycle-65e16e9785de4a019e35f599e47c9ee6',
   targetWidth: 13,
   camDist: 1.15,
   normalize: 'full',

@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#4da3ff',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Cherry MX Switches by blackcube4 (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/cherry-mx-switches-71e8e1687abc4a8fbef195ab09581287',
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/cherry-mx-switch.glb',

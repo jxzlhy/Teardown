@@ -24,6 +24,7 @@ export default makeDevice({
   accent: '#e8b04c',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Keyboard (Casio VL-Tone) by AleixoAlonso (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/keyboard-casio-vl-tone-be22fbe1ef0044f3bedc6e3edf459593',
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/casio-vl-tone.glb',

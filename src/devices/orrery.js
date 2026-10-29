@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#6ea8ff',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Orrery by buttr_toes (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/orrery-44849150982d4c228fca951a66df604f',
   targetWidth: 9.5,
   normalize: 'full',
   glb: '/assets/orrery.glb',

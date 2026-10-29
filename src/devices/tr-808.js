@@ -26,6 +26,7 @@ export default makeDevice({
   accent: '#ff5544',
   source: '社区模型（Sketchfab）',
   modelCredit: 'TR-808 by VictorBorgions (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/tr-808-577cb95c8d78491795918d06e0afe05b',
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/tr-808.glb',

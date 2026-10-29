@@ -25,6 +25,7 @@ export default makeDevice({
   accent: '#8f9bb3',
   source: '社区模型（Sketchfab）',
   modelCredit: 'VCR (Hanseatic VCR 200) by AleixoAlonso (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/vcr-hanseatic-vcr-200-5b9c01beba1a41728872c2429edbda9d',
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/vcr-hanseatic.glb',

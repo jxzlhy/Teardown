@@ -24,6 +24,7 @@ export default makeDevice({
   accent: '#d4b13f',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Marshall Sc20h // JCM 800 by dark_igorek (Sketchfab, CC-BY)',
+  modelSource: 'https://sketchfab.com/3d-models/marshall-sc20h-jcm-800-7b93c2501e0646cbbf49d1d594fde9a0',
   targetWidth: 11,
   camDist: 1.1,
   normalize: 'full',
