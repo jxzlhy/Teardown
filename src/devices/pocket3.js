@@ -76,6 +76,9 @@ export default {
   targetWidth: 5.8,
   normalize: 'full',         // 资产为沿 X 平铺的部件布局，按整体包围盒归一化
   glb: '/assets/pocket3.glb',
+  /* 策展导览：屏→云台→控制→机身→电池→仓盖→背板 */
+  tour: ['screen','gimbal','controls','body','battery','battery-door','backplate'],
+  xrayShellIds: ['body','backplate','screen'],
   draco: false,
   frontAxis: '+z',
   orientationProbe: null,

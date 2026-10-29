@@ -27,6 +27,8 @@ export default makeDevice({
   camDist: 1.05,
   normalize: 'full',
   glb: '/assets/jet-engine.glb',
+  /* 策展导览：风扇段→核心机→加力燃烧室→尾喷管（沿气流方向） */
+  tour: ['fan-section','core','afterburner','nozzle'],
   mapping: {
     'Object_12': 'fan-section',
     'Object_13': 'nozzle',

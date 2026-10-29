@@ -41,6 +41,9 @@ export default {
   targetWidth: 12,
   normalize: 'full',         // 资产为沿 X 平铺布局，按整体包围盒归一化
   glb: '/assets/mini4pro.glb',
+  /* 策展导览：机身→云台→前后机臂→桨→电池 */
+  tour: ['body','gimbal','arms-front','arms-rear','propellers','battery'],
+  xrayShellIds: ['body'],
   draco: true,
   frontAxis: '-z',           // 云台球体聚类在 -Z（机头朝 -Z）
   orientationProbe: null,

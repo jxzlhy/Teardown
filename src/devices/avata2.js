@@ -39,6 +39,9 @@ export default {
   accent: '#ffb35c',
   targetWidth: 8.2,
   glb: '/assets/avata2.glb',
+  /* 策展导览：壳→云台→动力→电池 */
+  tour: ['shell','gimbal','powertrain','battery'],
+  xrayShellIds: ['shell'],
   draco: true,
   frontAxis: '+z',
   orientationProbe: null,

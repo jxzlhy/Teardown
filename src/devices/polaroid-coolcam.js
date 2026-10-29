@@ -30,6 +30,9 @@ export default makeDevice({
   camDist: 1.05,
   normalize: 'full',
   glb: '/assets/polaroid-coolcam.glb',
+  /* 策展导览：镜头→取景器→闪光灯→快门→开关→锁扣→腕带→机身 */
+  tour: ['lens','viewfinder','flash','shutter','switch','latch','strap','body'],
+  xrayShellIds: ['body','viewfinder'],
   mapping: {
     'MainBody_LP_BaseMat_0': 'body',
     'Lens_LP_TransparenyMat_0': 'lens',

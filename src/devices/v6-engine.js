@@ -28,6 +28,8 @@ export default makeDevice({
   camDist: 1.0,
   normalize: 'full',
   glb: '/assets/v6-engine.glb',
+  /* 策展导览：缸体→活塞→连杆→火花塞→管路→前驱动 */
+  tour: ['block','pistons','rods','plugs','hoses','drive-front'],
   mapByPosition(name, p, rel){
     if(name.includes('zierCurve')) return 'hoses';
     if(name.startsWith('Piston')) return 'pistons';

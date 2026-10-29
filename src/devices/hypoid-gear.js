@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 9,
   normalize: 'full',
   glb: '/assets/hypoid-gear.glb',
+  /* 策展导览：输入轴→主动小齿轮→从动大齿轮（准双曲面偏置）→输出轴 */
+  tour: ['input-shaft','pinion','ring-gear','output-shaft'],
   mapping: {
     /* 节点名点号被 sanitizeNodeName 清洗：axis1.001_0 → axis1001_0 */
     'axis1001_0': 'input-shaft',

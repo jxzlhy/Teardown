@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 9.5,
   normalize: 'full',
   glb: '/assets/eumig-projector.glb',
+  /* 策展导览：供片盘→片路→输片机构→对焦镜头组→收片盘→控制 */
+  tour: ['reel-a','film','transport','focus-frame','reel-b','switch-speed','audio-controls','body'],
+  xrayShellIds: ['body'],
   mapping: {
     '#VPL0002_Body_#VPL0002_Textures_0': 'body',
     '#VPL0002_Reel001_#VPL0002_Textures_0': 'reel-a',

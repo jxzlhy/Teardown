@@ -28,6 +28,8 @@ export default makeDevice({
   camDist: 0.95,
   normalize: 'full',
   glb: '/assets/combustion-engine.glb',
+  /* 策展导览：曲轴→活塞→缸体→缸盖→配气→飞轮→附件 */
+  tour: ['crank','pistons','block','head','valvetrain','flywheel','ancillaries'],
   mapByPosition(name, p, rel){
     if(rel.y > 0.85) return 'valvetrain';
     if(rel.y > 0.62) return 'head';

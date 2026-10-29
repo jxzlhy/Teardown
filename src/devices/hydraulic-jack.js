@@ -27,6 +27,9 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/hydraulic-jack-35617bca4a064a7296858470e5c27102',
   targetWidth: 7,
   glb: '/assets/hydraulic-jack.glb',
+  /* 策展导览：手柄→底座→举臂→液压缸→阀组→鞍座（能量传递路径） */
+  tour: ['handle','base','lift-arm','hydraulic-ram','valves','saddle'],
+  xrayShellIds: ['base'],
   normalize: 'full',
   unmappedTo: 'base',
   mapByPosition(name, p, rel, ext){

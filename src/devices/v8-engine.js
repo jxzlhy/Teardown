@@ -28,6 +28,8 @@ export default makeDevice({
   camDist: 1.0,
   normalize: 'full',
   glb: '/assets/v8-engine.glb',
+  /* 策展导览：曲轴→活塞→双缸盖→进气→双排气→前驱动附件（X-Ray 走 realPartIds 兜底全透明） */
+  tour: ['crank','pistons','head-l','head-r','intake','exhaust-l','exhaust-r','front-drive'],
   mapByPosition(name, p, rel){
     if(rel.z < 0.35 && rel.y > 0.4) return 'front-drive';
     if(rel.y > 0.72) return rel.x > 0.5 ? 'head-r' : 'head-l';

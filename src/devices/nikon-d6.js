@@ -34,6 +34,9 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/nikon-d6-a258ee3070fe43abb8686cab42ef86d4',
   targetWidth: 8.5,
   glb: '/assets/nikon-d6.glb',
+  /* 策展导览：镜头→卡口→机身→主板→电池→顶盖→握持→背盖→底板 */
+  tour: ['lens','mount','body','board','battery','top-plate','grip','back','bottom-plate'],
+  xrayShellIds: ['body','back','top-plate','grip','bottom-plate'],
   normalize: 'full',
   /* 朝向待定：探测镜头群与背面，保证镜头群朝观众 +z */
   orientationProbe: ['lens', 'back'],

@@ -35,6 +35,9 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/nikon-z6-with-nikkor-24-70-f4-93775837f09141fd91bf1b41a0c0953e',
   targetWidth: 9,
   glb: '/assets/nikon-z6.glb',
+  /* 策展导览：镜头→卡口环→机身→主板→电池→顶盖→握持→背盖 */
+  tour: ['lens','mount-ring','body','board','battery','top-plate','grip','back'],
+  xrayShellIds: ['body','back','top-plate','grip'],
   normalize: 'full',
   frontAxis: '-x',
   mapByPosition(name, p, rel){

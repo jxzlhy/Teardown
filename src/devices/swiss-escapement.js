@@ -29,6 +29,8 @@ export default makeDevice({
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/swiss-escapement.glb',
+  /* 策展导览：擒纵轮→叉瓦→擒纵叉→摆轮→摆轴→冲击销→游丝→限位钉→夹持工装 */
+  tour: ['escape-wheel','pallets','lever','balance-wheel','balance-axle','impulse-pin','hairspring','banking-pins','fixtures'],
   mapping: {
     /* 注意：three.js GLTFLoader 会把节点名空白清洗为下划线（sanitizeNodeName），
        故 'escape wheel_0' 在运行时的真名是 'escape_wheel_0' */
