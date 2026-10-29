@@ -10,6 +10,23 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · Stratocaster 接入（99 台 / 801 部件 / 34 品牌）
+
+第二轮调研方向1落地：dark_igorek Fender Stratocaster「Tequila Sunrise」（CC-BY 4.0，
+206k faces，157 网格——Fender 材质 152 + podium/text/light 陈列场景件）。
+按材质+尺寸双档聚类 5 部件（琴体/琴颈/弦钮与琴头/琴桥五金/陈列展台），阈值
+2.5/1.2/0.25 真机校准；Tequila Sunrise 渐变漆面曝光良好，展台灯圈氛围到位。
+乐器线补全（Casio VL-Tone/TR-808/Marshall/Stratocaster）。
+验证：lint 99/99、gen:inventory 99 台/801 部件/34 品牌、build 1.86s、smoke 全通过、
+thumbs、真机截图。推送 8ff7aad。
+
+### 下一项
+C64 Full Pack 评估（inspect 后定接入或落选）；真机回归需环境。
+
 ## 2026-10-30 · 第二轮调研 + 复古风扇接入（98 台 / 796 部件 / 33 品牌）
 
 1. **第二轮外部调研**（后台代理，docs/ROUND2-RESEARCH.md）：乐器纵深/复古计算机/家电/
