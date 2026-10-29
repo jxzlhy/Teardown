@@ -53,19 +53,52 @@ export function createViewModes({ renderer, getParts, getDeviceGroup, getDevice,
   function snapMaterial(m){
     if(!matSnap.has(m)) matSnap.set(m, {
       transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite,
-      clippingPlanes: m.clippingPlanes, clipShadows: m.clipShadows,
+      clippingPlanes: m.clippingPlanes, clipShadows: m.clipShadows, side: m.side,
     });
   }
   function snapMesh(o){
     if(!meshSnap.has(o)) meshSnap.set(o, o.castShadow);
   }
+  /* 剖切指示板：随剖切高度的半透明平面（CAD 风格封盖示意；真 stencil 封盖
+     受 EffectComposer 渲染目标无 stencil buffer 限制，见 AUTONOMOUS_BACKLOG） */
+  let capMesh = null;
+  function ensureCapMesh(bb){
+    const d = getDevice();
+    const accent = (d && d.accent) || '#45e0ff';
+    if(!capMesh){
+      capMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({
+          color: new THREE.Color(accent), transparent: true, opacity: 0.09,
+          side: THREE.DoubleSide, depthWrite: false,
+        }));
+      capMesh.rotation.x = -Math.PI / 2;
+      capMesh.renderOrder = 5;
+    } else {
+      capMesh.material.color.set(accent);
+    }
+    const sx = (bb.max.x - bb.min.x) * 1.02 + 0.12;
+    const sz = (bb.max.z - bb.min.z) * 1.02 + 0.12;
+    capMesh.scale.set(sx, sz, 1);
+    capMesh.position.set((bb.min.x + bb.max.x) / 2, 0, (bb.min.z + bb.max.z) / 2);
+    if(!capMesh.parent) getDeviceGroup().parent.add(capMesh);
+    capMesh.visible = true;
+  }
+  function removeCapMesh(){
+    if(!capMesh) return;
+    if(capMesh.parent) capMesh.parent.remove(capMesh);
+    capMesh.geometry.dispose();
+    capMesh.material.dispose();
+    capMesh = null;
+  }
   function restoreAll(){
     for(const [m, s] of matSnap){
       m.transparent = s.transparent; m.opacity = s.opacity; m.depthWrite = s.depthWrite;
-      m.clippingPlanes = s.clippingPlanes; m.clipShadows = s.clipShadows;
+      m.clippingPlanes = s.clippingPlanes; m.clipShadows = s.clipShadows; m.side = s.side;
     }
     for(const [o, cs] of meshSnap) o.castShadow = cs;
     matSnap = new Map(); meshSnap = new Map(); isoLerp.clear();
+    removeCapMesh();
     renderer.localClippingEnabled = false;
   }
 
@@ -108,7 +141,9 @@ export function createViewModes({ renderer, getParts, getDeviceGroup, getDevice,
       snapMaterial(m);
       m.clippingPlanes = [clipPlane];
       m.clipShadows = true;
+      m.side = THREE.DoubleSide;   // 切腔内壁可见（背面渲染），避免"切空看穿"
     }
+    if(!bb.isEmpty()) ensureCapMesh(bb);
     updateClipPlane();
   }
   function updateClipPlane(){
@@ -116,6 +151,8 @@ export function createViewModes({ renderer, getParts, getDeviceGroup, getDevice,
     const y = bb.max + (bb.min - bb.max) * clipT;   // clipT=1 → 顶，0 → 底
     /* 设备整体有 ±0.1 呼吸浮动，剖切面跟着抵消，避免切口随呼吸上下漂 */
     clipPlane.constant = y - (getBobY ? getBobY() : 0);
+    /* 指示板挂在设备组父级、取局部高度：与设备一起呼吸，切口位置恒定 */
+    if(capMesh) capMesh.position.y = y - (getBobY ? getBobY() : 0);
   }
 
   const state = { get mode(){ return mode; }, get isolateId(){ return isolateId; },
