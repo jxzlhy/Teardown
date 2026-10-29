@@ -32,6 +32,9 @@ export default makeDevice({
   targetWidth: 13.5,
   camDist: 1.3,
   glb: '/assets/imac.glb',
+  /* 策展导览：屏体→下巴→主板→风扇→扬声器→支架→底座→键鼠 */
+  tour: ['display-body','chin','board','fan','speaker','stand','foot','keyboard','mouse'],
+  xrayShellIds: ['display-body'],
   normalize: 'full',
   frontAxis: '-z',      /* 资产屏幕朝 -Z（键盘鼠标在 -Z 前方） */
   mapByPosition(name, p, rel){

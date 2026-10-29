@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.25,
   glb: '/assets/mac-studio.glb',
+  /* 策展导览：机身→主板→双风扇→顶板→后 IO→底座 */
+  tour: ['body','board','fan-a','fan-b','top-plate','io-rear','base'],
+  xrayShellIds: ['body','top-plate'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.y < 1.2) return 'base';

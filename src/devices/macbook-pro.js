@@ -34,6 +34,9 @@ export default makeDevice({
   thumbDir: [0.9, 0.35, 1.4],   /* 半开形态：压低视角让屏幕占比更大 */
   camDist: 1.2,
   glb: '/assets/macbook-pro.glb',
+  /* 策展导览：屏→顶壳→主板→双风扇→电池→扬声器→底壳 */
+  tour: ['display-assembly','top-case','board','fan-l','fan-r','battery','speaker-l','speaker-r','bottom-case'],
+  xrayShellIds: ['top-case','bottom-case','display-assembly'],
   normalize: 'full',
   frontAxis: '-z',      /* 开盖屏幕朝 -Z */
   mapByPosition(name, p, rel){

@@ -28,6 +28,9 @@ export default makeDevice({
   source: 'Apple 官网 AR 模型（USDZ 转制）',
   targetWidth: 7.2,
   glb: '/assets/airpods-5.glb',
+  /* 策展导览：双耳塞→双驱动器→仓体→仓电池→仓盖 */
+  tour: ['bud-l','bud-r','driver-l','driver-r','case-bottom','case-battery','case-lid'],
+  xrayShellIds: ['bud-l','bud-r','case-bottom','case-lid'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.z > 1.4 && p.x > 0.3) return 'bud-r';

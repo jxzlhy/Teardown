@@ -31,6 +31,9 @@ export default makeDevice({
   thumbDir: [0.8, 0.05, 1.35],   /* 正面平视：双耳罩侧面轮廓 + 头带 */
   camDist: 1.05,
   glb: '/assets/airpods-max.glb',
+  /* 策展导览： canopy→头带框架→轭臂→耳罩与驱动器→电池 */
+  tour: ['canopy','band-frame','yoke','earcup-l','driver-l','earcup-r','driver-r','battery'],
+  xrayShellIds: ['earcup-l','earcup-r','canopy'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.y > 9.5) return Math.abs(p.x) > 4.8 ? 'band-frame' : 'canopy';

@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/cherry-mx-switch.glb',
+  /* 策展导览：轴心上盖→轴心→弹簧→底座→LED→灯座→隐藏件 */
+  tour: ['top-housing','stem','spring','bottom-housing','led','led-seat','hidden'],
+  xrayShellIds: ['top-housing','bottom-housing'],
   unmappedTo: 'hidden',
   mapping: {
     'Mid_Switch_Blue_Plastic_0': 'stem',

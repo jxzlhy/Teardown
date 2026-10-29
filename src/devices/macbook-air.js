@@ -32,6 +32,9 @@ export default makeDevice({
   thumbDir: [0.9, 0.35, 1.4],
   camDist: 1.2,
   glb: '/assets/macbook-air.glb',
+  /* 策展导览：屏→顶壳→主板→电池→双扬声器→底壳（无风扇叙事） */
+  tour: ['display-assembly','top-case','board','battery','speaker-l','speaker-r','bottom-case'],
+  xrayShellIds: ['top-case','bottom-case','display-assembly'],
   normalize: 'full',
   frontAxis: '-z',
   mapByPosition(name, p, rel){

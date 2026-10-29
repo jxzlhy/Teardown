@@ -30,6 +30,9 @@ export default makeDevice({
   targetWidth: 12.7,
   camDist: 1.12,
   glb: '/assets/mac-mini.glb',
+  /* 策展导览：机身→前后 IO→主板→风扇→电源→底脚 */
+  tour: ['body','io-front','io-rear','board','fan','psu','feet'],
+  xrayShellIds: ['body'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.y < 1.2) return 'feet';

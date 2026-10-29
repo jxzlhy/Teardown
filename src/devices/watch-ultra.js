@@ -28,6 +28,9 @@ export default makeDevice({
   source: 'Apple 官网 AR 模型（USDZ 转制）',
   targetWidth: 9.0,
   glb: '/assets/watch-ultra.glb',
+  /* 策展导览：屏→壳→表冠→动作键→扬声器→传感器→天线带→电池→马达→表带 */
+  tour: ['display','case','crown','action-button','speaker','sensor','antenna-band','battery','taptic','band'],
+  xrayShellIds: ['display','case','band'],
   normalize: 'full',
   materialMapping: {
     'FrontGlass_USD_MTLSG':'display','screenArt_USD_MTLSG':'display','blackGlass_ao_USD_MTLSG':'display',

@@ -37,6 +37,9 @@ export default makeDevice({
   source: 'Apple 官网 AR 模型（USDZ 转制）',
   targetWidth: 6.5,
   glb: '/assets/airtag.glb',
+  /* 策展导览：抛光壳→钢背→纽扣电池→扬声器 */
+  tour: ['top-shell','steel-back','coin-battery','speaker'],
+  xrayShellIds: ['top-shell'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.z > 0.35) return 'top-shell';
