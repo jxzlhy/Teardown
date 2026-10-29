@@ -2,6 +2,33 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 部件特写小图（详情卡离屏捕获）
+
+### 改动
+1. 引擎 `capturePartThumb(partId, size)`：独立透视相机（38° FOV，按当前视角方向取景）
+   + 隐藏其余部件 + `renderer.render` 直渲进 `WebGLRenderTarget`（MSAA×4），
+   `readRenderTargetPixels` 翻转写入 2D canvas → PNG dataURL。
+   关键设计：**绕过 EffectComposer**（不干扰主画面、不依赖后期链），
+   背景临时换 HUD 深蓝，`finally` 恢复部件可见性/选中态/清屏色。
+2. DeviceViewer 详情卡新增 `.ctx-thumb`（1:1，object-fit cover）；
+   watch 源为 `[partId, booted]` 组合——修复切台竞态：
+   selectedPart 恢复自深链时引擎 partsById 可能还是旧设备，捕获为 null 且原实现不重试。
+3. 移动端 sheet 同样生效（sheetH 已由 ResizeObserver 适配）。
+
+### 验证
+- action4 → pinball SPA 切台路径（原失败路径复现并修复）、ak-47/orrery/kitchen-blender
+  特写全部出图（5.6万–13.1万字节 dataURL），无控制台错误。
+- 移动端 390×844 截图目检：sheet 内特写图正确取景。
+- build 1.97s、smoke 全通过。
+
+### 已知限制
+- 特写按当前装配状态渲染（爆炸中截图=爆炸位）；相机方向随主相机，个别部件可能背对——
+  暂接受，后续可按部件类型定制方位。
+
+### 下一项
+见 AUTONOMOUS_BACKLOG.md。
+
+
 ## 2026-10-30 · Poly Haven 来源链接 + 设备页来源徽章修正 + 14 台策展
 
 ### 改动
