@@ -51,6 +51,17 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 钢琴击弦机接入（95 台 / 781 部件 / 31 品牌）
+
+GAP 调研第二项落地：thing:4059233（icefox1983 "Grand piano with moving parts"，CC-BY 4.0）。
+22 个 STL 分件经 stl2glb-batch（--up）合并 → draco 105KB；8 部件（琴键/音板琴桥/铸铁板/
+琴体/琴盖/踏板组/琴凳脚轮）；白模压暗 0.42。**多 STL 管线第二次复用**，全程较陀飞轮减半。
+验证：lint 95/95、build 1.79s、smoke 全通过、thumbs 1/1、截图目检。推送 684234f。
+
 ## 2026-10-30 · 品类缺口调研落地 + 陀飞轮机芯接入（94 台 / 774 部件 / 31 品牌）
 
 ### 调研（后台子代理，报告 docs/GAP-RESEARCH.md）
