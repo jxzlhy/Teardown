@@ -1018,10 +1018,19 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     renderer.setClearColor(0x0b1622, 1);
     const prevSel = state.selected, prevHover = state.hovered;
     state.selected = null; state.hovered = null; syncOutlineEnabled();
+    /* 特写补光：场景灯按整机布置，背光部件在特写里近全黑——
+       在特写相机位加一盏临时方向光，随 finally 移除 */
+    const thumbLight = new THREE.DirectionalLight(0xffffff, 2.4);
+    thumbLight.position.copy(cam.position);
+    thumbLight.target.position.copy(c);
+    scene.add(thumbLight); scene.add(thumbLight.target);
     try {
       if(!thumbRT || thumbRT.width !== size){
         if(thumbRT) thumbRT.dispose();
         thumbRT = new THREE.WebGLRenderTarget(size, size, { samples: 4 });
+        /* 直渲 RT 不走 OutputPass 的 sRGB 变换，显式指定目标色彩空间，
+           否则 readRenderTargetPixels 读到线性值（特写近全黑） */
+        thumbRT.texture.colorSpace = THREE.SRGBColorSpace;
       }
       const prevTarget = renderer.getRenderTarget();
       renderer.setRenderTarget(thumbRT);
@@ -1040,6 +1049,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       ctx.putImageData(img, 0, 0);
       return cnv.toDataURL('image/png');
     } finally {
+      scene.remove(thumbLight); scene.remove(thumbLight.target);
       for(const g of hidden) g.visible = true;
       scene.background = prevBg;
       renderer.setClearColor(prevClear, prevAlpha);
