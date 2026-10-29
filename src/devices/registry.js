@@ -102,6 +102,7 @@ import doorLockMechanism from './door-lock-mechanism.js';
 import retroFan from './retro-fan.js';
 import fenderStratocaster from './fender-stratocaster.js';
 import commodore64 from './commodore-64.js';
+import admiral7t10 from './admiral-7t10.js';
 
 export const devices = [
   /* DJI */
@@ -163,6 +164,8 @@ export const devices = [
   fenderStratocaster,
   /* COMMODORE */
   commodore64,
+  /* ADMIRAL */
+  admiral7t10,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];
