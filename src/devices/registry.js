@@ -92,6 +92,8 @@ import planetaryGearbox from './planetary-gearbox.js';
 import kitchenBlender from './kitchen-blender.js';
 import angleGrinder from './angle-grinder.js';
 import pinballMachine from './pinball-machine.js';
+import tripleEngine from './triple-engine.js';
+import gramophone from './gramophone.js';
 
 export const devices = [
   /* DJI */
@@ -116,7 +118,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */
