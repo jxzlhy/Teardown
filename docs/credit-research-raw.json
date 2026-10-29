@@ -1,0 +1,1482 @@
+[
+ {
+  "id": "ak-47",
+  "orig": "ak-47disassembly_of_weapons.glb",
+  "q": "AK-47 Disassembly of weapons",
+  "top": [
+   {
+    "uid": "a1a1750320864923884608db5dc0ea33",
+    "name": "AK-47(Disassembly of weapons)",
+    "user": "skartemka",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a1a1750320864923884608db5dc0ea33",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2017-05-27T17:15:11.298266",
+    "score": 10,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "",
+    "vertexCount": 17366,
+    "faceCount": 20561,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "a1a1750320864923884608db5dc0ea33",
+    "name": "AK-47(Disassembly of weapons)",
+    "user": "skartemka",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a1a1750320864923884608db5dc0ea33",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2017-05-27T17:15:11.298266",
+    "score": 10
+   }
+  ]
+ },
+ {
+  "id": "combustion-engine",
+  "orig": "internal_combustion_engine.glb",
+  "q": "Internal combustion engine",
+  "top": [
+   {
+    "uid": "0be463c1041743d88f0c35b1c2f50f2f",
+    "name": "Internal Combustion Engine",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-0be463c1041743d88f0c35b1c2f50f2f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2019-04-10T10:09:08.063840",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "Internal Combustion Engine (Moskvitch 412)\nhttps://en.wikipedia.org/wiki/Moskvitch_412\nA Very accurate copy\nДвигатель внутреннего сгорания д",
+    "vertexCount": 1158212,
+    "faceCount": 2314885,
+    "archiveSize": null
+   },
+   {
+    "uid": "ebd1dab5fd3745b58c031aecd9a4d640",
+    "name": "Internal Combustion Engine Moto",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ebd1dab5fd3745b58c031aecd9a4d640",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2020-12-22T16:56:15.470878",
+    "score": 3,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "3D model of internal combustion engine of motocycle designed in T-FLEX CAD\n3D модель двигателя внутреннего сгорания мотоцикла, разработанная",
+    "vertexCount": 585879,
+    "faceCount": 1116032,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "0be463c1041743d88f0c35b1c2f50f2f",
+    "name": "Internal Combustion Engine",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-0be463c1041743d88f0c35b1c2f50f2f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2019-04-10T10:09:08.063840",
+    "score": 8
+   },
+   {
+    "uid": "ebd1dab5fd3745b58c031aecd9a4d640",
+    "name": "Internal Combustion Engine Moto",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ebd1dab5fd3745b58c031aecd9a4d640",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2020-12-22T16:56:15.470878",
+    "score": 3
+   },
+   {
+    "uid": "f8d41716b0a641dda9151c84c7159a24",
+    "name": "V8 engine Internals",
+    "user": "UnforgettableName",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-f8d41716b0a641dda9151c84c7159a24",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-01-22T18:48:32.639233",
+    "score": 2
+   }
+  ]
+ },
+ {
+  "id": "countach-lpi800-4",
+  "orig": "2021_lamborghini_countach_lpi_800-4.glb",
+  "q": "2021 Lamborghini Countach LPI 800-4",
+  "top": [
+   {
+    "uid": "d76b94884432422b966d1a7f8815afb5",
+    "name": "2021 Lamborghini Countach LPI 800-4",
+    "user": "Lexyc16",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d76b94884432422b966d1a7f8815afb5",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-08-18T12:07:53.668896",
+    "score": 11,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "* Fifty years since its unveiling at the Geneva Motor Show, the legendary Lamborghini Countach is making headlines again with a limited-seri",
+    "vertexCount": 138049,
+    "faceCount": 259959,
+    "archiveSize": null
+   },
+   {
+    "uid": "9c94c70abb2641c6ab7caf5efdfb9607",
+    "name": "2021_lamborghini_countach_lpi_800-4",
+    "user": "fa001569",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-9c94c70abb2641c6ab7caf5efdfb9607",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-12-16T16:47:41.270518",
+    "score": 11,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "This is the 3D Model of Lamborghini countach . This model is clear and accurate . The price of this 3D Model is 15$ .",
+    "vertexCount": 138051,
+    "faceCount": 259817,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "d76b94884432422b966d1a7f8815afb5",
+    "name": "2021 Lamborghini Countach LPI 800-4",
+    "user": "Lexyc16",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d76b94884432422b966d1a7f8815afb5",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-08-18T12:07:53.668896",
+    "score": 11
+   },
+   {
+    "uid": "9c94c70abb2641c6ab7caf5efdfb9607",
+    "name": "2021_lamborghini_countach_lpi_800-4",
+    "user": "fa001569",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-9c94c70abb2641c6ab7caf5efdfb9607",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-12-16T16:47:41.270518",
+    "score": 11
+   },
+   {
+    "uid": "076e94552bd541349cb41b8a70ec3c92",
+    "name": "2021_lamborghini_countach_lpi_800-4",
+    "user": "renukonari",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-076e94552bd541349cb41b8a70ec3c92",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2023-10-09T10:09:07.259840",
+    "score": 11
+   }
+  ]
+ },
+ {
+  "id": "galaxy-s22-ultra",
+  "orig": "samsung_galaxy_s22_ultra.glb",
+  "q": "Samsung Galaxy S22 Ultra",
+  "top": [
+   {
+    "uid": "a95eec5181a24bcd8a8452df50b29f3a",
+    "name": "Samsung Galaxy S22 Ultra",
+    "user": "DatSketch",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a95eec5181a24bcd8a8452df50b29f3a",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-02-18T06:01:17.928194",
+    "score": 9,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "**Samsung Galaxy S22 Ultra**\n\nThe newest Samsung S series phone, Samsung Galaxy S22 Ultra is the headliner of the S22 series. It's the first",
+    "vertexCount": 25586,
+    "faceCount": 41618,
+    "archiveSize": null
+   },
+   {
+    "uid": "8fc98d15f5da4ad39f41d0af2e1f1c64",
+    "name": "Samsung Galaxy S22 Ultra",
+    "user": "Laserdesign",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8fc98d15f5da4ad39f41d0af2e1f1c64",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-06-12T13:52:33.586470",
+    "score": 9,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Samsung Galaxy S22 Ultra, scanning with Artec Spider II 3D scanner without the use of 3D scan developer spray. Total time to scan: less than",
+    "vertexCount": 199263,
+    "faceCount": 398526,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "a95eec5181a24bcd8a8452df50b29f3a",
+    "name": "Samsung Galaxy S22 Ultra",
+    "user": "DatSketch",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a95eec5181a24bcd8a8452df50b29f3a",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-02-18T06:01:17.928194",
+    "score": 9
+   },
+   {
+    "uid": "8fc98d15f5da4ad39f41d0af2e1f1c64",
+    "name": "Samsung Galaxy S22 Ultra",
+    "user": "Laserdesign",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8fc98d15f5da4ad39f41d0af2e1f1c64",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-06-12T13:52:33.586470",
+    "score": 9
+   },
+   {
+    "uid": "0e1e11b0155141f4b7b8130d4f4c6800",
+    "name": "Samsung_Galaxy_S22_Ultra_usdz",
+    "user": "Heytuk",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-0e1e11b0155141f4b7b8130d4f4c6800",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-04-09T21:19:20.029068",
+    "score": 4
+   }
+  ]
+ },
+ {
+  "id": "gl-06-launcher",
+  "orig": "game_ready_pbr_grenade_launcher_gl-06.glb",
+  "q": "Game Ready PBR Grenade Launcher GL-06",
+  "top": [
+   {
+    "uid": "c06031637904402c85179bfce8b73e28",
+    "name": "Game Ready PBR Grenade Launcher GL-06",
+    "user": "Leo_Newman",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c06031637904402c85179bfce8b73e28",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-01-19T17:24:09.420539",
+    "score": 12,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "I made a Grenade Launcher",
+    "vertexCount": 15808,
+    "faceCount": 29908,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "c06031637904402c85179bfce8b73e28",
+    "name": "Game Ready PBR Grenade Launcher GL-06",
+    "user": "Leo_Newman",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c06031637904402c85179bfce8b73e28",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-01-19T17:24:09.420539",
+    "score": 12
+   }
+  ]
+ },
+ {
+  "id": "hubble-telescope",
+  "orig": "Hubble Space Telescope (B).glb",
+  "q": "Hubble Space Telescope B",
+  "top": [
+   {
+    "uid": "e22236fab9634c959c0525c7ab9c83d7",
+    "name": "Hubble space telescope",
+    "user": "robo-reboot",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-e22236fab9634c959c0525c7ab9c83d7",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-05-12T06:55:41.420710",
+    "score": 4,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Here is the 3d model of Hubble space telescope which is the second powerful space telescope for exploring space and galaxies. You can downlo",
+    "vertexCount": 13422,
+    "faceCount": 21129,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "e22236fab9634c959c0525c7ab9c83d7",
+    "name": "Hubble space telescope",
+    "user": "robo-reboot",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-e22236fab9634c959c0525c7ab9c83d7",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-05-12T06:55:41.420710",
+    "score": 4
+   }
+  ]
+ },
+ {
+  "id": "hydraulic-jack",
+  "orig": "hydraulic_jack.glb",
+  "q": "Hydraulic jack",
+  "top": [
+   {
+    "uid": "35617bca4a064a7296858470e5c27102",
+    "name": "Hydraulic Jack",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-35617bca4a064a7296858470e5c27102",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2017-12-08T10:46:40.657967",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "#Hydraulic Jack\n#T-FLEX CAD",
+    "vertexCount": 118983,
+    "faceCount": 205126,
+    "archiveSize": null
+   },
+   {
+    "uid": "f5e69416bddc40fb8a152f05888bfe94",
+    "name": "Hydraulic Jack",
+    "user": "benmilette",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-f5e69416bddc40fb8a152f05888bfe94",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2021-06-21T02:20:34.377108",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "A Hydraulic Jack with animations, being used as a test piece in a web player prototype.\n\nModeled in Blender, textured in Substance Painter.",
+    "vertexCount": 4907,
+    "faceCount": 9636,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "35617bca4a064a7296858470e5c27102",
+    "name": "Hydraulic Jack",
+    "user": "tflexcad",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-35617bca4a064a7296858470e5c27102",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2017-12-08T10:46:40.657967",
+    "score": 7
+   },
+   {
+    "uid": "f5e69416bddc40fb8a152f05888bfe94",
+    "name": "Hydraulic Jack",
+    "user": "benmilette",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-f5e69416bddc40fb8a152f05888bfe94",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2021-06-21T02:20:34.377108",
+    "score": 7
+   },
+   {
+    "uid": "c0527b04bcf84fd4a93ad95cf13b9f90",
+    "name": "Hydraulic Jack",
+    "user": "mauryashivam12344321",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c0527b04bcf84fd4a93ad95cf13b9f90",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-06-03T02:12:32.478692",
+    "score": 7
+   }
+  ]
+ },
+ {
+  "id": "inside-drone",
+  "orig": "inside_drone.glb",
+  "q": "Inside drone",
+  "top": [
+   {
+    "uid": "d38af0afb72343f69eed6da6457df11b",
+    "name": "Inside Drone",
+    "user": "freakering",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d38af0afb72343f69eed6da6457df11b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-01-10T15:14:20.570269",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "**For more, follow me on instagram: [freakering](https://instagram.com/_freakering_)**\n\nThe disassembled 3D drone model unveils a mesmerizin",
+    "vertexCount": 15742,
+    "faceCount": 30287,
+    "archiveSize": null
+   },
+   {
+    "uid": "e685c178ce094892a587c55d49f0683f",
+    "name": "Bunker IJmuiden Beach Pictures taken with Drone",
+    "user": "dagrover",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-e685c178ce094892a587c55d49f0683f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2018-12-17T13:55:31.435974",
+    "score": 1,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Bunker IJmuiden Beach Pictures taken with Drone DJI Phantom 2 met Gopro 3+\n\nUpdate: enhanced the inside.",
+    "vertexCount": 1060004,
+    "faceCount": 2115600,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "d38af0afb72343f69eed6da6457df11b",
+    "name": "Inside Drone",
+    "user": "freakering",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d38af0afb72343f69eed6da6457df11b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-01-10T15:14:20.570269",
+    "score": 7
+   },
+   {
+    "uid": "e685c178ce094892a587c55d49f0683f",
+    "name": "Bunker IJmuiden Beach Pictures taken with Drone",
+    "user": "dagrover",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-e685c178ce094892a587c55d49f0683f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2018-12-17T13:55:31.435974",
+    "score": 1
+   },
+   {
+    "uid": "b214751af77b4609be858399923eea41",
+    "name": "Vampirical Blight Drone",
+    "user": "HighPolyDensity",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-b214751af77b4609be858399923eea41",
+    "animationCount": 6,
+    "isDownloadable": true,
+    "publishedAt": "2025-05-04T22:00:31.544119",
+    "score": 1
+   }
+  ]
+ },
+ {
+  "id": "iphone-12-teardown",
+  "orig": "iphone_12_teardown.glb",
+  "q": "iPhone 12 teardown",
+  "top": [
+   {
+    "uid": "708eaa5d195544918e5f70b69eedcdfa",
+    "name": "iPhone 12 Teardown",
+    "user": "better_peter",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-708eaa5d195544918e5f70b69eedcdfa",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2021-10-11T16:18:11.127359",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Full disassembly of the iphone 12 model. It is not 100% repeat of iPhone model, some parts i recreated from photos, but i tried to repeat it",
+    "vertexCount": 204301,
+    "faceCount": 364867,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "708eaa5d195544918e5f70b69eedcdfa",
+    "name": "iPhone 12 Teardown",
+    "user": "better_peter",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-708eaa5d195544918e5f70b69eedcdfa",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2021-10-11T16:18:11.127359",
+    "score": 8
+   }
+  ]
+ },
+ {
+  "id": "iphone-13",
+  "orig": "iphone_13_free.glb",
+  "q": "iPhone 13 free",
+  "top": [
+   {
+    "uid": "c9c0d15472fd4537aa904e290848f142",
+    "name": "Iphone 13 (Free)",
+    "user": "kirigami318",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c9c0d15472fd4537aa904e290848f142",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-08-19T12:50:28.899327",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "i remodelled this model and reduce high polygon with low poly model :)\n\nyou can download this model for free (for blender)\n\ndont forget to c",
+    "vertexCount": 14737,
+    "faceCount": 25067,
+    "archiveSize": null
+   },
+   {
+    "uid": "2cac26f4dc554a7da6ac7fe5cf52d440",
+    "name": "Iphone 13 (Free)",
+    "user": "kirigami318",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-2cac26f4dc554a7da6ac7fe5cf52d440",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-10-14T13:10:04.145760",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "this is one of my model\n\ntimelapse : < 12 hours\n\nfile type support : .blend file\n\nyou can download this for free :D\n\ndont forget to credit m",
+    "vertexCount": 85064,
+    "faceCount": 165967,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "c9c0d15472fd4537aa904e290848f142",
+    "name": "Iphone 13 (Free)",
+    "user": "kirigami318",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c9c0d15472fd4537aa904e290848f142",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-08-19T12:50:28.899327",
+    "score": 8
+   },
+   {
+    "uid": "2cac26f4dc554a7da6ac7fe5cf52d440",
+    "name": "Iphone 13 (Free)",
+    "user": "kirigami318",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-2cac26f4dc554a7da6ac7fe5cf52d440",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-10-14T13:10:04.145760",
+    "score": 8
+   },
+   {
+    "uid": "a35156d91cf44e70a2fdfeade54ae0b2",
+    "name": "(FREE) iPhone 13 Pro 2021",
+    "user": "Lambo_SC04",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a35156d91cf44e70a2fdfeade54ae0b2",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-09-13T13:46:05.820545",
+    "score": 3
+   }
+  ]
+ },
+ {
+  "id": "iphone-16",
+  "orig": "iphone_16_-_free.glb",
+  "q": "iPhone 16 free",
+  "top": [
+   {
+    "uid": "d58591e88a824dfd8cef0af616273b02",
+    "name": "iPhone 16 - Free",
+    "user": "wimell",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d58591e88a824dfd8cef0af616273b02",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-09-10T15:13:13.110583",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/72eb2b1960364637901eacce19283624",
+     "label": "Free Standard",
+     "fullName": "Free Standard",
+     "requirements": "Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works",
+     "url": "https://sketchfab.com/licenses",
+     "slug": "free-st"
+    },
+    "description": "A full resolution render of the iPhone 16 Blue version.",
+    "vertexCount": 34097,
+    "faceCount": 56342,
+    "archiveSize": null
+   },
+   {
+    "uid": "fdd42bde31f44acabbd63bad6b38fb61",
+    "name": "IPhone 16 - Free",
+    "user": "user123848290212",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-fdd42bde31f44acabbd63bad6b38fb61",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-12-02T18:04:18.816046",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "highly detailed model of the Apple iPhone 16 Pro.\n\n* Detailed iphone 16 Model.\n* Apple Iphone 16th generation.\n* Camera lens detailed with f",
+    "vertexCount": 41618,
+    "faceCount": 80064,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "d58591e88a824dfd8cef0af616273b02",
+    "name": "iPhone 16 - Free",
+    "user": "wimell",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d58591e88a824dfd8cef0af616273b02",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-09-10T15:13:13.110583",
+    "score": 8
+   },
+   {
+    "uid": "fdd42bde31f44acabbd63bad6b38fb61",
+    "name": "IPhone 16 - Free",
+    "user": "user123848290212",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-fdd42bde31f44acabbd63bad6b38fb61",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-12-02T18:04:18.816046",
+    "score": 8
+   },
+   {
+    "uid": "c7f900aa7ac547a487f1ba3082dac96a",
+    "name": "iPhone 16 Teal (Free)",
+    "user": "EV_car2013",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-c7f900aa7ac547a487f1ba3082dac96a",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-09-29T23:05:12.481244",
+    "score": 3
+   }
+  ]
+ },
+ {
+  "id": "jet-engine",
+  "orig": "jet_engine.glb",
+  "q": "jet engine",
+  "top": [
+   {
+    "uid": "75c731548e4b42ad9d376e0342b5ef9c",
+    "name": "Jet Engine",
+    "user": "vertexmonster",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-75c731548e4b42ad9d376e0342b5ef9c",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-01-22T21:00:41.548378",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/72eb2b1960364637901eacce19283624",
+     "label": "Free Standard",
+     "fullName": "Free Standard",
+     "requirements": "Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works",
+     "url": "https://sketchfab.com/licenses",
+     "slug": "free-st"
+    },
+    "description": "3D jet engine model modeled in autodesk maya 2017.\nTextures created with substance painter.\nEnjoy :)\n\n4K PBR Textures\n\nFollow me on:\n\nYouTub",
+    "vertexCount": 92648,
+    "faceCount": 183613,
+    "archiveSize": null
+   },
+   {
+    "uid": "ea66c2db873d4182b116529697d18571",
+    "name": "Jet Engine",
+    "user": "playerhack",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ea66c2db873d4182b116529697d18571",
+    "animationCount": 2,
+    "isDownloadable": true,
+    "publishedAt": "2022-03-20T10:23:08.481125",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "A cool Jet Engine",
+    "vertexCount": 59097,
+    "faceCount": 108166,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "75c731548e4b42ad9d376e0342b5ef9c",
+    "name": "Jet Engine",
+    "user": "vertexmonster",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-75c731548e4b42ad9d376e0342b5ef9c",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-01-22T21:00:41.548378",
+    "score": 7
+   },
+   {
+    "uid": "ea66c2db873d4182b116529697d18571",
+    "name": "Jet Engine",
+    "user": "playerhack",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ea66c2db873d4182b116529697d18571",
+    "animationCount": 2,
+    "isDownloadable": true,
+    "publishedAt": "2022-03-20T10:23:08.481125",
+    "score": 7
+   },
+   {
+    "uid": "f2f8be276263419fad12e90de6446e69",
+    "name": "jet engine",
+    "user": "ulikebot",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-f2f8be276263419fad12e90de6446e69",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2016-10-25T12:14:30.022241",
+    "score": 7
+   }
+  ]
+ },
+ {
+  "id": "m4-carbine",
+  "orig": "low-poly_m4a1.glb",
+  "q": "low-poly M4A1",
+  "top": [
+   {
+    "uid": "8cab1cbeb82c4396a154f9fc8771417b",
+    "name": "Low-Poly M4a1",
+    "user": "TastyTony",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8cab1cbeb82c4396a154f9fc8771417b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2018-02-04T21:08:31.363912",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "",
+    "vertexCount": 5761,
+    "faceCount": 10680,
+    "archiveSize": null
+   },
+   {
+    "uid": "6810ddcdfdfc4f6586956b00f1c1ae6b",
+    "name": "low-poly M4A1",
+    "user": "Konstantinos.Simantiras",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-6810ddcdfdfc4f6586956b00f1c1ae6b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-03-06T00:09:35.591894",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "* FBX folder\n* Different parts\n* With bullet casing and bullet head\n* credit TastyTony",
+    "vertexCount": 7710,
+    "faceCount": 17130,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "8cab1cbeb82c4396a154f9fc8771417b",
+    "name": "Low-Poly M4a1",
+    "user": "TastyTony",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8cab1cbeb82c4396a154f9fc8771417b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2018-02-04T21:08:31.363912",
+    "score": 8
+   },
+   {
+    "uid": "6810ddcdfdfc4f6586956b00f1c1ae6b",
+    "name": "low-poly M4A1",
+    "user": "Konstantinos.Simantiras",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-6810ddcdfdfc4f6586956b00f1c1ae6b",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-03-06T00:09:35.591894",
+    "score": 8
+   },
+   {
+    "uid": "3749e4adb66f445c95555e91a0d38b8f",
+    "name": "Low Poly M4a1",
+    "user": "The_Nuke_Remolacha",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-3749e4adb66f445c95555e91a0d38b8f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2018-04-10T01:26:17.705536",
+    "score": 8
+   }
+  ]
+ },
+ {
+  "id": "modular-smartphone",
+  "orig": "highly_detailed_modular_smartphone.glb",
+  "q": "Highly Detailed Modular Smartphone",
+  "top": [
+   {
+    "uid": "a9dee926a7d14e378bbf50b86c71ac3d",
+    "name": "Highly Detailed Modular Smartphone",
+    "user": "LaudoStudio",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a9dee926a7d14e378bbf50b86c71ac3d",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2020-09-19T11:31:47.478647",
+    "score": 9,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Highly Detailed Modular Smartphone",
+    "vertexCount": 3846,
+    "faceCount": 6760,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "a9dee926a7d14e378bbf50b86c71ac3d",
+    "name": "Highly Detailed Modular Smartphone",
+    "user": "LaudoStudio",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a9dee926a7d14e378bbf50b86c71ac3d",
+    "animationCount": 1,
+    "isDownloadable": true,
+    "publishedAt": "2020-09-19T11:31:47.478647",
+    "score": 9
+   }
+  ]
+ },
+ {
+  "id": "nikon-d6",
+  "orig": "nikon_d6.glb",
+  "q": "Nikon D6",
+  "top": [
+   {
+    "uid": "a258ee3070fe43abb8686cab42ef86d4",
+    "name": "Nikon D6",
+    "user": "theclippingpathservice",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a258ee3070fe43abb8686cab42ef86d4",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-02-11T10:04:21.397156",
+    "score": 7,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Nikon D6 Camera",
+    "vertexCount": 79848,
+    "faceCount": 155124,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "a258ee3070fe43abb8686cab42ef86d4",
+    "name": "Nikon D6",
+    "user": "theclippingpathservice",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-a258ee3070fe43abb8686cab42ef86d4",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2022-02-11T10:04:21.397156",
+    "score": 7
+   }
+  ]
+ },
+ {
+  "id": "nikon-z6",
+  "orig": "nikon_z6_with_nikkor_24-70_f4.glb",
+  "q": "Nikon Z6 with Nikkor 24-70",
+  "top": [
+   {
+    "uid": "93775837f09141fd91bf1b41a0c0953e",
+    "name": "NIKON Z6 with NIKKOR 24-70 f4",
+    "user": "Metazeon",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-93775837f09141fd91bf1b41a0c0953e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-05-10T12:02:19.257802",
+    "score": 6,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "NIKON Z6 Mirrorless Camera\n\nNIKKOR 24-70 f4\n\nZ6 was the second camera to use Nikon's new Z-mount system after the release of the 45.75 megap",
+    "vertexCount": 250029,
+    "faceCount": 500018,
+    "archiveSize": null
+   },
+   {
+    "uid": "3f5df048890b410db594dd98c96b67f5",
+    "name": "NIKON Z6 with NIKKOR 24-70 f4 Ver2.0",
+    "user": "Metazeon",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-3f5df048890b410db594dd98c96b67f5",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-11-30T06:43:31.645256",
+    "score": 6,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "NIKON Z6 with NIKKOR 24-70 f4 Ver2.0\n\nNIKON Z6 Mirrorless Camera\n\nNIKKOR 24-70 f4 S-line\n\nVer2.0, fixed some bugs\n\nZ6 was the second camera ",
+    "vertexCount": 497741,
+    "faceCount": 995253,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "93775837f09141fd91bf1b41a0c0953e",
+    "name": "NIKON Z6 with NIKKOR 24-70 f4",
+    "user": "Metazeon",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-93775837f09141fd91bf1b41a0c0953e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-05-10T12:02:19.257802",
+    "score": 6
+   },
+   {
+    "uid": "3f5df048890b410db594dd98c96b67f5",
+    "name": "NIKON Z6 with NIKKOR 24-70 f4 Ver2.0",
+    "user": "Metazeon",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-3f5df048890b410db594dd98c96b67f5",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2024-11-30T06:43:31.645256",
+    "score": 6
+   }
+  ]
+ },
+ {
+  "id": "perseverance-rover",
+  "orig": "Mars 2020 Perseverance Rover.glb",
+  "q": "Mars 2020 Perseverance Rover",
+  "top": [
+   {
+    "uid": "5f59240fb0bb4d19aadf1a4cda503add",
+    "name": "Perseverance Rover - NASA Mars 2020 Mission",
+    "user": "zaddazed",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-5f59240fb0bb4d19aadf1a4cda503add",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-11-04T18:35:24.731748",
+    "score": 4,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "# Perseverance Rover\n* *Mission:* Mars 2020\n* *Launch:* July 30, 2020\n* *Landing:* Feb. 18, 2021, Jezero Crater, Mars\n* *Main Job:* Seek sig",
+    "vertexCount": 115725,
+    "faceCount": 199309,
+    "archiveSize": null
+   },
+   {
+    "uid": "6aea5060d2764b4fb866b2be997aa1bd",
+    "name": "Mars - Perseverance Rover, mastercam-Z (R-L)",
+    "user": "lezak",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-6aea5060d2764b4fb866b2be997aa1bd",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-05-23T16:05:59.883720",
+    "score": 3,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/bbfe3f7dbcdd4122b966b85b9786a989",
+     "label": "CC Attribution-NonCommercial",
+     "fullName": "Creative Commons Attribution-NonCommercial",
+     "requirements": "Author must be credited. No commercial use.",
+     "url": "http://creativecommons.org/licenses/by-nc/4.0/",
+     "slug": "by-nc"
+    },
+    "description": "3D model of Mars surface created in Agisoft Metashape from 176 photos taken by Perseverance Rover (Mastercam-Z Right & Left) on sol 54 (Apri",
+    "vertexCount": 487226,
+    "faceCount": 971208,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "5f59240fb0bb4d19aadf1a4cda503add",
+    "name": "Perseverance Rover - NASA Mars 2020 Mission",
+    "user": "zaddazed",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-5f59240fb0bb4d19aadf1a4cda503add",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-11-04T18:35:24.731748",
+    "score": 4
+   },
+   {
+    "uid": "6aea5060d2764b4fb866b2be997aa1bd",
+    "name": "Mars - Perseverance Rover, mastercam-Z (R-L)",
+    "user": "lezak",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-6aea5060d2764b4fb866b2be997aa1bd",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-05-23T16:05:59.883720",
+    "score": 3
+   },
+   {
+    "uid": "4900faf1f1ae41b6ba30d21aeace6586",
+    "name": "Perseverance Rover Made in Tinkercad- Mars 2021",
+    "user": "25caih",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-4900faf1f1ae41b6ba30d21aeace6586",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-03-19T19:03:43.673003",
+    "score": 3
+   }
+  ]
+ },
+ {
+  "id": "porsche-911-930",
+  "orig": "free_1975_porsche_911_930_turbo.glb",
+  "q": "FREE 1975 Porsche 911 930 turbo",
+  "top": [
+   {
+    "uid": "8568d9d14a994b9cae59499f0dbed21e",
+    "name": "FREE 1975 Porsche 911 (930) Turbo",
+    "user": "lionsharp",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8568d9d14a994b9cae59499f0dbed21e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2017-12-05T17:23:18.788514",
+    "score": 11,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "**Please give a credit to Lionsharp Studios for the 3D model. \nPlease mind that copyrights to the vehicle design belong to Porsche AG.**\n\nTh",
+    "vertexCount": 133458,
+    "faceCount": 241265,
+    "archiveSize": null
+   },
+   {
+    "uid": "cc56531bdab148b5b646e46c7006dc97",
+    "name": "Free_1975_porsche_911_930_turbo",
+    "user": "rar.z",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-cc56531bdab148b5b646e46c7006dc97",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2026-09-04T09:30:23.986499",
+    "score": 11,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Free_1975_porsche_911_930_turboFree_1975_porsche_911_930_turboFree_1975_porsche_911_930_turboFree_1975_porsche_911_930_turboFree_1975_porsch",
+    "vertexCount": 133460,
+    "faceCount": 241260,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "8568d9d14a994b9cae59499f0dbed21e",
+    "name": "FREE 1975 Porsche 911 (930) Turbo",
+    "user": "lionsharp",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-8568d9d14a994b9cae59499f0dbed21e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2017-12-05T17:23:18.788514",
+    "score": 11
+   },
+   {
+    "uid": "cc56531bdab148b5b646e46c7006dc97",
+    "name": "Free_1975_porsche_911_930_turbo",
+    "user": "rar.z",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-cc56531bdab148b5b646e46c7006dc97",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2026-09-04T09:30:23.986499",
+    "score": 11
+   },
+   {
+    "uid": "d0d384bb8fe84a4a97112fbf0a457d18",
+    "name": "Free_1975_porsche_911_930_turbo",
+    "user": "vic123123123123123",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d0d384bb8fe84a4a97112fbf0a457d18",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-10-07T17:32:57.728655",
+    "score": 11
+   }
+  ]
+ },
+ {
+  "id": "porsche-911-carrera-4s",
+  "orig": "free_porsche_911_carrera_4s.glb",
+  "q": "FREE Porsche 911 Carrera 4S",
+  "top": [
+   {
+    "uid": "d01b254483794de3819786d93e0e1ebf",
+    "name": "(FREE) Porsche 911 Carrera 4S",
+    "user": "lionsharp",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d01b254483794de3819786d93e0e1ebf",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2013-08-02T13:38:19",
+    "score": 10,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/b9ddc40b93e34cdca1fc152f39b9f375",
+     "label": "CC Attribution-ShareAlike",
+     "fullName": "Creative Commons Attribution-ShareAlike",
+     "requirements": "Author must be credited. Modified versions must have the same license. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by-sa/4.0/",
+     "slug": "by-sa"
+    },
+    "description": "Now for FREE to use in your projects. Enjoy!\n\nModel of a Porsche 911 that was a part of a prototype car configurator running on WebGL.\n\nMore",
+    "vertexCount": 339298,
+    "faceCount": 652780,
+    "archiveSize": null
+   },
+   {
+    "uid": "ceda9810395e4cceb696fa2f8ab64af4",
+    "name": "Free-porsche-911-carrera-4s",
+    "user": "lukas.ohmer",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ceda9810395e4cceb696fa2f8ab64af4",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-04-24T13:29:31.014518",
+    "score": 10,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "",
+    "vertexCount": 339298,
+    "faceCount": 652780,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "d01b254483794de3819786d93e0e1ebf",
+    "name": "(FREE) Porsche 911 Carrera 4S",
+    "user": "lionsharp",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d01b254483794de3819786d93e0e1ebf",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2013-08-02T13:38:19",
+    "score": 10
+   },
+   {
+    "uid": "ceda9810395e4cceb696fa2f8ab64af4",
+    "name": "Free-porsche-911-carrera-4s",
+    "user": "lukas.ohmer",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-ceda9810395e4cceb696fa2f8ab64af4",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2021-04-24T13:29:31.014518",
+    "score": 10
+   },
+   {
+    "uid": "d78f1b9d70b84cb28870905c57787e4f",
+    "name": "FREE_ Porsche_911_ Carrera_4S",
+    "user": "kabam9789",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-d78f1b9d70b84cb28870905c57787e4f",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2023-03-29T13:13:39.724340",
+    "score": 10
+   }
+  ]
+ },
+ {
+  "id": "v6-engine",
+  "orig": "v6_car_engine_with_engine_morethem.glb",
+  "q": "V6 car engine",
+  "top": [
+   {
+    "uid": "7309cf5e6b07435c962f954513ca170e",
+    "name": "V6 car engine with engine [MoreThem]",
+    "user": "Blendoriano",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-7309cf5e6b07435c962f954513ca170e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-11-16T11:33:57.584367",
+    "score": 3,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Greetings! This is a simulation of a V6 engine, with a cylinder bank angle of 90 degrees and a lower position of the camshaft.\nThis model in",
+    "vertexCount": 686109,
+    "faceCount": 1290656,
+    "archiveSize": null
+   },
+   {
+    "uid": "4399717aa241478caf8611adac0f7318",
+    "name": "Destruction V6 car engine with engine [MoreThem]",
+    "user": "Blendoriano",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-4399717aa241478caf8611adac0f7318",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-11-16T16:24:53.389716",
+    "score": 3,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "Hi, this is a version of my V6 engine model with a 90 degree cylinder camber angle, with damage textures. The textures are designed so that ",
+    "vertexCount": 686109,
+    "faceCount": 1290656,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "7309cf5e6b07435c962f954513ca170e",
+    "name": "V6 car engine with engine [MoreThem]",
+    "user": "Blendoriano",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-7309cf5e6b07435c962f954513ca170e",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-11-16T11:33:57.584367",
+    "score": 3
+   },
+   {
+    "uid": "4399717aa241478caf8611adac0f7318",
+    "name": "Destruction V6 car engine with engine [MoreThem]",
+    "user": "Blendoriano",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-4399717aa241478caf8611adac0f7318",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-11-16T16:24:53.389716",
+    "score": 3
+   },
+   {
+    "uid": "5700259eeb494b8f8a0b8f63486c59cc",
+    "name": "F6 Boxer Engine",
+    "user": "scudmorello",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-5700259eeb494b8f8a0b8f63486c59cc",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2019-12-22T21:16:40.125814",
+    "score": 1
+   }
+  ]
+ },
+ {
+  "id": "v8-engine",
+  "orig": "disassembled_v8_engine_block.glb",
+  "q": "Disassembled V8 engine block",
+  "top": [
+   {
+    "uid": "3026bd87ca3945d6829d24c86ce695f0",
+    "name": "Disassembled V8 Engine Block",
+    "user": "Tomasoo",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-3026bd87ca3945d6829d24c86ce695f0",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2020-01-13T16:06:31.330733",
+    "score": 9,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "V8 engine block model.",
+    "vertexCount": 1023587,
+    "faceCount": 2197453,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "3026bd87ca3945d6829d24c86ce695f0",
+    "name": "Disassembled V8 Engine Block",
+    "user": "Tomasoo",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-3026bd87ca3945d6829d24c86ce695f0",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2020-01-13T16:06:31.330733",
+    "score": 9
+   }
+  ]
+ },
+ {
+  "id": "walther-p99",
+  "orig": "walther_p99_detailed.glb",
+  "q": "Walther P99 detailed",
+  "top": [
+   {
+    "uid": "44d7ae97b2e04439a560f629595dda46",
+    "name": "Walther P99 (Detailed)",
+    "user": "zstyle",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-44d7ae97b2e04439a560f629595dda46",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-03-06T22:37:58.499701",
+    "score": 8,
+    "license": {
+     "uri": "https://api.sketchfab.com/v3/licenses/322a749bcfa841b29dff1e8a1bb74b0b",
+     "label": "CC Attribution",
+     "fullName": "Creative Commons Attribution",
+     "requirements": "Author must be credited. Commercial use is allowed.",
+     "url": "http://creativecommons.org/licenses/by/4.0/",
+     "slug": "by"
+    },
+    "description": "German pistol Walther P99.\n\nThe pistol has many parts, it can be disassembled into parts, perhaps this is one of the most detailed pistols o",
+    "vertexCount": 39838,
+    "faceCount": 79522,
+    "archiveSize": null
+   }
+  ],
+  "others": [
+   {
+    "uid": "44d7ae97b2e04439a560f629595dda46",
+    "name": "Walther P99 (Detailed)",
+    "user": "zstyle",
+    "viewerUrl": "https://sketchfab.com/3d-models/none-44d7ae97b2e04439a560f629595dda46",
+    "animationCount": 0,
+    "isDownloadable": true,
+    "publishedAt": "2025-03-06T22:37:58.499701",
+    "score": 8
+   }
+  ]
+ }
+]
