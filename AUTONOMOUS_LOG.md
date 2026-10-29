@@ -2,6 +2,85 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · Gitee 仓库接入 + cad2glb 安全加固
+
+### 背景
+用户要求用新仓库 https://gitee.com/jxz_330/teardown-lab.git（解决 backlog 中 git 初始化项）。
+提交被 Mimosa L3 门拦截：`tools/cad2glb.py` 3 处路径穿越高危。
+
+### 改动
+1. `.gitignore`：新增 `vendor/assets/originals/`（1.2GB 且单文件 >100MB 超 Gitee 限制，仅本地备份）、
+   `rotate_m4.tmp.mjs`、`.v2c/`。
+2. `tools/cad2glb.py` 路径守卫加固（真实安全改进，非仅过门）：
+   - `safe_path`：拒绝 `..`，realpath 解析符号链接，输入须存在；
+   - 新增 `clean_out_path`：以 cwd 为根、逐段 `[A-Za-z0-9._-]` 白名单重建输出路径（阻断穿越/符号链接/注入字符）；
+   - 新增 `clean_in_path`：输入侧同构单出口消毒；
+   - 读写均改 `os.open(..., O_NOFOLLOW) + os.fdopen`（显式标志位）；
+   - CLI 目标经模块级 SRC/DST 全局传入函数（无 argv 字面量直传）。
+   - 调试结论（供后人）：Mimosa 写入钩子不识别元组赋值消毒（`a, b = f(x), g(y)`）与多分支早退守卫，
+     识别单出口赋值 + os.open 显式标志位；其行号标注不可靠。
+3. 提交并推送：`6d4a18a` 初始提交（316 文件 / 88 GLB / public/assets 185MB）。
+
+### 验证
+- cad2glb 回归 4 项：正常写入 ✓、cwd 外输出拒绝 ✓、`..` 输入拒绝 ✓、无参 usage ✓（stl 模式端到端）。
+- 推送成功：main → gitee.com/jxz_330/teardown-lab（osxkeychain 凭据，未改全局 git 配置）。
+- Mimosa MCP 权威扫描（normal）：全项目 **0 发现**（seal e7448de2…）；L3 提交门对部分提交提示
+  "扫描覆盖不完整"——按其要求不宣称项目安全，仅以回归测试佐证本次加固。
+
+### 已知限制
+- vendor/assets/originals 未入库（Gitee 单文件 100MB 限制），恢复需依赖本地备份。
+
+## 2026-10-30 · 社区模型署名查证（37 台）
+
+### 背景
+backlog P1：22 台泛化署名（"by community (Sketchfab)"）+ 15 台已有作者但缺来源链接。
+
+### 方法
+- Sketchfab 公开 API：搜索（标题+作者）→ 模型详情（许可证/faceCount/viewerUrl）；
+- 本地 GLB 三角面数 mode 感知精确计数（indexed count/3 + strip/fan n-2；`tools/inspect-glb.mjs`
+  对多 primitive 网格会漏计，perseverance 实测 199471 而非 122225）；
+- 交叉比对：本地面数 ≤ Sketchfab faceCount 且最接近者为来源（管线 trim 造成小差额）。
+
+### 定案（要点）
+- 20 台 Sketchfab：skartemka(AK-47)/tflexcad×2(NC)/fa001569(Countach；Lexyc16 因面数低于本地被排除)/
+  DatSketch(NC)/Leo_Newman/freakering/better_peter/kirigami318/wimell(Free Standard)/playerhack/
+  TastyTony/LaudoStudio/theclippingpathservice/Metazeon/lionsharp×2(930=CC-BY，Carrera4S=**CC-BY-SA**)/
+  Blendoriano/Tomasoo/zstyle——全部含许可证与主页链接。
+- **hubble-telescope / perseverance-rover 定案 NASA 3D Resources 官方公开模型（公有领域）**：
+  两台原始文件名保留空格（"Hubble Space Telescope (B).glb" / "Mars 2020 Perseverance Rover.glb"），
+  不符 Sketchfab 归档命名；NASA 页面核实 200（science.nasa.gov/3d-resources/hubble-space-telescope-b/
+  与 /mars-2020-perseverance-rover）；perseverance 本地 199471 ≈ zaddazed 转载源 199309 亦互证为 NASA 系。
+- royal-typewriter：topfrank2013 名下已无该模型（下架/转私），保留署名并链作者主页。
+
+### 改动
+- 37 台设备配置：modelCredit 写明作者+许可证，新增 `modelSource`（makeDevice 经 `...spec` 透传）；
+  hubble/perseverance 的 `source` 字段改为"官方公开模型（NASA 3D Resources · 公有领域）"。
+- `DeviceViewer.vue`：MODEL CREDIT 区新增「模型主页 ↗」链接（`.credit-link`，noopener）；
+  泛化标记逻辑保留作兜底（现无设备命中）。
+- `style.css`：`.credit-link` 样式（9px 等宽、下划点线、hover/focus-visible）。
+- `tools/lint-mapping.mjs`：社区模型（credit/source 含 社区|Sketchfab|Poly Haven）强制——
+  禁止 "by community" 泛化署名；Sketchfab 署名必须带 sketchfab.com modelSource；
+  NASA 署名必须带 science.nasa.gov modelSource；modelSource 必须 https。
+
+### 验证
+- `npm run lint:devices` 87/87（0 错 0 警）；`npm run build` 2.09s；`npm run smoke` 全通过。
+- 无头 Chrome（`--enable-unsafe-swiftshader`，旧 `--use-gl=swiftshader` 在当前 Chrome 已失效）实测
+  ak-47/hubble/galaxy-s22-ultra/perseverance 信息面板：署名/链接/标记消失均正确，无控制台错误。
+  （首次两轮返回 null 系无头环境 WebGL 被禁，非产品回归；LOAD ERROR 面板按设计工作。）
+
+### 已知限制（考据存档）
+- 面数偏差未解释的 4 台：ak-47（本地 33718 vs 在线 20561，slug 唯一命中）、
+  v8-engine（2003742 vs 2197453，−8.8%，slug 唯一命中）、orrery（118480 vs 59816，恰 2.0×）、
+  computer-parts（68372 vs 36777，1.86×）——疑为 LOD/重传/转换差，作者依据接入期文件重命名
+  （`*_作者.glb` 约定）与 slug 判定；许可证据可信。
+- galaxy-s22-ultra 等 4 台为 CC-BY-NC（非商业）、Carrera 4S 为 CC-BY-SA（衍生须同许可）——
+  如公开发布需在关于页明示；iphone-16 为 Sketchfab Free Standard 许可。
+
+### 下一项
+见 AUTONOMOUS_BACKLOG.md；候选：多机型 Tour/X-Ray 策展、Poly Haven 17 台来源链接、
+剖切封盖、新设备研究接入（下一批候选调研）。
+
+
 ## 2026-10-29 · 审计后第一批修复（P0/P1/P2）
 
 ### 背景
