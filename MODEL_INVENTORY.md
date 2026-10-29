@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**100 台设备** · 806 个部件 · 100 套 GLB · 35 个品牌
+> 当前：**100 台设备** · 804 个部件 · 100 套 GLB · 35 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -276,7 +276,7 @@
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| door-lock-mechanism | 门锁机构（百年老锁） | 精密机械 | 5 | 社区 | door-lock-mechanism.glb | 785 KB |
+| door-lock-mechanism | 门锁机构（百年老锁） | 精密机械 | 3 | 社区 | door-lock-mechanism.glb | 785 KB |
 
 ### DYLANHEYES（1 台）
 

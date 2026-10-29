@@ -30,7 +30,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/retro-fan.glb',
-  mapping: {
+  mappingPrefix: {
     'Fan_Body':   'fan-head',
     'Fan_Chrome': 'fan-head',
     'Body_Body':  'body',
