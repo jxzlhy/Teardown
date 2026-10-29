@@ -2,6 +2,20 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 策展第二批（手机/平板/显示器家族 10 台）
+
+s25 / s25-plus（同构 s25-ultra 14 步）、zflip7（外屏→铰链→两半→内屏）、
+iphone-17 / iphone-18-pro-max、iphone-air（独石 7 步）、iphone-duo-fold（折叠 9 步）、
+ipad-air / ipad-pro（含妙控键盘）、studio-display。至此策展设备 28 台（4+14+10）。
+
+验证：lint 90/90；无头 Chrome 抽查 5 台 tour 步数/首步正确。
+大厅 UI 审计（桌面 1440+移动 390 截图）：搜索/品牌 chips/统计/焦点展台均正常，无硬伤——
+UI 大改版无据，继续按切片渐进打磨。已推送 733a01e。
+
+### 下一项
+见 AUTONOMOUS_BACKLOG.md（候选：mac/audio 家族策展、第三批设备接入、真机横向回归待环境）。
+
+
 ## 2026-10-30 · 剖切可读性 + pinball 弹射板核对
 
 ### 改动
