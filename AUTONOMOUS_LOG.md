@@ -27,7 +27,8 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 ### 落选（inspect 后淘汰，未接入——原始件已备份 originals）
 - astronomical-tourbillon（Binkley-Piratepants，CC-BY）：仅 3 个匿名网格（Object_2…），不可拆；
 - motor-wankel（museoETSII，CC-BY）：7 份重叠几何拷贝（mainMeshNode×7，疑似导出损坏）；
-- smeg-toaster（Thefreshlab，CC-BY）：18 个匿名 Object_N，映射成本高留待后续。
+- smeg-toaster（Thefreshlab，CC-BY）：18 个匿名 Object_N，映射成本高留待后续；
+- walkman-wmf2078（Dolgov12，CC-BY）：4 图元全部重叠于原点、匿名命名，不可拆。
 - 教训印证 SOP：研究报告"描述明示可拆"不等于 GLB 可拆，必须 inspect 后判定。
 
 ### 验证
