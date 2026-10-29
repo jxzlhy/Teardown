@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**93 台设备** · 767 个部件 · 93 套 GLB · 30 个品牌
+> 当前：**94 台设备** · 774 个部件 · 94 套 GLB · 31 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -263,4 +263,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | smeg-toaster | Smeg 烤面包机 | 厨电 | 6 | 社区 | smeg-toaster.glb | 280 KB |
+
+### LAIMER（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| tourbillon-movement | 陀飞轮机芯（3D 打印怀表） | 钟表 | 7 | 社区 | tourbillon-movement.glb | 855 KB |
 
