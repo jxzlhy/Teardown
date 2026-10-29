@@ -37,6 +37,8 @@ export default makeDevice({
     if (mat === 'ball_metal') return 'ball';
     if (rel.y > 0.64) return 'backbox';
     if (mat === 'red_rubber') return 'flippers';
+    /* 弹射板白色本体（台面底部中央 z 0.2-0.32 的 white_plastic）——源模型仅含单只弹射板网格 */
+    if (mat === 'white_plastic' && p.z > 0.2 && p.z < 0.32 && Math.abs(p.x) < 0.06) return 'flippers';
     if (mat === 'copper') return 'slingshots';
     if (mat === 'red_transparent_plastic') return 'targets';
     if (mat === 'red_acrilic' || mat === 'aluminum') return 'bumpers';
