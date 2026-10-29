@@ -653,7 +653,13 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   #ctxCard{
     left:0; right:0; bottom:0; width:100%; max-height:46vh;
     border-radius:14px 14px 0 0; clip-path:none; padding:10px 16px 18px;
+    /* 内容（特写图+说明+规格）常超出 46vh：sheet 内部滚动保证可读 */
+    overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
+  #ctxCard::-webkit-scrollbar{ display:none; }
+  /* 特写图在移动端限高为横幅，避免独占半屏 */
+  .ctx-thumb-wrap{ max-height:150px; aspect-ratio:auto; }
+  .ctx-thumb{ height:150px; object-fit:cover; object-position:center; }
   .ctx-enter-from{ transform:translateY(100%); }
   .ctx-leave-to{ transform:translateY(100%); }
   .sheet-grip{ display:flex; justify-content:center; padding:2px 0 8px; cursor:pointer; }
