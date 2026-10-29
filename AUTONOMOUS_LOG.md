@@ -14,6 +14,27 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · Stratocaster + C64 接入——**100 台里程碑**（100 台 / 806 部件 / 35 品牌）
+
+1. **Fender Stratocaster 电吉他接入**（99 台）：dark_igorek「Tequila Sunrise」（CC-BY，
+   206k faces，157 网格——Fender 材质 152 + podium/text/light 陈列件），按材质+尺寸双档
+   聚类 5 部件（琴体/琴颈/弦钮与琴头/琴桥五金/陈列展台）。Tequila Sunrise 渐变曝光良好。
+2. **Commodore 64 全套接入**（100 台 🎉）：dark_igorek Full Pack（CC-BY，132k faces），
+   13 网格按 5 个位置簇聚类（C64 主机/CRT 显示器/1541 驱动器/游戏摇杆/外置电源）——
+   真机陈设校正了初版部件身份（右前=Competition Pro 摇杆、右后=外置电源砖、左后=1541）。
+   GLB 改名与 id 一致；drive 爆炸方向修正。复古计算机品类落地。
+3. 验证：两台均 lint 全通过、gen:inventory、build、smoke、thumbs、真机截图 + Tour 步数。
+   推送 1faaaad。
+
+### 下一项（按优先级）
+1. 新一轮外部调研（GAP/ROUND2 已消化完毕：乐器 ✅ 复古计算机 ✅ 家电 ✅ 精巧机械 ✅）
+2. 真机横向回归（需环境）
+3. 引擎打磨：特写方位微调、标签遮挡抽查
+
 ## 2026-10-30 · Stratocaster 接入（99 台 / 801 部件 / 34 品牌）
 
 第二轮调研方向1落地：dark_igorek Fender Stratocaster「Tequila Sunrise」（CC-BY 4.0，
