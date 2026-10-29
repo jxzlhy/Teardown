@@ -2,6 +2,29 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 移动端 sheet 修复 + 第二轮调研 + 门锁接入（97 台 / 793 部件 / 32 品牌）
+
+1. **移动端详情 sheet 修复（真回归）**：特写图上线后 sheet 内容 734px 被裁在 46vh 盒内
+   且不可滚动——移动端下半内容不可达。修复：#ctxCard overflow-y:auto + 特写限高 150px
+   横幅。双机实测可滚动/可达，dock 不被遮挡。早前 sheetBottom=1232 为入场过渡瞬态。
+2. **第二轮外部调研**（后台代理，docs/ROUND2-RESEARCH.md）：乐器/复古计算机/家电/
+   精巧机械 4 方向 22 台详情核实；前叉与调速器两方向落选（无可下载单体）。
+3. **门锁机构接入**（97 台）：ReAnimate.xyz 弹子锁装配体（CC-BY，爆炸动画证实分件），
+   25 匿名网格按材质功能聚类 5 部件（黄铜锁体/铜配件/钢制栓件/钢制小件/高碳钢簧片）。
+   精密机械（锁具）新品类。draco 785KB。
+4. **三候选 inspect 完毕记为已验候选**：retro-fan（157 网格）/fender-stratocaster（13）/
+   commodore-64（7，Body/Cable/Fan 语义名，分件薄）。
+
+验证：lint 97/97、gen:inventory 97 台/793 部件/32 品牌、build 1.86s、smoke 全通过、
+thumbs、真机截图。推送 76e031c。
+
+### 下一项
+retro-fan 或 fender-stratocaster 接入（已验候选）；真机回归需环境。
+
 ## 2026-10-30 · Game Boy 混合路径接入（96 台 / 788 部件 / 31 品牌）
 
 GAP 缺口"Game Boy"落地：Smoggybeard CC-BY 外观模型（12 网格外观件）+ 4 个**示意重建**
