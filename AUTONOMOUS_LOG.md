@@ -2,6 +2,60 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · Poly Haven 来源链接 + 设备页来源徽章修正 + 14 台策展
+
+### 改动
+1. **Poly Haven 13 台补 modelSource**：asset id 由原始件名推导（ph_ 前缀剥离），逐条 curl 验证 200；
+   例外 `CashRegister_01` 为驼峰 id（Poly Haven API 查得）；lint 对 Poly Haven 署名强制 polyhaven.com 链接。
+2. **设备页来源徽章修正（真实缺陷）**：`engine.js` 曾把所有带 GLB 设备标 "OFFICIAL"——社区模型被包装成官方。
+   新增 `src/lib/model-class.js` 单一口径（有 modelCredit 且非 NASA → COMMUNITY），
+   engine 徽章 / 大厅统计与卡片徽章 / gen-inventory 报表统一；NASA 官方几何计官方（35 官方 / 52 社区）。
+   - 教训：改动当时漏 import 导致渲染循环 ReferenceError（页面 FALLBACK 降级）——由浏览器实测抓出并修复；
+     smoke/render-thumbs 的状态等待正则补 COMMUNITY（否则社区设备 90s 超时）。
+3. **14 台 Tour/X-Ray 策展**：ak-47（不完全分解叙事）/ iphone-12-teardown / iphone-16 /
+   galaxy-s22-ultra / s25-ultra / zfold7（铰链优先）/ walther-p99 / santacruz-v10 /
+   action5pro（对齐 action4）/ orrery（行星轨道序，sun X-Ray 露内芯）/ framework-laptop13（可维修叙事）/
+   tr-808 / perseverance-rover / filmstrip-projector。
+
+### 验证
+- lint 90/90（当时 87）、gen:inventory（NASA→官方口径）、build、smoke 全通过。
+- 无头 Chrome：5 台 tour 步数/首步正确、X-Ray 正常；ak-47/hubble/action4 徽章 + 大厅统计正确；
+  ak-47 与 orrery X-Ray 截图目检。
+
+## 2026-10-30 · 新设备批次 3 台（90 台 / 747 部件 / 29 品牌）
+
+### 选题
+后台研究子代理产出候选报告（/tmp/dji-next-batch-research.md：10 推荐 + 15 观察 + 26 落选，
+Sketchfab API 23 组关键词 + 52 详情），按品类空白与结构可拆性选 3 台：搅拌机（厨电空白，作者明示
+"every part seperate"）/ 角磨机（电动工具空白）/ 弹珠台（描述明示按真实机械构造建模）。
+
+### 资产与接入
+- 下载：IAB 内 Sketchfab 登录态（User-419afc4fcb）仍有效；`/i/archives/latest` 取 S3 直链，
+  textureMaxResolution 回退 2048→1024→0（grinder/pinball 命中 1024）；node 侧 https.get 落盘 originals
+  （页内 fetch 拿大文件不可行；长 URL 手工复制会损坏——必须程序化传递）。
+- 压缩 webp→draco：blender 2.15MB→206KB（9%）/ grinder 8.57MB→887KB（10%）/ pinball 7.10MB→1.12MB（16%）。
+- kitchen-blender（shiskin，CC-BY，6 部件）：3ds Max 匿名名按位置语义映射（mappingPrefix）；
+  白漆过曝 postLoad 压暗 0.42（casio 模式）+ camDist 1.3。
+- angle-grinder（Den.Prodan，CC-BY，5 部件）：body/disk/cyl/button/joint 语义根 × 1001/1002 双材质。
+- pinball-machine（Ranguel，CC-BY，9 部件）：**引擎增强**——mapByPosition 增传第 5 参材质名
+  （增量改动），按 17 个语义材质 + rel.y 分离灯箱做材质×位置混合聚类。
+- 三台均配 tour + xrayShellIds；品牌名（DeWalt）仅作型号署名。
+
+### 验证
+- lint 90/90、gen:inventory 90 台/747 部件/29 品牌、build 1.97s、smoke 全通过、thumbs 3/3。
+- 真机截图三台目检：blender（压暗后品牌字/拨盘/刀组可见）、grinder（朝向/配色正确）、
+  pinball（直立体/灯箱/台面美术正确）。COMMUNITY 徽章正确。
+
+### 已知限制
+- pinball 弹射板疑似只有左一只（Object_32/33 一组），右弹射板可能并入其他网格——待逐网格核对；
+  blender 顶沿仍有轻微高光溢出（已可接受）。
+- 研究报告落选结论存档：钢琴击弦机最优模型是 by-nc-nd、Game Boy 全部 by-nc、
+  手风琴/街机摇杆/前拨 CC-BY 版全部 <1 万面——这些缺口需换渠道（Thingiverse CC0 等）。
+
+### 下一项
+见 AUTONOMOUS_BACKLOG.md。
+
+
 ## 2026-10-30 · Gitee 仓库接入 + cad2glb 安全加固
 
 ### 背景
