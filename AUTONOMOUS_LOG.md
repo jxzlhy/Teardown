@@ -47,6 +47,42 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 品类缺口调研落地 + 陀飞轮机芯接入（94 台 / 774 部件 / 31 品牌）
+
+### 调研（后台子代理，报告 docs/GAP-RESEARCH.md）
+四缺口结论：陀飞轮 ✅（Laimer 怀表，Pinshape CC-BY 硬验证 51 打印件，证据最强）；
+钢琴击弦机 ✅（thing:4059233 CC-BY 多分件）；Game Boy ⚠️ 条件可行；手风琴 ❌ 拆解无解。
+
+### 下载通道攻坚（Thingiverse 匿名）
+- curl 被 Cloudflare 403；IAB 能过盾但下载事件不落盘（PlaywrightDownload 仅 path() 且超时）；
+- 最终路径：IAB 打开 files 页 → 注入 fetch/XHR 观察器 → 点击下载按钮捕获 `download:<id>` 真实 URL
+  → 页内 `fetch(url, {credentials:'same-origin'})` 取 arrayBuffer → 分块 base64 回传 node 落盘；
+- 坑：下载后弹出的提醒浮层会遮住按钮（点击超时）——先 Escape 再点；大数组
+  `String.fromCharCode.apply` 会爆栈——分块转 base64。
+
+### 新工具与资产
+- `tools/stl2glb-batch.mjs`：多二进制 STL → 单 GLB（每件一个命名节点、顶点焊接、
+  法线面积加权、`--up` Z→Y 换轴、三角形退化管理）；
+- 33 分件（17MB）合并 35.5 万面 → draco 855KB；原始分件备份 `vendor/assets/originals/clockwerk/`。
+
+### 配置与校准
+- 33 节点按文件语义名归组 7 部件（打印主发条/轮系/瑞士杠杆擒纵/陀飞轮框架/皮带传动/
+  主夹板/装配工装——Jig 保留并注明为开源工装致敬）；
+- 白模过曝 postLoad 压暗 0.38 + camDist 1.35（两轮截图对比确认）。
+
+### 验证
+- lint 94/94、gen:inventory 94 台/774 部件/31 品牌、build 1.88s、smoke 全通过、thumbs 1/1、
+  真机截图（ COMMUNITY 徽章正确）。推送 d953815。
+
+### 下一项
+1. 钢琴击弦机接入（thing:4059233 CC-BY 多分件，走同一多 STL 管线）；
+2. Game Boy 条件路径评估（Smoggybeard CC-BY 单网格需 inspect）；
+3. 手风琴：记录为"拆解无解，仅整机展示可行"。
+
 ## 2026-10-30 · 全量 93 台生产回归（0 异常）
 
 5 批策展 + 5 台新设备后的全馆验证：生产构建 + preview 服务器 + 无头 Chrome 逐台遍历
