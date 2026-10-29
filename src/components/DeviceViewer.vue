@@ -73,6 +73,9 @@
       <aside v-if="selectedPart && !thumbMode" id="ctxCard" ref="sheetEl" class="hud-panel hud-corner" :key="selectedPart.id">
         <div class="sheet-grip" @click="closeDetail"><i></i></div>
         <div class="hud-eyebrow ctx-eyebrow">PART {{ String(partIndex+1).padStart(2,'0') }} / {{ device.parts.length }} · {{ selectedPart.en }}</div>
+        <div class="ctx-thumb-wrap">
+          <img v-if="partThumb" class="ctx-thumb" :src="partThumb" alt="" aria-hidden="true">
+        </div>
         <h2>{{ selectedPart.zh }}<small>{{ selectedPart.en }}</small></h2>
         <div class="ctx-tag">{{ selectedPart.tag }}</div>
         <div class="ctx-desc">{{ selectedPart.desc }}</div>
@@ -327,6 +330,21 @@ watch(selectedPart, (p) => {
     sheetRO.observe(sheetEl.value);
   });
 }, { flush: 'post' });
+/* 部件特写小图：详情卡打开时离屏捕获（主画面不受干扰）。
+   监听 [partId, booted]：切台时 selectedPart 可能先于引擎就绪，booted 变化后需重试 */
+const partThumb = ref(null);
+watch(
+  [() => (selectedPart.value ? selectedPart.value.id : null), () => ui.value.booted],
+  ([pid, booted]) => {
+    partThumb.value = null;
+    if(!pid || !booted || !engine) return;
+    nextTick(() => {
+      try { partThumb.value = engine.capturePartThumb(pid, 352); }
+      catch(e) { console.warn('part thumb failed', e); }
+    });
+  },
+  { flush: 'post' }
+);
 /* 泛化署名（"by community (Sketchfab)"）没有作者与许可证，明确标出待核实 */
 const creditUnverified = computed(() => /by community/i.test(device.value.modelCredit || ''));
 const loadFailed = ref(false);

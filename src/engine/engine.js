@@ -989,11 +989,70 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     composer.render();
     return renderer.domElement.toDataURL(type, q);
   }
+  /* 部件特写小图：离屏 RT 直渲（不经 composer，主画面零干扰）。
+     隐藏其余部件、以当前视角方向取景，返回 PNG dataURL。 */
+  let thumbRT = null;
+  function capturePartThumb(id, size = 352){
+    const p = state.partsById[id];
+    if(!p || !booted) return null;
+    _bb.setFromObject(p.group);
+    if(_bb.isEmpty()) return null;
+    const c = _bb.getCenter(new THREE.Vector3());
+    const radius = Math.max(_bb.getSize(new THREE.Vector3()).length() * 0.5, 1e-3);
+    const dir = _v.copy(camera.position).sub(controls.target);
+    if(![dir.x, dir.y, dir.z].every(isFinite) || dir.lengthSq() < 1e-6) dir.set(0.55, 0.38, 0.74);
+    dir.normalize();
+    const cam = new THREE.PerspectiveCamera(38, 1, radius * 0.01, radius * 60);
+    cam.position.copy(c).addScaledVector(dir, radius / Math.sin(THREE.MathUtils.degToRad(19)) * 1.15);
+    cam.lookAt(c);
+    cam.updateMatrixWorld(true);
+    const hidden = [];
+    for(const [pid, q] of Object.entries(state.partsById)){
+      if(pid === id || !q.group.visible) continue;
+      q.group.visible = false; hidden.push(q.group);
+    }
+    const prevBg = scene.background;
+    const prevClear = renderer.getClearColor(new THREE.Color());
+    const prevAlpha = renderer.getClearAlpha();
+    scene.background = null;
+    renderer.setClearColor(0x0b1622, 1);
+    const prevSel = state.selected, prevHover = state.hovered;
+    state.selected = null; state.hovered = null; syncOutlineEnabled();
+    try {
+      if(!thumbRT || thumbRT.width !== size){
+        if(thumbRT) thumbRT.dispose();
+        thumbRT = new THREE.WebGLRenderTarget(size, size, { samples: 4 });
+      }
+      const prevTarget = renderer.getRenderTarget();
+      renderer.setRenderTarget(thumbRT);
+      renderer.clear();
+      renderer.render(scene, cam);
+      renderer.setRenderTarget(prevTarget);
+      const buf = new Uint8Array(size * size * 4);
+      renderer.readRenderTargetPixels(thumbRT, 0, 0, size, size, buf);
+      const cnv = document.createElement('canvas');
+      cnv.width = cnv.height = size;
+      const ctx = cnv.getContext('2d');
+      const img = ctx.createImageData(size, size);
+      for(let y = 0; y < size; y++){
+        img.data.set(buf.subarray(y * size * 4, (y + 1) * size * 4), (size - 1 - y) * size * 4);
+      }
+      ctx.putImageData(img, 0, 0);
+      return cnv.toDataURL('image/png');
+    } finally {
+      for(const g of hidden) g.visible = true;
+      scene.background = prevBg;
+      renderer.setClearColor(prevClear, prevAlpha);
+      state.selected = prevSel; state.hovered = prevHover;
+      syncOutlineEnabled();
+    }
+  }
 
   return {
     loadDevice, setExplode, setExplodeLayout, selectPart, setHover, setLabels, setAutoRotate,
     resetView, pickAt, onResize, thumbView, snapshot,
     flyToPart, setMode, isolate, setClipT,
+    capturePartThumb,
     startTour, stopTour, tourNext, tourPrev,
     step: mainLoop,
     getCamera: () => camera,
