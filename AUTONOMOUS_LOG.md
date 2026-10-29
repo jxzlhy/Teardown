@@ -2,6 +2,29 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 95 台回归 + 工具升级 + 特写亮度修复（本轮）
+
+1. **全量 95 台生产回归 0 异常**（含 tourbillon-movement / grand-piano；日志
+   docs/full-regression-95-2026-10-30.log，推送 e4d522d）。
+2. **stl2glb-batch 格式扩展**（4e839ab）：ASCII STL 文本解析；3MF 支持（内置最小 ZIP
+   读取器 + object/mesh 解析 + object name 命名节点 + build.item 4x3 变换）；
+   修复 %f 格式化。回归 5/5（ASCII / 3MF 双对象命名 / build 平移 accessor.min 断言 /
+   二进制 STL 不回归）。踩坑：正则惰性可选组会静默匹配空——属性提取改整串二次提取。
+3. **部件特写亮度修复**（ebdcaa7）：直渲 WebGLRenderTarget 不走 OutputPass 的 sRGB
+   输出变换，readRenderTargetPixels 读到线性值 → 特写近全黑（实测均值 4-16/255）→
+   thumbRT.texture.colorSpace = SRGBColorSpace（亮度提升 3-9 倍，12 部件实测）+
+   特写相机位临时方向光（finally 移除）。已知限制：直接调用偶发首次 null 未复现
+   （UI 路径有 [partId, booted] 重试保护，记录备查）。
+
+### 下一项（按优先级）
+1. Game Boy 混合路径评估（外壳 + 程序化内构件需产品决策，暂缓）
+2. 真机横向回归（需环境）
+3. 新一轮外部设备调研（GAP 已收官，需重新选题）
+
+### 验证基线
+- `npm run lint:devices` 95/95；`npm run build` ~1.9s；`npm run smoke` 全通过；
+- Gitee main 同步至 ebdcaa7。
+
 ## 2026-10-30 · 策展第四批（无人机/相机/放映机/发动机/机械 14 台）
 
 avata2/mini4pro、nikon-z6/d6、polaroid-coolcam、pocket3、eumig-projector、
