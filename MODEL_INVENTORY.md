@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**101 台设备** · 808 个部件 · 101 套 GLB · 36 个品牌
+> 当前：**102 台设备** · 813 个部件 · 102 套 GLB · 37 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -301,4 +301,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | admiral-7t10 | Admiral 7T10 电子管收音机 | 影音 | 4 | 社区 | admiral-7t10.glb | 2.5 MB |
+
+### WESTERN ELECTRIC（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| we500-rotary-phone | Western Electric 500 旋转拨号电话 | 复古通信 | 5 | 社区 | we500-rotary-phone.glb | 1.1 MB |
 
