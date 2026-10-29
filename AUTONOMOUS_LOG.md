@@ -43,6 +43,17 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 全量 93 台生产回归（0 异常）
+
+5 批策展 + 5 台新设备后的全馆验证：生产构建 + preview 服务器 + 无头 Chrome 逐台遍历
+93 台设备，断言 booted 且状态匹配 OFFICIAL/COMMUNITY/PROCEDURAL/FALLBACK、parts>0、
+无 pageerror、无 HTTP 4xx。**结果：93/93 通过，0 异常**（watch-ultra 捕获瞬间显示
+PARSING 中间态但部件/错误指标正常，非失败）。全量日志 /tmp/full-regression.log。
+
 ## 2026-10-30 · 策展收官（32 台，除 marshall 外全馆策展完成）
 
 32 台补 tour + xrayShellIds（iphone-13/18-pro-max-burgundy/modular-smartphone/phone3/phone3alite/
