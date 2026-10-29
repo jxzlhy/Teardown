@@ -27,6 +27,8 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/countach-lpi800-4.glb',
+  tour: ['body','front-hood','engine-bay','cockpit','wheels-front','wheels-rear'],
+  xrayShellIds: ['body'],
   mapByPosition(name, p, rel, ext){
     /* 车心 x≈-2.1：|p.x+2.1|>1.3 为两侧轮位；z 正负分前后轴 */
     if(Math.abs(p.x + 2.1) > 1.3 && p.y < 0.2) return p.z > 0 ? 'wheels-front' : 'wheels-rear';

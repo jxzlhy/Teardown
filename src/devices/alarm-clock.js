@@ -28,6 +28,8 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/alarm-clock.glb',
+  tour: ['case','hand-hour','hand-minute','hand-second'],
+  xrayShellIds: ['case'],
   mapping: {
     /* 重名节点运行时回退为网格名 Cylinder030（钟体双网格），见 __RAW.names */
     'Cylinder030': 'case',

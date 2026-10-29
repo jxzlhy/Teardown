@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/radio-transceiver.glb',
+  tour: ['body','dial','speaker','microphone','morse-key','antenna','cables'],
+  xrayShellIds: ['body'],
   mapping: {
     'vintage_radio_transceiver': 'body',
     'vintage_radio_transceiver_dial': 'dial',

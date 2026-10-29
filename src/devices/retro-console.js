@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/retro-console.glb',
+  tour: ['body','lid'],
+  xrayShellIds: ['body'],
   mapping: {
     'gaming_console': 'body',
     'gaming_console_lid': 'lid',

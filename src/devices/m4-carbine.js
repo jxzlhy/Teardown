@@ -29,6 +29,8 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/m4-carbine.glb',
+  tour: ['receiver','handguard','magazine','grip','stock'],
+  xrayShellIds: ['receiver','handguard','stock'],
   mapByPosition(name, p, rel){
     /* 旋转后 Z 为枪长轴：枪托 +z 端、枪口 -z 端 */
     if(rel.z > 0.72) return 'stock';

@@ -27,6 +27,7 @@ export default makeDevice({
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/vintage-microscope.glb',
+  tour: ['base','arm','focus','condenser','revolver','body-tube','eyepiece'],
   mapping: {
     'vintage_microscope_mirror_arm': 'arm',
     'vintage_microscope_condenser': 'condenser',

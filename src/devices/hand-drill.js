@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/hand-drill.glb',
+  tour: ['crank','gears','chuck-head','body'],
+  xrayShellIds: ['body'],
   mapping: {
     'vintage_hand_drill': 'body',
     'vintage_hand_drill_cog1': 'gears',

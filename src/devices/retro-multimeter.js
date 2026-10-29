@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/retro-multimeter.glb',
+  tour: ['body','dial','needle','knob','buttons','leads','handle'],
+  xrayShellIds: ['body'],
   mapping: {
     /* 重名节点运行时回退为网格名 lP_body002（表体双网格），见 __RAW.names */
     'lP_body002': 'body',

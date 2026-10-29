@@ -27,6 +27,8 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/game-ready-pbr-grenade-launcher-gl-06-c06031637904402c85179bfce8b73e28',
   targetWidth: 9.5,
   glb: '/assets/gl-06-launcher.glb',
+  tour: ['receiver','barrel','frame-housing','trigger-group','grip','rear-stock','scope','sight'],
+  xrayShellIds: ['receiver','frame-housing'],
   normalize: 'full',
   frontAxis: '-z',           /* 原生枪口朝 -z，转到 +z 朝观众 */
   unmappedTo: 'frame-housing',

@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 9,
   normalize: 'full',
   glb: '/assets/portable-cassette-player.glb',
+  tour: ['cassette','body','lid'],
+  xrayShellIds: ['body','lid'],
   mapping: {
     /* 重名节点运行时回退为网格名：Plane097=透明盖、Cylinder015=机身，见 __RAW.names */
     'Cylinder015': 'body',

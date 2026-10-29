@@ -29,6 +29,8 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/porsche-911-930.glb',
+  tour: ['body','glass','lights','wheels','spoiler','trim-chrome','interior','livery','plate'],
+  xrayShellIds: ['body','glass'],
   mapping: {
     'Object_36': 'spoiler',
     'Object_91': 'spoiler',

@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.1,
   glb: '/assets/hubble-telescope.glb',
+  tour: ['tube','aperture-door','science-section','radiators','aft-shroud','antennas','solar-array-l','solar-array-r'],
+  xrayShellIds: ['tube','aft-shroud'],
   draco: true,
   normalize: 'full',
   frontAxis: '-z',           /* 光圈门端（原生 -z 端）朝观众，对称体不做探测 */

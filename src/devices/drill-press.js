@@ -28,6 +28,8 @@ export default makeDevice({
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/drill-press.glb',
+  tour: ['column-body','table','belt-cover','belt','pulleys','feed-handle','chuck-bit','depth-stop','switch','power-plug'],
+  xrayShellIds: ['column-body','belt-cover'],
   mapping: {
     'drill_press_01': 'column-body',
     'drill_press_01_plate': 'table',

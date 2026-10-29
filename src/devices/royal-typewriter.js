@@ -47,6 +47,8 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/royal-typewriter.glb',
+  tour: ['body','keys','typebars','platen','ribbon-mech','ribbon','paper-support','paper-scale','paper','nameplate'],
+  xrayShellIds: ['body'],
   /* three.js GLTFLoader sanitizeNodeName：节点名空格→下划线（'17 - Default' → '17_-_Default'） */
   mapping: {
     'Bodymy01_17_-_Default_0': 'body',

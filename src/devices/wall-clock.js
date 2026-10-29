@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/wall-clock.glb',
+  tour: ['case','hand-hour','hand-minute','hand-second'],
+  xrayShellIds: ['case'],
   mapping: {
     /* 重名节点运行时回退为网格名 frame001（钟体双网格），见 __RAW.names */
     'frame001': 'case',

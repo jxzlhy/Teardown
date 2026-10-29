@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 4.5,
   normalize: 'full',
   glb: '/assets/pocket-watch.glb',
+  tour: ['case','crown','ring','hand-hour','hand-minute','hand-second'],
+  xrayShellIds: ['case'],
   mapping: {
     /* 重名节点运行时回退为网格名 BézierCircle005（表壳双网格），见 __RAW.names */
     'BézierCircle005': 'case',

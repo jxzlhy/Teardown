@@ -28,6 +28,8 @@ export default makeDevice({
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/sony-tc510.glb',
+  tour: ['front-panel','knob','deck','lid','sticker'],
+  xrayShellIds: ['lid','front-panel'],
   mapping: {
     'Sony_a_M_Sony_a_0': 'front-panel',
     'Sony_a_M_Sony_b_0': 'deck',

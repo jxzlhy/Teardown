@@ -26,6 +26,8 @@ export default makeDevice({
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/cash-register.glb',
+  tour: ['body','drawer'],
+  xrayShellIds: ['body'],
   mapping: {
     /* 重名节点运行时回退为网格名 Cash_register（机身双网格），见 __RAW.names */
     'Cash_register': 'body',

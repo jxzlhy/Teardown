@@ -22,6 +22,8 @@ export default makeDevice({
   source: 'Nothing 官网产品页模型',
   targetWidth: 14.4,   /* 高 163mm 为最大维 */
   glb: '/assets/phone3.glb',
+  tour: ['screen','frame','midframe','internals','battery','camera','usb','sim','buttons','glyph','back-panel','logo'],
+  xrayShellIds: ['screen','back-panel','frame'],
   normalize: 'full',
   frontAxis: '-z',      /* 屏幕层在 -Z（z≈-0.41），背板在 +Z */
   materialMapping: {

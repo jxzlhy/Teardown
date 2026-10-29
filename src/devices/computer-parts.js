@@ -30,6 +30,7 @@ export default makeDevice({
   camDist: 1.25,
   normalize: 'full',
   glb: '/assets/computer-parts.glb',
+  tour: ['cpu','heatsink','ram','ssd','hdd-35','hdd-25','psu','fan','sata'],
   mappingPrefix: {
     /* 点号被 sanitizeNodeName 清洗：3.5inch_HDD.001 → 35inch_HDD001 */
     '35inch_HDD': 'hdd-35',

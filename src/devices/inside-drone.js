@@ -39,6 +39,8 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/inside-drone-d38af0afb72343f69eed6da6457df11b',
   targetWidth: 10,
   glb: '/assets/inside-drone.glb',
+  tour: ['shell','camera','board','battery'],
+  xrayShellIds: ['shell'],
   normalize: 'full',
   frontAxis: '+z',                    /* 单网格资产探测无效，以 +z 为机头假设 */
   orientationProbe: ['camera', 'board'],

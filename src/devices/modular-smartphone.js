@@ -32,6 +32,8 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-x',
   glb: '/assets/modular-smartphone.glb',
+  tour: ['display','frame','board','camera','front-cam','flash','battery','sim','buttons','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   mappingPrefix: {
     'FrontCameraLens': 'camera',
     'FrontCamera':     'front-cam',

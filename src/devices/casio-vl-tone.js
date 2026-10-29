@@ -28,6 +28,8 @@ export default makeDevice({
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/casio-vl-tone.glb',
+  tour: ['body','keys','controls','glass'],
+  xrayShellIds: ['body','glass'],
   unmappedTo: 'keys',
   mapping: {
     '#INT0002_Body_#INT0002_Textures_0': 'body',

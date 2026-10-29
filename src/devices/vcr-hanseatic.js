@@ -29,6 +29,8 @@ export default makeDevice({
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/vcr-hanseatic.glb',
+  tour: ['case','front-panel','mechanism','pcb','red-parts'],
+  xrayShellIds: ['case'],
   materialMapping: {
     'ELX0002_Body': 'case',
     'ELX0002_Parts': 'front-panel',

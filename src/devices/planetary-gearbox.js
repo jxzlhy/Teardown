@@ -28,6 +28,7 @@ export default makeDevice({
   camDist: 1.1,
   normalize: 'full',
   glb: '/assets/planetary-gearbox.glb',
+  tour: ['gears-a','gears-b','hardware-a','hardware-b'],
   mapByPosition(name, p, rel, ext) {
     const big = ext && Math.max(ext.x, ext.y, ext.z) > 3.2;
     const left = rel.x < 0.5;

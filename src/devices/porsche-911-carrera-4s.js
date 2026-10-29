@@ -28,6 +28,8 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/porsche-911-carrera-4s.glb',
+  tour: ['body','glass','chassis','bumpers','wheels-front','wheels-rear','interior'],
+  xrayShellIds: ['body','glass'],
   mappingPrefix: {
     'windshield':  'glass',
     'window':      'glass',

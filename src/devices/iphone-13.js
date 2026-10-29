@@ -40,6 +40,8 @@ export default makeDevice({
   camDist: 1.15,
   normalize: 'full',
   glb: '/assets/iphone-13.glb',
+  tour: ['display','frame','board','camera','camera-module','flash','battery','coil','speaker','usb-pcb','internals','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   materialMapping: {
     'display_ip': 'display', 'side_display_ip': 'display', 'side_display_ip_2': 'display', 'white_mark': 'display',
     'back_metal_ip': 'back-glass', 'metallic_ip_logo': 'back-glass',

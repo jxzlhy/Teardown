@@ -35,6 +35,17 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 - lint 92/92、gen:inventory 92 台/761 部件/29 品牌、build 2.13s、smoke 全通过、thumbs 2/2、
   真机截图目检两台（结构/材质/曝光正确，gramophone 黄铜喇叭质感佳）。推送 58aac76。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · smeg-toaster 正式接入（93 台 / 767 部件 / 30 品牌）
+
+此前"匿名网格待映射"的候选正式接入：18 匿名图元按位置/尺寸/材质判读聚类 6 部件
+（机身/顶盖槽口/底座底脚/起弹杆/内部升降架/控制件），draco 280KB，真机截图确认
+薄荷绿搪瓷壳+镀铬顶盖+侧起弹杆+旋钮全部正确。lint 93/93、build 1.82s、smoke 全通过、
+thumbs 1/1。品牌名仅作型号署名。策展设备累计 55 台。推送 99f6b50。
+
 ## 2026-10-30 · 本会话总状态（续跑交接点）
 
 > 当前分支：main @ Gitee（本会话 13 个提交，全部通过 lint/build/smoke + 浏览器验证后推送）。
@@ -52,17 +63,17 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 9. 策展第二/三/四批：手机/平板/显示器 + mac/audio/穿戴 + 无人机/相机/发动机家族 36 台（733a01e/5fd42b5/f818dec）——累计 54 台策展
 10. 新设备 2 台：直列三缸摩托车发动机/手摇留声机（58aac76）+ 3 台 inspect 落选记录
 
-### 规模：**92 台设备 / 761 部件 / 29 品牌**（MODEL_INVENTORY.md 自动生成）
+### 规模：**93 台设备 / 767 部件 / 30 品牌**（MODEL_INVENTORY.md 自动生成）
 
 ### 下一项（按优先级）
-1. smeg-toaster 补映射接入（原始件在 originals，18 匿名网格按位置聚类；或换用可拆模型）
+1. 策展收尾：盘点剩余无策展设备（大多 2-4 部件小件），把 ≥5 部件者补齐，2-4 部件者按需
 2. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴/天文陀飞轮替代品）
-3. 真机横向回归（需环境）；综合生产 preview 回归已在本会话做过一轮（14 项基线）
+3. 真机横向回归（需环境）
 4. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
 
 ### 验证基线（本会话末次全绿）
-- `npm run lint:devices` 92/92（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
-- Gitee main 同步至 58aac76；vendor/assets/originals 保持本地（gitignore）。
+- `npm run lint:devices` 93/93（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
+- Gitee main 同步至 99f6b50；vendor/assets/originals 保持本地（gitignore）。
 
 ## 2026-10-30 · 策展第三批（mac/audio/穿戴/输入家族 12 台）
 

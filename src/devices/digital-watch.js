@@ -27,6 +27,8 @@ export default makeDevice({
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/digital-watch.glb',
+  tour: ['case','clasp','strap-a','strap-b'],
+  xrayShellIds: ['case'],
   mapping: {
     /* 重名节点运行时回退为网格名 Plane008（表体双网格），见 __RAW.names */
     'Plane008': 'case',

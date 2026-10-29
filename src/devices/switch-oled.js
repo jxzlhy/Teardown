@@ -31,6 +31,8 @@ export default makeDevice({
   targetWidth: 13.0,
   camDist: 1.1,
   glb: '/assets/switch-oled.glb',
+  tour: ['console','joycon-l','joycon-r','board','fan','battery'],
+  xrayShellIds: ['console','joycon-l','joycon-r'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.x < -0.075) return 'joycon-l';

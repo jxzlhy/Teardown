@@ -22,6 +22,8 @@ export default makeDevice({
   source: 'Nothing 官网产品页模型',
   targetWidth: 14.6,   /* 高 164.1mm 为最大维 */
   glb: '/assets/phone3alite.glb',
+  tour: ['screen','frame','midframe','internals','camera','buttons','glyph'],
+  xrayShellIds: ['screen','frame'],
   normalize: 'full',
   frontAxis: '-z',      /* 屏幕层在 -Z（TP_GLASS z≈-0.36） */
   materialMapping: {
