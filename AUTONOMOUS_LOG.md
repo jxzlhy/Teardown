@@ -2,6 +2,15 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 策展第四批（无人机/相机/放映机/发动机/机械 14 台）
+
+avata2/mini4pro、nikon-z6/d6、polaroid-coolcam、pocket3、eumig-projector、
+v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack、swiss-escapement。
+发动机类刻意不设 xrayShellIds（realPartIds 兜底全透明）。**累计策展 54 台 / 90 台**。
+
+验证：lint 90/90、build 1.91s、smoke 全通过、生产 preview 抽查（统计 35 官方/55 社区、
+3 台装载、无 HTTP 失败/页面错误）、5 台 tour 步数/首步正确。推送 f818dec。
+
 ## 2026-10-30 · 本会话总状态（续跑交接点）
 
 > 当前分支：main @ Gitee（本会话 13 个提交，全部通过 lint/build/smoke + 浏览器验证后推送）。
