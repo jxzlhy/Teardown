@@ -1,0 +1,4 @@
+interface:
+  display_name: "资产转换 SOP"
+  short_description: "抓取官网模型直链、USDZ/CAD 转 GLB、按铁律压缩瘦身并校验"
+  default_prompt: "Use $convert-asset to fetch a source model (Apple USDZ / Samsung GLB direct link / STEP or STL), convert it with the Blender headless or gmsh pipeline, compress it with the webp-then-draco iron rule, verify structure with inspect-glb, and stage it for device onboarding."

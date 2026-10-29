@@ -1,0 +1,114 @@
+/* =============================================================
+   设备配置：Apple iPhone 13（2021）
+   社区模型（Sketchfab）：19 匿名网格 + 18 语义材质
+   （display_ip / body_utama_ip / back_metal_ip / camera_ip_2 …）
+   资产 0.01×0.15×0.07 米 Y 直立，materialMapping 映射
+============================================================= */
+import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
+import { makePhoneScreen } from './_kit/screen.js';
+import { mainboard, battery, cameraModule, chargeCoil, portPcb } from './_kit/internals.js';
+
+const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'IPHONE', carrier: '5G', accent: '#b7a6e3' });
+
+const builders = {
+  board: (g)=> mainboard(g, { w:4.8, h:3.0, soc:[-1.2,.5], ram:[1.1,.8], label:'APPLE A15', sub:'820-0xxxx · MAIN BOARD', pcb:'#1a2a4a', smalls:16 }),
+  battery: (g)=> battery(g, { w:4.2, h:3.4, d:.5, label:'APPLE', capacity:'3240 mAh', model:'A2xxx', rating:'3.83V' }),
+  'camera-module': (g)=> { cameraModule(g, .9, .95); cameraModule(g, .75, .8); },
+  coil:   (g)=> chargeCoil(g, 1.7),
+  'usb-pcb': (g)=> portPcb(g, 1.5, 1.05),
+};
+
+export default makeDevice({
+  id: 'iphone-13',
+  name: 'Apple iPhone 13',
+  en: 'IPHONE 13',
+  category: '手机',
+  brand: 'APPLE',
+  tagline: '斜排双摄 · A15 · 续航大跃进',
+  description: 'iPhone 13（2021）：双摄第一次斜排对角布置（腾出的空间给了更大的传感器位移防抖模组），A15 仿生 + 更大的电池带来续航大跃进。社区模型（Sketchfab），内构件为示意重建。',
+  specs: [
+    ['芯片','A15 仿生 · 5nm'],['屏幕','6.1″ 超视网膜 XDR OLED'],
+    ['主摄','12MP f/1.6 · 传感器位移 OIS'],['超广角','12MP f/2.4 斜排'],
+    ['电池','3240 mAh（较 12 +15%）'],['存储','128GB 起步（首次）'],
+    ['重量','174 g'],['配色','粉色/星光/午夜/蓝/红'],
+  ],
+  accent: '#b7a6e3',
+  source: '社区模型（Sketchfab）',
+  modelCredit: 'iPhone 13 model by community (Sketchfab)',
+  targetWidth: 13.5,
+  camDist: 1.15,
+  normalize: 'full',
+  glb: '/assets/iphone-13.glb',
+  materialMapping: {
+    'display_ip': 'display', 'side_display_ip': 'display', 'side_display_ip_2': 'display', 'white_mark': 'display',
+    'back_metal_ip': 'back-glass', 'metallic_ip_logo': 'back-glass',
+    'body_utama_ip': 'frame', 'side_metal_ip': 'frame',
+    'camera_ip_2': 'camera', 'cam_black_ip': 'camera', 'cam_blk_ip': 'camera', 'kaca_cam_ip': 'camera', 'lens': 'camera',
+    'light_ip_back': 'flash',
+    'ip_speaker_blk': 'speaker',
+    'screww_ip': 'internals', 'inside_down_ip': 'internals', 'blk_ip': 'internals',
+  },
+  realPartIds: ['display','back-glass','frame','camera','flash','speaker','internals'],
+  builders,
+  parts: [
+    { id:'display', zh:'正面屏幕', en:'SUPER RETINA XDR', real:true,
+      ex:[0,.2,2.8], lo:[0,1.5,0], tag:'6.1″ OLED · 刘海缩窄 20%',
+      desc:'6.1 英寸超视网膜 XDR OLED：2532×1170、800nit 峰值亮度（户外模式 1200nit）；刘海区收窄 20%，听筒上移到边框边缘换取空间。',
+      specs:[['尺寸','6.1″ 2532×1170'],['亮度','800/1200 nit'],['玻璃','Ceramic Shield']] },
+    { id:'back-glass', zh:'后盖玻璃', en:'BACK GLASS', real:true,
+      ex:[0,-.2,-2.8], lo:[0,1.4,0], tag:'雾面玻璃 · 同色铝壳',
+      desc:'磨砂质感后盖玻璃（亮面仅相机区）：雾面处理抗指纹，与铝金属边框同色阳极；MagSafe 磁阵藏于玻璃之下。',
+      specs:[['材质','强化玻璃'],['表面','雾面抗指纹'],['集成','MagSafe 磁阵']] },
+    { id:'frame', zh:'铝金属边框', en:'ALUMINUM FRAME', real:true,
+      ex:[0,0,1.8], lo:[0,1.2,0], tag:'航空级铝 · 同色阳极',
+      desc:'航空级铝金属边框：同色阳极氧化处理，直角边设计语言延续；天线注塑带与按键开孔一体成型。',
+      specs:[['材质','航空级铝'],['工艺','阳极氧化'],['设计','直角边框']] },
+    { id:'camera', zh:'斜排双摄模组', en:'DIAGONAL DUAL CAMERA', real:true,
+      ex:[1.4,2.4,-1.8], lo:[0,1.5,0], tag:'对角斜排 · 本代标识',
+      desc:'对角斜排双摄是 iPhone 13 的最大外观标识：主摄与超广角沿对角线布置，腾出的空间让主摄装进更大的传感器位移防抖（Sensor-Shift OIS）模组，低光进光量提升 47%。',
+      specs:[['主摄','12MP f/1.6 OIS'],['超广角','12MP f/2.4'],['布局','对角斜排（首次）'],['防抖','Sensor-Shift 全系']] },
+    { id:'flash', zh:'原彩闪光灯', en:'TRUE TONE FLASH', real:true,
+      ex:[.8,2.6,-.6], lo:[0,1.0,0], tag:'双色温 LED',
+      desc:'后置双色温闪光灯：与斜排双摄同处相机岛，按环境色温混合冷暖光。',
+      specs:[['类型','双色温 LED']] },
+    { id:'speaker', zh:'扬声器', en:'SPEAKER MODULE', real:true,
+      ex:[1.7,-2.8,-.6], lo:[0,1.0,0], tag:'底部主扬声器',
+      desc:'底部主扬声器与顶部听筒组成立体声双扬，支持杜比全景声与空间音频。',
+      specs:[['配置','立体声双扬']] },
+    { id:'internals', zh:'内部结构层', en:'INTERNAL LAYER', real:true,
+      ex:[-.6,.6,-1.6], lo:[0,1.1,0], tag:'屏蔽罩 · 支架细节',
+      desc:'模型内可见的内部结构细节：螺丝位、内部支撑与屏蔽件——社区建模者连内部朝向的细节都做了还原。',
+      specs:[['构成','屏蔽 · 支架细节']] },
+    { id:'board', zh:'主板', en:'A15 MAINBOARD',
+      ex:[0,2.4,.4], lo:[0,1.5,0], tag:'A15 仿生 · 4GB',
+      desc:'A15 仿生主板：5nm 工艺、150 亿晶体管，6 核 CPU + 4 核 GPU（Pro 版 5 核），16 核神经网络引擎每秒 15.8 万亿次运算。',
+      specs:[['SoC','A15 仿生 5nm'],['内存','4GB'],['NPU','15.8 TOPS']] },
+    { id:'battery', zh:'电池', en:'BATTERY 3240 mAh',
+      ex:[-1.0,-2.0,1.0], lo:[0,1.5,0], tag:'3240 mAh · +15%',
+      desc:'3240 mAh 电池：较 iPhone 12 提升 15%，配合 A15 能效，视频播放 19 小时——本代续航口碑逆转的关键。',
+      specs:[['容量','3240 mAh'],['续航','19h 视频'],['提升','+15% vs 12']] },
+    { id:'camera-module', zh:'主摄模组', en:'12MP OIS MODULE',
+      ex:[1.6,2.8,-.9], lo:[0,1.3,0], tag:'更大 OIS 模组',
+      desc:'主摄模组：斜排换来的空间装进更大的 OIS 模组（传感器位移式），低光成像提升明显。',
+      specs:[['防抖','Sensor-Shift'],['低光','+47% 进光']] },
+    { id:'coil', zh:'无线充电线圈', en:'MAGSAFE COIL',
+      ex:[.3,-2.6,-.9], lo:[0,1.1,0], tag:'MagSafe Qi 15W',
+      desc:'MagSafe 磁吸线圈：Qi 15W 无线充，磁体对位即吸即充。',
+      specs:[['标准','MagSafe · 15W']] },
+    { id:'usb-pcb', zh:'尾插小板', en:'CHARGER FPC',
+      ex:[1.5,-3.0,-1.0], lo:[0,1.0,0], tag:'Lightning · 20W',
+      desc:'Lightning 尾插小板：20W PD 快充（半小时 50%）。',
+      specs:[['接口','Lightning'],['快充','20W PD']] },
+  ],
+  postLoad: composePostLoad(
+    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
+    anchorParts({
+      board:     { ref:'display', dy: 4.2, dz:-.5 },
+      battery:   { ref:'display', dy:-1.7, dz:-.6 },
+      'camera-module': { ref:'camera', dz:-1.0 },
+      coil:      { ref:'back-glass', dy:-3.0, dz:.6 },
+      'usb-pcb': { ref:'back-glass', dy:-6.4, dz:.5 },
+    }),
+  ),
+  tick: screen.tick,
+});

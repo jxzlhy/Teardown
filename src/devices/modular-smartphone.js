@@ -1,0 +1,95 @@
+/* =============================================================
+   设备配置：模块化概念手机（社区概念机）
+   社区模型（Sketchfab）：27 网格全语义命名——真实电池网格
+   （Battery_*）/真实主板网格（Mainboard_*）/外露黄色触点
+   （contactsyellow）；屏朝 -x（FrontGlass x=-0.3 vs BackGlass
+   x=+0.3 实测）→ frontAxis '-x'。零程序化补件。
+============================================================= */
+import { makeDevice, composePostLoad } from './_kit/factory.js';
+import { makePhoneScreen } from './_kit/screen.js';
+
+const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'MODULAR', carrier: '5G', accent: '#f2b544' });
+
+export default makeDevice({
+  id: 'modular-smartphone',
+  name: '模块化概念手机',
+  en: 'MODULAR SMARTPHONE',
+  category: '手机',
+  brand: 'CONCEPT',
+  tagline: '可拆电池 · 外露触点 · 维修权宣言',
+  description: '一台社区概念模块化手机：电池、主板、SIM 托全部是独立可拔插的实体网格，中框侧面排着外露的黄色镀金触点（contactsyellow）——模块从侧滑轨道接入主板。电池丝印上恶搞的「SUMSANG」字样是建模者的趣味彩蛋。这类设计向 Fairphone/Project Ara 的模块化精神致敬：修得起的手机才是好手机。',
+  specs: [
+    ['形态','侧滑模块化概念机'],['电池','可拆换独立模块'],
+    ['主板','外露板 · 触点直连'],['扩展','侧滑触点轨道'],
+    ['来源','社区概念模型'],['精神原点','Project Ara / Fairphone'],
+  ],
+  accent: '#f2b544',
+  source: '社区概念模型（Sketchfab）',
+  modelCredit: 'Modular smartphone concept model by community (Sketchfab)',
+  targetWidth: 13,
+  camDist: 1.1,
+  normalize: 'full',
+  frontAxis: '-x',
+  glb: '/assets/modular-smartphone.glb',
+  mappingPrefix: {
+    'FrontCameraLens': 'camera',
+    'FrontCamera':     'front-cam',
+    'FrontGlass':      'display',
+    'Battery':         'battery',
+    'Mainboard':       'board',
+    'SimCard':         'sim',
+    'BackGlass':       'back-glass',
+    'Camera':          'camera',
+    'Flashlight':      'flash',
+    'PhoneFrame':      'frame',
+    'OnOff':           'buttons',
+    'Lauts':           'buttons',
+  },
+  realPartIds: ['frame','display','back-glass','camera','front-cam','flash','sim','buttons','battery','board'],
+  parts: [
+    { id:'frame', zh:'模块化中框', en:'MODULAR FRAME', real:true,
+      ex:[0,0,2.0], lo:[0,1.2,0], tag:'侧滑轨道 · 镀金触点',
+      desc:'模块化中框：侧边排布外露黄色镀金触点阵列，模块经侧滑轨道推入即与主板直连——不需要排线，坏了单独拔换。',
+      specs:[['结构','侧滑模块轨道'],['触点','外露镀金阵列'],['维修','模块级免工具']] },
+    { id:'display', zh:'正面屏幕', en:'FRONT GLASS + SCREEN', real:true,
+      ex:[0,.2,2.6], lo:[0,1.4,0], tag:'前面板组件',
+      desc:'前面板与屏幕组件：作为独立面板件与中框拼合，模块化设计里屏幕也是「可更换件」。',
+      specs:[['形态','独立面板件'],['维修','可整体更换']] },
+    { id:'back-glass', zh:'后盖板', en:'BACK PANEL', real:true,
+      ex:[0,-.2,-2.6], lo:[0,1.3,0], tag:'透接触点视窗',
+      desc:'后盖板：透出内部的模块分区与触点阵列，让「内部可见」成为设计语言——模块化设备的外观即结构图。',
+      specs:[['表面','透明视窗设计'],['功能','模块状态可见']] },
+    { id:'camera', zh:'后置三摄', en:'TRIPLE CAMERA', real:true,
+      ex:[1.5,2.4,-1.8], lo:[0,1.5,0], tag:'三镜纵列',
+      desc:'后置三颗独立相机模块纵列排布：每颗镜头都是独立子组件（镜筒+镜片+玻璃盖），模块化理念下相机亦可整体更换升级。',
+      specs:[['布局','三镜纵列'],['形态','独立可换模块']] },
+    { id:'front-cam', zh:'前置相机', en:'FRONT CAMERA', real:true,
+      ex:[-1.3,2.5,1.5], lo:[0,1.1,0], tag:'顶部居中',
+      desc:'前置相机模块：顶部居中独立安装，同样是可拔插的子模块。',
+      specs:[['位置','顶部居中'],['形态','独立模块']] },
+    { id:'flash', zh:'闪光灯', en:'FLASH', real:true,
+      ex:[.9,2.6,-.7], lo:[0,1.0,0], tag:'独立闪光模块',
+      desc:'独立闪光灯模块，与三摄同区排布。',
+      specs:[['形态','独立模块']] },
+    { id:'sim', zh:'SIM 卡模块', en:'SIM MODULE', real:true,
+      ex:[-2.3,-1.2,1.6], lo:[0,1.0,0], tag:'红色托盘 · 全滑出',
+      desc:'SIM 卡模块（红色托盘）：从侧向完整滑出的独立件——红色警示色是模块化设计里「可拆卸件」的常用语义。',
+      specs:[['形态','侧滑全弹出'],['标识','红色可拆件']] },
+    { id:'buttons', zh:'实体按键组', en:'PHYSICAL BUTTONS', real:true,
+      ex:[2.5,.4,1.3], lo:[0,1.1,0], tag:'音量 + 电源',
+      desc:'音量键（Lautstärke，德语命名）与电源键（OnOff，带红色点缀）：实体按键独立于中框，同样是可更换件。',
+      specs:[['按键','音量 · 电源'],['命名','德语（建模者来源）']] },
+    { id:'battery', zh:'可拆电池模块', en:'SWAPPABLE BATTERY', real:true,
+      ex:[-1.2,-2.4,1.2], lo:[0,1.4,0], tag:'真电池网格 · SUMSANG 彩蛋',
+      desc:'真实电池网格：银色电芯 + 印字标签，从机身抽拉更换——「电池可换」是模块化手机对一体机时代最大的反击。电池标签上的「SUMSANG」丝印是建模者埋的山寨梗彩蛋。',
+      specs:[['形态','抽拉式模块'],['彩蛋','SUMSANG 恶搞丝印'],['更换','免工具']] },
+    { id:'board', zh:'外露主板', en:'EXPOSED MAINBOARD', real:true,
+      ex:[0,2.2,.4], lo:[0,1.4,0], tag:'真主板网格 · 走线纹理',
+      desc:'真实主板网格：电路板纹理直接可见，与中框触点阵列对位插接——主板本身也是一个「模块」。',
+      specs:[['形态','插接式主板'],['纹理','电路走线可见'],['连接','触点直连']] },
+  ],
+  postLoad: composePostLoad(
+    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
+  ),
+  tick: screen.tick,
+});

@@ -1,0 +1,123 @@
+/* =============================================================
+   设备配置：Samsung Galaxy S22 Ultra（2022）
+   社区模型（Sketchfab）：28 匿名网格 + 27 语义材质
+   （Display_ActiveArea / Pen_* / Zoom_Cam / Rearcase…）
+   资产 Y 直立、屏朝 +z；S-Pen 竖插右缘笔仓（x≈1.5 实测）
+   映射：materialMapping 材质名直映
+============================================================= */
+import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
+import { makePhoneScreen } from './_kit/screen.js';
+import { mainboard, battery, chargeCoil, speakerBox, portPcb } from './_kit/internals.js';
+
+const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'SAMSUNG', carrier: '5G', accent: '#7a6ff0' });
+
+const builders = {
+  board: (g)=> mainboard(g, { w:5.4, h:3.2, soc:[-1.4,.6], ram:[1.3,.9], label:'SNAPDRAGON 8G1', sub:'SM-S908 · MAIN BOARD', pcb:'#123c2e', smalls:18 }),
+  battery: (g)=> battery(g, { w:5.2, h:4.4, d:.55, label:'SAMSUNG', capacity:'5000 mAh', model:'EB-BS908', rating:'3.86V' }),
+  coil:   (g)=> chargeCoil(g, 1.8),
+  speaker: (g)=> speakerBox(g, 2.4, 1.0, .55),
+  'usb-pcb': (g)=> portPcb(g, 1.5, 1.05),
+};
+
+export default makeDevice({
+  id: 'galaxy-s22-ultra',
+  name: 'Samsung Galaxy S22 Ultra',
+  en: 'GALAXY S22 ULTRA',
+  category: '手机',
+  brand: 'SAMSUNG',
+  tagline: 'Note 血统回归 · 内置 S-Pen · 10 倍潜望',
+  description: 'Galaxy S22 Ultra（2022）：Galaxy S 系与 Note 系的正式合体——直角机身 + 内置 S-Pen 笔仓（2.8ms 出墨延迟），Note 粉丝等了三年的答案。四摄里两颗长焦（3× 直立 + 10× 潜望）是同期影像堆料天花板。社区模型（Sketchfab），S-Pen 是独立可拆部件，内构件为示意重建。',
+  specs: [
+    ['芯片','骁龙 8 Gen 1 / Exynos 2200'],['屏幕','6.8″ Edge QHD+ · 1-120Hz LTPO'],
+    ['主摄','108MP f/1.8 OIS'],['长焦','10MP 3× + 10MP 10× 潜望'],
+    ['S-Pen','内置 · 2.8ms 延迟'],['电池','5000 mAh · 45W'],
+    ['防抖','OIS + 超级稳定'],['重量','228 g'],
+  ],
+  accent: '#7a6ff0',
+  source: '社区模型（Sketchfab）',
+  modelCredit: 'Samsung Galaxy S22 Ultra model by community (Sketchfab)',
+  targetWidth: 14,
+  camDist: 1.2,
+  normalize: 'full',
+  glb: '/assets/galaxy-s22-ultra.glb',
+  materialMapping: {
+    'Display_ActiveArea': 'display', 'Bezel': 'display',
+    'Back_Cover_Glass': 'back-glass', 'BackCover_Glass_hole': 'back-glass', 'SAMSUNG_LOGO': 'back-glass',
+    'BackCamDeco': 'camera-island', 'Cam_Bezel': 'camera-island', 'Cam_Body': 'camera-island',
+    'Cam_Glass': 'camera-island', 'Cam_lens': 'camera-island', 'Zoom_Cam': 'camera-island',
+    'Pen_Ball': 'pen', 'Pen_Body': 'pen', 'Pen_Button': 'pen', 'Pen_Top': 'pen',
+    'Rearcase': 'frame', 'Rearcase_hole': 'frame', 'Antenna_Plastic': 'frame',
+    'Gray': 'frame', 'Black_hole': 'frame', 'material': 'frame',
+    'SpeakerMic': 'speaker',
+    'Usb_1': 'port', 'Usb_2': 'port',
+    'Flash': 'flash', 'Flash_Glass': 'flash',
+    'Sensor': 'sensor',
+  },
+  realPartIds: ['display','back-glass','camera-island','pen','frame','speaker','port','flash','sensor'],
+  builders,
+  parts: [
+    { id:'display', zh:'微曲Edge屏', en:'DYNAMIC AMOLED 2X', real:true,
+      ex:[0,.2,2.9], lo:[0,1.5,0], tag:'6.8″ QHD+ · 1750nit',
+      desc:'6.8 英寸 Dynamic AMOLED 2X 微曲屏：3088×1440 QHD+、LTPO 1-120Hz 自适应，户外峰值亮度 1750nit——同期安卓屏的天花板；超窄微曲边框让 S-Pen 书写手感接近纸面。',
+      specs:[['尺寸','6.8″ 3088×1440'],['刷新','1-120Hz LTPO'],['亮度','1750nit 峰值'],['玻璃','Gorilla Glass Victus+']] },
+    { id:'back-glass', zh:'后盖玻璃', en:'BACK GLASS', real:true,
+      ex:[0,-.2,-2.9], lo:[0,1.4,0], tag:'雾面玻璃 · Note 直角',
+      desc:'雾面处理后盖玻璃：Note 系直角轮廓回归，边缘切割利落；SAMSUNG LOGO 与摄像头开孔一体成型，MagSafe 无缘——三星走的是自己的一体化路线。',
+      specs:[['材质','磨砂强化玻璃'],['设计','Note 直角轮廓'],['开孔','相机孔一体']] },
+    { id:'camera-island', zh:'四摄阵列', en:'QUAD CAMERA ARRAY', real:true,
+      ex:[1.4,2.4,-1.9], lo:[0,1.5,0], tag:'108MP + 双长焦',
+      desc:'直列四摄：108MP 主摄（f/1.8 OIS、九合一像素）+ 12MP 超广角 + 10MP 3× 直立长焦 + 10MP 10× 潜望长焦，镜头圈直接凸起于机身——不做相机岛包覆，Note 式的实用主义。',
+      specs:[['主摄','108MP f/1.8 OIS'],['超广角','12MP f/2.2'],['长焦','3× + 10× 潜望'],['视频','8K 24 / 4K 60']] },
+    { id:'pen', zh:'S-Pen', en:'S-PEN STYLUS', real:true,
+      ex:[2.4,-.6,.8], lo:[0,1.2,0], tag:'内置笔仓 · 2.8ms',
+      desc:'S-Pen：首次从 Note 系并入 S Ultra 旗舰线，笔仓藏在机身左下角（模型里竖插于右缘）。压感 4096 级、出墨延迟 2.8ms，笔身按键支持隔空手势；供电靠笔仓内的线圈感应，无需充电插入对齐。',
+      specs:[['压感','4096 级'],['延迟','2.8ms'],['供电','笔仓线圈感应'],['传承','Note 系合体']] },
+    { id:'frame', zh:'装甲铝边框', en:'ARMOR ALUMINUM FRAME', real:true,
+      ex:[0,0,2.0], lo:[0,1.2,0], tag:'Armor Aluminum',
+      desc:'装甲铝（Armor Aluminum）边框：三星自研铝合金牌号，强度较 6061 铝提升 10%；注塑天线带与微曲屏衔接处做了收弧处理。',
+      specs:[['材质','Armor Aluminum'],['强度','+10% vs 6061'],['天线','注塑断点']] },
+    { id:'speaker', zh:'扬声器', en:'SPEAKER MODULE', real:true,
+      ex:[1.7,-2.9,-.6], lo:[0,1.0,0], tag:'AKG 调音双扬',
+      desc:'底部主扬声器（AKG 调音）：与听筒组成立体声双扬，支持杜比全景声。',
+      specs:[['调音','AKG'],['音效','杜比全景声']] },
+    { id:'port', zh:'USB-C 尾插', en:'USB-C PORT', real:true,
+      ex:[1.5,-3.0,.6], lo:[0,1.0,0], tag:'USB-C 3.2',
+      desc:'USB-C 尾插：USB 3.2 速率，45W PD/PPS 快充与 DeX 桌面模式输出共用这一口。',
+      specs:[['接口','USB-C 3.2'],['快充','45W PPS'],['扩展','DeX 输出']] },
+    { id:'flash', zh:'闪光灯', en:'LED FLASH', real:true,
+      ex:[.9,2.7,-.7], lo:[0,1.0,0], tag:'LED 补光',
+      desc:'后置 LED 闪光灯，与四摄同列。',
+      specs:[['类型','LED']] },
+    { id:'sensor', zh:'激光对焦传感器', en:'AF SENSOR', real:true,
+      ex:[-.8,2.6,-.5], lo:[0,1.0,0], tag:'激光辅助对焦',
+      desc:'激光对焦辅助传感器：暗光下快速测距辅助主摄对焦。',
+      specs:[['功能','激光 AF 辅助']] },
+    { id:'board', zh:'主板', en:'SNAPDRAGON 8G1 BOARD',
+      ex:[0,2.5,.4], lo:[0,1.5,0], tag:'骁龙 8 Gen 1 · 12GB',
+      desc:'主板：骁龙 8 Gen 1（4nm，部分地区 Exynos 2200），12GB LPDDR5 内存；S-Pen 控制器与 Wacom 电磁数字化仪集成在板侧。',
+      specs:[['SoC','骁龙 8 Gen 1 4nm'],['内存','8/12GB LPDDR5'],['数位板','Wacom 电磁方案']] },
+    { id:'battery', zh:'电池', en:'BATTERY 5000 mAh',
+      ex:[-1.0,-2.2,1.0], lo:[0,1.5,0], tag:'5000 mAh · 45W',
+      desc:'5000 mAh 双排电池：45W 有线 + 15W 无线 + 4.5W 反向充（可给 S-Pen 与耳机补电）。',
+      specs:[['容量','5000 mAh'],['有线','45W PPS'],['反向','4.5W']] },
+    { id:'coil', zh:'无线充电线圈', en:'CHARGE COIL',
+      ex:[.3,-2.7,-1.0], lo:[0,1.1,0], tag:'Qi 15W',
+      desc:'Qi 无线充电线圈（15W），与 S-Pen 感应供电共用电磁方案；线圈避开笔仓开孔偏置布置。',
+      specs:[['标准','Qi · 15W'],['细节','避开笔仓偏置']] },
+    { id:'usb-pcb', zh:'尾插小板', en:'CHARGER FPC',
+      ex:[1.5,-3.2,-1.0], lo:[0,1.0,0], tag:'USB-C 3.2 走线',
+      desc:'USB-C 尾插小板：45W 快充走线与底部麦克风。',
+      specs:[['接口','USB-C 3.2']] },
+  ],
+  postLoad: composePostLoad(
+    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
+    anchorParts({
+      board:     { ref:'display', dy: 4.6, dz:-.5 },
+      battery:   { ref:'display', dy:-1.8, dz:-.6 },
+      coil:      { ref:'back-glass', dy:-3.2, dz:.6 },
+      speaker:   { ref:'back-glass', dy:-6.4, dz:.5 },
+      'usb-pcb': { ref:'back-glass', dy:-7.0, dz:.5 },
+    }),
+  ),
+  tick: screen.tick,
+});

@@ -1,0 +1,4 @@
+interface:
+  display_name: "接新设备 SOP"
+  short_description: "拆解馆接入新设备的完整流程：查重、脚手架、GLB 压缩、映射、校验、缩略图、清单"
+  default_prompt: "Use $add-device to walk the full onboarding SOP for a new teardown device: dedupe, scaffold with npm run add, compress the GLB (webp then draco), configure mappings and orientation, lint, calibrate on the live page, render the thumbnail and regenerate the inventory."
