@@ -39,6 +39,20 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · 策展收官（32 台，除 marshall 外全馆策展完成）
+
+32 台补 tour + xrayShellIds（iphone-13/18-pro-max-burgundy/modular-smartphone/phone3/phone3alite/
+phone4apro、countach、porsche×2、vcr/sony-tc510/radio/cassette/console/multimeter/casio/钟表×4、
+drill-press/hand-drill/planetary-gearbox/vintage-microscope、m4/gl-06、hubble、computer-parts、
+switch-oled、inside-drone、cash-register、royal-typewriter）。
+修复：phone3 tour 引用不存在的 board → internals（lint 警告清零）。
+**全馆 92/93 台有策展**（marshall-jcm800 刻意保留无策展供 smoke Tour 兜底断言）。
+验证：lint 93/93（0 错 0 警）、build 1.80s、smoke 全通过、6 台抽查。推送 257bef2。
+
 ## 2026-10-30 · smeg-toaster 正式接入（93 台 / 767 部件 / 30 品牌）
 
 此前"匿名网格待映射"的候选正式接入：18 匿名图元按位置/尺寸/材质判读聚类 6 部件
@@ -66,14 +80,14 @@ thumbs 1/1。品牌名仅作型号署名。策展设备累计 55 台。推送 99
 ### 规模：**93 台设备 / 767 部件 / 30 品牌**（MODEL_INVENTORY.md 自动生成）
 
 ### 下一项（按优先级）
-1. 策展收尾：盘点剩余无策展设备（大多 2-4 部件小件），把 ≥5 部件者补齐，2-4 部件者按需
-2. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴/天文陀飞轮替代品）
-3. 真机横向回归（需环境）
-4. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
+1. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴/天文陀飞轮替代品）
+2. 真机横向回归（需环境）
+3. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
+4. 新设备批次滚动（研究报告余下候选已基本消化，需新一轮外部调研）
 
 ### 验证基线（本会话末次全绿）
 - `npm run lint:devices` 93/93（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
-- Gitee main 同步至 99f6b50；vendor/assets/originals 保持本地（gitignore）。
+- Gitee main 同步至 257bef2；vendor/assets/originals 保持本地（gitignore）。
 
 ## 2026-10-30 · 策展第三批（mac/audio/穿戴/输入家族 12 台）
 
