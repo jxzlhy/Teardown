@@ -39,6 +39,9 @@ export default makeDevice({
   camDist: 1.25,
   normalize: 'full',
   glb: '/assets/iphone-18-pro-max.glb',
+  /* 策展导览：屏→框→板→影像→电池→底部→后玻璃 */
+  tour: ['display','frame','board','camera','camera-island','battery','coil','speaker','usb-pcb','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   mapByPosition(name, p, rel){
     /* 屏幕平面 z≈+0.004(rel≈1.0) / 中框层 ≈0.45-0.8 / 背板 ≈0.3 / 镜头 ≈0.02 */
     if(rel.z > 0.8) return 'display';

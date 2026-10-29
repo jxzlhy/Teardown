@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 13.0,
   camDist: 1.3,
   glb: '/assets/studio-display.glb',
+  /* 策展导览：显示体→支架→底座→主板→电源→扬声器 */
+  tour: ['display-body','stand','foot','board','psu','speaker'],
+  xrayShellIds: ['display-body'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.y < -14) return p.z < 2 ? 'stand' : 'foot';

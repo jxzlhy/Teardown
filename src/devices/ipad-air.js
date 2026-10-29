@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 11.5,
   camDist: 1.15,
   glb: '/assets/ipad-air.glb',
+  /* 策展导览：屏→机身→板→电池→影像→配件 */
+  tour: ['display-front','body','board','battery','camera','accessory'],
+  xrayShellIds: ['display-front','body'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     /* 斜立姿势：前侧低区为配件（Pencil/键盘），主屏为 slab */

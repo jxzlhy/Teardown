@@ -30,6 +30,9 @@ export default makeDevice({
   targetWidth: 12.0,
   camDist: 1.15,
   glb: '/assets/ipad-pro.glb',
+  /* 策展导览：屏→机身→妙控键盘→板→电池→影像 */
+  tour: ['display-front','body','keyboard-base','board','battery','camera'],
+  xrayShellIds: ['display-front','body','keyboard-base'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     /* 主体为中央平板 slab；前侧低区为妙控键盘底座 */

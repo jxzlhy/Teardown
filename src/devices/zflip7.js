@@ -33,6 +33,9 @@ export default makeDevice({
   source: 'Samsung 官网产品页 AR 模型',
   targetWidth: 13.8,   /* 展开高 165.1mm 为最大维 */
   glb: '/assets/zflip7.glb',
+  /* 策展导览：外屏→铰链→两半机身→内屏→电子件（折叠机叙事） */
+  tour: ['display-cover','hinge','half-top','half-bottom','display-main','mainboard','subboard','battery1','battery2','camera-module','camera','coil','speaker','usb'],
+  xrayShellIds: ['display-cover','display-main','half-top','half-bottom'],
   draco: true,
   normalize: 'full',
   mapping: {

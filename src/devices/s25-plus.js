@@ -33,6 +33,9 @@ export default makeDevice({
   source: 'Samsung 官网产品页 AR 模型',
   targetWidth: 14.2,
   glb: '/assets/s25-plus.glb',
+  /* 策展导览：与 s25-ultra 同构 */
+  tour: ['display','frame','mainboard','camera','camera-island','battery','coil','taptic','speaker','usb','usb-pcb','sim','back-cover','logo'],
+  xrayShellIds: ['display','back-cover','frame'],
   draco: true,
   normalize: 'full',
   mapping: {

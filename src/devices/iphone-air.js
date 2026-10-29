@@ -30,6 +30,9 @@ export default makeDevice({
   source: 'Apple 官网 AR 模型（USDZ 转制）',
   targetWidth: 12.0,
   glb: '/assets/iphone-air.glb',
+  /* 策展导览：屏→主板（高原内）→影像→脊柱电池→相机高原→底部→钛铝后壳 */
+  tour: ['display','board','camera','battery','camera-plateau','usb-pcb','back-cover'],
+  xrayShellIds: ['display','back-cover'],
   normalize: 'full',
   frontAxis: '-z',      /* 资产平放、屏幕朝 -Z（资产屏幕默认熄屏） */
   mapByPosition(name, p, rel){

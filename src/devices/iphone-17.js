@@ -35,6 +35,9 @@ export default makeDevice({
   source: 'Apple 官网 AR 模型（USDZ 转制）',
   targetWidth: 14.0,
   glb: '/assets/iphone-17.glb',
+  /* 策展导览：屏→框→板→影像→电池→底部→后玻璃 */
+  tour: ['display','frame','board','camera','camera-island','battery','coil','speaker','usb-pcb','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   normalize: 'full',
   mapByPosition(name, p, rel){
     if(p.z > 0.25) return 'display';

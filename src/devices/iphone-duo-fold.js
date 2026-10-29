@@ -38,6 +38,9 @@ export default makeDevice({
   camDist: 1.1,
   normalize: 'full',
   glb: '/assets/iphone-duo-fold.glb',
+  /* 策展导览：屏→铰链→中框→板→电池→底部→背盖（折叠叙事） */
+  tour: ['display','hinge','frame','board','battery','coil','speaker','usb-pcb','back-r'],
+  xrayShellIds: ['display','back-r','frame'],
   mapByPosition(name, p, rel, ext){
     /* 铰链条：中缝 x≈0 的横向细杆（0.0125×0.0018×0.0017 实测） */
     if(Math.abs(p.x) < 0.012 && ext.x < 0.02 && ext.y < 0.006) return 'hinge';
