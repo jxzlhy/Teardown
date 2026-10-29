@@ -94,6 +94,7 @@ import angleGrinder from './angle-grinder.js';
 import pinballMachine from './pinball-machine.js';
 import tripleEngine from './triple-engine.js';
 import gramophone from './gramophone.js';
+import smegToaster from './smeg-toaster.js';
 
 export const devices = [
   /* DJI */
@@ -141,6 +142,8 @@ export const devices = [
   sonyTc510,
   /* DEWALT */
   angleGrinder,
+  /* SMEG */
+  smegToaster,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

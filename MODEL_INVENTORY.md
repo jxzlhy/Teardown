@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**92 台设备** · 761 个部件 · 92 套 GLB · 29 个品牌
+> 当前：**93 台设备** · 767 个部件 · 93 套 GLB · 30 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -257,4 +257,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | angle-grinder | 角磨机（DeWalt D28136） | 工具 | 5 | 社区 | angle-grinder.glb | 887 KB |
+
+### SMEG（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| smeg-toaster | Smeg 烤面包机 | 厨电 | 6 | 社区 | smeg-toaster.glb | 280 KB |
 
