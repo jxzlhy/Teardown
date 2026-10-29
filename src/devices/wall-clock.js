@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#9fb4c7',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Wall Clock by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/wall_clock',
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/wall-clock.glb',

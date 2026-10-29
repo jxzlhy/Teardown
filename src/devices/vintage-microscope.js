@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#d4b06a',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Vintage Microscope by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/vintage_microscope',
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/vintage-microscope.glb',

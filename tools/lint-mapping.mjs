@@ -77,6 +77,8 @@ for(const d of devices){
       fail('Sketchfab 模型缺少 modelSource（sketchfab.com 模型主页链接）');
     if(/NASA/i.test(credit) && !/^https:\/\/(science\.nasa\.gov|www\.nasa\.gov)\//.test(d.modelSource || ''))
       fail('NASA 模型缺少 modelSource（science.nasa.gov 资源页链接）');
+    if(/Poly Haven/i.test(credit) && !/^https:\/\/polyhaven\.com\//.test(d.modelSource || ''))
+      fail('Poly Haven 模型缺少 modelSource（polyhaven.com 资产页链接）');
     if(d.modelSource && !/^https:\/\//.test(d.modelSource)) fail('modelSource 必须是 https:// 链接');
   }
 

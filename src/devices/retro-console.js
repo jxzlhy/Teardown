@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#8f6bd6',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Gaming Console by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/gaming_console',
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/retro-console.glb',

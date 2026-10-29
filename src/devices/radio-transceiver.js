@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#7ec8a9',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Vintage Radio Transceiver by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/vintage_radio_transceiver',
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/radio-transceiver.glb',

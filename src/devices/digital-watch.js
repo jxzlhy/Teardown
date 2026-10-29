@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#7fd1c0',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Digital Wrist Watch by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/digital_wrist_watch',
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/digital-watch.glb',

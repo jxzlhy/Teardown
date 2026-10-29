@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#c9a24b',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Pocket Watch by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/pocket_watch',
   targetWidth: 4.5,
   normalize: 'full',
   glb: '/assets/pocket-watch.glb',

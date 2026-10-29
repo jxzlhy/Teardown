@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#e08f3c',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Retro Multimeter by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/retro_multimeter',
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/retro-multimeter.glb',

@@ -24,6 +24,7 @@ export default makeDevice({
   accent: '#d9c07a',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Filmstrip Projector 8mm by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/filmstrip_projector_8mm',
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/filmstrip-projector.glb',

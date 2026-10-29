@@ -24,6 +24,7 @@ export default makeDevice({
   accent: '#c9a24b',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Drill Press by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/drill_press_01',
   targetWidth: 11,
   normalize: 'full',
   glb: '/assets/drill-press.glb',

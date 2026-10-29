@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#e0b64f',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Alarm Clock by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/alarm_clock_01',
   targetWidth: 7,
   normalize: 'full',
   frontAxis: '-z',

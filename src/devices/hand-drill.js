@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#b0503c',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Vintage Hand Drill by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/vintage_hand_drill',
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/hand-drill.glb',

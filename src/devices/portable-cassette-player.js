@@ -23,6 +23,7 @@ export default makeDevice({
   accent: '#5aa9e6',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Portable Cassette Player by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/portable_cassette_player',
   targetWidth: 9,
   normalize: 'full',
   glb: '/assets/portable-cassette-player.glb',

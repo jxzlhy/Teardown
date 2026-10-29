@@ -22,6 +22,7 @@ export default makeDevice({
   accent: '#c98f3d',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Cash Register by Poly Haven (CC0)',
+  modelSource: 'https://polyhaven.com/a/CashRegister_01',
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/cash-register.glb',
