@@ -96,6 +96,7 @@ import tripleEngine from './triple-engine.js';
 import gramophone from './gramophone.js';
 import smegToaster from './smeg-toaster.js';
 import tourbillonMovement from './tourbillon-movement.js';
+import grandPiano from './grand-piano.js';
 
 export const devices = [
   /* DJI */
@@ -120,7 +121,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */

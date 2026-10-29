@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**94 台设备** · 774 个部件 · 94 套 GLB · 31 个品牌
+> 当前：**95 台设备** · 781 个部件 · 95 套 GLB · 31 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（28 台）
+### GENERIC（29 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -130,6 +130,7 @@
 | pinball-machine | 弹珠台 | 游戏 | 9 | 社区 | pinball-machine.glb | 1.1 MB |
 | triple-engine | 直列三缸摩托车发动机 | 发动机 | 10 | 社区 | triple-engine.glb | 618 KB |
 | gramophone | 手摇留声机 | 影音 | 4 | 社区 | gramophone.glb | 924 KB |
+| grand-piano | 三角钢琴（活动击弦机） | 乐器 | 7 | 社区 | grand-piano.glb | 105 KB |
 
 ### KALASHNIKOV（1 台）
 
