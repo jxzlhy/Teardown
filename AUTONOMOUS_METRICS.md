@@ -2,6 +2,24 @@
 
 > 只记录可复现的测量；无测量的项目不写数值。
 
+## 2026-10-30（会话累计）
+
+| 指标 | 数值 | 测量方式 |
+|---|---|---|
+| 设备规模 | 93 台 / 767 部件 / 93 GLB / 30 品牌 | `npm run gen:inventory` |
+| GLB 总体积 | ~190MB 级（新增 5 台：blender 280KB / grinder 908KB / pinball 1.18MB / triple-engine 618KB / gramophone 924KB / smeg 280KB，均为压缩后） | `npm run optimize-glb` 输出 |
+| `lint:devices` | 93/93（0 错 0 警），含署名/来源链接强制规则 | `npm run lint:devices` |
+| `build` 耗时 | 1.8–2.1s | `npm run build` |
+| 冒烟 | `npm run smoke` 全通过（含 three chunk、Tour 兜底、移动端间距断言） | 无头 Chrome + SwiftShader |
+| **全量生产回归** | **93/93 台装载通过，0 异常**（booted + 状态匹配 + parts>0 + 0 pageerror + 0 HTTP 4xx） | `vite preview` + 无头 Chrome 逐台遍历（docs/full-regression-2026-10-30.log） |
+| 来源口径 | 35 官方 / 55 社区（NASA 计官方） | 大厅统计断言 |
+| 署名覆盖 | 外部来源设备 51/51 有 modelSource 链接（Sketchfab/NASA/Poly Haven，lint 强制） | `npm run lint:devices` + curl 逐条 200 |
+| 策展覆盖 | 92/93 台有 tour + xrayShellIds（marshall-jcm800 刻意保留供 smoke 兜底断言） | lint + KeyT 抽查 |
+| 特写小图 | 详情卡全量生效（离屏 RT 捕获，dataURL 5.6万–13.1万字节实测） | 无头 Chrome 多台 |
+| 新设备压缩率 | blender 2.15MB→206KB（9%）/ grinder→887KB（10%）/ pinball→1.12MB（16%）/ triple-engine→618KB（14%）/ gramophone→924KB（10%）/ smeg→280KB（8%） | `tools/optimize-glb.mjs` 输出 |
+| 落选记录 | 4 台 inspect 后淘汰（tourbillon/wankel/walkman 不可拆、smeg 曾暂缓后接入） | inspect-glb 判读 |
+| Gitee 同步 | main 与 origin 一致，25+ 提交 | `git log` / push 输出 |
+
 ## 2026-10-29
 
 | 指标 | 修复前（审计基线） | 修复后 | 测量方式 |
