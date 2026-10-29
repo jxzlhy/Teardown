@@ -55,6 +55,18 @@ v8/combustion/v6/jet-engine（动力流叙事）、hypoid-gear、hydraulic-jack�
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+# 自主迭代日志
+
+> 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
+
+## 2026-10-30 · Game Boy 缺口定案（拆解无解）
+
+Smoggybeard CC-BY 模型（86k 顶点候选）下载 inspect：12 网格全部为外观件
+（机身×2 / 屏幕 / 玻璃 / 贴花 / D-PAD / AB 键 / START-SELECT / 电量灯），无主板/卡带/
+扬声器等任何内构件——按 AGENTS 红线（不得用程序化内构件冒充真机结构）判定**拆解无解**，
+检验后删除检验件（原始件保留 originals/gameboy_smoggybeard.glb 供未来混合路径参考）。
+四缺口最终口径：陀飞轮 ✅ / 钢琴 ✅ / Game Boy ❌ / 手风琴 ❌。
+
 ## 2026-10-30 · 钢琴击弦机接入（95 台 / 781 部件 / 31 品牌）
 
 GAP 调研第二项落地：thing:4059233（icefox1983 "Grand piano with moving parts"，CC-BY 4.0）。
@@ -135,17 +147,17 @@ thumbs 1/1。品牌名仅作型号署名。策展设备累计 55 台。推送 99
 9. 策展第二/三/四批：手机/平板/显示器 + mac/audio/穿戴 + 无人机/相机/发动机家族 36 台（733a01e/5fd42b5/f818dec）——累计 54 台策展
 10. 新设备 2 台：直列三缸摩托车发动机/手摇留声机（58aac76）+ 3 台 inspect 落选记录
 
-### 规模：**93 台设备 / 767 部件 / 30 品牌**（MODEL_INVENTORY.md 自动生成）
+### 规模：**95 台设备 / 781 部件 / 31 品牌**（MODEL_INVENTORY.md 自动生成）；策展 93/95 台
 
 ### 下一项（按优先级）
-1. 品类缺口换渠道调研（Thingiverse CC0：钢琴击弦机/Game Boy/手风琴/天文陀飞轮替代品）
-2. 真机横向回归（需环境）
-3. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
-4. 新设备批次滚动（研究报告余下候选已基本消化，需新一轮外部调研）
+1. 真机横向回归（需环境）
+2. 引擎打磨：特写小图按部件类型定制方位；标签遮挡继续抽查
+3. stl2glb-batch 工具完善：ASCII STL 与 3MF 支持（现仅二进制 STL）
+4. 新设备需新一轮外部调研（GAP 四缺口已收官：陀飞轮/钢琴接入，Game Boy/手风琴无解）
 
 ### 验证基线（本会话末次全绿）
-- `npm run lint:devices` 93/93（0 错 0 警）；`npm run build` ~2s；`npm run smoke` 全通过；
-- Gitee main 同步至 257bef2；vendor/assets/originals 保持本地（gitignore）。
+- `npm run lint:devices` 95/95（0 错 0 警）；`npm run build` ~1.8s；`npm run smoke` 全通过；
+- Gitee main 同步至 dcbbb66；vendor/assets/originals 保持本地（gitignore）。
 
 ## 2026-10-30 · 策展第三批（mac/audio/穿戴/输入家族 12 台）
 
