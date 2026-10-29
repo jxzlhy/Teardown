@@ -345,7 +345,7 @@ const statusShort = computed(() => {
 });
 const statusTone = computed(() => {
   const s = ui.value.modelStatus || '';
-  if(s.startsWith('OFFICIAL') || s === 'PROCEDURAL') return 'ok';
+  if(s.startsWith('OFFICIAL') || s.startsWith('COMMUNITY') || s === 'PROCEDURAL') return 'ok';
   if(s.startsWith('FALLBACK')) return 'warn';
   return '';
 });
@@ -355,7 +355,7 @@ const loadStage = computed(() => {
   const s = ui.value.modelStatus || '';
   if(s.startsWith('LOADING')) return '加载官方模型';
   if(s === 'PARSING') return '编译材质';
-  if(s === 'PROCEDURAL' || s.startsWith('OFFICIAL') || s.startsWith('FALLBACK')) return '装配';
+  if(s === 'PROCEDURAL' || s.startsWith('OFFICIAL') || s.startsWith('COMMUNITY') || s.startsWith('FALLBACK')) return '装配';
   return '构建场景';
 });
 const loadPct = computed(() => {

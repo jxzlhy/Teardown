@@ -71,6 +71,9 @@ export default {
   accent: '#7ee787',
   targetWidth: 7.05,
   glb: '/assets/action5pro.glb',
+  /* 策展导览：与 action4 同构（镜头→传感→主板→散热→电池→外壳→屏幕） */
+  tour: ['lens','sensor','mainboard','thermal','battery','battery-cover','shell','rear-screen','front-screen','mount','shutter','qs','io-door','cover-glass'],
+  xrayShellIds: ['shell','battery-cover','io-door','front-screen','rear-screen','mount','shutter','qs'],
   mapping: {
     'GLASS':'lens','GLASS_2':'lens','lens01':'lens','lens02':'lens','lens03':'lens',
     '镜头丝印':'lens','镜头环_':'lens','JISHEN_09':'lens','JISHEN_022':'lens',

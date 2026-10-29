@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { installDomShim } from './lib-node-shim.mjs';
+import { isCommunityModel } from '../src/lib/model-class.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 installDomShim();
@@ -40,7 +41,7 @@ for(const d of devices){
     size: exists ? fileSize(abs) : 0,
     missing: d.glb && !exists,
     credit: !!d.modelCredit,
-    source: d.modelCredit ? '社区' : (d.glb ? '官方' : '程序化'),
+    source: d.glb ? (isCommunityModel(d) ? '社区' : '官方') : '程序化',
   });
 }
 const orphans = glbFiles.filter(f => !referenced.has(f));

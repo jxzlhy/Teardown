@@ -155,13 +155,13 @@
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| hubble-telescope | 哈勃空间望远镜 | 航天 | 8 | 社区 | hubble-telescope.glb | 4.0 MB |
+| hubble-telescope | 哈勃空间望远镜 | 航天 | 8 | 官方 | hubble-telescope.glb | 4.0 MB |
 
 ### NASA/JPL（1 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| perseverance-rover | 毅力号火星车 | 航天 | 12 | 社区 | perseverance-rover.glb | 2.8 MB |
+| perseverance-rover | 毅力号火星车 | 航天 | 12 | 官方 | perseverance-rover.glb | 2.8 MB |
 
 ### NINTENDO（2 台）
 

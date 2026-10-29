@@ -33,6 +33,9 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+x',
   glb: '/assets/iphone-12-teardown.glb',
+  /* 策展导览：屏→骨架→主板→摄像/传感→声学→底部→密封→后盖 */
+  tour: ['display','frame','chassis','board','board-cover','front-cam','sensor','earpiece','camera','flash','speaker','taptic','coil','port','sim','mic','buttons','antenna','wires','seals','screws','back-cover','shell'],
+  xrayShellIds: ['display','back-cover','frame','shell'],
   mappingPrefix: {
     /* 顺序即优先级：具体前缀在前 */
     'front_panel_screw': 'screws',

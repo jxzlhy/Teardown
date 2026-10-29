@@ -42,6 +42,9 @@ export default makeDevice({
   camDist: 1.15,
   normalize: 'full',
   glb: '/assets/iphone-16.glb',
+  /* 策展导览：屏→边框→主板→摄像→电池→底部→后玻璃 */
+  tour: ['display','frame','board','camera-module','camera','battery','coil','usb-pcb','port','speaker','buttons','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   mapByPosition(name, p, rel){
     if(rel.z > 0.7) return 'display';
     if(rel.y < 0.08) return Math.abs(rel.x - 0.5) < 0.2 ? 'port' : 'speaker';

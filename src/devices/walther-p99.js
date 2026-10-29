@@ -28,6 +28,9 @@ export default makeDevice({
   targetWidth: 8,
   normalize: 'full',
   glb: '/assets/walther-p99.glb',
+  /* 策展导览：底把→套筒→分解→枪管/复进→击发组→控制件→弹匣 */
+  tour: ['frame','slide','takedown-lever','barrel','locking-block','recoil-spring','striker','extractor','sights','trigger-group','sear-group','safety-plunger','decocker','slide-stop','magazine'],
+  xrayShellIds: ['slide','frame','magazine'],
   mappingPrefix: {
     'slideEndCap':  'slide',
     'slideStop':    'slide-stop',

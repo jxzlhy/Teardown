@@ -13,6 +13,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { isCommunityModel } from '../lib/model-class.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { matScreen } from './materials.js';
@@ -579,7 +580,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
     composer.render();
     updateLabelsFrame();
-    state.modelStatus = device.glb ? 'OFFICIAL · ' + device.en : 'PROCEDURAL';
+    const community = isCommunityModel(device);
+    state.modelStatus = device.glb ? ((community ? 'COMMUNITY' : 'OFFICIAL') + ' · ' + device.en) : 'PROCEDURAL';
     emit();
   }
 

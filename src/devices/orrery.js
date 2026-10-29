@@ -29,6 +29,9 @@ export default makeDevice({
   targetWidth: 9.5,
   normalize: 'full',
   glb: '/assets/orrery.glb',
+  /* 策展导览：底座→刻度环→立柱→太阳内芯→太阳→行星按轨道由内向外 */
+  tour: ['base-legs','base-ring','base-column','sun-core','sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'],
+  xrayShellIds: ['sun'],
   /* three.js GLTFLoader sanitizeNodeName 会把节点名里的 . 与空格清洗掉：
      'base.leg_0' → 'baseleg_0'、'p1.stk_0' → 'p1stk_0'、'sun.001_0' → 'sun001_0' */
   mapping: {

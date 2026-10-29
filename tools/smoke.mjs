@@ -93,7 +93,7 @@ try{
   await page.goto(BASE + '/#/device/action4', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {
     const e = window.__ENGINE;
-    return e && e.getState().booted && /OFFICIAL|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
+    return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
   }, { timeout: 90000, polling: 200 });
   await sleep(800);
   const dev = await page.evaluate(() => {
@@ -101,7 +101,7 @@ try{
     return { status: s.modelStatus, parts: s.parts.length, loadErr: window.__LOAD_ERR || null, animErr: window.__animErr || null };
   });
   const cfgReqs = [...new Set(configReqs)];
-  check('action4 装载成功', /OFFICIAL|PROCEDURAL/.test(dev.status) && dev.parts > 0, `${dev.status} · ${dev.parts} 部件`);
+  check('action4 装载成功', /OFFICIAL|COMMUNITY|PROCEDURAL/.test(dev.status) && dev.parts > 0, `${dev.status} · ${dev.parts} 部件`);
   check('仅加载当前设备配置', cfgReqs.length === 1 && cfgReqs[0].includes('action4'), cfgReqs.join(', '));
   check('无引擎/主循环异常', !dev.loadErr && !dev.animErr);
 
@@ -119,7 +119,7 @@ try{
     const e = window.__ENGINE;
     const s = e && e.getState();
     return s && s.booted && s.device && s.device.id === 'marshall-jcm800'
-      && /OFFICIAL|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
+      && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
   }, { timeout: 90000, polling: 200 });
   await sleep(600);
   await page.keyboard.press('KeyT');

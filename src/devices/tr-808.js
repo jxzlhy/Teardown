@@ -30,6 +30,9 @@ export default makeDevice({
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/tr-808.glb',
+  /* 策展导览：机壳→总控→走带→切换→三组按键→红灯→电源→脚/钉 */
+  tour: ['frame','huge-button','transport','shift-flipper','big-buttons','beat-buttons','small-buttons','light','power','legs','screws'],
+  xrayShellIds: ['frame'],
   mapping: {
     'MainFrame_LowPoly__0': 'frame',
     'UpperSideFrame_LowPoly__0': 'frame',

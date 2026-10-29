@@ -101,7 +101,7 @@
           <span class="card-meta">
             <i>{{ d.parts }} 部件</i>
             <i>{{ d.category }}</i>
-            <i class="glb-badge">{{ d.modelCredit ? '社区模型' : (d.glb ? '官方模型' : '程序化') }}</i>
+            <i class="glb-badge">{{ modelClassLabel(d) }}</i>
           </span>
         </span>
         <span class="card-arrow">
@@ -129,13 +129,14 @@ import { useRouter } from 'vue-router';
 import devices from 'virtual:device-manifest';
 import { prefetchGlb } from '../engine/glbCache.js';
 import { assetUrl } from '../lib/url.js';
+import { isCommunityModel, modelClassLabel } from '../lib/model-class.js';
 
 const router = useRouter();
 const devicesIndexed = devices.map((d, idx) => ({ ...d, idx }));
 const totalDevices = devices.length;
 const totalParts = devices.reduce((s, d) => s + d.parts, 0);
-const officialCount = devices.filter(d => d.glb && !d.modelCredit).length;
-const communityCount = devices.filter(d => d.glb && d.modelCredit).length;
+const officialCount = devices.filter(d => d.glb && !isCommunityModel(d)).length;
+const communityCount = devices.filter(d => d.glb && isCommunityModel(d)).length;
 const brands = [...new Set(devices.map(d => d.brand))];
 const categories = [...new Set(devices.map(d => d.category))];
 const byId = Object.fromEntries(devices.map(d => [d.id, d]));

@@ -41,6 +41,9 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/galaxy-s22-ultra.glb',
+  /* 策展导览：屏→边框→主板→影像→电池→底部→S Pen→后玻璃 */
+  tour: ['display','frame','board','camera-island','flash','sensor','battery','coil','usb-pcb','port','speaker','pen','back-glass'],
+  xrayShellIds: ['display','back-glass','frame'],
   materialMapping: {
     'Display_ActiveArea': 'display', 'Bezel': 'display',
     'Back_Cover_Glass': 'back-glass', 'BackCover_Glass_hole': 'back-glass', 'SAMSUNG_LOGO': 'back-glass',

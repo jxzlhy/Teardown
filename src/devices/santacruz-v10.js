@@ -39,6 +39,9 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/santacruz-v10.glb',
+  /* 策展导览：车架→避震系统→前叉→操控→传动→制动→轮组→线管 */
+  tour: ['frame','rear-shock','linkage','fork','cockpit','saddle','crankset','chain','cassette','rear-derailleur','chainguide','pedals','front-brake','rear-brake','front-wheel','rear-wheel','cables'],
+  xrayShellIds: ['frame','fork','rear-shock','cockpit'],
   mapByPosition(name, p, rel) {
     const mat = matOf(name);
     const front = rel.z < 0.5;

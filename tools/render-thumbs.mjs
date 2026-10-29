@@ -77,7 +77,7 @@ for(const id of ids){
       if(!e) return false;
       const s = e.getState();
       return !!s.booted && s.device && s.device.id === want
-        && /OFFICIAL|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
+        && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
     }, { timeout: 90000, polling: 200 }, id);
     const status = await page.evaluate(() => window.__ENGINE.getState().modelStatus);
     await page.evaluate(() => window.__ENGINE.thumbView());

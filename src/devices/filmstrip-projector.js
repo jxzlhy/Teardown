@@ -28,6 +28,9 @@ export default makeDevice({
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/filmstrip-projector.glb',
+  /* 策展导览：机身光路→电源→控制→对焦→供/收片→片路 */
+  tour: ['body','schuko','cable','switch','dial-speed','dial-mode','focus','spool-arm','spool-feed','spool-takeup','film','feed-roller','connector'],
+  xrayShellIds: ['body'],
   mapping: {
     'filmstrip_projector_8mm': 'body',
     'filmstrip_projector_8mm_spool_feed': 'spool-feed',

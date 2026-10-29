@@ -28,6 +28,9 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.1,
   glb: '/assets/perseverance-rover.glb',
+  /* 策展导览：车体→行动系统→电源→感知/通信→机械臂/钻→附件 */
+  tour: ['body','wheels','suspension','rtg','mast-head','antennas','hazcams','arm','turret','drill','calibration-target','shell'],
+  xrayShellIds: ['body','shell'],
   normalize: 'full',
   frontAxis: '+z',           /* 车头 hazcams_front 在原生 +z */
   unmappedTo: 'shell',

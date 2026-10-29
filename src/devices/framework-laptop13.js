@@ -34,6 +34,9 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.2,
   glb: '/assets/framework-laptop13.glb',
+  /* 策展导览：可维修叙事——底壳→板层→可换件→输入设备→顶壳→屏幕 */
+  tour: ['bottom-case','internals','board','battery','fan','speaker-l','speaker-r','keyboard','touchpad','top-case','display-panel','speakers','hinge'],
+  xrayShellIds: ['bottom-case','top-case'],
   normalize: 'full',
   mapByPosition(name, p, rel, ext){
     /* 平放闭合态：z=0 为铰链侧、z=229 为前缘；y=0 底壳、y=18 键盘面 */

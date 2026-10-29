@@ -30,6 +30,9 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/ak-47.glb',
+  /* 策展导览：不完全分解叙事（机匣核心→枪机→导气→枪管→发射机→附件） */
+  tour: ['receiver','bolt-group','recoil-spring','dust-cover','gas-tube','gas-block','handguard','barrel','front-sight-block','sights','trigger','safety','grip','magazine','stock','bayonet','cleaning-rod'],
+  xrayShellIds: ['dust-cover','handguard','stock','grip','magazine'],
   mappingPrefix: {
     'mag':      'magazine',
     'patr':     'magazine',
