@@ -19,5 +19,5 @@
 | P2 | 设备配置 chunk 加载失败态（发版后旧 chunk 404 / 弱网） | 可恢复性 | 低 | 请求拦截 abort + 浏览器 | 已完成（错误面板 + 重试/返回） |
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
-| P2 | 新设备研究接入：已接 7 台（blender/grinder/pinball/triple-engine/gramophone/smeg/tourbillon-movement/grand-piano，达 95 台 31 品牌）；品类缺口收官：陀飞轮 ✅ 钢琴 ✅ 已接入、Game Boy ⚠️ 条件可行（Smoggybeard CC-BY 单网格待 inspect）、手风琴 ❌ 拆解无解（仅整机展示）；调研报告 docs/GAP-RESEARCH.md | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
+| P2 | 新设备研究接入：已接 8 台（blender/grinder/pinball/triple-engine/gramophone/smeg/tourbillon-movement/grand-piano/gameboy，达 96 台 31 品牌）；GAP 四缺口全部收官：陀飞轮 ✅ 钢琴 ✅ Game Boy ✅（混合路径：真实外壳+明标注示意内构件，baseRotation 引擎能力）/ 手风琴 ❌ 拆解无解；新设备需新一轮外部调研 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | 待办 |
