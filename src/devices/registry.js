@@ -99,6 +99,7 @@ import tourbillonMovement from './tourbillon-movement.js';
 import grandPiano from './grand-piano.js';
 import gameboy from './gameboy.js';
 import doorLockMechanism from './door-lock-mechanism.js';
+import retroFan from './retro-fan.js';
 
 export const devices = [
   /* DJI */
@@ -154,6 +155,8 @@ export const devices = [
   gameboy,
   /* REANIMATE */
   doorLockMechanism,
+  /* DYLANHEYES */
+  retroFan,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];
