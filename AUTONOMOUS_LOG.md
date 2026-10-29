@@ -2,6 +2,26 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-10-30 · 剖切可读性 + pinball 弹射板核对
+
+### 改动
+1. **剖切**（`view-modes.js`）：clip 模式把受影响材质切 `DoubleSide`（快照含 side、退出精确还原），
+   切腔内壁被渲染而非看穿；新增 CAD 风格半透明（0.09）accent 指示板挂在 scene，
+   位置与 clipPlane 同一 `y - bob` 公式（设备呼吸时恒重合），退出时 dispose 移除。
+   真 stencil 封盖的证据：EffectComposer 默认渲染目标无 stencil buffer，改动波及全管线 → LATER。
+2. **pinball 弹射板核对**：模型仅含 1 只弹射板网格（红橡胶）；其白色本体（台面底部中央
+   z 0.2–0.32 的 white_plastic）按位置归入 flippers；单弹射板为源模型限制，已记录。
+
+### 验证
+- ak-47 / action4 剖切截图目检：action4 主板/散热/电池内部结构清晰可读、指示板位置正确。
+- 退出还原核对：action4 材质 89 个、还原后 35 个双面与进入前实测一致（CAD 源 ak-47 56/56
+  原生双面——`cad2glb.py` 写入 doubleSided:true，非回归）。
+- lint 90/90、build 2.05s、smoke 全通过。
+
+### 下一项
+见 AUTONOMOUS_BACKLOG.md。
+
+
 ## 2026-10-30 · 部件特写小图（详情卡离屏捕获）
 
 ### 改动
