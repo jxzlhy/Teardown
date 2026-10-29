@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-30 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**87 台设备** · 727 个部件 · 87 套 GLB · 28 个品牌
+> 当前：**90 台设备** · 747 个部件 · 90 套 GLB · 29 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（24 台）
+### GENERIC（26 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -126,6 +126,8 @@
 | filmstrip-projector | 幻灯片条放映机 | 影音 | 13 | 社区 | filmstrip-projector.glb | 1.4 MB |
 | wall-clock | 石英挂钟 | 钟表 | 4 | 社区 | wall-clock.glb | 489 KB |
 | planetary-gearbox | 行星齿轮箱（CAD） | 机械 | 4 | 社区 | planetary-gearbox.glb | 1015 KB |
+| kitchen-blender | 厨房搅拌机 | 厨电 | 6 | 社区 | kitchen-blender.glb | 206 KB |
+| pinball-machine | 弹珠台 | 游戏 | 9 | 社区 | pinball-machine.glb | 1.1 MB |
 
 ### KALASHNIKOV（1 台）
 
@@ -247,4 +249,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | sony-tc510 | Sony TC-510 磁带机 | 音频 | 5 | 社区 | sony-tc510.glb | 1.6 MB |
+
+### DEWALT（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| angle-grinder | 角磨机（DeWalt D28136） | 工具 | 5 | 社区 | angle-grinder.glb | 887 KB |
 

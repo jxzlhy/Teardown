@@ -89,6 +89,9 @@ import sonyTc510 from './sony-tc510.js';
 import filmstripProjector from './filmstrip-projector.js';
 import wallClock from './wall-clock.js';
 import planetaryGearbox from './planetary-gearbox.js';
+import kitchenBlender from './kitchen-blender.js';
+import angleGrinder from './angle-grinder.js';
+import pinballMachine from './pinball-machine.js';
 
 export const devices = [
   /* DJI */
@@ -113,7 +116,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */
@@ -134,6 +137,8 @@ export const devices = [
   marshallJcm800,
   /* SONY */
   sonyTc510,
+  /* DEWALT */
+  angleGrinder,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

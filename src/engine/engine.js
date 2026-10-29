@@ -494,7 +494,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
               (p.z - sbox.min.z)/Math.max(ssize.z, 1e-6));
             relDump.push([mesh.name.slice(0,14), +rel.x.toFixed(3), +rel.y.toFixed(3), +rel.z.toFixed(3)]);
             const lp = localPts[mi];
-            pid = device.mapByPosition(mesh.name, lp.p, rel, { x: lp.max.x - lp.min.x, y: lp.max.y - lp.min.y, z: lp.max.z - lp.min.z });
+            const matName = Array.isArray(mesh.material)
+              ? mesh.material.map(m => m.name).join('+')
+              : (mesh.material && mesh.material.name) || '';
+            pid = device.mapByPosition(mesh.name, lp.p, rel, { x: lp.max.x - lp.min.x, y: lp.max.y - lp.min.y, z: lp.max.z - lp.min.z }, matName);
           } else {
             pid = resolvePartId(mesh.name, mesh.material && mesh.material.name);
           }
