@@ -300,8 +300,15 @@ npm run preview
   `xrayShellIds`（配置）→ `realPartIds`（GLB 外观件）→ 关键词兜底（纯程序化设备）。
 - **隔离**：非目标件透明度逐帧 lerp 至 0.06 + 关投影；再点同一件/Esc 退出；隔离中可换目标件。
 - **剖切**：`renderer.localClippingEnabled` + 世界坐标水平面（clipT 0..1 顶部→底部），全设备材质挂
-  `clippingPlanes`；剖切面常量抵消设备呼吸浮动。**无 stencil 封盖**（UPGRADE-3.0 §9 允许的降级）。
-- 进入模式快照材质/投影属性，退出精确还原（透明度/depthWrite/clippingPlanes/castShadow）。
+  `clippingPlanes`；剖切面常量抵消设备呼吸浮动（并可微上移 ε≈0.15% 高度，避免擦过水平面时
+  近共面碎片污染封盖）。**stencil 剖面玻璃封盖**（Phase 2）：composer 自建
+  `stencilBuffer:true` HalfFloat RT；背面 IncrementWrap/正面 DecrementWrap 奇偶掩码（求掩码
+  裁剪面比可视切面低 δ≈0.9% 避开碎片带），accent 半透明盖板仅在 stencil≠0 处绘制、不写
+  深度（内腔组件始终可见；实心盖板在非水密模型上会遮挡内腔，故取半透明形态）；设备网格
+  统一 renderOrder=6 令盖板先混色；特写离屏捕获期间隐藏盖板（离屏 RT 无 stencil）。无
+  stencil 环境回退半透明方形指示板。capKind 经 `getState().clipCap` 观测（'stencil'|'indicator'）。
+- 进入模式快照材质/投影属性（含 renderOrder），退出精确还原（透明度/depthWrite/clippingPlanes/castShadow/side）。
+  模式在部件注册前被切入时（慢网），装载完成后自动重放。
 
 ### 5.5 引擎交互 3.0（engine.js 增量，对外 API 只增不改）
 - **OutlinePass ×2**（选中 3.2 强调色 / 悬停 1.6 暗色），仅桌面 + `hardwareConcurrency>4` + 画质>L0；

@@ -113,6 +113,17 @@ try{
   const xray = await page.evaluate(() => window.__ENGINE.getState().viewMode);
   check('X-Ray 模式可进入', xray === 'xray', xray || 'null');
 
+  /* 剖切 stencil 封盖（LAB · Phase 2）：composer RT 带 stencilBuffer，
+     掩码约束的剖面玻璃 capKind=stencil；无 stencil 环境回退 indicator */
+  const cap = await page.evaluate(() => {
+    window.__ENGINE.setMode('clip');
+    const s = window.__ENGINE.getState();
+    return { viewMode: s.viewMode, clipCap: s.clipCap };
+  });
+  check('剖切 stencil 封盖生效', cap.viewMode === 'clip' && cap.clipCap === 'stencil', cap.clipCap || 'null');
+  await page.evaluate(() => window.__ENGINE.setMode(null));
+  await sleep(200);
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

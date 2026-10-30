@@ -835,3 +835,48 @@ ROADMAP S4：拆解馆没有测量能力。本切片补齐 LAB 基础件第一�
 
 ### 下一项
 Phase 2 切片 2：剖切真封盖（stencil 模式 + 自建 stencilBuffer RenderTarget，失败回退 DoubleSide 方案）。
+
+## 2026-10-31 · Phase 2 切片 2：剖切 stencil 封盖（剖面玻璃）
+
+### 问题
+ROADMAP Phase 2 第二项：剖切此前为 DoubleSide 内壁 + 全方形半透明指示板（指示板外溢到设备轮廓之外）。
+根因回顾：EffectComposer 默认 RT 无 stencil buffer，官方 stencil 封盖当年因此搁置。
+
+### 改动
+- `engine.js`：自建 `{type: HalfFloatType, stencilBuffer: true}` RT 传入 EffectComposer（renderTarget2 克隆继承；
+  构造后立即 setSize 修正 composer 的 CSS 口径记账）；`useStencilCap` 传给 view-modes；
+  `capturePartThumb` 离屏直渲期间 `modes.setCapHidden(true)`（离屏 RT 无 stencil，NotEqual 会整面误绘）；
+  loadDevice 完成时重放当前模式（修复慢网下部件注册前切入剖切/透视永不生效的既有缺陷）；
+  `getState()` 增 `clipCap` 观测字段（'stencil'|'indicator'|null）。
+- `view-modes.js`：applyClip 时设备网格统一 renderOrder=6（快照含 renderOrder，退出还原）；
+  stencil 掩码 = 背面 IncrementWrap / 正面 DecrementWrap 奇偶计数（挂源网格子节点、继承爆炸/呼吸变换、
+  geometry 共享）；求掩码裁剪面比可视切面低 δ≈0.9% 高度（避开宽大水平面被斜切的近共面碎片带）；
+  可视剖切面上移 ε≈0.15%（同理）；accent 半透明盖板（opacity .30、不写深度）仅在 stencil≠0 处绘制、
+  onAfterRender 清 stencil；无 stencil 回退指示板。
+- `TECH.md` §5.4 同步；smoke +1 永久断言（clipCap=stencil），17 → 18 项。
+
+### 调试记录（5 轮实机迭代，按序）
+1. 官方奇偶法直接上 → 全截面斑驳噪点：宽大水平面（顶壳）被切出近共面碎片，污染穿越计数。
+2. FrontSide-only Increment → 掩码近空：剖切实体的射线从开口进入、不穿正面，只从底面（背面）穿出——奇偶法不可替。
+3. 盖板带 clippingPlanes + 抬升 → 盖板自裁（631 像素）：官方示例盖板不挂裁剪面，靠掩码约束。
+4. 掩码裁剪面下移 δ + 奇偶还原 → 实心盖板灌满内腔：action4 壳底开口由非外壳件封闭、内部件也是
+   非水密盒体，逐模型拓扑差异使"只盖实体材料"不可靠——改产品决策：半透明剖面玻璃（内腔始终可见，
+   对 103 台混合拓扑安全；掩码仍让截面版贴合设备轮廓，优于旧全方形指示板）。
+5. pocket3 切到 0.45 擦过机身顶面 → 盖板上斑驳：可视切面上移 ε 让水平面完整保留在切面之下。
+
+### 验证
+- `/tmp/verify-clip-cap.mjs` 10/10：capKind=stencil、盖板像素显著增加（clip=4.3 万 vs 整机 3 千）、
+  爆炸共存、剖切态特写捕获正常且盖板随后恢复、退出还原、二次进出、移动端 390×844、控制台零错误。
+- `/tmp/spot-clip.mjs` 抽查 pocket3（官方粉 accent）/v8-engine（社区 CC-BY）/orrery（社区 CC-BY 圆轮廓）
+  3/3：封盖生效、退出还原、零错误；挑衅时序（引擎出现即切剖切、早于部件注册）经装载后重放全部生效。
+- 截图目检：action4 截面版贴合轮廓且镜头圆孔轮廓跟随、pocket3 粉色 accent 换肤、orrery 椭圆贴合；
+  移动端画布可操作、剖切条不被 sheet 遮挡。
+- `npm run build` 2.0s；`npm run lint:devices` 103/103；`npm run smoke` 18/18。
+
+### 已知限制
+- 奇偶掩码对个别拓扑在个别切高仍可能有轻微噪点（pocket3 屏幕折边处极轻残留）；实心盖板需求
+  需逐模型水密校验，不在本切片范围。
+- 剖切模式多两次全设备几何的 stencil 绘制（仅剖切态），画面无帧率回归（SwiftShader 环境流畅）。
+
+### 下一项
+Phase 2 切片 3：`assembleStep` 策展字段 + 逐步装配模式（2-3 台试点）。

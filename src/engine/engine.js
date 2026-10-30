@@ -102,7 +102,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   controls.autoRotateSpeed = 0.7;
 
   /* ---------- 后期：OutlinePass（选中/悬停描边）+ 辉光 ---------- */
-  const composer = new EffectComposer(renderer);
+  /* 剖切 stencil 封盖要求渲染目标带 stencil buffer（composer 默认 RT 没有）：
+     自建 HalfFloat+stencil RT 传入，renderTarget2 由 composer 克隆继承同配置 */
+  const composerRT = new THREE.WebGLRenderTarget(innerWidth, innerHeight,
+    { type: THREE.HalfFloatType, stencilBuffer: true });
+  const composer = new EffectComposer(renderer, composerRT);
+  composer.setSize(innerWidth, innerHeight);   // 让 composer 记住 CSS 口径（乘自身 pixelRatio）
   composer.addPass(new RenderPass(scene, camera));
   let outlineSel = null, outlineHover = null, outlineOn = false;
   if(OUTLINE_OK && hooks.adaptive !== false){
@@ -221,6 +226,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     getDevice: () => state.device,
     getBobY: () => deviceGroup.position.y,
     onChange: () => emit(),
+    useStencilCap: composer.renderTarget1.stencilBuffer === true,
   });
 
   /* ---------- 标签系统（SVG 引线 + 避让 + 分级） ---------- */
@@ -617,6 +623,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     updateLabelsFrame();
     const community = isCommunityModel(device);
     state.modelStatus = device.glb ? ((community ? 'COMMUNITY' : 'OFFICIAL') + ' · ' + device.en) : 'PROCEDURAL';
+    /* 慢网时模式可能在部件注册前就被切入（applyClip/applyXray 落在空部件集上）：
+       装载完成后重放当前模式，否则剖切/透视对新部件永不生效 */
+    if(modes.state.mode){
+      const m = modes.state.mode, iso = modes.state.isolateId;
+      modes.setMode(null);
+      modes.setMode(m, iso);
+    }
     emit();
   }
 
@@ -1153,6 +1166,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     thumbLight.position.copy(cam.position);
     thumbLight.target.position.copy(c);
     scene.add(thumbLight); scene.add(thumbLight.target);
+    modes.setCapHidden(true);   // 离屏 RT 无 stencil buffer，剖切盖板会整面误绘
     try {
       if(!thumbRT || thumbRT.width !== size){
         if(thumbRT) thumbRT.dispose();
@@ -1180,6 +1194,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     } finally {
       scene.remove(thumbLight); scene.remove(thumbLight.target);
       for(const g of hidden) g.visible = true;
+      modes.setCapHidden(false);
       scene.background = prevBg;
       renderer.setClearColor(prevClear, prevAlpha);
       state.selected = prevSel; state.hovered = prevHover;
@@ -1196,7 +1211,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     startTour, stopTour, tourNext, tourPrev,
     step: mainLoop,
     getCamera: () => camera,
-    getState: () => ({ ...state, booted, autoRotate: controls.autoRotate, viewMode: modes.state.mode, isolateId: modes.state.isolateId, tool: state.measureOn ? 'measure' : null }),
+    getState: () => ({ ...state, booted, autoRotate: controls.autoRotate, viewMode: modes.state.mode, isolateId: modes.state.isolateId, clipCap: modes.state.capKind, tool: state.measureOn ? 'measure' : null }),
     dispose(){
       running = false;
       clearInterval(watchdog);
