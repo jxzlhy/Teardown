@@ -1,6 +1,6 @@
 # DIGITAL TECH MUSEUM — ULTIMATE PRODUCT & TECHNOLOGY ROADMAP
 
-> 生成：2026-10-31 · 研究基线：**102 台设备 · 813 部件 · 37 品牌**（以 `npm run gen:inventory` 实际输出为准）
+> 生成：2026-10-31 · 研究基线：**103 台设备 · 815 部件 · 38 品牌**（以 `npm run gen:inventory` 实际输出为准；研究期间馆内并行会话新增 Regency TR-1，口径随清单滚动）
 > 性质：**第一阶段研究交付物**。本文只调研与规划，不改动引擎与设备数据。
 > 研究方法：仓库逐个用 Web 实证核实（存在性/许可证/维护状态/兼容性）；查不到的一律标注"未证实"或"不存在"，不虚构。
 > 配套文档：`docs/DESIGN_SYSTEM.md` · `docs/DESIGN_SKILLS.md` · `docs/DESIGN_QA.md` · `docs/MOTION_GUIDELINES.md` · `docs/3D_EXPERIENCE_GUIDELINES.md`
@@ -18,7 +18,7 @@
 | 引擎 | vanilla three 0.164（npm，非 CDN），壳/引擎分离，引擎不知 Vue 存在 | src/engine/engine.js（1096 行） |
 | 动效 | GSAP 3.15 仅 UI 时间线；大厅用 Vue TransitionGroup | TECH.md §1 |
 | 样式 | 原生 CSS 变量主题（--acc 每设备换肤），无组件库 | src/style.css（694 行）+ hud.css |
-| 数据 | 102 个设备配置模块（`src/devices/*.js`），registry.js 唯一事实源 | src/devices/registry.js |
+| 数据 | 103 个设备配置模块（`src/devices/*.js`），registry.js 唯一事实源 | src/devices/registry.js |
 | 构建优化 | virtual:device-manifest / device-loaders（大厅 0 KB three）；three 独立 chunk 771KB/gzip 199KB | vite.config.js, TECH.md |
 | 缓存 | glbCache：Cache Storage 持久缓存 + 预取 + 并发合并/取消 | src/engine/glbCache.js |
 | 工具链 | inspect-glb / optimize-glb / addDevice / lint-mapping / gen-inventory / render-thumbs / smoke / usd2glb.py / cad2glb.py / stl2glb-batch / fix-specgloss | tools/（11 个脚本） |
@@ -33,7 +33,7 @@
 - **无障碍**：prefers-reduced-motion 全链路降级（7/7 断言）；错误面板（chunk 404 可恢复）
 - **大厅**：品牌/分类筛选、搜索、编辑部式卡片、统计口径自动生成
 - **合规**：37 台社区模型全量署名（modelCredit/modelSource）+ lint 强制禁止 "by community" 无署名
-- **回归**：`npm run smoke` 12/12 断言 + 无头 Chrome 场景测试（reduced-motion、深链、移动端间距等）
+- **回归**：`npm run smoke` 断言全绿（当前 15 项，数量随版本滚动）+ 无头 Chrome 场景测试（reduced-motion、深链、移动端间距等）
 
 ### 1.3 核心短板（按影响排序）
 
@@ -181,7 +181,7 @@
 - **LAB 不建独立页面**：测量/剖切/装配顺序作为 DeviceViewer 工具栏新能力；原理演示挂进部件详情卡的"运行演示"区块。
 - **DISCOVERY 以轻量浮层实现**：收藏/进度徽章不入主流程，避免游戏化干扰策展严肃性。
 
-理由：架构约束"新增能力只增不破坏"+ 移动端画布不能被面板挤占 + 内容生产是瓶颈（先保证 102 台的档案数据，再谈新页面）。
+理由：架构约束"新增能力只增不破坏"+ 移动端画布不能被面板挤占 + 内容生产是瓶颈（先保证全馆设备的档案数据，再谈新页面）。
 
 ### 5.2 设备数字档案（一切知识功能的地基）
 
@@ -209,7 +209,7 @@ credibility: { structure: 'official', specs: 'official', history: 'verified-3rd'
 
 - **technology 库**（`src/knowledge/technologies/*.js`）：每项技术含 principle（原理）、relatedParts[]、relatedDevices[]、invented（发明年）、history[]（关键节点）、sources[]（必须 ≥1 条官方或权威来源，否则 confidence: 'inferred'）。
 - **brand 库**（`src/knowledge/brands/*.js`）：创立、阶段、代表产品（指回设备 id）、关键技术突破。
-- **时间轴**：不手工维护，`tools/gen-timeline.mjs` 从 device.era + technology.invented 自动汇总生成，避免手抄 102 台数据。
+- **时间轴**：不手工维护，`tools/gen-timeline.mjs` 从 device.era + technology.invented 自动汇总生成，避免手抄全馆数据。
 - 呈现：部件详情卡新增"原理"折叠区（首次只做 20 项高频技术：CMOS、OIS、无刷电机、三轴云台、锂聚合物电池、D-Log、热风道、擒纵机构……），未覆盖的技术显示"待编写"，**禁止 AI 编造**。
 
 ### 5.4 知识图谱（数字星图）
@@ -338,11 +338,11 @@ interface Badges { [badgeId: string]: { at: number } }   // 例：first-teardown
 - **目标**：补齐 S4 三大实验能力。
 - **选型**：three-mesh-bvh（MIT）；stencil 封盖（自建 RenderTarget）；assembleStep 策展字段。
 - **改动**：engine.js（测量工具态）、view-modes.js（clip 封盖分支）、DeviceViewer.vue（工具栏+标尺浮层）、2-3 台试点设备配置。
-- **验收**：`npm run build` + smoke 12/12 + 无头 Chrome 测量取点/封盖截图/逐步装配断言；移动端工具栏不遮画布（390×844）。
+- **验收**：`npm run build` + smoke 全绿 + 无头 Chrome 测量取点/封盖截图/逐步装配断言；移动端工具栏不遮画布（390×844）。
 - **性能**：three-mesh-bvh 构建耗时应 <100ms/设备（超时降级普通 raycast）；帧率不低于基线。
 
 ### Phase 3 · 数字档案与技术故事（S1、S2 核心）
-- **目标**：102 台接入 era/series/sources/credibility；20 项高频技术原理上线。
+- **目标**：全馆设备接入 era/series/sources/credibility；20 项高频技术原理上线。
 - **改动**：src/knowledge/（technologies/brands）、tools/lint-knowledge.mjs、DeviceViewer 详情卡"原理/历史"区块、`npm run lint:devices` 联动。
 - **验收**：lint 全绿；详情卡 UI 桌面+移动截图；**所有原理文本有 sources，未编写项显示"待编写"**（诚实降级）。
 - **回归**：现有 parts 详情卡不回归（文案字段兼容）。
