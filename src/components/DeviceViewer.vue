@@ -101,11 +101,16 @@
             <path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M18.4 5.6l-4.2 4.2M9.8 14.2l-4.2 4.2"/>
           </svg>{{ explodePct > 50 ? '组装' : '拆解' }}
         </button>
-        <div id="exWrap">
+        <div id="exWrap" v-if="!ui.step">
           <input type="range" id="exSlider" min="0" max="1000" :value="sliderValue"
             :style="{ '--p': explodePct + '%' }"
             @pointerdown="scrubbing = true" @pointerup="scrubbing = false"
             @input="onSliderInput" ref="sliderRef" aria-label="拆解度">
+        </div>
+        <div id="exWrap" class="step-ctl" v-else>
+          <button class="step-btn" @click="engine && engine.stepPrev()" :disabled="ui.step.i <= 0" aria-label="上一步">‹</button>
+          <span class="step-count">装配 {{ ui.step.i }}/{{ ui.step.n }}</span>
+          <button class="step-btn" @click="engine && engine.stepNext()" :disabled="ui.step.i >= ui.step.n" aria-label="下一步">›</button>
         </div>
       </div>
       <div class="tb-sep"></div>
@@ -129,6 +134,10 @@
         <button class="hud-icon" :class="{ on: ui.tool === 'measure' }" @click="toggleMeasure">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="9" width="19" height="6.5" rx="1.5"/><path d="M7 9v3.5M11 9v2.5M15 9v3.5M19 9v2.5"/></svg>
           <span class="tip">测量 <kbd>M</kbd></span>
+        </button>
+        <button class="hud-icon" :class="{ on: !!ui.step }" @click="toggleStep">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 17h4v4H4zM10 12h4v9h-4zM16 7h4v14h-4z" stroke-dasharray="0"/><path d="M3 20L20 3" stroke-dasharray="2.5 2.5"/></svg>
+          <span class="tip">逐步装配 <kbd>B</kbd></span>
         </button>
       </div>
       <div class="tb-sep"></div>
@@ -228,6 +237,7 @@
             <div class="g-row"><span class="g-key">1 - 4</span><span>整机 / X光 / 隔离 / 剖切</span></div>
             <div class="g-row"><span class="g-key">F</span><span>聚焦选中部件</span></div>
             <div class="g-row"><span class="g-key">M</span><span>两点测量（点模型表面）</span></div>
+            <div class="g-row"><span class="g-key">B</span><span>逐步装配（‹ › 逐组拆装）</span></div>
           </div>
           <div class="g-col">
             <div class="g-row"><span class="g-key">T</span><span>自动导览（一键装杯）</span></div>
@@ -282,7 +292,7 @@ const ui = ref({
   explode: 0, explodeTarget: 0, selected: null, modelStatus: '',
   labelsOn: true, labelsMode: 'auto', autoRotate: false,
   viewMode: null, isolateId: null, clipT: 0.62, layout: 'axis', tool: null,
-  tour: null, booted: false, quality: 2
+  tour: null, booted: false, quality: 2, step: null
 });
 const scrubbing = ref(false);
 const showGuide = ref(false);
@@ -513,6 +523,12 @@ function toggleMeasure(){
   engine.setMeasure(on);
   if(on) showToast('测量：点击模型上两点 · 第三次点击重测 · M / Esc 退出', 3200);
 }
+function toggleStep(){
+  if(!engine) return;
+  const on = !ui.value.step;
+  const ok = engine.stepAssembly(on);
+  if(on && ok) showToast('逐步装配：‹ › 逐组拆装 · B / Esc 退出 · 拖动滑杆也可随时接管', 3600);
+}
 function cycleLabels(){
   if(!engine) return;
   const order = ['auto', 'all', 'off'];
@@ -567,14 +583,23 @@ function lpEnd(){ clearTimeout(lpTimer); lpTimer = null; }
 function onKey(e){
   if(e.target instanceof HTMLInputElement) return;   // 滑杆聚焦时方向键归滑杆
   const touring = !!(ui.value.tour && ui.value.tour.playing);
-  if(e.code === 'ArrowRight'){ touring ? (engine && engine.tourNext()) : goDevice(nextDevice.value); }
-  else if(e.code === 'ArrowLeft'){ touring ? (engine && engine.tourPrev()) : goDevice(prevDevice.value); }
+  if(e.code === 'ArrowRight'){
+    if(ui.value.step){ engine && engine.stepNext(); }        // 逐步装配优先于导览/切台
+    else if(touring){ engine && engine.tourNext(); }
+    else{ goDevice(nextDevice.value); }
+  }
+  else if(e.code === 'ArrowLeft'){
+    if(ui.value.step){ engine && engine.stepPrev(); }
+    else if(touring){ engine && engine.tourPrev(); }
+    else{ goDevice(prevDevice.value); }
+  }
   else if(e.code === 'Space'){ e.preventDefault(); toggleExplode(); }
   else if(e.code === 'Digit1'){ engine && engine.setMode(null); }
   else if(e.code === 'Digit2'){ setViewMode('xray'); }
   else if(e.code === 'Digit3'){ setViewMode('isolate'); }
   else if(e.code === 'Digit4'){ setViewMode('clip'); }
   else if(e.code === 'KeyM'){ toggleMeasure(); }
+  else if(e.code === 'KeyB'){ toggleStep(); }
   else if(e.code === 'KeyF'){ ui.value.selected && engine && engine.flyToPart(ui.value.selected); }
   else if(e.code === 'KeyT'){ toggleTour(); }
   else if(e.code === 'KeyS'){ shoot(); }
@@ -587,6 +612,7 @@ function onKey(e){
     else if(infoOpen.value) infoOpen.value = false;
     else if(immersiveMode.value) immersiveMode.value = false;
     else if(ui.value.tool === 'measure') toggleMeasure();   // 先退出测量工具
+    else if(ui.value.step) toggleStep();                    // 逐步装配：先补齐装配再退出
     else if(ui.value.viewMode) setViewMode(ui.value.viewMode);   // 退出查看模式
     else engine && engine.selectPart(null);
   }

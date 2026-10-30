@@ -311,6 +311,13 @@ npm run preview
   模式在部件注册前被切入时（慢网），装载完成后自动重放。
 
 ### 5.5 引擎交互 3.0（engine.js 增量，对外 API 只增不改）
+- **逐步装配（Phase 2）**：`stepAssembly(on)/stepNext()/stepPrev()`（快捷键 B / ←→，Esc 补齐装配后退出）。
+  策展字段 `assembleStep: [[partId…], …]`（内件先装，lint 校验未知/重复 id；未列部件自动追加末组）；
+  无字段设备按爆炸偏移长度升序兜底分 ~5 层。插值与爆炸共用同一位置管线：部件
+  `lt = easeIO(1 − clamp(stepCur − 组号, 0, 1))`，stepCur ∈ [0,组数]；进入时从当前画面无缝衔接
+  （装配态先逐组拆开展示、爆炸态直接从 0 装），退出先补齐装配再交还爆炸系统（避免口径跳变）；
+  爆炸滑杆/空格随时接管退出。`getState().step = {i,n}`、`getPartOffset(id)` 供测试观测；
+  到位后一次 emit 同步步进计数。快捷键链中 ←→ 优先级：逐步装配 > 导览 > 切台。
 - **OutlinePass ×2**（选中 3.2 强调色 / 悬停 1.6 暗色），仅桌面 + `hardwareConcurrency>4` + 画质>L0；
   描边启用时 emissive 高亮系数 0.12→0.06 防双层过曝；强调色随设备 accent 换肤。
 - **`flyToPart(partId)`**：部件包围盒中心 + 对角线×2.2（钳制），沿当前视线方向飞近 0.8s；

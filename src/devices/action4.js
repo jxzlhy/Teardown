@@ -416,6 +416,16 @@ export default {
   },
   realPartIds: ['shell','cover-glass','lens','front-screen','rear-screen','shutter','qs','io-door','battery-cover','mount'],
   xrayShellIds: ['shell','battery-cover','io-door','front-screen','rear-screen','mount','shutter','qs'],
+  /* 逐步装配组序（内件先装）：镁合金机身→镜组入腔→主板散热→电池→双屏→盖板合拢→外部五金 */
+  assembleStep: [
+    ['shell'],
+    ['lens','sensor'],
+    ['mainboard','thermal'],
+    ['battery'],
+    ['front-screen','rear-screen'],
+    ['cover-glass','battery-cover','io-door'],
+    ['mount','shutter','qs'],
+  ],
   tour: ['lens','sensor','mainboard','thermal','battery','battery-cover','shell','rear-screen','front-screen','mount','shutter','qs','io-door','cover-glass'],
   orientationProbe: ['lens','rear-screen'],
   labelAnchorDx: { 'rear-screen': 1.0 },

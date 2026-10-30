@@ -492,6 +492,23 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   width:10px; height:10px; border-radius:50%; background:var(--bg-1); border:2px solid var(--acc); cursor:grab;
 }
 
+/* ---------- 逐步装配步进器：占据滑杆位（≤700px 滑杆隐藏但步进器保留——移动端唯一装配入口） ---------- */
+.step-ctl{ gap:9px; }
+.step-btn{
+  width:26px; height:26px; border-radius:7px; flex:none;
+  border:1px solid color-mix(in srgb, var(--acc) 40%, transparent);
+  background:rgba(6,14,22,.6); color:var(--acc); font-size:16px; line-height:1;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background var(--dur-1), border-color var(--dur-1);
+}
+.step-btn:hover:not(:disabled){ background:var(--acc-16); }
+.step-btn:disabled{ opacity:.32; cursor:default; }
+.step-btn:focus-visible{ outline:1px solid var(--acc); outline-offset:1px; }
+.step-count{
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  color:var(--txt-2); white-space:nowrap; min-width:74px; text-align:center;
+}
+
 /* 剖切滑杆 / 导览进度条 / toast（dock 上方浮层） */
 #clipStrip, #tourBar{
   position:absolute; z-index:6; left:50%; bottom:86px; transform:translateX(-50%);
@@ -667,6 +684,8 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   #dock{ bottom:10px; overflow-x:auto; scrollbar-width:none; }
   #dock::-webkit-scrollbar{ display:none; }
   #exWrap{ display:none; }
+  #exWrap.step-ctl{ display:flex; }   /* 步进器保留：移动端唯一装配入口 */
+  .step-count{ min-width:64px; font-size:10px; }
   .dock-explode{ padding:7px 11px; }
   .hud-icon .tip{ display:none; }
   #clipStrip{ bottom:66px; width:calc(100% - 24px); justify-content:center; }

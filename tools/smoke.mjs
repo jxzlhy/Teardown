@@ -98,7 +98,7 @@ try{
   await sleep(800);
   const dev = await page.evaluate(() => {
     const s = window.__ENGINE.getState();
-    return { status: s.modelStatus, parts: s.parts.length, loadErr: window.__LOAD_ERR || null, animErr: window.__animErr || null };
+    return { status: s.modelStatus, parts: s.partsCount, loadErr: window.__LOAD_ERR || null, animErr: window.__animErr || null };
   });
   const cfgReqs = [...new Set(configReqs)];
   check('action4 装载成功', /OFFICIAL|COMMUNITY|PROCEDURAL/.test(dev.status) && dev.parts > 0, `${dev.status} · ${dev.parts} 部件`);
@@ -122,6 +122,32 @@ try{
   });
   check('剖切 stencil 封盖生效', cap.viewMode === 'clip' && cap.clipCap === 'stencil', cap.clipCap || 'null');
   await page.evaluate(() => window.__ENGINE.setMode(null));
+  await sleep(200);
+
+  /* 逐步装配（LAB · Phase 2）：assembleStep 组序步进 + Esc 补齐装配退出 */
+  const st0 = await page.evaluate(() => {
+    window.__ENGINE.stepAssembly(true);
+    const s = window.__ENGINE.getState();
+    return { i: s.step && s.step.i, n: s.step && s.step.n };
+  });
+  check('逐步装配进入（爆炸态从第 0 组开始）', st0.i === 0 && st0.n === 7, JSON.stringify(st0));
+  await page.evaluate(() => { window.__ENGINE.stepNext(); window.__ENGINE.stepNext(); });
+  await sleep(1600);
+  const sd = await page.evaluate(() => ({
+    step: window.__ENGINE.getState().step,
+    shell: window.__ENGINE.getPartOffset('shell'),
+    mainboard: window.__ENGINE.getPartOffset('mainboard'),
+  }));
+  check('逐步装配前两组就位（shell≈0，mainboard 仍拆出）',
+    sd.step && sd.step.i === 2 && sd.shell < 0.02 && sd.mainboard > 0.3,
+    `shell=${sd.shell} mainboard=${sd.mainboard}`);
+  await page.keyboard.press('Escape');
+  await sleep(4200);
+  const st1 = await page.evaluate(() => {
+    const s = window.__ENGINE.getState();
+    return { step: s.step, ex: s.explodeCurrent };
+  });
+  check('Esc 退出逐步装配并复位整机', st1.step === null && st1.ex < 0.01, JSON.stringify(st1));
   await sleep(200);
 
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */

@@ -880,3 +880,46 @@ ROADMAP Phase 2 第二项：剖切此前为 DoubleSide 内壁 + 全方形半透�
 
 ### 下一项
 Phase 2 切片 3：`assembleStep` 策展字段 + 逐步装配模式（2-3 台试点）。
+
+## 2026-10-31 · Phase 2 切片 3：assembleStep 逐步装配
+
+### 问题
+ROADMAP Phase 2 第三项：拆解馆只有"一键爆炸/装配"，缺少按真实装配关系逐组拆装的叙事能力。
+
+### 改动
+- `engine.js`：stepMode/stepCur/stepTarget/stepGroups 状态；`computeStepGroups()`（策展 `assembleStep`
+  过滤未知 id、未列部件追加末组；无字段设备按爆炸偏移长度升序兜底分 ~5 层）；`stepAssembly(on)`
+  进入时与当前画面无缝衔接（装配态先逐组拆开展示、爆炸态直接从 0 装）+ 相机飞至爆炸位；
+  退出先补齐装配再交还爆炸系统（避免两套插值口径跳变）；主循环双模式插值分支
+  （step: `lt = easeIO(1 − clamp(stepCur − 组号, 0, 1))`，标签外侧 1/3 桶口径随 explodeCurrent 对齐）；
+  到位后一次 emit；`setExplode` 滑杆/空格随时接管退出；`getState()` 增 `step`/`partsCount`
+  （parts/partsById 含 THREE 对象不再外泄）、`getPartOffset(id)` 观测。
+- `DeviceViewer.vue`：dock「逐步装配」按钮（KeyB）；滑杆位切换步进器（‹ 装配 i/n ›）；←→ 步进
+  （优先级 step > 导览 > 切台，修掉切台分支吞掉方向键的问题）；Esc 链插入 step 退出；帮助卡 +1 行。
+- `style.css`：`.step-ctl/.step-btn/.step-count`；≤700px 滑杆隐藏但步进器保留（移动端唯一装配入口）。
+- `devices/action4.js`（7 组策展：机身→镜组→主板散热→电池→双屏→盖板→外部五金）、
+  `devices/pocket3.js`（6 组：机身→电池→控制→云台→旋转屏→背板仓盖）。
+- `tools/lint-mapping.mjs`：assembleStep 非空数组/未知部件/跨组重复校验。
+- `tools/smoke.mjs`：+3 永久断言（进入 0/7、前两组就位 shell/mainboard 位移、Esc 补齐装配退出），18 → 21 项。
+
+### 调试记录
+- 方向键失效根因：onKey 链最前面 ArrowLeft/Right 是切台导航，后加的分支是死代码——按下实际切到了
+  下一台设备。修为 step > 导览 > 切台优先级。
+- 二次失效根因：引擎 `emit()` 发手拼载荷不含 `step`，Vue 壳 ui.step 恒 undefined—— getState() 正确
+  但 UI 永远收不到。补 emit 字段 + 动画到位后一次 emit。
+- `getState()` 曾直接外泄 THREE 对象（parts 数组），深拷贝进 Vue 响应式有隐患；改出 `partsCount`，
+  smoke 相应改读计数字段。
+
+### 验证
+- `/tmp/verify-step.mjs` 10/10：装配态进入自动拆开至 0/7、两步后 lens=0/mainboard=2.72、回退、
+  Esc 补齐装配退出、pocket3 dock 按钮 6 组、marshall 兜底 4 组、移动端步进器可见可点（i=0 时
+  上一步正确禁用）、控制台零错误；截图 step-two-groups/step-pocket3/step-mobile 目检通过。
+- `npm run build` 1.7s；`npm run lint:devices` 103/103；`npm run smoke` 21/21。
+
+### 已知限制
+- 逐步装配的相机不会自动聚焦当步部件（复用爆炸位取景）；策展组名未做（UI 显示计数）。
+- 进入时机在拆装动画中途时有轻微插值口径切换跳变（静止态进入无跳变）。
+
+### 下一项
+Phase 2 收官（测量/封盖/装配齐）。下一优先：Phase 3 设备数字档案增量字段 + lint-knowledge + 20 项
+高频技术原理库（src/knowledge/technologies，全部带 sources，未编写显示"待编写"）。

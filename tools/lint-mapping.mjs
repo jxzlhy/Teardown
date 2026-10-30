@@ -44,6 +44,21 @@ for(const d of devices){
   for(const v of (d.tour || [])){
     if(!ids.has(v)) warn(`tour → 未知部件 "${v}"（导览会静默跳过）`);
   }
+  if(d.assembleStep !== undefined){
+    if(!Array.isArray(d.assembleStep) || !d.assembleStep.length){
+      fail('assembleStep → 必须是非空数组（每项为一组部件 id 数组）');
+    }else{
+      const seen = new Set();
+      d.assembleStep.forEach((g, gi) => {
+        if(!Array.isArray(g) || !g.length){ fail(`assembleStep[${gi}] → 必须是非空部件 id 数组`); return; }
+        for(const v of g){
+          if(!ids.has(v)) fail(`assembleStep[${gi}] → 未知部件 "${v}"`);
+          if(seen.has(v)) fail(`assembleStep[${gi}] → 部件 "${v}" 重复出现在多组（引擎按首次出现装配）`);
+          seen.add(v);
+        }
+      });
+    }
+  }
   if(d.unmappedTo && !ids.has(d.unmappedTo)){
     fail(`unmappedTo → 未知部件 "${d.unmappedTo}"（未映射网格会落到不存在的部件）`);
   }

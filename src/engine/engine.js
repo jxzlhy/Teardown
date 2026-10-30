@@ -210,6 +210,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     explodeCurrent: 0, explodeTarget: 0, explodeBasis: null, explodeSpeed: 0.9,
     explodeLayout: 'axis',           // 'axis' 相机基向量 | 'radial' 花瓣球壳
     deviceRadius: 5,
+    stepMode: false,                 // 逐步装配：见 stepAssembly
+    stepCur: 0,                      // 已装配组数（连续值，动画用）
+    stepTarget: 0, stepSpeed: 2.0, stepGroups: null, stepExitPending: false, stepEmitPending: false,
     selected: null, hovered: null,
     labelsMode: 'auto',              // 'auto' | 'all' | 'off'
     scrubbing: false,
@@ -285,6 +288,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.selected = null; state.hovered = null; state.flewTo = null;
     state.explodeCurrent = 0; state.explodeTarget = 0; state.explodeBasis = null;
     state.explodeSpeed = 0.9; state.explodeLayout = 'axis';
+    state.stepMode = false; state.stepCur = 0; state.stepTarget = 0;
+    state.stepGroups = null; state.stepExitPending = false; state.stepEmitPending = false;
     bvhBuilt = false;
   }
 
@@ -654,6 +659,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
 
   /* ---------- 公开 API ---------- */
   function setExplode(t){
+    if(state.stepMode){
+      /* 爆炸滑杆/空格接管：退出逐步模式（口径近似切换，可有轻微跳变） */
+      state.stepMode = false;
+      state.stepExitPending = false;
+      state.explodeCurrent = 1 - state.stepCur / Math.max(1, state.stepGroups ? state.stepGroups.length : 1);
+    }
     state.explodeTarget = t;
     state.explodeSpeed = 0.9;
     state.userInteracted = true;
@@ -672,6 +683,78 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.explodeLayout = layout === 'radial' ? 'radial' : 'axis';
     invalidateMeasure();
     captureExplodeBasis(CAM_EXPLODE);
+    emit();
+  }
+  /* ---------- 逐步装配（LAB · Phase 2）：策展 assembleStep 组序，缺省按爆炸偏移分层 ---------- */
+  function computeStepGroups(){
+    const d = state.device;
+    const present = new Set(state.parts.map(p => p.data.id));
+    let groups = null;
+    if(d && Array.isArray(d.assembleStep) && d.assembleStep.length){
+      groups = d.assembleStep
+        .map(g => Array.isArray(g) ? g.filter(id => present.has(id)) : [])
+        .filter(g => g.length);
+    }
+    if(!groups){
+      /* 兜底：按爆炸偏移长度升序分约 5 层（内件先装） */
+      const sorted = [...state.parts].sort((a, b) =>
+        (a.worldOffset ? a.worldOffset.length() : 0) - (b.worldOffset ? b.worldOffset.length() : 0));
+      const per = Math.max(1, Math.ceil(sorted.length / 5));
+      groups = [];
+      for(let i = 0; i < sorted.length; i += per){
+        groups.push(sorted.slice(i, i + per).map(p => p.data.id));
+      }
+    }
+    /* 未列入策展组的部件追加为末组，保证全件可装 */
+    const listed = new Set(groups.flat());
+    const rest = state.parts.filter(p => !listed.has(p.data.id)).map(p => p.data.id);
+    if(rest.length) groups.push(rest);
+    return groups.filter(g => g.length);
+  }
+  function stepAssembly(on){
+    if(on){
+      if(!state.parts.length) return false;
+      stopTour(false);
+      state.stepGroups = computeStepGroups();
+      for(const p of state.parts){
+        p.stepIdx = state.stepGroups.findIndex(g => g.includes(p.data.id));
+      }
+      state.stepMode = true;
+      /* 与当前画面无缝衔接：装配态→先逐组拆开展示；爆炸态→直接从 0 开始装 */
+      state.stepCur = state.stepGroups.length * (1 - clamp(state.explodeCurrent, 0, 1));
+      state.stepTarget = 0;
+      state.stepExitPending = false;
+      state.stepEmitPending = true;
+      state.stepSpeed = 2.0;
+      invalidateMeasure();
+      controls.autoRotate = false;
+      state.userInteracted = true;
+      state.camTween = { t:0, dur:1.2,
+        fp:camera.position.clone(), tp:CAM_EXPLODE.clone(),
+        ft:controls.target.clone(), tt:CAM_TARGET.clone() };
+    }else{
+      if(!state.stepMode) return false;
+      /* 先补齐装配再交还爆炸系统，避免两套插值口径跳变 */
+      state.stepTarget = state.stepGroups.length;
+      state.stepExitPending = true;
+      state.stepEmitPending = true;
+    }
+    emit();
+    return true;
+  }
+  function stepNext(){
+    if(!state.stepMode) return;
+    state.stepTarget = Math.min(state.stepGroups.length, state.stepTarget + 1);
+    state.stepExitPending = false;
+    state.stepEmitPending = true;
+    invalidateMeasure();
+    emit();
+  }
+  function stepPrev(){
+    if(!state.stepMode) return;
+    state.stepTarget = Math.max(0, state.stepTarget - 1);
+    state.stepEmitPending = true;
+    invalidateMeasure();
     emit();
   }
   function selectPart(id){
@@ -935,6 +1018,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       layout: state.explodeLayout,
       tour: tourInfo(),
       tool: state.measureOn ? 'measure' : null,
+      step: state.stepMode && state.stepGroups ? { i: Math.round(state.stepCur), n: state.stepGroups.length } : null,
       booted, quality
     });
   }
@@ -977,7 +1061,23 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     /* 设备动态贴图刷新（屏幕 UI 等） */
     if(state.device && state.device.tick) state.device.tick(dt);
 
-    if(Math.abs(state.explodeCurrent-state.explodeTarget) > 0.0004){
+    if(state.stepMode && state.stepGroups){
+      if(Math.abs(state.stepCur - state.stepTarget) > 0.0004){
+        const dir = Math.sign(state.stepTarget - state.stepCur);
+        state.stepCur = clamp(
+          state.stepCur + dir*Math.min(rawDt*state.stepSpeed, Math.abs(state.stepTarget-state.stepCur)),
+          0, state.stepGroups.length);
+      }else if(state.stepEmitPending){
+        state.stepEmitPending = false;   // 到位后同步一次 UI（步进计数/按钮态）
+        emit();
+      }
+      /* 标签外侧 1/3 桶口径与爆炸度对齐 */
+      state.explodeCurrent = 1 - state.stepCur / state.stepGroups.length;
+      if(state.stepExitPending && state.stepCur >= state.stepGroups.length - 0.0004){
+        state.stepMode = false; state.stepExitPending = false;
+        state.explodeCurrent = 0; state.explodeTarget = 0;
+      }
+    }else if(Math.abs(state.explodeCurrent-state.explodeTarget) > 0.0004){
       const dir = Math.sign(state.explodeTarget - state.explodeCurrent);
       state.explodeCurrent = clamp(
         state.explodeCurrent + dir*Math.min(rawDt*state.explodeSpeed, Math.abs(state.explodeTarget-state.explodeCurrent)), 0, 1);
@@ -986,9 +1086,14 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     const ex = state.explodeCurrent;
     const n = state.parts.length || 1;
     for(const p of state.parts){
-      const stag = (p.idx/n)*0.32;
-      let lt = clamp((ex-stag)/(1-0.32), 0, 1);
-      lt = easeIO(lt);
+      let lt;
+      if(state.stepMode){
+        lt = easeIO(1 - clamp(state.stepCur - (p.stepIdx || 0), 0, 1));
+      }else{
+        const stag = (p.idx/n)*0.32;
+        lt = clamp((ex-stag)/(1-0.32), 0, 1);
+        lt = easeIO(lt);
+      }
       const wo = p.worldOffset || p.offset;
       p.group.position.copy(p.base).addScaledVector(wo, lt);
       if(!isFinite(p.group.position.x)) p.group.position.copy(p.base);
@@ -1206,12 +1311,23 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     loadDevice, setExplode, setExplodeLayout, selectPart, setHover, setLabels, setAutoRotate,
     resetView, pickAt, onResize, thumbView, snapshot,
     flyToPart, setMode, isolate, setClipT,
-    setMeasure,
+    setMeasure, stepAssembly, stepNext, stepPrev,
     capturePartThumb,
     startTour, stopTour, tourNext, tourPrev,
     step: mainLoop,
     getCamera: () => camera,
-    getState: () => ({ ...state, booted, autoRotate: controls.autoRotate, viewMode: modes.state.mode, isolateId: modes.state.isolateId, clipCap: modes.state.capKind, tool: state.measureOn ? 'measure' : null }),
+    getPartOffset: (id) => {
+      const p = state.partsById[id];
+      return p ? +p.group.position.distanceTo(p.base).toFixed(4) : null;
+    },
+    getState: () => ({ ...state,
+      booted, autoRotate: controls.autoRotate,
+      viewMode: modes.state.mode, isolateId: modes.state.isolateId, clipCap: modes.state.capKind,
+      tool: state.measureOn ? 'measure' : null,
+      step: state.stepMode && state.stepGroups ? { i: Math.round(state.stepCur), n: state.stepGroups.length } : null,
+      /* parts/partsById 含 THREE 对象，不进响应式/跨页传输，只出计数字段 */
+      partsCount: state.parts.length,
+    }),
     dispose(){
       running = false;
       clearInterval(watchdog);
