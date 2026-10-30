@@ -160,6 +160,27 @@ try{
   check('移动端 sheet 打开', mobile.sheet && mobile.clip);
   check('剖切条不被 sheet 遮挡', mobile.gap != null && mobile.gap >= 0, `间距 ${mobile.gap}px`);
 
+  /* 移动端详情 sheet：46vh 封顶 / 特写横幅限高 / 内容可滚动（防特写图撑爆回归） */
+  const mobileDetail = await page.evaluate(() => {
+    const sheet = document.querySelector('#ctxCard');
+    if (!sheet) return { sheet: false };
+    const r = sheet.getBoundingClientRect();
+    const thumb = document.querySelector('#ctxCard .ctx-thumb');
+    const thumbH = thumb ? Math.round(thumb.getBoundingClientRect().height) : null;
+    const overflows = sheet.scrollHeight > sheet.clientHeight + 2;
+    return {
+      sheet: true,
+      height: Math.round(r.height),
+      maxOk: r.height <= window.innerHeight * 0.47 + 2,
+      thumbH,
+      thumbCapOk: thumbH == null || thumbH <= 170,
+      scrollOk: overflows ? getComputedStyle(sheet).overflowY === 'auto' : true,
+    };
+  });
+  check('移动端 sheet 高度封顶 46vh', mobileDetail.sheet && mobileDetail.maxOk, `高度 ${mobileDetail.height}px`);
+  check('移动端特写限高横幅', mobileDetail.thumbCapOk, `特写 ${mobileDetail.thumbH}px`);
+  check('移动端 sheet 内容可滚动', mobileDetail.scrollOk);
+
   await browser.close();
   browser = null;
   check('无控制台错误', errors.length === 0, errors.slice(0, 3).join(' | '));
