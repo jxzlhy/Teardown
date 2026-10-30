@@ -959,3 +959,15 @@ ROADMAP S1/S2 核心：馆内只有部件级参数文案，无跨设备的技术
 
 ### 下一项
 Phase 3 切片 2：era 字段（先从配置内已有年份的 66 台做起，逐台核对措辞）或继续编写 14 项占位原理。
+
+## 2026-10-31 · Phase 3 切片 1b：知识词条扩编至 10/20
+
+### 改动
+- 新增 4 项全量词条：camera-optics（镜头与光学系统）、oled-display、wireless-power（Qi）、
+  haptic-engine（LRA/Taptic），来源 4 个 Wikipedia URL 全部经 WebFetch 实证（发明年/史实取自抓取正文）。
+- `_stubs.js` 相应移除 4 项（剩 10 项占位）；index.js 挂载；修正 three-axis-gimbal 的
+  relatedDevices（action4 为电子防抖无机械云台，改为真正有 gimbal 部件的 pocket3/mavic3pro/mini4pro/avata2）。
+
+### 验证
+- `npm run lint:devices`（含知识库）全绿：已编写 10 / 20；`npm run build` 1.76s
+  （DeviceViewer chunk gzip 77.8KB，+2KB）；`npm run smoke` 22/22。

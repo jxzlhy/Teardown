@@ -11,10 +11,15 @@ import loudspeaker from './technologies/loudspeaker.js';
 import threeAxisGimbal from './technologies/three-axis-gimbal.js';
 import escapement from './technologies/escapement.js';
 import superheterodyne from './technologies/superheterodyne.js';
+import cameraOptics from './technologies/camera-optics.js';
+import oledDisplay from './technologies/oled-display.js';
+import wirelessPower from './technologies/wireless-power.js';
+import hapticEngine from './technologies/haptic-engine.js';
 import stubs from './technologies/_stubs.js';
 
 export const technologies = [
   cmosSensor, liPoBattery, loudspeaker, threeAxisGimbal, escapement, superheterodyne,
+  cameraOptics, oledDisplay, wirelessPower, hapticEngine,
   ...stubs,
 ];
 

@@ -5,10 +5,6 @@
    每编写完成一项，移出本文件建立独立 <id>.js 并补 sources。
 ============================================================= */
 export default [
-  { id: 'camera-optics', zh: '镜头与光学系统', relatedParts: ['lens', 'camera', 'camera-island', 'camera-module', 'flash', 'cover-glass'] },
-  { id: 'oled-display', zh: 'OLED / 显示面板', relatedParts: ['display', 'screen', 'front-screen', 'rear-screen'] },
-  { id: 'wireless-power', zh: '无线充电（Qi）', relatedParts: ['coil'] },
-  { id: 'haptic-engine', zh: '线性马达触觉反馈', relatedParts: ['taptic'] },
   { id: 'pcb-soc', zh: '印制电路板与 SoC', relatedParts: ['board', 'mainboard', 'usb-pcb', 'board-cover', 'antenna'] },
   { id: 'usb-c', zh: 'USB-C 接口', relatedParts: ['usb', 'port', 'usb-pcb'] },
   { id: 'cooling-module', zh: '散热模块（VC 均热板/风扇）', relatedParts: ['fan', 'heatsink', 'thermal', 'cooling'] },

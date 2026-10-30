@@ -7,7 +7,7 @@ export default {
     'IMU 感知机身姿态后，控制器分解出手抖与主动转动的差别，只抵消不想要的抖动、保留有意的摇移，' +
     '让相机在空间中保持指向。与光学防抖（移动镜片/传感器）不同，机械云台稳定的是整台相机。',
   relatedParts: ['gimbal'],
-  relatedDevices: ['pocket3', 'action4'],
+  relatedDevices: ['pocket3', 'mavic3pro', 'mini4pro', 'avata2'],
   invented: '2010s',
   history: [
     ['古代', '常平架（cardan suspension）用于船上悬挂罗盘/油灯'],
