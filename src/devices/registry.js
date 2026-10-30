@@ -104,6 +104,7 @@ import fenderStratocaster from './fender-stratocaster.js';
 import commodore64 from './commodore-64.js';
 import admiral7t10 from './admiral-7t10.js';
 import we500RotaryPhone from './we500-rotary-phone.js';
+import regencyTr1 from './regency-tr1.js';
 
 export const devices = [
   /* DJI */
@@ -169,6 +170,8 @@ export const devices = [
   admiral7t10,
   /* WESTERN */
   we500RotaryPhone,
+  /* REGENCY */
+  regencyTr1,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

@@ -406,6 +406,15 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       if(token !== loadSeq) return;
       {
         const root = gltf.scene;
+        /* 网格排除：剔除展示地面/背景板等非设备网格（须在归一化之前，
+           否则巨型背景板会撑爆归一化与取景包围盒） */
+        if(device.excludeMeshes && device.excludeMeshes.length){
+          const kill = new Set(device.excludeMeshes);
+          const doomed = [];
+          root.traverse(o => { if (o.isMesh && kill.has(o.name)) doomed.push(o); });
+          for(const o of doomed) o.parent.remove(o);
+          if(doomed.length) root.updateMatrixWorld(true);
+        }
         /* 基础姿态修正（俯仰）：平躺展示模型转正。
            以几何中心建 pivot 旋转——模型长轴常偏离原点，绕 root 原点转会甩飞 */
         if(device.baseRotation){
