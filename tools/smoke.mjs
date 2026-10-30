@@ -113,6 +113,44 @@ try{
   const xray = await page.evaluate(() => window.__ENGINE.getState().viewMode);
   check('X-Ray 模式可进入', xray === 'xray', xray || 'null');
 
+  /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
+  await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => {
+    const e = window.__ENGINE;
+    const s = e && e.getState();
+    return s && s.booted && s.device && s.device.id === 'pocket3';
+  }, { timeout: 90000, polling: 200 });
+  await sleep(800);
+  const mpts = await page.evaluate(() => {
+    const cam = window.__ENGINE.getCamera();
+    const t = new window.__THREE.Vector3(0, 0.7, 0).project(cam);
+    const b = new window.__THREE.Vector3(0, -0.7, 0).project(cam);
+    return {
+      a: { x: Math.round((t.x * .5 + .5) * innerWidth), y: Math.round((-t.y * .5 + .5) * innerHeight) },
+      b: { x: Math.round((b.x * .5 + .5) * innerWidth), y: Math.round((-b.y * .5 + .5) * innerHeight) },
+    };
+  });
+  await page.keyboard.press('KeyM');
+  await sleep(300);
+  for(const pt of [mpts.a, mpts.b]){
+    await page.mouse.move(pt.x, pt.y);
+    await page.mouse.down(); await page.mouse.up();
+    await sleep(250);
+  }
+  const measure = await page.evaluate(() => {
+    const s = window.__ENGINE.getState();
+    const el = document.querySelector('.measure-tip');
+    return {
+      tool: s.tool, a: !!(s.measure && s.measure.a), b: !!(s.measure && s.measure.b),
+      tipText: el ? el.textContent : '', shown: el ? el.style.display === 'block' : false,
+    };
+  });
+  check('测量工具两点取点 + 读数显示',
+    measure.tool === 'measure' && measure.a && measure.b && measure.shown, measure.tipText);
+  check('测量读数为 mm 标定格式', /^\d+(\.\d+)? mm$/.test(measure.tipText), measure.tipText);
+  await page.keyboard.press('Escape');
+  await sleep(200);
+
   /* Tour 兜底：无策展顺序的设备按爆炸偏移从外到内 */
   await page.goto(BASE + '/#/device/marshall-jcm800', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

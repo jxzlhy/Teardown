@@ -683,6 +683,16 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   #bootTitle .bt-zh{ font-size:15px; }
 }
 
+/* ---------- 测量读数（engine 挂载于 #labels，位于两点连线中点） ---------- */
+.measure-tip{
+  position:fixed; z-index:26; display:none; pointer-events:none;
+  transform:translate(-50%,-135%);
+  font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--acc);
+  background:rgba(4,10,16,.92); border:1px solid color-mix(in srgb, var(--acc) 45%, transparent);
+  border-radius:5px; padding:4px 9px; white-space:nowrap;
+  box-shadow:0 0 14px var(--acc-16);
+}
+
 /* ---------- 减少动态偏好：关闭装饰动画与过渡（3D 侧由引擎 reducedMotion 处理） ---------- */
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{

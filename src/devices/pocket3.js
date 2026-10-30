@@ -76,6 +76,7 @@ export default {
   targetWidth: 5.8,
   normalize: 'full',         // 资产为沿 X 平铺的部件布局，按整体包围盒归一化
   glb: '/assets/pocket3.glb',
+  realSizeMM: 139.7,   /* 真实最大外形尺寸（官方规格 139.7×42.2×33.5mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→云台→控制→机身→电池→仓盖→背板 */
   tour: ['screen','gimbal','controls','body','battery','battery-door','backplate'],
   xrayShellIds: ['body','backplate','screen'],

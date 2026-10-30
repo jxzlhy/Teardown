@@ -21,6 +21,13 @@ import { fetchGlb } from './glbCache.js';
 import { assetUrl } from '../lib/url.js';
 import { createLabelSystem } from './labels.js';
 import { createViewModes } from './view-modes.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+
+/* BVH 加速拾取/测量：全局换装 Mesh.raycast；boundsTree 按需构建（测量工具首次激活时），
+   未构建的几何自动回退标准 raycast，默认装载路径零开销 */
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
 window.__THREE = THREE;   // 调试用：运行时包围盒测量
 
@@ -249,8 +256,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   function disposeDevice(){
     modes.setMode(null);
     stopTour(false);
+    setMeasure(false, true);
     deviceGroup.traverse(o=>{
       if(o.isMesh){
+        if(o.geometry.boundsTree) o.geometry.disposeBoundsTree();
         o.geometry.dispose();
         const ms = Array.isArray(o.material) ? o.material : [o.material];
         ms.forEach(m=>{
@@ -270,6 +279,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.selected = null; state.hovered = null; state.flewTo = null;
     state.explodeCurrent = 0; state.explodeTarget = 0; state.explodeBasis = null;
     state.explodeSpeed = 0.9; state.explodeLayout = 'axis';
+    bvhBuilt = false;
   }
 
   function buildProceduralParts(device){
@@ -635,6 +645,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.explodeSpeed = 0.9;
     state.userInteracted = true;
     stopTour(false);
+    invalidateMeasure();   // 部件位移后测量点位失效（工具保持开启，重测即可）
     controls.autoRotate = false;
     if(t > 0.5) captureExplodeBasis(CAM_EXPLODE);
     state.camTween = { t:0, dur:1.2,
@@ -646,6 +657,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   /* 爆炸布局：'axis'（语义方向） | 'radial'（花瓣球壳） */
   function setExplodeLayout(layout){
     state.explodeLayout = layout === 'radial' ? 'radial' : 'axis';
+    invalidateMeasure();
     captureExplodeBasis(CAM_EXPLODE);
     emit();
   }
@@ -709,9 +721,100 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
   }
 
+  /* ---------- 测量工具（LAB · Phase 2） ----------
+     两点表面取点连线读距；BVH 惰性构建只发生在首次激活。
+     读数标定：模型等比缩放，targetWidth 场景单位 ↔ realSizeMM 真实毫米，
+     故 mm = 场景距离 / targetWidth × realSizeMM（未标定设备显示场景单位）。 */
+  let bvhBuilt = false;
+  let measureTip = null;
+  const measureMat = new THREE.MeshBasicMaterial({ color: 0x45e0ff, depthTest:false, transparent:true, opacity:.95 });
+  const measureLineMat = new THREE.LineBasicMaterial({ color: 0x45e0ff, depthTest:false, transparent:true, opacity:.9 });
+  function ensureBVH(){
+    if(bvhBuilt) return;
+    bvhBuilt = true;
+    raycaster.firstHitOnly = true;
+    const t0 = performance.now();
+    let n = 0;
+    deviceGroup.traverse(o=>{ if(o.isMesh && o.geometry && !o.geometry.boundsTree){ o.geometry.computeBoundsTree(); n++; } });
+    console.log('[measure] BVH ×' + n + ' built in ' + Math.round(performance.now()-t0) + 'ms');
+  }
+  function ensureMeasureTip(){
+    if(measureTip) return;
+    measureTip = document.createElement('div');
+    measureTip.className = 'measure-tip';
+    labelsRoot.appendChild(measureTip);   // labels.build 只清理 .p-label 与自家 svg，外挂节点安全
+  }
+  function clearMeasureObjects(){
+    const m = state.measure;
+    if(!m) return;
+    if(m.markerGeo) m.markerGeo.dispose();
+    if(m.line) m.line.geometry.dispose();
+    deviceGroup.remove(m.ma); if(m.mb) deviceGroup.remove(m.mb); if(m.line) deviceGroup.remove(m.line);
+    state.measure = null;
+  }
+  function invalidateMeasure(){
+    clearMeasureObjects();
+    if(measureTip) measureTip.style.display = 'none';
+  }
+  function setMeasure(on, silent){
+    if(on){
+      ensureBVH();
+      ensureMeasureTip();
+      state.measureOn = true;
+      stopTour(false);
+    }else{
+      state.measureOn = false;
+      invalidateMeasure();
+    }
+    if(!silent) emit();
+  }
+  function measurePick(clientX, clientY){
+    pointer.x = (clientX/innerWidth)*2-1;
+    pointer.y = -(clientY/innerHeight)*2+1;
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(state.pickMeshes, false)[0];
+    if(!hit) return;
+    const local = deviceGroup.worldToLocal(hit.point.clone());
+    let m = state.measure;
+    if(m && m.b){ clearMeasureObjects(); m = null; }   // 第三次点击：重新测量
+    if(!m){
+      const geo = new THREE.SphereGeometry(clamp(state.deviceRadius*0.016, .03, .09), 14, 10);
+      const ma = new THREE.Mesh(geo, measureMat); ma.renderOrder = 999;
+      ma.position.copy(local); deviceGroup.add(ma);
+      state.measure = { a: local.clone(), b: null, ma, mb: null, line: null, markerGeo: geo };
+      return;
+    }
+    const mb = new THREE.Mesh(m.markerGeo, measureMat); mb.renderOrder = 999;
+    mb.position.copy(local); deviceGroup.add(mb);
+    m.b = local.clone(); m.mb = mb;
+    m.line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([m.a, m.b]), measureLineMat);
+    m.line.renderOrder = 999;
+    deviceGroup.add(m.line);
+    const d = m.a.distanceTo(m.b);
+    const dev = state.device;
+    if(dev && dev.realSizeMM && dev.targetWidth){
+      const mm = d / dev.targetWidth * dev.realSizeMM;
+      measureTip.textContent = (mm >= 100 ? mm.toFixed(0) : mm.toFixed(1)) + ' mm';
+    }else{
+      measureTip.textContent = d.toFixed(2) + ' u · 未标定';
+    }
+  }
+  function updateMeasureTip(){
+    const m = state.measure;
+    if(!m || !m.b || !measureTip) return;
+    _v.copy(m.a).add(m.b).multiplyScalar(0.5);
+    deviceGroup.localToWorld(_v);
+    _v.project(camera);
+    if(!Number.isFinite(_v.x) || _v.z > 1){ measureTip.style.display = 'none'; return; }
+    measureTip.style.display = 'block';   // 类默认 display:none，必须内联覆盖
+    measureTip.style.left = ((_v.x*0.5+0.5)*innerWidth).toFixed(1) + 'px';
+    measureTip.style.top = ((-_v.y*0.5+0.5)*innerHeight).toFixed(1) + 'px';
+  }
+
   /* ---------- 查看模式门面 ---------- */
   function setMode(m, partId){
     stopTour(false);
+    invalidateMeasure();
     if(m === 'isolate' && !partId) partId = state.selected;
     if(m === 'isolate' && !partId) return;
     modes.setMode(m === 'xray' || m === 'isolate' || m === 'clip' ? m : null, partId);
@@ -723,6 +826,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   /* ---------- 自动导览 Tour ---------- */
   function startTour(){
     modes.setMode(null);   // 导览件必须完整可见：自动退出 X 光/隔离/剖切
+    invalidateMeasure();
     /* 无策展顺序时按爆炸偏移从外到内排：贴合“先拆外壳再进内部”的直觉，
        也避免直接沿用配置里的任意部件顺序 */
     const curated = (state.device && state.device.tour && state.device.tour.filter(id => state.partsById[id])) || [];
@@ -772,7 +876,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   function onPointerDown(e){
     downX0 = e.clientX; downY0 = e.clientY;
     state.userInteracted = true; controls.autoRotate = false; emit();
-    if(isMobile && e.pointerType !== 'mouse'){
+    if(isMobile && e.pointerType !== 'mouse' && !state.measureOn){
       const x = e.clientX, y = e.clientY;
       lpTimer = setTimeout(()=>{
         lpTimer = null;
@@ -786,6 +890,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   function onPointerUp(e){
     if(lpTimer){ clearTimeout(lpTimer); lpTimer = null; }
     if(Math.hypot(e.clientX - downX0, e.clientY - downY0) > 6) return;   // 拖拽视角不触发选择
+    if(state.measureOn){ measurePick(e.clientX, e.clientY); return; }    // 测量工具接管点击
     pickAt(e.clientX, e.clientY);
   }
   function onPointerMoveCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = null; } }
@@ -816,6 +921,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       clipT: modes.state.clipT,
       layout: state.explodeLayout,
       tour: tourInfo(),
+      tool: state.measureOn ? 'measure' : null,
       booted, quality
     });
   }
@@ -930,6 +1036,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     composer.render();
     try{ updateLabelsFrame(); }
     catch(e){ hooks.onLabelError && hooks.onLabelError(String((e && e.message) || e)); }
+    updateMeasureTip();
 
     /* 帧率采样 → 自适应降档（watchdog 步进的帧不计入，否则 rAF 挂起环境会误判卡顿） */
     if(adaptive && booted && !viaWatchdog){
@@ -1084,11 +1191,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     loadDevice, setExplode, setExplodeLayout, selectPart, setHover, setLabels, setAutoRotate,
     resetView, pickAt, onResize, thumbView, snapshot,
     flyToPart, setMode, isolate, setClipT,
+    setMeasure,
     capturePartThumb,
     startTour, stopTour, tourNext, tourPrev,
     step: mainLoop,
     getCamera: () => camera,
-    getState: () => ({ ...state, booted, autoRotate: controls.autoRotate, viewMode: modes.state.mode, isolateId: modes.state.isolateId }),
+    getState: () => ({ ...state, booted, autoRotate: controls.autoRotate, viewMode: modes.state.mode, isolateId: modes.state.isolateId, tool: state.measureOn ? 'measure' : null }),
     dispose(){
       running = false;
       clearInterval(watchdog);

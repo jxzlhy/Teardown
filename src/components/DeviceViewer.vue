@@ -126,6 +126,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18L18 4M4 18h14V4" /><path d="M2 9l9 9" stroke-dasharray="2.5 2.5"/></svg>
           <span class="tip">剖切 <kbd>4</kbd></span>
         </button>
+        <button class="hud-icon" :class="{ on: ui.tool === 'measure' }" @click="toggleMeasure">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="9" width="19" height="6.5" rx="1.5"/><path d="M7 9v3.5M11 9v2.5M15 9v3.5M19 9v2.5"/></svg>
+          <span class="tip">测量 <kbd>M</kbd></span>
+        </button>
       </div>
       <div class="tb-sep"></div>
       <div class="dock-group">
@@ -223,6 +227,7 @@
             <div class="g-row"><span class="g-key">SPACE</span><span>一键拆解 / 组装</span></div>
             <div class="g-row"><span class="g-key">1 - 4</span><span>整机 / X光 / 隔离 / 剖切</span></div>
             <div class="g-row"><span class="g-key">F</span><span>聚焦选中部件</span></div>
+            <div class="g-row"><span class="g-key">M</span><span>两点测量（点模型表面）</span></div>
           </div>
           <div class="g-col">
             <div class="g-row"><span class="g-key">T</span><span>自动导览（一键装杯）</span></div>
@@ -276,7 +281,7 @@ let engine = null;
 const ui = ref({
   explode: 0, explodeTarget: 0, selected: null, modelStatus: '',
   labelsOn: true, labelsMode: 'auto', autoRotate: false,
-  viewMode: null, isolateId: null, clipT: 0.62, layout: 'axis',
+  viewMode: null, isolateId: null, clipT: 0.62, layout: 'axis', tool: null,
   tour: null, booted: false, quality: 2
 });
 const scrubbing = ref(false);
@@ -502,6 +507,12 @@ function setViewMode(m){
   if(m === 'isolate' && !ui.value.selected){ showToast('先点击选择一个部件，再进入隔离', 1800); return; }
   engine.setMode(ui.value.viewMode === m ? null : m, ui.value.selected);
 }
+function toggleMeasure(){
+  if(!engine) return;
+  const on = ui.value.tool !== 'measure';
+  engine.setMeasure(on);
+  if(on) showToast('测量：点击模型上两点 · 第三次点击重测 · M / Esc 退出', 3200);
+}
 function cycleLabels(){
   if(!engine) return;
   const order = ['auto', 'all', 'off'];
@@ -563,6 +574,7 @@ function onKey(e){
   else if(e.code === 'Digit2'){ setViewMode('xray'); }
   else if(e.code === 'Digit3'){ setViewMode('isolate'); }
   else if(e.code === 'Digit4'){ setViewMode('clip'); }
+  else if(e.code === 'KeyM'){ toggleMeasure(); }
   else if(e.code === 'KeyF'){ ui.value.selected && engine && engine.flyToPart(ui.value.selected); }
   else if(e.code === 'KeyT'){ toggleTour(); }
   else if(e.code === 'KeyS'){ shoot(); }
@@ -574,6 +586,7 @@ function onKey(e){
     if(showGuide.value) showGuide.value = false;
     else if(infoOpen.value) infoOpen.value = false;
     else if(immersiveMode.value) immersiveMode.value = false;
+    else if(ui.value.tool === 'measure') toggleMeasure();   // 先退出测量工具
     else if(ui.value.viewMode) setViewMode(ui.value.viewMode);   // 退出查看模式
     else engine && engine.selectPart(null);
   }

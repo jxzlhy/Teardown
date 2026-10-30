@@ -766,3 +766,72 @@ CSS 装饰动画（扫描线/脉冲）都照常播放，不符合无障碍与 AG
 - 生产预览 14/14（大厅口径、action4 14 部件与 Tour、6 机型抽查、移动端间距 19.6px、无控制台错误）。
 - three chunk 3/3（大厅不加载、设备页恰好 1 次、装载正常）。
 - `dist` 201MB，无 `.mimosa/.DS_Store`；临时 dev/preview/静态服务均已停止，用户自有 8200 未触碰。
+
+## 2026-10-31 · 数字博物馆全景研究（ROADMAP 阶段，零代码改动）
+
+### 任务
+用户下达《DIGITAL TECH MUSEUM · ULTIMATE DEEP RESEARCH》任务书：20 个方向的全维研究，第一阶段只调研与规划。
+
+### 改动（全部为文档，未动 src/tools）
+- 新增 `docs/MUSEUM-ROADMAP.md`：主报告（现状诊断 / AI Skill / 技术库 / 开源项目 / 产品功能 / 设计规范索引 / 数据 Schema / 8 阶段路线图 / 未验证清单与来源索引）。
+- 新增设计规范五件套：`docs/DESIGN_SYSTEM.md`、`docs/DESIGN_SKILLS.md`、`docs/DESIGN_QA.md`、`docs/MOTION_GUIDELINES.md`、`docs/3D_EXPERIENCE_GUIDELINES.md`（token 全部实测自 style.css/hud.css/engine.js）。
+
+### 调研过程与证据
+- 全部外链经 Web 实证（GitHub 存在性/许可证/维护、Apple 官方 HIG/Liquid Glass URL、npm peer 兼容），来源索引见 ROADMAP 附 B。
+- 关键核实结论：dickwu/apple-design-skill 为社区项目且无 OSS 许可证（只摘录原则不安装）；pbakaus/impeccable Apache-2.0 且明确支持 Trae；anthropics/skills 官方含 frontend-design；GSAP 3.13 起全插件免费；pmndrs/postprocessing 最新版与 three 0.164 不兼容（需钉 6.36.x）；three-mesh-bvh 兼容可引入；Smithsonian dpo-voyager 官方开源 Apache-2.0；任务书候选"PRISM Configurator"检索不存在（判定虚构）；Vestige 未开源；Theatre.js 开发转私有仓。
+- 后台子代理并发限制致 2 个调研代理被杀（与既有记录一致），相应主题（AI Skill、Vue UI/动效）已由主会话串行补齐；Three.js 生态代理完成并交付核实报告。
+
+### 验证
+- 本轮为研究切片，无构建影响；`git status` 确认仅新增 docs/*.md（用户未提交的 regency-tr1.glb 未触碰）。
+- 文档一致性：DESIGN_SYSTEM 的 token 值逐项对照 style.css/hud.css 原文；引擎画质阶梯对照 engine.js applyQuality 注释。
+- **并行会话事件**：研究收尾时发现另一会话在同一仓库推进（Regency TR-1 接入、smoke 移动端断言等 5 个提交），其 90dc99d 提交将本报告 docs/MUSEUM-ROADMAP.md 一并纳入（内容与工作区字节一致，无损坏）；据此把报告基线从 102 台修正为 103 台 815 部件 38 品牌，smoke 口径改为"15 项全绿"。设计规范五件套与 LOG/BACKLOG 改动截至本条仍为未提交状态，是否提交由用户决定。
+
+### 已知限制
+- "Three.js Skill"独立仓库未核实到（搜索超时）；headlessui Vue 维护细节未逐项核实——均在 ROADMAP 附 A 声明。
+- 真机 iOS/Android 回归仍缺（既有 BACKLOG 项）。
+
+### 下一项
+按 ROADMAP Phase 1 收尾即 Phase 2：three-mesh-bvh 引入 + 测量工具态（先做最小可验证原型：单设备两点测距），随后 stencil 剖切封盖与 assembleStep。
+
+## 2026-10-31 · 设计 Skill 安装（承接 ROADMAP 第二部分）
+
+### 改动
+- 新增 `.zcode/skills/impeccable/`（v4.8.0，自 pbakaus/impeccable plugin/skills 成品目录拷贝，含 LICENSE/NOTICE；Apache-2.0）。
+- 新增 `.zcode/skills/frontend-design/`（自 anthropics/skills skills/frontend-design 拷贝，含 LICENSE.txt；Apache-2.0）。
+- `docs/DESIGN_SKILLS.md` 同步安装状态与基线结果。
+
+### 验证
+- `impeccable --version` → 4.8.0（引擎二进制首次运行自动下载并校验，缓存于 ~/.impeccable）。
+- `impeccable detect src/` → 122 文件 0 反模式；1 条 advisory（--ease-spring 弹性缓动）。记录为基线，缓动保留（规范定位点缀用）。
+- 注：两个 skill 需新开会话才会进入技能清单（当前会话启动时已扫描完毕）。
+
+### 下一项
+不变：Phase 2 —— three-mesh-bvh 两点测量原型 → stencil 剖切封盖 → assembleStep。
+
+## 2026-10-31 · Phase 2 切片 1：两点测量工具（three-mesh-bvh）
+
+### 问题
+ROADMAP S4：拆解馆没有测量能力。本切片补齐 LAB 基础件第一项——BVH 加速的两点表面测距。
+
+### 改动
+- `package.json`：+`three-mesh-bvh@0.9.17`（MIT；peer three ≥0.159 兼容 0.164）。落点在 DeviceViewer chunk（+40KB），three chunk 771.42KB 零变化，大厅不加载。
+- `engine.js`：全局换装 `Mesh.raycast = acceleratedRaycast`（无 boundsTree 自动回退，默认路径零开销）；测量工具态 `setMeasure(on)`——首次激活惰性构建全设备 boundsTree（pocket3 123 几何 ≈20-29ms，达标 <100ms）；两点表面取点（标记球 + 连线 + 读数胶囊挂 #labels）；读数标定 `mm = 场景距离/targetWidth × realSizeMM`（模型等比缩放下恒成立）；第三次点击重测；爆炸/切模式/导览时点位失效（工具保持）；disposeDevice 释放 boundsTree 与测量对象；getState/emit 增 `tool` 字段。
+- `DeviceViewer.vue`：dock 测量按钮（KeyM）、Esc 先退测量、toast 操作提示、帮助卡新增 M 行。
+- `style.css`：`.measure-tip` 玻璃读数胶囊。
+- `devices/pocket3.js`：`realSizeMM: 139.7`（官方最大外形尺寸，试点标定）。
+- `tools/smoke.mjs`：+2 项永久断言（两点取点读数、mm 格式），15 → 17 项。
+
+### 调试记录
+- 首轮验证 7 项失败定位为两个问题：① 测试点位打偏（pocket3 竖握把屏上仅约 130px 宽，±70px 横向偏移脱靶）→ 改竖向两点；② 真 bug：`.measure-tip` 类默认 display:none，`style.display=''` 盖不过类选择器，读数永不显示 → 改 `display='block'`。
+
+### 验证
+- `/tmp/verify-measure.mjs` 11/11：M 进入/第一点不触发选中/两点连线读数/mm 与距离换算一致/三次点击重测/爆炸失效且工具保持/Esc 退出/BVH 日志/移动端触屏两点/dock 13 按钮/无控制台错误。
+- 截图 `/tmp/measure-desktop.png`、`/tmp/measure-mobile.png` 目视通过：标记点+连线+读数胶囊清晰，标签无互叠，移动端画布可操作。
+- `npm run build` 1.95s；`npm run lint:devices` 103/103；`npm run smoke` 17/17。
+
+### 已知限制
+- 读数精度依赖模型等比正确性（官方模型可信，社区模型近似）；未标定设备显示场景单位并注明。
+- 测量在装配态语义最准；爆炸态点位已被禁用（自动清空）。
+
+### 下一项
+Phase 2 切片 2：剖切真封盖（stencil 模式 + 自建 stencilBuffer RenderTarget，失败回退 DoubleSide 方案）。

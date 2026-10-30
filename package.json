@@ -18,6 +18,7 @@
   "dependencies": {
     "gsap": "^3.15.0",
     "three": "^0.164.0",
+    "three-mesh-bvh": "^0.9.17",
     "vue": "^3.5.44",
     "vue-router": "^4.6.4"
   },
