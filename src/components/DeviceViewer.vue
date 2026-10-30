@@ -79,6 +79,25 @@
         <h2>{{ selectedPart.zh }}<small>{{ selectedPart.en }}</small></h2>
         <div class="ctx-tag">{{ selectedPart.tag }}</div>
         <div class="ctx-desc">{{ selectedPart.desc }}</div>
+        <div class="ctx-tech" v-if="partTech">
+          <button class="tech-head" @click="techOpen = !techOpen" :aria-expanded="techOpen ? 'true' : 'false'">
+            <span class="hud-eyebrow">原理 · {{ partTech.zh }}</span>
+            <svg class="chev" :class="{ up: techOpen }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <div v-show="techOpen" class="tech-body">
+            <p v-if="partTech.principle">{{ partTech.principle }}</p>
+            <p v-else class="tech-todo">原理编写中 · 本条仅登记关联，不臆造内容</p>
+            <div v-if="partTech.invented" class="tech-meta">起始 · {{ partTech.invented }}</div>
+            <div v-if="partTech.history && partTech.history.length" class="tech-hist">
+              <div v-for="([y, txt], i) in partTech.history" :key="i" class="tech-hrow">
+                <span class="hy">{{ y }}</span><span class="ht">{{ txt }}</span>
+              </div>
+            </div>
+            <div v-if="partTech.sources && partTech.sources.length" class="tech-src">
+              <a v-for="s in partTech.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener">{{ s.label }} ↗</a>
+            </div>
+          </div>
+        </div>
         <div class="spec-list">
           <div v-for="([k, v], i) in selectedPart.specs" :key="i" class="spec">
             <span class="k">{{ k }}</span><span class="v">{{ v }}</span>
@@ -277,6 +296,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import gsap from 'gsap';
 import { createEngine } from '../engine/engine.js?v=30';
+import { techForPart } from '../knowledge/index.js';
 /* 元数据来自构建期清单，完整配置按 id 动态加载：进任意设备只解析这一台 */
 import manifest from 'virtual:device-manifest';
 import { loaders } from 'virtual:device-loaders';
@@ -332,6 +352,10 @@ async function loadConfig(id){
 }
 
 const selectedPart = computed(() => device.value.parts.find(p => p.id === ui.value.selected) || null);
+/* 部件详情卡「原理」区：命中知识库词条展开，未命中不渲染（不占位） */
+const partTech = computed(() => techForPart(selectedPart.value && selectedPart.value.id));
+const techOpen = ref(true);
+watch(() => selectedPart.value && selectedPart.value.id, () => { techOpen.value = true; });
 const partIndex = computed(() => device.value.parts.findIndex(p => p.id === ui.value.selected));
 /* 移动端详情 sheet 的实际高度：供 Tour / 剖切条 / toast 让位，避免被盖住 */
 watch(selectedPart, (p) => {

@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "gen:inventory": "node tools/gen-inventory.mjs",
-    "lint:devices": "node tools/lint-mapping.mjs",
+    "lint:devices": "node tools/lint-mapping.mjs && node tools/lint-knowledge.mjs",
     "smoke": "node tools/smoke.mjs",
     "thumbs": "node tools/render-thumbs.mjs",
     "add": "node tools/addDevice.mjs",

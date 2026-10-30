@@ -454,6 +454,28 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .ctx-thumb{ width:100%; height:100%; display:block; object-fit:cover; }
 .ctx-tag{ margin-top:9px; font-size:12.5px; color:var(--acc); letter-spacing:.08em; }
 .ctx-desc{ margin-top:7px; font-size:12px; line-height:1.85; color:#aebfd2; }
+
+/* ---------- 部件详情卡「原理」区（知识库词条；命中才渲染） ---------- */
+.ctx-tech{ margin-top:11px; border:1px solid rgba(69,224,255,.14); border-radius:8px; background:var(--acc-bg); }
+.tech-head{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  padding:9px 12px; background:none; border:none; cursor:pointer; color:var(--acc);
+  font-family:var(--sans); text-align:left;
+}
+.tech-head .chev{ width:14px; height:14px; color:var(--txt-3); transition:transform var(--dur-1); }
+.tech-head .chev.up{ transform:rotate(180deg); }
+.tech-body{ padding:0 12px 11px; }
+.tech-body > p{ margin:0; font-size:12px; line-height:1.85; color:#b9c8da; }
+.tech-body .tech-todo{ color:var(--txt-3); font-size:11.5px; }
+.tech-meta{ margin-top:8px; font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--txt-3); }
+.tech-hist{ margin-top:8px; border-top:1px dashed rgba(69,224,255,.14); padding-top:7px; }
+.tech-hrow{ display:flex; gap:10px; padding:2.5px 0; font-size:11.5px; line-height:1.7; }
+.tech-hrow .hy{ flex:none; min-width:52px; font-family:var(--mono); color:var(--acc-dim); letter-spacing:.06em; }
+.tech-hrow .ht{ color:#a9bacd; }
+.tech-src{ margin-top:9px; display:flex; flex-wrap:wrap; gap:5px 14px; }
+.tech-src a{ font-size:10.5px; color:var(--acc-dim); text-decoration:none; border-bottom:1px dashed rgba(69,224,255,.25); }
+.tech-src a:hover{ color:var(--acc); }
+
 .spec-list{ margin-top:13px; border-top:1px solid rgba(69,224,255,.12); }
 .spec{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:7px 2px; border-bottom:1px solid rgba(69,224,255,.07); }
 .spec .k{ font-size:11.5px; color:var(--txt-3); letter-spacing:.08em; white-space:nowrap; }

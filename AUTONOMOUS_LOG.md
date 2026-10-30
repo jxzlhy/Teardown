@@ -923,3 +923,39 @@ ROADMAP Phase 2 第三项：拆解馆只有"一键爆炸/装配"，缺少按真�
 ### 下一项
 Phase 2 收官（测量/封盖/装配齐）。下一优先：Phase 3 设备数字档案增量字段 + lint-knowledge + 20 项
 高频技术原理库（src/knowledge/technologies，全部带 sources，未编写显示"待编写"）。
+
+## 2026-10-31 · Phase 3 切片 1：技术原理知识库基础设施
+
+### 问题
+ROADMAP S1/S2 核心：馆内只有部件级参数文案，无跨设备的技术原理知识层。
+
+### 改动
+- `src/knowledge/technologies/`：6 项全量词条（cmos-sensor/li-po-battery/loudspeaker/three-axis-gimbal/
+  escapement/superheterodyne，各含 principle/history/invented/sources/confidence）+ `_stubs.js`
+  14 项占位登记（principle 留空，UI 显示"原理编写中"）+ `src/knowledge/index.js` 聚合与
+  `techForPart()`（精确命中优先、最长前缀次之）。
+- `DeviceViewer.vue`：详情卡「原理」折叠区（正文/起始年/时间线/来源外链；未命中部件不渲染）。
+- `style.css`：`.ctx-tech/.tech-head/.tech-body/.tech-hist/.tech-src` 词条样式。
+- `tools/lint-knowledge.mjs`：id 唯一、relatedParts 全部存在于全馆 414 个部件 id 词表、
+  relatedDevices 必须存在于 registry、principle 非空必须带 ≥1 条 https sources（禁止无来源正文）、
+  占位词条豁免；已编写/待编写计数输出。挂入 `npm run lint:devices` 联动。
+- `tools/smoke.mjs`：+1 永久断言（action4 sensor → CMOS 词条 + ≥1 来源链接），21 → 22 项。
+- 附带：Mimosa 深度安全扫描重跑完成（0 发现 · 107 依赖包 · 0 命中公告，已封印）——清掉此前
+  commit/push 钩子的"扫描不完整"挂账。
+
+### 内容可信度
+- 6 项词条的 6 个 Wikipedia 来源 URL 全部经 WebFetch 实证存在且内容匹配（发明年/史实直接取自
+  抓取结果）；relatedParts 首轮 lint 拦下 19 处臆测 id，全部按实测词表修正——lint 机制本身
+  就是防臆造的第一道闸。
+
+### 验证
+- `npm run lint:devices` 103 台 + 知识库 20 条全绿；`npm run build` 1.75s；`npm run smoke` 22/22。
+- 截图目检：全量词条（正文+时间线+来源）、占位词条（"原理编写中"）桌面 1440×900 通过；
+  卡片 overflow-y:auto，折叠线下内容可滚动可达。
+
+### 已知限制
+- era/series 等设备级档案字段未动（需逐台查证，下一批）；14 项占位原理待逐项编写。
+- 知识文本进 DeviceViewer chunk（约 +3KB gzip），大厅不受影响。
+
+### 下一项
+Phase 3 切片 2：era 字段（先从配置内已有年份的 66 台做起，逐台核对措辞）或继续编写 14 项占位原理。

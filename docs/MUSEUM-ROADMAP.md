@@ -344,6 +344,7 @@ interface Badges { [badgeId: string]: { at: number } }   // 例：first-teardown
 ### Phase 3 · 数字档案与技术故事（S1、S2 核心）
 - **目标**：全馆设备接入 era/series/sources/credibility；20 项高频技术原理上线。
 - **改动**：src/knowledge/（technologies/brands）、tools/lint-knowledge.mjs、DeviceViewer 详情卡"原理/历史"区块、`npm run lint:devices` 联动。
+- **进度**：基础设施已落地（2026-10-31）——schema + lint-knowledge（principle 非空必须带 sources）+ 详情卡「原理」区；6 项全量词条（CMOS/锂聚合物/扬声器/三轴云台/擒纵/超外差，来源均经 Web 实证）+ 14 项占位登记（UI 显示"原理编写中"）。
 - **验收**：lint 全绿；详情卡 UI 桌面+移动截图；**所有原理文本有 sources，未编写项显示"待编写"**（诚实降级）。
 - **回归**：现有 parts 详情卡不回归（文案字段兼容）。
 

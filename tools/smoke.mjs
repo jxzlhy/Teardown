@@ -150,6 +150,25 @@ try{
   check('Esc 退出逐步装配并复位整机', st1.step === null && st1.ex < 0.01, JSON.stringify(st1));
   await sleep(200);
 
+  /* 知识库「原理」区（Phase 3）：选中 sensor → cmos-sensor 词条 + 来源链接；
+     占位词条显示待编写 */
+  await page.evaluate(() => window.__ENGINE.selectPart('sensor'));
+  await sleep(500);
+  const tech = await page.evaluate(() => {
+    const el = document.querySelector('#ctxCard .ctx-tech');
+    if(!el) return { found: false };
+    return {
+      found: true,
+      title: (el.querySelector('.hud-eyebrow') || {}).textContent || '',
+      body: (el.querySelector('.tech-body > p') || {}).textContent || '',
+      links: el.querySelectorAll('.tech-src a').length,
+    };
+  });
+  check('详情卡「原理」词条（CMOS 传感器 + 来源）',
+    tech.found && tech.title.includes('CMOS') && tech.body.length > 40 && tech.links >= 1,
+    tech.found ? `${tech.title.trim()} · ${tech.links} 来源` : '未渲染');
+  await page.evaluate(() => window.__ENGINE.selectPart(null));
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {
