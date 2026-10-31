@@ -10,6 +10,7 @@ const router = createRouter({
   routes: [
     { path: '/', component: () => import('./components/GalleryHub.vue') },
     { path: '/device/:id', component: () => import('./components/DeviceViewer.vue') },
+    { path: '/compare/:group', component: () => import('./components/CompareView.vue') },
     { path: '/graph', component: () => import('./components/GraphView.vue') },
   ]
 });

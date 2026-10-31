@@ -236,6 +236,9 @@
           <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 ↗</a>
         </div>
         <div class="d-tip">{{ device.glb ? (device.source || '官方实机模型') : '程序化建模' }} · {{ device.parts.length }} 组核心部件</div>
+        <button v-if="compareGroup" class="hud-glow-btn cmp-entry" @click="router.push('/compare/' + compareGroup.id + '?focus=' + device.id)">
+          代际对比 · {{ compareGroup.zh }}（{{ compareGroup.ids.length }} 型）↗
+        </button>
         <button class="hud-glow-btn primary info-close" @click="infoOpen = false">关闭</button>
       </div>
     </Transition>
@@ -299,6 +302,7 @@ import { useRoute, useRouter } from 'vue-router';
 import gsap from 'gsap';
 import { createEngine } from '../engine/engine.js?v=30';
 import { techForPart } from '../knowledge/index.js';
+import { groupOf as compareGroupOf } from '../knowledge/comparisons.js';
 /* 元数据来自构建期清单，完整配置按 id 动态加载：进任意设备只解析这一台 */
 import manifest from 'virtual:device-manifest';
 import { loaders } from 'virtual:device-loaders';
@@ -358,6 +362,8 @@ const selectedPart = computed(() => device.value.parts.find(p => p.id === ui.val
 const partTech = computed(() => techForPart(selectedPart.value && selectedPart.value.id));
 const techOpen = ref(true);
 watch(() => selectedPart.value && selectedPart.value.id, () => { techOpen.value = true; });
+/* 代际对比入口：设备属于策展对比组时，信息浮层给出入口 */
+const compareGroup = computed(() => compareGroupOf(device.value && device.value.id));
 const partIndex = computed(() => device.value.parts.findIndex(p => p.id === ui.value.selected));
 /* 移动端详情 sheet 的实际高度：供 Tour / 剖切条 / toast 让位，避免被盖住 */
 watch(selectedPart, (p) => {

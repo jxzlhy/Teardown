@@ -1080,3 +1080,19 @@ Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由�
 ### 已知限制
 - 中心设备簇标签默认隐藏（悬停/放大显示）；布局随机初始化，每次进入形态略不同。
 - 3D 模式与代际对比试点未做（backlog 挂账）。
+
+## 2026-10-31 · Phase 4 切片 2：代际对比试点（iPhone / S25 / Action）
+
+### 改动
+- `src/knowledge/comparisons.js`：3 组策展对比（iphone 5 型 / s25 3 型 / action 2 型）+ groupOf()。
+- `src/components/CompareView.vue`：/compare/:group?focus= 路由页——specs 同名键自动聚类成表
+  （行 = 组内键并集，缺项 —；值有差异的行在 focus 列画 accent 侧条）、列头缩略图 + era 徽章、
+  设备配置经 device-loaders 懒加载（独立 chunk 1.55KB gzip）。
+- `DeviceViewer` 信息浮层：属于对比组的设备显示「代际对比」入口按钮。
+- 修 bug：同路由不同参数不重载（onMounted → watch route.params.group, immediate）——iphone 组
+  切 action 组显示旧数据的实测暴露。
+
+### 验证
+- `/tmp/verify-cmp.mjs`：iPhone 5 列 18 行 + focus 高亮、设备页入口跳转、Action 2 列、
+  移动端 390×844、控制台零错误。smoke +1 永久断言（23 → 24 项）全绿；build 2.15s。
+- 截图目检：iPhone 五代并排（A14→A19 Pro、电池 2815→3677mAh 的代际演进一眼可读）。

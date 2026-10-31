@@ -178,6 +178,15 @@ try{
   });
   check('信息浮层「发布」年代行', eraInfo.shown && /^\d{4}|^\d{4}s/.test(eraInfo.v), JSON.stringify(eraInfo));
 
+  /* 代际对比（Phase 4）：Action 两代并排 + 同名键聚类 */
+  await page.goto(BASE + '/#/compare/action', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => document.querySelectorAll('.cmp-dev').length >= 2, { timeout: 30000, polling: 200 });
+  const cmp = await page.evaluate(() => ({
+    cols: document.querySelectorAll('.cmp-dev').length,
+    rows: document.querySelectorAll('.cmp-table tbody tr').length,
+  }));
+  check('代际对比页（Action 两代并排 + 规格聚类）', cmp.cols === 2 && cmp.rows >= 3, JSON.stringify(cmp));
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {
