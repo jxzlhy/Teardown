@@ -12,6 +12,7 @@ const screen = makePhoneScreen({ w: 580, h: 1256, brand: 'IPHONE', carrier: '5G'
 
 export default makeDevice({
   id: 'iphone-12-teardown',
+  era: 2020,
   name: 'Apple iPhone 12 全拆解',
   en: 'IPHONE 12 TEARDOWN',
   category: '手机',

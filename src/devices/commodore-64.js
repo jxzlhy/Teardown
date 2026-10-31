@@ -10,6 +10,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'commodore-64',
+  era: 1982,
   name: 'Commodore 64 全套（1982）',
   en: 'COMMODORE 64',
   category: '复古计算机',

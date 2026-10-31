@@ -9,6 +9,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'walther-p99',
+  era: 1997,
   name: 'Walther P99 全机构拆解',
   en: 'WALTHER P99 MECHANISM',
   category: '枪械',

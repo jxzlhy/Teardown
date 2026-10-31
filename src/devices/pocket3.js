@@ -60,6 +60,7 @@ function postLoad({ partsById, addLiveScreen }){
 
 export default {
   id: 'pocket3',
+  era: 2023,   /* 官方公告 2023-10-25（dji.com media-center） */
   brand: 'DJI',
   name: 'DJI Osmo Pocket 3',
   en: 'OP3',

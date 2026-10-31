@@ -8,6 +8,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'tr-808',
+  era: 1980,
   name: 'Roland TR-808 节奏作曲机',
   en: 'ROLAND TR-808 RHYTHM COMPOSER',
   category: '音频',

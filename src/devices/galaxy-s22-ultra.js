@@ -21,6 +21,7 @@ const builders = {
 
 export default makeDevice({
   id: 'galaxy-s22-ultra',
+  era: 2022,
   name: 'Samsung Galaxy S22 Ultra',
   en: 'GALAXY S22 ULTRA',
   category: '手机',

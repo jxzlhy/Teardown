@@ -8,6 +8,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'cherry-mx-switch',
+  era: 1984,
   name: 'Cherry MX 轴体解剖',
   en: 'CHERRY MX SWITCH',
   category: '键盘',

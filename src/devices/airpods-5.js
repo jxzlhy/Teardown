@@ -13,6 +13,7 @@ const builders = {
 
 export default makeDevice({
   id: 'airpods-5',
+  era: 2026,
   name: 'Apple AirPods 5',
   en: 'AIRPODS 5 2026',
   category: '耳机',

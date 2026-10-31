@@ -6,6 +6,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'retro-console',
+  era: 2001,
   name: '立方游戏主机',
   en: 'RETRO CUBE CONSOLE',
   category: '游戏机',

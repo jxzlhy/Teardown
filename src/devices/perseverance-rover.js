@@ -9,6 +9,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'perseverance-rover',
+  era: 2021,
   name: '毅力号火星车',
   en: 'MARS 2020 PERSEVERANCE',
   category: '航天',

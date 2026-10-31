@@ -19,6 +19,7 @@ const builders = {
 
 export default makeDevice({
   id: 'gameboy',
+  era: 1989,
   name: 'Game Boy（DMG-01）',
   en: 'GAME BOY',
   category: '游戏',

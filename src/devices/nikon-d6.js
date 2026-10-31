@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'nikon-d6',
+  era: 2020,
   name: 'Nikon D6',
   en: 'NIKON D6 FLAGSHIP DSLR',
   category: '相机',

@@ -8,6 +8,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'polaroid-coolcam',
+  era: 1988,
   name: 'Polaroid Cool Cam 拍立得',
   en: 'POLAROID COOL CAM',
   category: '相机',

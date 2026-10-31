@@ -7,6 +7,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'marshall-jcm800',
+  era: 1981,
   name: 'Marshall JCM800 音箱头',
   en: 'MARSHALL JCM800',
   category: '音频',

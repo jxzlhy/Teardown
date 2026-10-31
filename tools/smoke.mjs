@@ -169,6 +169,15 @@ try{
     tech.found ? `${tech.title.trim()} · ${tech.links} 来源` : '未渲染');
   await page.evaluate(() => window.__ENGINE.selectPart(null));
 
+  /* 数字档案 era（Phase 3）：信息浮层「发布」行 + 大厅卡年代徽章 */
+  await page.click('#topbar .hud-icon:nth-of-type(1)').catch(()=>{});
+  const eraInfo = await page.evaluate(() => {
+    const rows = [...document.querySelectorAll('#infoPop .spec .k')]
+      .find(k => k.textContent === '发布');
+    return { shown: !!rows, v: rows ? rows.nextElementSibling.textContent : '' };
+  });
+  check('信息浮层「发布」年代行', eraInfo.shown && /^\d{4}|^\d{4}s/.test(eraInfo.v), JSON.stringify(eraInfo));
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

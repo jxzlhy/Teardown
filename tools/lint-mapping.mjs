@@ -62,6 +62,11 @@ for(const d of devices){
   if(d.unmappedTo && !ids.has(d.unmappedTo)){
     fail(`unmappedTo → 未知部件 "${d.unmappedTo}"（未映射网格会落到不存在的部件）`);
   }
+  if(d.era !== undefined && d.era !== null){
+    const ok = (typeof d.era === 'number' && d.era >= 1400 && d.era <= 2030)
+      || (typeof d.era === 'string' && /^\d{3}0s$/.test(d.era));
+    if(!ok) fail(`era → 必须是 1400–2030 的年份数字或形如 "1950s" 的年代串，当前：${JSON.stringify(d.era)}`);
+  }
   for(const key of ['labelOffsets']){
     for(const k of Object.keys(d[key] || {})){
       if(!ids.has(k)) warn(`${key}["${k}"] → 未在 parts 中声明（锚点不生效）`);
@@ -103,6 +108,12 @@ for(const d of devices){
 console.log('');
 if(badCount || warnCount){
   console.log(`结果：${badCount} 个错误，${warnCount} 个警告（共 ${devices.length} 台）`);
+  const withEra = devices.filter(d => d.era != null).length;
+  console.log(`  · era 覆盖 ${withEra}/${devices.length} 台（数字档案字段，逐台查证后补齐）`);
   process.exit(badCount ? 1 : 0);
+}
+{
+  const withEra = devices.filter(d => d.era != null).length;
+  console.log(`  · era 覆盖 ${withEra}/${devices.length} 台`);
 }
 console.log(`✓ 全部 ${devices.length} 台设备校验通过`);

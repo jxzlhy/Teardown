@@ -252,6 +252,7 @@ html,body,#app{ width:100%; height:100%; overflow:hidden; background:#04070c; fo
   padding:2.5px 8px; border-radius:2px;
 }
 .card-meta i.glb-badge{ color:var(--acc); border-color:color-mix(in srgb, var(--acc) 40%, transparent); }
+.card-meta i.era-badge{ color:var(--txt-2); border-color:rgba(120,150,180,.3); }
 .card-arrow{
   position:absolute; right:16px; bottom:14px; width:26px; height:26px; color:var(--txt-dim);
   opacity:0; transform:translateX(-6px); transition:all .28s cubic-bezier(.2,.7,.2,1);

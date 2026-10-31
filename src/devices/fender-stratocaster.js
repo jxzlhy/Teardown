@@ -10,6 +10,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'fender-stratocaster',
+  era: 1954,
   name: 'Fender Stratocaster 电吉他',
   en: 'FENDER STRATOCASTER',
   category: '乐器',

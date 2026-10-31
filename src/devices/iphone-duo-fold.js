@@ -20,6 +20,7 @@ const builders = {
 
 export default makeDevice({
   id: 'iphone-duo-fold',
+  era: 2026,
   name: 'Apple iPhone Duo 折叠屏',
   en: 'IPHONE DUO FOLD',
   category: '手机',

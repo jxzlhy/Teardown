@@ -14,6 +14,7 @@ function matOf(name) {
 
 export default makeDevice({
   id: 'santacruz-v10',
+  era: '1990s',
   name: 'Santa Cruz V10 速降山地车',
   en: 'SANTA CRUZ V10 DH',
   category: '自行车',

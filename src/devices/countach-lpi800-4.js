@@ -7,6 +7,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'countach-lpi800-4',
+  era: 2021,
   name: 'Lamborghini Countach LPI 800-4',
   en: 'COUNTACH LPI 800-4',
   category: '汽车',

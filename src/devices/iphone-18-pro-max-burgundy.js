@@ -20,6 +20,7 @@ const builders = {
 
 export default makeDevice({
   id: 'iphone-18-pro-max-burgundy',
+  era: 2026,
   name: 'Apple iPhone 18 Pro Max 酒红',
   en: 'IPHONE 18 PRO MAX CHERRY',
   category: '手机',

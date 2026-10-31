@@ -7,6 +7,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'casio-vl-tone',
+  era: 1979,
   name: 'Casio VL-Tone 计算器琴',
   en: 'CASIO VL-TONE VL-1',
   category: '音频',

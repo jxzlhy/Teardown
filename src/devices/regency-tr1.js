@@ -10,6 +10,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'regency-tr1',
+  era: 1954,
   name: 'Regency TR-1 晶体管收音机',
   en: 'REGENCY TR-1',
   category: '影音',

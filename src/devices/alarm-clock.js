@@ -6,6 +6,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'alarm-clock',
+  era: '1950s',
   name: '机械闹钟',
   en: 'ALARM CLOCK',
   category: '钟表',

@@ -9,6 +9,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'porsche-911-930',
+  era: 1975,
   name: 'Porsche 911 Turbo（930）',
   en: '911 TURBO 930',
   category: '汽车',

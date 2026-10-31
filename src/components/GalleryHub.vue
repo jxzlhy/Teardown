@@ -99,6 +99,7 @@
           <span class="card-name">{{ d.name }}</span>
           <span class="card-tag">{{ d.tagline }}</span>
           <span class="card-meta">
+            <i v-if="eraLabel(d)" class="era-badge">{{ eraLabel(d) }}</i>
             <i>{{ d.parts }} 部件</i>
             <i>{{ d.category }}</i>
             <i class="glb-badge">{{ modelClassLabel(d) }}</i>
@@ -130,6 +131,12 @@ import devices from 'virtual:device-manifest';
 import { prefetchGlb } from '../engine/glbCache.js';
 import { assetUrl } from '../lib/url.js';
 import { isCommunityModel, modelClassLabel } from '../lib/model-class.js';
+
+/* 设备发布年/年代（era）：number → 年份；'1950s' → 年代串 */
+function eraLabel(d){
+  if(d.era == null) return '';
+  return typeof d.era === 'number' ? String(d.era) : d.era;
+}
 
 const router = useRouter();
 const devicesIndexed = devices.map((d, idx) => ({ ...d, idx }));

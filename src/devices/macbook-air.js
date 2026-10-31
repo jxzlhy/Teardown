@@ -15,6 +15,7 @@ const builders = {
 
 export default makeDevice({
   id: 'macbook-air',
+  era: 2026,
   name: 'Apple MacBook Air 15″ (M4)',
   en: 'MBA15 2026',
   category: '笔记本',

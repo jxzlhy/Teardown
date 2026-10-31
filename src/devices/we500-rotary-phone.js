@@ -9,6 +9,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'we500-rotary-phone',
+  era: '1950s',
   name: 'Western Electric 500 旋转拨号电话',
   en: 'WE 500 ROTARY PHONE',
   category: '复古通信',

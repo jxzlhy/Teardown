@@ -8,6 +8,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'hubble-telescope',
+  era: 1990,
   name: '哈勃空间望远镜',
   en: 'HUBBLE SPACE TELESCOPE',
   category: '航天',

@@ -219,6 +219,7 @@
         <h3>{{ device.category }} · {{ device.name }}</h3>
         <div class="ctx-desc">{{ device.description }}</div>
         <div class="spec-list">
+          <div v-if="device.era != null && !(device.specs || []).some(([k]) => k === '发布')" class="spec"><span class="k">发布</span><span class="v">{{ device.era }}</span></div>
           <div v-for="([k, v], i) in device.specs" :key="i" class="spec">
             <span class="k">{{ k }}</span><span class="v">{{ v }}</span>
           </div>

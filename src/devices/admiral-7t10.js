@@ -10,6 +10,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'admiral-7t10',
+  era: '1940s',
   name: 'Admiral 7T10 电子管收音机',
   en: 'TUBE RADIO 1940S',
   category: '影音',

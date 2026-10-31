@@ -989,3 +989,28 @@ Phase 3 切片 2：era 字段（先从配置内已有年份的 66 台做起，�
 
 ### 下一项
 Phase 3 切片 2：设备级 era 字段（逐台查证发布年，lint 强制格式与来源），随后 era 驱动 gen-timeline。
+
+## 2026-10-31 · Phase 3 切片 2：设备级 era 字段（首批 35 台）
+
+### 改动
+- 33 台设备配置新增 `era`（数字年份或 '1940s' 形式年代串）——取值全部来自各配置已策展描述中的
+  年份陈述（人工逐一甄别，排除 CR2032 纽扣电池之类的假阳性）；另 pocket3/action4 两台 DJI 设备
+  经外部实证补齐：pocket3 = 2023-10-25（DJI 官方公告页），action4 = 2023-08（Osmo Action 词条——
+  顺带修正了记忆里"2024"的错误）。
+- `vite.config.js`：manifest 增 `era` 字段（大厅构建期元数据，不加载设备实现）。
+- `GalleryHub.vue`：卡片 meta 行新增年代徽章（35 个 `.era-badge`）+ eraLabel 助手。
+- `DeviceViewer.vue`：信息浮层 spec-list 首行「发布」（specs 已含"发布"行时自动去重——TR-1
+  实测暴露重复后修复）。
+- `tools/lint-mapping.mjs`：era 格式校验（1400–2030 数字或 'NNN0s'）+ 覆盖率统计输出。
+- `tools/smoke.mjs`：+1 永久断言（action4 信息浮层「发布」行 = 2023），22 → 23 项。
+
+### 验证
+- `npm run lint:devices` 103 台全绿（era 覆盖 35/103）；`npm run build` 2.0s；`npm run smoke` 23/23。
+- 截图目检：大厅 35 个年代徽章；TR-1 信息浮层「发布 · 1954」（去重后单行）。
+
+### 已知限制
+- 其余 68 台 era 待逐台外部查证（需 WebSearch/官方页逐台核实，下一批滚动补齐）。
+- era 展示目前只在大厅卡与信息浮层；时间轴（gen-timeline）待 era 覆盖率更高后启动。
+
+### 下一项
+era 逐台查证续批（按品牌分组：DJI 8 台官方页 / Apple 10 台 / 相机与乐器等），或 Phase 4 知识图谱。

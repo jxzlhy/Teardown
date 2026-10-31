@@ -15,6 +15,7 @@ const builders = {
 
 export default makeDevice({
   id: 'nikon-z6',
+  era: 2018,
   name: 'Nikon Z6',
   en: 'NIKON Z6 MIRRORLESS',
   category: '相机',

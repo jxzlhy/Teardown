@@ -13,6 +13,7 @@ const builders = {
 
 export default makeDevice({
   id: 'mac-studio',
+  era: 2025,
   name: 'Apple Mac Studio',
   en: 'MAC STUDIO 2025',
   category: '台式机',

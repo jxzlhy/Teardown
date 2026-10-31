@@ -9,6 +9,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'ak-47',
+  era: 1947,
   name: 'AK-47 全拆解',
   en: 'AK-47 TEARDOWN',
   category: '枪械',

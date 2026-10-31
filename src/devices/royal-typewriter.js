@@ -24,6 +24,7 @@ function lift(pid, level) {
 
 export default makeDevice({
   id: 'royal-typewriter',
+  era: '1930s',
   name: 'Royal 打字机',
   en: 'ROYAL TYPEWRITER',
   category: '打字机',

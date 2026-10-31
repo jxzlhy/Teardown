@@ -39,6 +39,7 @@ function deviceManifest(){
     const manifest = registry.devices.map(d => ({
       id: d.id, name: d.name, en: d.en, brand: d.brand || 'OTHER',
       category: d.category, tagline: d.tagline, accent: d.accent,
+      era: d.era ?? null,
       glb: d.glb || null, modelCredit: d.modelCredit || null,
       parts: d.parts.length,
     }));

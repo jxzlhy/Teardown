@@ -385,6 +385,7 @@ function postLoad({ partsById, addLiveScreen }){
 /* ================= 导出设备配置 ================= */
 export default {
   id: 'action4',
+  era: 2023,   /* 2023 年 8 月 2 日发布（Osmo Action 系列词条） */
   brand: 'DJI',
   name: 'DJI Osmo Action 4',
   en: 'AC203',
