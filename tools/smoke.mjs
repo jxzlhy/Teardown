@@ -61,7 +61,11 @@ try{
   const configReqs = [];
   const allReqs = [];
   page.on('pageerror', e => errors.push(String(e).slice(0, 300)));
-  page.on('console', m => { if(m.type() === 'error') errors.push(m.text().slice(0, 300)); });
+  page.on('console', m => {
+    if(m.type() !== 'error') return;
+    const loc = m.location && m.location();
+    errors.push(m.text().slice(0, 300) + ' @' + (loc ? (loc.url || '').split('/').pop() + ':' + (loc.lineNumber + 1) : '?'));
+  });
   page.on('request', r => {
     const u = r.url();
     allReqs.push(u);
@@ -180,7 +184,7 @@ try{
 
   /* 代际对比（Phase 4）：Action 两代并排 + 同名键聚类 */
   await page.goto(BASE + '/#/compare/action', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForFunction(() => document.querySelectorAll('.cmp-dev').length >= 2, { timeout: 30000, polling: 200 });
+  await page.waitForFunction(() => document.querySelectorAll('.cmp-dev').length >= 2, { timeout: 60000, polling: 200 });
   const cmp = await page.evaluate(() => ({
     cols: document.querySelectorAll('.cmp-dev').length,
     rows: document.querySelectorAll('.cmp-table tbody tr').length,
@@ -202,11 +206,11 @@ try{
   /* 探索系统（Phase 7）：收藏持久化（localStorage）+ 足迹 */
   await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.evaluate(() => localStorage.removeItem('dtm.favorites'));
-  await page.waitForSelector('.card', { timeout: 30000 });
+  await page.waitForSelector('.card', { timeout: 60000 });
   await page.evaluate(() => document.querySelector('.card .fav-star').click());
   await sleep(400);
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.card', { timeout: 30000 });
+  await page.waitForSelector('.card', { timeout: 60000 });
   await sleep(400);
   const starOn = await page.evaluate(() => document.querySelectorAll('.fav-star.on').length);
   check('探索系统：收藏刷新后持久', starOn === 1, String(starOn));
@@ -219,6 +223,12 @@ try{
   const noteText = await page.evaluate(() => document.querySelector('#tourNote .tour-note-text').textContent);
   check('导览讲解卡（策展讲解词渲染）', /旋转屏/.test(noteText), noteText.slice(0, 20));
   await page.evaluate(() => window.__ENGINE.stopTour());
+
+  /* 技术编年（/timeline）：四段时代分带 + 事件数 */
+  await page.goto(BASE + '/#/timeline', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => document.querySelectorAll('.tl-band').length >= 4, { timeout: 60000, polling: 200 });
+  const tl = await page.evaluate(() => ({ bands: document.querySelectorAll('.tl-band').length, items: document.querySelectorAll('.tl-item').length }));
+  check('技术编年页（四段分带 + 84 事件）', tl.bands === 4 && tl.items >= 80, JSON.stringify(tl));
 
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });

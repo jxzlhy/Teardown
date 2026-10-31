@@ -12,6 +12,7 @@ const router = createRouter({
     { path: '/device/:id', component: () => import('./components/DeviceViewer.vue') },
     { path: '/compare/:group', component: () => import('./components/CompareView.vue') },
     { path: '/graph', component: () => import('./components/GraphView.vue') },
+    { path: '/timeline', component: () => import('./components/TimelineView.vue') },
   ]
 });
 

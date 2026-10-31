@@ -4,6 +4,7 @@
       <div class="hub-eyebrow"><span class="dot"></span>MULTI-BRAND · TEARDOWN GALLERY</div>
       <div class="hub-top-meta">
         <router-link to="/graph" class="graph-link">知识星图 ↗</router-link>
+        <router-link to="/timeline" class="graph-link">技术编年 ↗</router-link>
         <button class="explore-link" @click="drawerOpen = true">我的探索 · ★{{ favs.length }} 足迹{{ Object.keys(explored).length }} ↗</button>
         VOL.04 — 2026 · {{ totalDevices }} DEVICES
       </div>

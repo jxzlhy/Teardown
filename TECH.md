@@ -352,8 +352,9 @@ npm run preview
   开场演出、四模式、导览、截图、深链还原、引线避让、移动 sheet 全链路通过。
 - 实测中修复：重写事故丢失的 `onPointerUp` 拾取、`flyToPart` 对 Vector3 误用 `.every()` 的
   TypeError、IAB rAF 挂起下 GSAP/camTween 冻结、深链与 URL 回写的竞态。
-- 已知边界：剖切无封盖切口；详情卡无部件特写小图（缩略图管线不支持按部件取景，暂以序号+强调色
-  代替）；`?thumb=1` 离线拍摄模式与全部新 UI 隔离（`.viewer.thumb` 隐藏清单已同步更新）。
+- 已知边界：~~剖切无封盖~~（已由 stencil 剖面玻璃解决，见 5.4）；~~详情卡无部件特写小图~~
+  （已由 capturePartThumb 运行时离屏捕获解决）；`?thumb=1` 离线拍摄模式与全部新 UI 隔离
+  （`.viewer.thumb` 隐藏清单已同步更新）。
 - **3.0 复查优化（同日第二轮）**：爆炸推进与 Tour 计时改未钳制墙钟 rawDt（低帧率设备/后台恢复不拖长）；
   外侧 1/3 标签集按爆炸度分桶缓存；OutlinePass 目标集合仅变化时重赋；`#dock`/`#topbar` 取消切角
   （tooltip 定位在面板外会被 clip-path 裁掉）；拆解滑杆/剖切滑杆 `--p` 填充实时绑定（2.0 起从未生效）；
@@ -364,3 +365,46 @@ npm run preview
   hubble-telescope / tr-808 / royal-typewriter / countach-lpi800-4 / iphone-17）全部 `OFFICIAL`
   装载、无装载/动画错误、包围盒正常（含 13MB 级大模型与刚补压的 2 台）；
   全库扫描确认 85/85 GLB 均含 Draco；`optimize-glb.mjs` 修复压缩前体积读数时序 bug（自报 100% 问题）。
+
+---
+
+## 6. Phase 2–7 增量（2026-10-31，ROADMAP 实施记录）
+
+> 详见 `docs/MUSEUM-ROADMAP.md` 与 `AUTONOMOUS_LOG.md` 对应条目；本节只记架构事实。
+
+### 6.1 LAB 三件套（Phase 2）
+- **两点测量**：three-mesh-bvh 0.9.17 全局 `acceleratedRaycast`，测量激活时惰性建树；
+  mm 标定 = 场景距离 / targetWidth × realSizeMM（仅 pocket3 标定，其余显示场景单位）。
+- **剖切 stencil 封盖**：EffectComposer 自建 `{ type: HalfFloatType, stencilBuffer: true }` RT；
+  奇偶掩码 + δ/ε 双偏移修正；半透明"剖面玻璃"形态（详见 5.4）。
+- **逐步装配**：`assembleStep` 策展组序（lint 校验），stepCur 连续插值，Esc 补齐装配后退出，
+  ←→ 优先级 step > 导览 > 切台。
+
+### 6.2 知识层（Phase 3）
+- `src/knowledge/technologies/`：20 项全量词条（sources 经 Web 实证），`techForPart()` 精确→前缀匹配；
+  `_stubs.js` 占位暂存区（当前空）。
+- `tools/lint-knowledge.mjs`（挂入 lint:devices）：principle 非空必须带 https sources——防臆造第一道闸。
+- 设备 `era` 字段：64/103 台（描述甄别 + WebSearch 逐台实证），lint 校验格式与覆盖率。
+- **代际对比**：`src/knowledge/comparisons.js` 三组策展 + `/compare/:group` 页（specs 同名键自动聚类）。
+
+### 6.3 衍生视图（Phase 4 + §5.3）
+- **知识星图 `/graph`**：`gen:graph` → public/knowledge-graph.json（103/38/414/20 · 1201 连边）；
+  GraphView 零依赖 Canvas2D 力导向（独立 chunk ~3KB gzip，不加载 three 主 chunk）。
+- **技术编年 `/timeline`**：`gen:timeline` → public/timeline.json（84 事件四段时代分带）；
+  TimelineView 纯 DOM 网格。两页均懒加载、构建期生成勿手写。
+
+### 6.4 运行演示（Phase 5）
+- `device.demos` 声明式：`spin: [x,y,z]`（rad/s 数组）或 `spin: 'auto'` + `speed`（包围盒最薄轴
+  推导转轴）或 `wobble: [x,y,z]` + `wobbleF`。runDemos 仅动 rotation；选中激活、退出缓动回位；
+  激活 toast 标注「视觉原理演示（示意动画，非仿真）」；reducedMotion 整体静帧。15 台已上线。
+
+### 6.5 导览升级（Phase 6）
+- tour 条目对象化 `{ id, note }`（兼容旧字符串）；连播/手动双模式（手动不自动计时）；
+  讲解卡 #tourNote + Web Speech TTS 开关（本地合成默认关）。AudioManager CC0 音源挂账
+  （无可靠采购通道）。
+
+### 6.6 探索系统（Phase 7）
+- `src/lib/explore.js`：`dtm.favorites` / `dtm.explored` localStorage（隐私模式静默降级）+ pub-sub；
+  徽章即时推导（5 枚）。UI：大厅卡星标、我的探索抽屉、信息浮层收藏按钮、★ 收藏快捷筛选。
+  原则：不打分不排行不弹窗；清空存储从零复现。
+- smoke 27 项断言覆盖以上全部能力。

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "gen:inventory": "node tools/gen-inventory.mjs",
     "gen:graph": "node tools/gen-knowledge-graph.mjs",
+    "gen:timeline": "node tools/gen-timeline.mjs",
     "lint:devices": "node tools/lint-mapping.mjs && node tools/lint-knowledge.mjs",
     "smoke": "node tools/smoke.mjs",
     "thumbs": "node tools/render-thumbs.mjs",

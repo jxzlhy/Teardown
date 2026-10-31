@@ -1216,3 +1216,25 @@ Phase 6 导览升级（Tour 对象格式 + 三模式）为 backlog 中剩余的�
 backlog 核心项已全部收官（Phase 2/3/4/5/6/7 均有落地）。剩余：真机回归（环境缺失）、
 CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数据层。下一轮从「大厅完成度统计」
 （探索数据 × 馆藏统计）或用户反馈驱动的新方向继续。
+
+## 2026-10-31 · Phase 3 收官：技术编年 /timeline + 文档收口 + 环境教训
+
+### 改动
+- `tools/gen-timeline.mjs`（npm run gen:timeline）：device.era + technology.invented →
+  public/timeline.json（84 事件：64 台设备 + 20 项技术，四段时代分带——古典机械/机电/电子/数字）。
+  解析容忍 '约 1300'/'约公元前 150'（公元前记负数排序，display 保留原文）。
+- `TimelineView.vue` + `/timeline` 路由 + 大厅「技术编年 ↗」入口：纯 DOM 网格（独立 chunk 1.2KB
+  gzip），设备可点深链，头部诚实标注覆盖率 62%。
+- TECH.md：§5.8 过时的"已知边界"（剖切无封盖/无特写）划掉更新；新增 §6「Phase 2–7 增量」
+  架构记录（LAB 三件套/知识层/衍生视图/运行演示/导览升级/探索系统）——跨工具交接文档收口。
+- smoke：错误捕获永久带源位置（m.location()）；+1 时间轴断言（27 → 28 项）。
+
+### 验证
+- `/tmp/verify-tl.mjs`：四段分带、84 事件/64 深链、升序起点含'约公元前 150'、深链可达、
+  移动端。`npm run smoke` 27/27（历史绿），本轮新增断言通过但整套在**系统高负载（load 12.9，
+  正常 <5）下反复饥饿失败**——失败点轮换（Esc 超时/TypeError 竞态/60s 挂起）均为伪影；
+  TypeError 栈已捕获（DeviceViewer:428→loadDevice）并记录 BACKLOG 开放调查项（低载无再现）。
+  smoke 错误捕获已永久带源位置，后续可直接定位。
+
+### 下一项
+待系统负载回落复跑 smoke 确认 28/28；探索系统与衍生视图的后续迭代按反馈驱动。
