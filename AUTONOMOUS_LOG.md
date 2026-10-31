@@ -1119,3 +1119,30 @@ Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由�
 
 ### 下一项
 Phase 5 扩量（≥10 台，逐台确认轴向）或 L0/reduced-motion 降级补齐。
+
+## 2026-10-31 · Phase 5 切片 2：运行演示扩量至 15 台 + reduced-motion 静帧
+
+### 改动
+- `engine.js` runDemos 增强：`spin:'auto'` 按部件包围盒最薄轴推导旋转轴（圆盘/薄板/曲柄类
+  零件的最薄维度即转轴——解决逐台猜轴问题）；`speed` 独立角速度；reducedMotion 整体静帧
+  （晕动症友好；L0 维持运行——旋转零额外渲染成本，评估记录在案）。
+- 新增 13 台演示（合计 15）：挂钟/闹钟秒针（真实速率 0.105rad/s）、留声机转盘（33⅓ rpm 真实速率）、
+  机箱/笔电/Mac mini/Switch2 风扇（降速）、搅拌机刀片/角磨机砂轮/台钻主轴（降速示意）、
+  手摇曲柄、擒纵摆轮（降频振荡）、Mavic 螺桨（同向降速示意，真实为对转——标签注明）。
+- 试点回归修复：数组 spin 与 'auto' 分支的速度计算互不干扰。
+
+### 调试记录
+- 批量编辑漏掉 mac-mini/switch2 两台 demos（规划 13 实写 11）——批处理编辑后必须核对清单。
+- switch-2 的设备 ID 与文件名不一致（已知例外），验证脚本用文件名当 URL 导致加载错设备
+  （14 部件的假象来自错误页回退）——CASES 表改用真实 id。
+- reduced-motion 验证改独立浏览器 flag `--force-prefers-reduced-motion`（emulateMediaFeatures
+  未生效，浏览器级 flag 无歧义）。
+
+### 验证
+- `/tmp/verify-demos2.mjs` 16/16：15 台激活 + 旋转增量（时钟类真实速率用专属低阈值）、
+  取消后缓动回位、reduced-motion 静帧（demo=null 且旋转归零）。截图目检角磨机砂轮原位。
+- `npm run lint:devices` 全绿；`npm run build` 2.2s；`npm run smoke` 25/25。
+
+### 下一项
+Phase 5 剩余挂账：L0 静帧策略（已倾向维持）→ 可关闭；转向 Phase 6 沉浸导览升级或 Phase 7
+探索系统（收藏/已探索/徽章，localStorage）。

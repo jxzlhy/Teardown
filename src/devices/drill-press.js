@@ -7,6 +7,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'drill-press',
+  demos: [
+    { partId: 'chuck-bit', label: '台钻主轴旋转（降速示意）', spin: 'auto', speed: 8 },
+  ],
   name: '台式钻床',
   en: 'DRILL PRESS',
   category: '工具',

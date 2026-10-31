@@ -6,6 +6,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'alarm-clock',
+  demos: [
+    { partId: 'hand-second', label: '秒针走时（真实速率 · 机械闹钟实际为跳秒）', spin: 'auto', speed: 0.105 },
+  ],
   era: '1950s',
   name: '机械闹钟',
   en: 'ALARM CLOCK',

@@ -14,6 +14,9 @@ const builders = {
 
 export default makeDevice({
   id: 'mac-mini',
+  demos: [
+    { partId: 'fan', label: '离心风扇旋转（降速示意）', spin: 'auto', speed: 6 },
+  ],
   era: 2024,
   name: 'Apple Mac mini (M4)',
   en: 'MAC MINI 2024',

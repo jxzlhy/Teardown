@@ -81,6 +81,10 @@ export default {
   realPartIds: ['shell','gimbal','propellers','arms','vision'],
   xrayShellIds: ['shell'],
   tour: ['propellers','arms','vision','gimbal','shell','flight-controller','battery'],
+  /* 视觉原理演示（Phase 5）：选中螺旋桨绕桨轴旋转（真实为四桨对转，此处同向降速示意） */
+  demos: [
+    { partId: 'propellers', label: '螺旋桨旋转（降速 · 同向示意）', spin: 'auto', speed: 14 },
+  ],
   orientationProbe: null,    // 已显式声明 frontAxis，跳过探测
   labelAnchorDx: {},
   assembledPos: {

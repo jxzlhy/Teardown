@@ -9,6 +9,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'angle-grinder',
+  demos: [
+    { partId: 'disk', label: '砂轮片高速旋转（降速示意）', spin: 'auto', speed: 8 },
+  ],
   name: '角磨机（DeWalt D28136）',
   en: 'ANGLE GRINDER',
   category: '工具',

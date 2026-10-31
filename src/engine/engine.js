@@ -764,9 +764,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
   /* ---------- 视觉原理演示（Phase 5）：选中对应部件时运行程序旋转动画 ----------
      只动 rotation（与爆炸/装配的位置管线无冲突）；退出 0.5s 缓动回初始姿态；
-     示意动画而非仿真，UI 侧以「视觉原理演示」toast 明确标注 */
+     示意动画而非仿真，UI 侧以「视觉原理演示」toast 明确标注。
+     spin:'auto' → 按部件包围盒最薄轴推导旋转轴（圆盘/薄板类零件的最薄维度即转轴）；
+     reducedMotion 下整体静帧（晕动症友好）。 */
   function runDemos(dt, t){
-    if(!state.demos || !state.demos.length) return;
+    if(!state.demos || !state.demos.length || reducedMotion) return;
     for(const d of state.demos){
       const p = state.partsById[d.partId];
       if(!p) continue;
@@ -796,9 +798,23 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         continue;
       }
       if(d.spin){
-        p.group.rotation.x += (d.spin[0] || 0) * dt;
-        p.group.rotation.y += (d.spin[1] || 0) * dt;
-        p.group.rotation.z += (d.spin[2] || 0) * dt;
+        if(Array.isArray(d.spin)){
+          /* 数组 = 各轴角速度（rad/s），jet-engine 试点沿用的显式写法 */
+          p.group.rotation.x += d.spin[0] * dt;
+          p.group.rotation.y += d.spin[1] * dt;
+          p.group.rotation.z += d.spin[2] * dt;
+        }else{
+          /* 'auto' = 按包围盒最薄轴推导旋转轴 */
+          if(!D.axis){
+            _bb.setFromObject(p.group);
+            const s = _bb.getSize(new THREE.Vector3());
+            D.axis = s.x <= s.y && s.x <= s.z ? [1, 0, 0] : (s.y <= s.z ? [0, 1, 0] : [0, 0, 1]);
+          }
+          const sp = d.speed || 4;
+          p.group.rotation.x += D.axis[0] * sp * dt;
+          p.group.rotation.y += D.axis[1] * sp * dt;
+          p.group.rotation.z += D.axis[2] * sp * dt;
+        }
       }
       if(d.wobble){
         const f = d.wobbleF || 1.0;

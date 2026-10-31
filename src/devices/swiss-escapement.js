@@ -7,6 +7,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'swiss-escapement',
+  demos: [
+    { partId: 'balance-wheel', label: '摆轮振荡（降频示意）', wobble: [0.32, 0.04, 0.04], wobbleF: 2.5 },
+  ],
   name: '瑞士杠杆式擒纵机构',
   en: 'SWISS LEVER ESCAPEMENT',
   category: '钟表',

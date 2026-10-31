@@ -9,6 +9,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'kitchen-blender',
+  demos: [
+    { partId: 'blades', label: '搅拌刀片高速旋转（降速示意）', spin: 'auto', speed: 12 },
+  ],
   name: '厨房搅拌机',
   en: 'KITCHEN BLENDER',
   category: '厨电',

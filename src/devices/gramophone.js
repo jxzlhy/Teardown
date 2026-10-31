@@ -9,6 +9,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'gramophone',
+  demos: [
+    { partId: 'turntable', label: '转盘 33⅓ rpm（真实速率）', spin: 'auto', speed: 3.49 },
+  ],
   name: '手摇留声机',
   en: 'GRAMOPHONE',
   category: '影音',

@@ -17,6 +17,9 @@ const builders = {
 
 export default makeDevice({
   id: 'framework-laptop13',
+  demos: [
+    { partId: 'fan', label: '笔记本散热风扇（降速示意）', spin: 'auto', speed: 6 },
+  ],
   era: 2021,
   name: 'Framework Laptop 13',
   en: 'FW LAPTOP 13',

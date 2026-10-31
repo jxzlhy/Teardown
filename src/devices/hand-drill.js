@@ -6,6 +6,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'hand-drill',
+  demos: [
+    { partId: 'crank', label: '手摇曲柄旋转', spin: 'auto', speed: 2.5 },
+  ],
   name: '手摇曲柄钻',
   en: 'VINTAGE HAND DRILL',
   category: '工具',

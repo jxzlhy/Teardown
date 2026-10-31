@@ -8,6 +8,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'computer-parts',
+  demos: [
+    { partId: 'fan', label: '机箱风扇旋转（降速示意）', spin: 'auto', speed: 6 },
+  ],
   name: '电脑硬件全家福',
   en: 'COMPUTER COMPONENTS',
   category: '电脑',

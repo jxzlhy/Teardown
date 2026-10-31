@@ -14,6 +14,9 @@ const builders = {
 
 export default makeDevice({
   id: 'switch-2',
+  demos: [
+    { partId: 'fan', label: '双风扇旋转（降速示意）', spin: 'auto', speed: 6 },
+  ],
   era: 2025,
   name: 'Nintendo Switch 2',
   en: 'HAC-002',

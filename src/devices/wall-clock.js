@@ -6,6 +6,9 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'wall-clock',
+  demos: [
+    { partId: 'hand-second', label: '石英秒针扫秒（真实速率 · 60 秒/圈）', spin: 'auto', speed: 0.105 },
+  ],
   name: '石英挂钟',
   en: 'QUARTZ WALL CLOCK',
   category: '钟表',
