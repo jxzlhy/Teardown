@@ -1193,3 +1193,26 @@ Phase 6 导览升级（Tour 对象格式 + 三模式）为 backlog 中剩余的�
 - 修复：退出补齐用更快速度（stepSpeed 3.2，交互上也更利落）；连跑两次 smoke 全绿。
 - 教训：涉及模拟时长的断言在低帧环境用"状态到达"轮询而非墙钟（本项已是轮询，但总时长
   仍受模拟速度制约——提高模拟速度才是根治）。
+
+## 2026-10-31 · Phase 6 切片 1：导览升级（Tour 对象格式 + 连播/手动 + 讲解卡 + TTS）
+
+### 改动
+- `engine.js`：startTour(mode) 条目归一化（'partId' 字符串 / { id, note } 对象，向后兼容）；
+  setTourMode('auto'|'manual') 运行中切换；手动模式不自动前进（主循环计时加 mode 条件）；
+  连播停留时长随讲解词长度 +1.5s；tourInfo 增 mode/note。
+- `DeviceViewer` 导览条：模式切换按钮（连播⇄手动，图标随态）；讲解卡 #tourNote（策展讲解词 +
+  Web Speech 朗读按钮——本地合成、默认关、步进/停止/卸载时 cancel）。
+- `devices/pocket3.js`（7 步）/`devices/jet-engine.js`（4 步）：tour 升级为带策展讲解词的对象条目。
+- `style.css`：#tourNote 讲解卡样式（悬浮于导览条上方）。
+- smoke +1（讲解卡渲染断言），26 → 27 项。
+- 挂账决策：AudioManager CC0 音源——本环境无可靠下载/核证通道，待条件具备启动（backlog 记录）。
+
+### 验证
+- `/tmp/verify-tour2.mjs`：讲解词渲染（DOM + 内容）、手动模式不自动前进、‹ › 手动步进、
+  旧字符串条目设备（action4 14 步）完全兼容、无页面异常。截图目检讲解卡 + 导览条模式切换。
+- `npm run lint:devices` 全绿；`npm run build` 2.9s；`npm run smoke` 27/27。
+
+### 下一项
+backlog 核心项已全部收官（Phase 2/3/4/5/6/7 均有落地）。剩余：真机回归（环境缺失）、
+CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数据层。下一轮从「大厅完成度统计」
+（探索数据 × 馆藏统计）或用户反馈驱动的新方向继续。

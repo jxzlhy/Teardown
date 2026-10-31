@@ -91,8 +91,16 @@ export default {
   demos: [
     { partId: 'gimbal', label: '三轴机械增稳 · 姿态微调', wobble: [0.14, 0.2, 0.11], wobbleF: 0.9 },
   ],
-  /* 策展导览：屏→云台→控制→机身→电池→仓盖→背板 */
-  tour: ['screen','gimbal','controls','body','battery','battery-door','backplate'],
+  /* 策展导览：屏→云台→控制→机身→电池→仓盖→背板（对象条目带讲解词，兼容旧字符串） */
+  tour: [
+    { id: 'screen', note: '2 英寸旋转屏：向上翻转变身竖拍监视器，扣回机身即自动锁屏——一块屏两种工作形态。' },
+    { id: 'gimbal', note: '三轴机械云台：俯仰、横滚、偏航三颗无刷电机实时抵消手抖，相机在空间里保持指向。' },
+    { id: 'controls', note: '控制区：录制键、模式拨轮与摇杆集中在拇指域，盲操作是手持设备的第一原则。' },
+    { id: 'body', note: '机身握把：内置散热风道与电池仓，179 克里塞进整套云台相机系统。' },
+    { id: 'battery', note: '5000 毫安时电池：官方标称约 166 分钟录制，快拆设计方便备用电池轮换。' },
+    { id: 'backplate', note: '背板与散热：出风口藏在背面，握持的手掌刚好避开热流。' },
+    { id: 'battery-door', note: '电池仓盖：卡扣式开合，仓内触点做了防呆设计。' },
+  ],
   xrayShellIds: ['body','backplate','screen'],
   draco: false,
   frontAxis: '+z',

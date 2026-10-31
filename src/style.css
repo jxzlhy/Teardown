@@ -591,6 +591,15 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   position:absolute; z-index:6; left:50%; bottom:86px; transform:translateX(-50%);
   display:flex; align-items:center; gap:12px; padding:8px 16px;
 }
+/* ---------- 导览讲解卡（Phase 6）：策展讲解词 + TTS 朗读 ---------- */
+#tourNote{
+  position:absolute; z-index:6; left:50%; bottom:132px; transform:translateX(-50%);
+  display:flex; align-items:center; gap:10px; max-width:min(680px, calc(100vw - 32px));
+  padding:10px 16px;
+}
+.tour-note-text{ margin:0; font-size:12px; line-height:1.8; color:var(--txt-2); }
+.tts-btn{ flex:none; }
+.tts-btn.on{ color:var(--acc); border-color:color-mix(in srgb, var(--acc) 50%, transparent); }
 #clipStrip label{ font-family:var(--mono); font-size:9px; letter-spacing:.24em; color:var(--txt-3); white-space:nowrap; }
 #clipStrip input{ width:190px; }
 .tour-dots{ display:flex; gap:5px; }

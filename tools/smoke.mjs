@@ -211,6 +211,15 @@ try{
   const starOn = await page.evaluate(() => document.querySelectorAll('.fav-star.on').length);
   check('探索系统：收藏刷新后持久', starOn === 1, String(starOn));
 
+  /* 导览升级（Phase 6）：对象条目讲解词 + 讲解卡 */
+  await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && s.partsCount > 0; }, { timeout: 90000, polling: 200 });
+  await page.evaluate(() => window.__ENGINE.startTour('auto'));
+  await page.waitForFunction(() => !!document.querySelector('#tourNote .tour-note-text'), { timeout: 8000, polling: 200 });
+  const noteText = await page.evaluate(() => document.querySelector('#tourNote .tour-note-text').textContent);
+  check('导览讲解卡（策展讲解词渲染）', /旋转屏/.test(noteText), noteText.slice(0, 20));
+  await page.evaluate(() => window.__ENGINE.stopTour());
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

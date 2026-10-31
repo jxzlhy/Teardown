@@ -203,14 +203,29 @@
 
     <!-- 自动导览进度条 -->
     <div v-if="!thumbMode && tour" id="tourBar" class="hud-panel">
-      <span class="hud-eyebrow">AUTO TOUR</span>
+      <span class="hud-eyebrow">TOUR · {{ tour.mode === 'manual' ? '手动' : '连播' }}</span>
       <div class="tour-dots">
         <i v-for="(id, i) in tour.total" :key="i" :class="{ cur: i === tour.i, done: i < tour.i }"></i>
       </div>
+      <button class="hud-icon" @click="engine && engine.setTourMode(tour.mode === 'manual' ? 'auto' : 'manual')" :title="tour.mode === 'manual' ? '切到连播（自动前进）' : '切到手动（‹ › 自主前进）'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path v-if="tour.mode === 'manual'" d="M5 3l4 4M3 7h6M19 3l-4 4M21 7h-6M8 21v-7a4 4 0 018 0v7M12 14v7"/>
+          <path v-else d="M6 4v16M18 4v16M6 12h12M9 8l-3 4 3 4M15 8l3 4-3 4"/>
+        </svg>
+      </button>
       <button class="hud-icon" @click="engine && engine.tourPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="hud-icon" @click="engine && engine.tourNext()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg></button>
       <button class="hud-glow-btn" @click="engine && engine.stopTour()">停止</button>
     </div>
+    <!-- 讲解卡：策展讲解词 + 可选 Web Speech 朗读（默认关） -->
+    <Transition name="fade">
+      <div v-if="!thumbMode && tour && tour.note" id="tourNote" class="hud-panel">
+        <p class="tour-note-text">{{ tour.note }}</p>
+        <button class="hud-icon tts-btn" :class="{ on: ttsOn }" @click="toggleTts" :title="ttsOn ? '停止朗读' : '朗读讲解'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path v-if="!ttsOn" d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/><path v-else d="M17 9l6 6M23 9l-6 6"/></svg>
+        </button>
+      </div>
+    </Transition>
 
     <!-- ⓘ 设备总览弹卡 -->
     <Transition name="fade">
@@ -418,6 +433,26 @@ const licenseFlag = computed(() => {
 const loadFailed = ref(false);
 function reloadPage(){ location.reload(); }
 const tour = computed(() => ui.value.tour);
+/* 讲解朗读（Web Speech，本地合成；步进/停止/卸载时取消） */
+const ttsOn = ref(false);
+function toggleTts(){
+  if(!('speechSynthesis' in window)){ showToast('当前浏览器不支持语音合成', 2400); return; }
+  if(ttsOn.value){ speechSynthesis.cancel(); ttsOn.value = false; return; }
+  const note = tour.value && tour.value.note;
+  if(!note) return;
+  const u = new SpeechSynthesisUtterance(note);
+  u.lang = 'zh-CN'; u.rate = 1.0;
+  u.onend = () => { ttsOn.value = false; };
+  u.onerror = () => { ttsOn.value = false; };
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+  ttsOn.value = true;
+}
+watch([() => tour.value && tour.value.i, () => tour.value && tour.value.note], () => {
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  ttsOn.value = false;
+});
+onBeforeUnmount(() => { if('speechSynthesis' in window) speechSynthesis.cancel(); });
 const explodePct = computed(() => ui.value.explode);
 const qualityLabel = computed(() => ['LOW', 'MED', 'HIGH'][ui.value.quality ?? 2] || 'HIGH');
 const sliderValue = computed(() => Math.round((scrubbing.value ? manualSlider : ui.value.explode) * 10));

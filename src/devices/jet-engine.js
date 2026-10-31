@@ -27,8 +27,13 @@ export default makeDevice({
   camDist: 1.05,
   normalize: 'full',
   glb: '/assets/jet-engine.glb',
-  /* 策展导览：风扇段→核心机→加力燃烧室→尾喷管（沿气流方向） */
-  tour: ['fan-section','core','afterburner','nozzle'],
+  /* 策展导览：风扇段→核心机→加力燃烧室→尾喷管（沿气流方向；对象条目带讲解词） */
+  tour: [
+    { id: 'fan-section', note: '进气风扇段：把空气吸入并初步增压，涡扇发动机大部分推力其实来自这级风扇推过的气流。' },
+    { id: 'core', note: '核心机：压气机逐级增压后喷油燃烧，高温燃气驱动涡轮——涡轮又回头驱动前端的压气机。' },
+    { id: 'afterburner', note: '加力燃烧室：在涡轮后再喷油复燃，短时间爆发额外推力，战斗机起飞与冲刺时使用。' },
+    { id: 'nozzle', note: '尾喷管：把高压燃气加速喷出，动量定理在这里变成推力。' },
+  ],
   /* 视觉原理演示（Phase 5）：选中风扇段绕发动机轴线（X）旋转 */
   demos: [
     { partId: 'fan-section', label: '进气风扇段旋转 · 布雷顿循环吸气', spin: [3.4, 0, 0] },

@@ -988,20 +988,34 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   function setClipT(t){ modes.setClipT(t); }
 
   /* ---------- 自动导览 Tour ---------- */
-  function startTour(){
+  function startTour(mode = 'auto'){
     modes.setMode(null);   // 导览件必须完整可见：自动退出 X 光/隔离/剖切
     invalidateMeasure();
     /* 无策展顺序时按爆炸偏移从外到内排：贴合“先拆外壳再进内部”的直觉，
-       也避免直接沿用配置里的任意部件顺序 */
-    const curated = (state.device && state.device.tour && state.device.tour.filter(id => state.partsById[id])) || [];
-    const ids = curated.length ? curated
+       也避免直接沿用配置里的任意部件顺序。
+       条目兼容两种写法：'partId' 字符串 / { id, note } 带讲解词对象 */
+    const raw = (state.device && state.device.tour) || [];
+    const curated = raw
+      .map(e => typeof e === 'string' ? { id: e } : (e && e.id ? e : null))
+      .filter(e => e && state.partsById[e.id]);
+    const ids = curated.length ? curated.map(e => e.id)
       : [...state.parts]
           .sort((a, b) => (b.worldOffset ? b.worldOffset.length() : 0) - (a.worldOffset ? a.worldOffset.length() : 0))
           .map(p => p.data.id);
     if(!ids.length) return;
-    state.tour = { ids, i: -1, wait: 0, playing: true };
+    state.tour = {
+      ids,
+      notes: curated.map(e => e.note || null),
+      i: -1, wait: 0, playing: true,
+      mode: mode === 'manual' ? 'manual' : 'auto',
+    };
     state.userInteracted = true;
     tourStep(1);
+  }
+  function setTourMode(m){
+    if(!state.tour) return;
+    state.tour.mode = m === 'manual' ? 'manual' : 'auto';
+    emit();
   }
   function tourStep(dir){
     const tour = state.tour;
@@ -1011,7 +1025,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     const pd = state.partsById[id] && state.partsById[id].data;
     selectPart(id);
     flyToPart(id);
-    tour.wait = (pd && pd.hot) ? 5 : 3.5;
+    /* 停留时长：自动连播才计时；讲解词长的步多留 1.5s */
+    if(tour.mode === 'auto'){
+      const noteLen = (tour.notes && tour.notes[tour.i] ? tour.notes[tour.i].length : 0);
+      tour.wait = ((pd && pd.hot) ? 5 : 3.5) + (noteLen > 60 ? 1.5 : 0);
+    }
     emit();
   }
   function tourNext(){ if(state.tour) tourStep(1); }
@@ -1024,7 +1042,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
   function tourInfo(){
     const t = state.tour;
-    return t ? { playing: t.playing, i: t.i, total: t.ids.length, id: t.ids[t.i] } : null;
+    return t ? { playing: t.playing, i: t.i, total: t.ids.length, id: t.ids[t.i], mode: t.mode, note: (t.notes && t.notes[t.i]) || null } : null;
   }
 
   /* ---------- 拾取事件 ---------- */
@@ -1206,8 +1224,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         if(k >= 1) state.camTween = null;
       }
     }
-    /* Tour 停留计时（走真实墙钟，低帧率/看门狗步进环境下停留时长依然准确） */
-    if(state.tour && state.tour.playing){
+    /* Tour 停留计时（走真实墙钟，低帧率/看门狗步进环境下停留时长依然准确）；手动模式不自动前进 */
+    if(state.tour && state.tour.playing && state.tour.mode === 'auto'){
       state.tour.wait -= rawDt;
       if(state.tour.wait <= 0){
         if(state.tour.i >= state.tour.ids.length - 1) stopTour();
@@ -1382,7 +1400,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     flyToPart, setMode, isolate, setClipT,
     setMeasure, stepAssembly, stepNext, stepPrev,
     capturePartThumb,
-    startTour, stopTour, tourNext, tourPrev,
+    startTour, stopTour, tourNext, tourPrev, setTourMode,
     step: mainLoop,
     getCamera: () => camera,
     getPartOffset: (id) => {
