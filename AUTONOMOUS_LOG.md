@@ -971,3 +971,21 @@ Phase 3 切片 2：era 字段（先从配置内已有年份的 66 台做起，�
 ### 验证
 - `npm run lint:devices`（含知识库）全绿：已编写 10 / 20；`npm run build` 1.76s
   （DeviceViewer chunk gzip 77.8KB，+2KB）；`npm run smoke` 22/22。
+
+## 2026-10-31 · Phase 3 切片 1c：技术词条 20/20 收官
+
+### 改动
+- 新增 10 项全量词条：pcb-soc、usb-c、cooling-module（热管/VC）、mainspring-drive、wheel-train、
+  turbine-engine（涡扇）、vacuum-tube、typebar-linkage、acoustic-horn、internal-combustion（四冲程）。
+- 10 个 Wikipedia 来源 URL 全部经 WebFetch 实证（发明年/组件/史实直接取自抓取正文：
+  USB-C 2014-08-11 规范 1.0、Conway 1959 首型涡扇、Fleming 1904 二极管、Otto 1876 四冲程等）。
+- `_stubs.js` 清空（占位机制保留，供未来新增部件类目时使用）；index.js 挂载至 20 项。
+- relatedDevices 按实测词表核对（cooling-module 改 action4/framework-laptop13/mac-mini——
+  初稿误写无 fan 部件的 s25-ultra，设备词表 grep 核实后修正）。
+
+### 验证
+- `npm run lint:devices`（含知识库）全绿：已编写 20 / 20；`npm run build` 2.0s；`npm run smoke` 22/22。
+- 截图目检：v8-engine 活塞连杆 → 「原理 · 内燃机四冲程循环」正文+时间线+来源完整渲染。
+
+### 下一项
+Phase 3 切片 2：设备级 era 字段（逐台查证发布年，lint 强制格式与来源），随后 era 驱动 gen-timeline。
