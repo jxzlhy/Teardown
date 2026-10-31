@@ -218,6 +218,7 @@ credibility: { structure: 'official', specs: 'official', history: 'verified-3rd'
 - 渲染：双模式——3D 用 3d-force-graph（three 场景一致性最好，节点 Object3D 可定制）；2D 用 sigma.js（移动端更省电、可读性更高）。两模式共享同一 JSON。
 - 交互：节点搜索、分类过滤、关系高亮（一度邻居高亮/其余降透明）、点击品牌/设备跳深链（现有 hash 路由直达）、点击技术跳技术详情浮层。
 - 性能：节点数预期 <2000，3d-force-graph 无压力；移动端默认 2D。
+- **进度**：2026-10-31 数据与 2D 渲染落地——`tools/gen-knowledge-graph.mjs`（npm run gen:graph，103 设备/38 品牌/414 部件类/20 技术/1201 连边）+ `/graph` 路由（GraphView.vue 零依赖 Canvas2D 力导向，独立懒加载 chunk ~3KB gzip，不加载 three 主 chunk；悬停一跳高亮、点击设备深链、类型过滤、缩放平移拖拽）。3D 模式与代际对比为后续可选项。
 
 ### 5.5 交互实验室（DeviceViewer 增量能力）
 

@@ -572,6 +572,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       }
     }catch(err){
       if(token !== loadSeq) return;   // 已被新装载/切换取代：不覆盖当前状态
+      if(err && err.name === 'AbortError') return;   // 切台/卸载主动中止：正常路径，不当错误打印
       console.error('GLB 装载/接入失败，保留程序化模型', err);
       window.__LOAD_ERR = (err && (err.stack || err.message)) || String(err || 'GLB load failed');
       state.modelStatus = 'FALLBACK · PROCEDURAL';

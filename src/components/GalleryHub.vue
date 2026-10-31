@@ -2,7 +2,7 @@
   <div class="hub">
     <div class="hub-top">
       <div class="hub-eyebrow"><span class="dot"></span>MULTI-BRAND · TEARDOWN GALLERY</div>
-      <div class="hub-top-meta">VOL.04 — 2026 · {{ totalDevices }} DEVICES</div>
+      <div class="hub-top-meta"><router-link to="/graph" class="graph-link">知识星图 ↗</router-link>VOL.04 — 2026 · {{ totalDevices }} DEVICES</div>
     </div>
 
     <div class="hub-hero">

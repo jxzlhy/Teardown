@@ -46,6 +46,8 @@ html,body,#app{ width:100%; height:100%; overflow:hidden; background:#04070c; fo
 .hub-eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--acc);
   box-shadow:0 0 10px var(--acc); animation:pulse 1.8s infinite; }
 .hub-top-meta{ font-family:var(--mono); font-size:9px; letter-spacing:.3em; color:rgba(125,143,163,.55); animation:fadeDown .8s .1s both; }
+.hub-top-meta .graph-link{ color:var(--acc-dim); text-decoration:none; margin-right:14px; border-bottom:1px dashed rgba(69,224,255,.3); }
+.hub-top-meta .graph-link:hover{ color:var(--acc); }
 
 .hub-hero{ margin-top:clamp(36px,7vh,72px); }
 .hub-title{ display:flex; align-items:flex-end; gap:clamp(20px,4vw,54px); flex-wrap:wrap; }

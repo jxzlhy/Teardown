@@ -1051,3 +1051,32 @@ Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由�
 
 ### 验证
 - `npm run lint:devices` 全绿；`npm run build` 2.3s；`npm run smoke` 23/23。
+
+## 2026-10-31 · Phase 4 切片 1：知识星图数据与 2D 渲染
+
+### 改动
+- `tools/gen-knowledge-graph.mjs`（npm run gen:graph）：registry + 知识库 → public/knowledge-graph.json
+  （103 设备 / 38 品牌 / 414 部件类 / 20 技术 / 1201 连边，139KB）。连边语义：produces /
+  has-part / uses（techForPart 推导，只算已编写词条）/ applies-to；社区判定复用 model-class 的
+  isCommunityModel；产物不手写，设备/知识变更后重新生成。
+- `src/components/GraphView.vue`：/graph 路由，零依赖 Canvas 2D 力导向（库仑斥力 + 弹簧 + 向心，
+  alpha 衰减 ~3s 收敛；600² 距离剪枝）。交互：滚轮缩放（指针锚点）、拖拽平移、节点拖拽、
+  悬停一跳高亮（其余降透明 0.18）、点击设备跳深链 /device/:id、类型过滤 chips（品牌/设备/
+  部件类/技术，至少保留一类）。设备/部件标签按缩放级别显隐，控制默认信息密度。
+- `main.js`：/graph 懒加载路由；`GalleryHub` 顶部 meta 加「知识星图 ↗」入口。
+- `engine.js`：loadDevice catch 对 AbortError 静默（切台主动中止是正常路径，不再当错误打印——
+  星图验证暴露的既有日志噪音）。
+
+### 关键设计决策
+- 不引入 3d-force-graph/sigma.js：3d-force-graph 自带 three 复本（与主 three chunk 重复）；
+  2D Canvas 对 575 节点绰绰有余且移动端省电。3D 模式若后续需要再评估（挂账）。
+
+### 验证
+- `/tmp/verify-graph.mjs`：统计正确、three 主 chunk 未加载、类型过滤、悬停高亮（实测命中
+  "Apple iPhone 18 Pro Max 酒红"）、设备路由无回归、移动端过滤条、控制台零错误。
+- `npm run lint:devices` 全绿；`npm run build` 2.1s（GraphView 独立 chunk 3.05KB gzip）；
+  `npm run smoke` 23/23。截图目检：桌面星图（品牌外轨/技术枢纽/部件底网）、移动端可用。
+
+### 已知限制
+- 中心设备簇标签默认隐藏（悬停/放大显示）；布局随机初始化，每次进入形态略不同。
+- 3D 模式与代际对比试点未做（backlog 挂账）。
