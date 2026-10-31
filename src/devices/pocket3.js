@@ -87,6 +87,10 @@ export default {
     ['screen'],
     ['backplate','battery-door'],
   ],
+  /* 视觉原理演示（Phase 5）：选中云台时三轴姿态微调示意（增稳工作状态） */
+  demos: [
+    { partId: 'gimbal', label: '三轴机械增稳 · 姿态微调', wobble: [0.14, 0.2, 0.11], wobbleF: 0.9 },
+  ],
   /* 策展导览：屏→云台→控制→机身→电池→仓盖→背板 */
   tour: ['screen','gimbal','controls','body','battery','battery-door','backplate'],
   xrayShellIds: ['body','backplate','screen'],

@@ -187,6 +187,18 @@ try{
   }));
   check('代际对比页（Action 两代并排 + 规格聚类）', cmp.cols === 2 && cmp.rows >= 3, JSON.stringify(cmp));
 
+  /* 视觉原理演示（Phase 5）：jet-engine 风扇段选中即绕轴线旋转（toast 标注示意动画） */
+  await page.goto(BASE + '/#/device/jet-engine', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && /COMMUNITY|OFFICIAL/.test(s.modelStatus || ''); }, { timeout: 90000, polling: 200 });
+  await sleep(400);
+  await page.evaluate(() => window.__ENGINE.selectPart('fan-section'));
+  await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 8000, polling: 100 });
+  const d1 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
+  await sleep(900);
+  const d2 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
+  check('运行演示：风扇段选中旋转', d2 > d1 + 0.2, `Δx=${(d2 - d1).toFixed(2)}`);
+  await page.evaluate(() => window.__ENGINE.selectPart(null));
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

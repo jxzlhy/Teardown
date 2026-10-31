@@ -29,6 +29,10 @@ export default makeDevice({
   glb: '/assets/jet-engine.glb',
   /* 策展导览：风扇段→核心机→加力燃烧室→尾喷管（沿气流方向） */
   tour: ['fan-section','core','afterburner','nozzle'],
+  /* 视觉原理演示（Phase 5）：选中风扇段绕发动机轴线（X）旋转 */
+  demos: [
+    { partId: 'fan-section', label: '进气风扇段旋转 · 布雷顿循环吸气', spin: [3.4, 0, 0] },
+  ],
   mapping: {
     'Object_12': 'fan-section',
     'Object_13': 'nozzle',

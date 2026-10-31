@@ -213,6 +213,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     stepMode: false,                 // 逐步装配：见 stepAssembly
     stepCur: 0,                      // 已装配组数（连续值，动画用）
     stepTarget: 0, stepSpeed: 2.0, stepGroups: null, stepExitPending: false, stepEmitPending: false,
+    demos: null, demoActive: null,   // 视觉原理演示（Phase 5）：device.demos + 当前激活标签
     selected: null, hovered: null,
     labelsMode: 'auto',              // 'auto' | 'all' | 'off'
     scrubbing: false,
@@ -290,6 +291,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.explodeSpeed = 0.9; state.explodeLayout = 'axis';
     state.stepMode = false; state.stepCur = 0; state.stepTarget = 0;
     state.stepGroups = null; state.stepExitPending = false; state.stepEmitPending = false;
+    state.demos = null; state.demoActive = null;
     bvhBuilt = false;
   }
 
@@ -390,6 +392,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     window.__LOADS = (window.__LOADS || []).concat(device.id + '@' + (Date.now() % 100000));
     disposeDevice();
     state.device = device;
+    state.demos = Array.isArray(device.demos) ? device.demos : null;
+    state.demoActive = null;
     /* 每设备相机距离：大尺寸设备按比例拉远 */
     const cd = device.camDist || 1;
     CAM_HOME.copy(CAM_HOME_BASE).multiplyScalar(cd);
@@ -758,6 +762,52 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     invalidateMeasure();
     emit();
   }
+  /* ---------- 视觉原理演示（Phase 5）：选中对应部件时运行程序旋转动画 ----------
+     只动 rotation（与爆炸/装配的位置管线无冲突）；退出 0.5s 缓动回初始姿态；
+     示意动画而非仿真，UI 侧以「视觉原理演示」toast 明确标注 */
+  function runDemos(dt, t){
+    if(!state.demos || !state.demos.length) return;
+    for(const d of state.demos){
+      const p = state.partsById[d.partId];
+      if(!p) continue;
+      const active = state.selected === d.partId;
+      if(active && !p.__demo){
+        p.__demo = { base: { x: p.group.rotation.x, y: p.group.rotation.y, z: p.group.rotation.z }, t: 0 };
+        state.demoActive = d.label;
+        emit();
+      }else if(!active && p.__demo && !p.__demo.exit){
+        p.__demo.exit = true;
+        p.__demo.t = 0;
+        p.__demo.fromRot = { x: p.group.rotation.x, y: p.group.rotation.y, z: p.group.rotation.z };
+      }
+      const D = p.__demo;
+      if(!D) continue;
+      if(D.exit){
+        D.t = Math.min(1, D.t + dt * 2.2);
+        const k = easeIO(D.t);
+        p.group.rotation.x = D.fromRot.x + (D.base.x - D.fromRot.x) * k;
+        p.group.rotation.y = D.fromRot.y + (D.base.y - D.fromRot.y) * k;
+        p.group.rotation.z = D.fromRot.z + (D.base.z - D.fromRot.z) * k;
+        if(D.t >= 1){
+          p.group.rotation.set(D.base.x, D.base.y, D.base.z);
+          p.__demo = null;
+          if(state.demoActive){ state.demoActive = null; emit(); }
+        }
+        continue;
+      }
+      if(d.spin){
+        p.group.rotation.x += (d.spin[0] || 0) * dt;
+        p.group.rotation.y += (d.spin[1] || 0) * dt;
+        p.group.rotation.z += (d.spin[2] || 0) * dt;
+      }
+      if(d.wobble){
+        const f = d.wobbleF || 1.0;
+        p.group.rotation.x = D.base.x + Math.sin(t * f) * d.wobble[0];
+        p.group.rotation.y = D.base.y + Math.sin(t * f * 0.83 + 1.3) * d.wobble[1];
+        p.group.rotation.z = D.base.z + Math.sin(t * f * 1.21 + 2.6) * d.wobble[2];
+      }
+    }
+  }
   function selectPart(id){
     state.selected = id;
     if(!id) state.flewTo = null;
@@ -1102,6 +1152,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
     modes.tick(dt);
     applyGlow(dt, t);
+    runDemos(dt, t);
 
     if(outlineSel){
       /* 仅在目标集合变化时重赋，避免每帧产生新数组 */
@@ -1321,11 +1372,16 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       const p = state.partsById[id];
       return p ? +p.group.position.distanceTo(p.base).toFixed(4) : null;
     },
+    getPartRotation: (id) => {
+      const p = state.partsById[id];
+      return p ? { x: +p.group.rotation.x.toFixed(4), y: +p.group.rotation.y.toFixed(4), z: +p.group.rotation.z.toFixed(4) } : null;
+    },
     getState: () => ({ ...state,
       booted, autoRotate: controls.autoRotate,
       viewMode: modes.state.mode, isolateId: modes.state.isolateId, clipCap: modes.state.capKind,
       tool: state.measureOn ? 'measure' : null,
       step: state.stepMode && state.stepGroups ? { i: Math.round(state.stepCur), n: state.stepGroups.length } : null,
+      demoActive: state.demoActive || null,
       /* parts/partsById 含 THREE 对象，不进响应式/跨页传输，只出计数字段 */
       partsCount: state.parts.length,
     }),

@@ -1096,3 +1096,26 @@ Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由�
 - `/tmp/verify-cmp.mjs`：iPhone 5 列 18 行 + focus 高亮、设备页入口跳转、Action 2 列、
   移动端 390×844、控制台零错误。smoke +1 永久断言（23 → 24 项）全绿；build 2.15s。
 - 截图目检：iPhone 五代并排（A14→A19 Pro、电池 2815→3677mAh 的代际演进一眼可读）。
+
+## 2026-10-31 · Phase 5 切片 1：运行演示基建 + 2 试点（jet-engine / pocket3）
+
+### 改动
+- `engine.js`：`runDemos(dt, t)`——device.demos 声明式驱动（spin=绕轴持续旋转 / wobble=三轴正弦
+  微调），仅动 rotation（与爆炸/装配位置管线零冲突）；激活条件 = 选中对应部件；退出 0.5s 缓动
+  回初始姿态（缓动用钳制 dt，低帧环境慢但正确）；`getState().demoActive` + `getPartRotation(id)`
+  观测口；state.demos 随 loadDevice/disposeDevice 生命周期。
+- `DeviceViewer`：demoActive 激活时 toast「视觉原理演示 · …（示意动画，非仿真）」——诚实标注。
+- `devices/jet-engine.js`：风扇段绕 X（发动机轴线，头注释已文档化）3.4rad/s；
+  `devices/pocket3.js`：云台三轴正弦微调（增稳工作状态示意）。retro-fan 轴向未文档化，诚实跳过。
+- 3D 星图评估拍板：暂缓（3d-force-graph 自带 three 复本 600KB+，2D 已覆盖交互）——backlog 关闭该项。
+
+### 验证
+- `/tmp/verify-demo.mjs`：激活标签、X 轴持续累加、取消后缓动精确回 0（探针证实端到端）、
+  云台摆动、控制台零错误；无头低帧率（dt 钳制 0.05）会让动画变慢但方向正确——验证脚本相应
+  改轮询而非固定时长。smoke +1（24 → 25 项）全绿；lint 103 台 + 知识库全绿；build 2.1s。
+
+### 已知限制
+- 演示与爆炸态共存（旋转的是部件组自身姿态）；L0/reduced-motion 静帧降级未做（backlog 挂账）。
+
+### 下一项
+Phase 5 扩量（≥10 台，逐台确认轴向）或 L0/reduced-motion 降级补齐。

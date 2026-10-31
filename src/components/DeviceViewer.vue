@@ -364,6 +364,10 @@ const techOpen = ref(true);
 watch(() => selectedPart.value && selectedPart.value.id, () => { techOpen.value = true; });
 /* 代际对比入口：设备属于策展对比组时，信息浮层给出入口 */
 const compareGroup = computed(() => compareGroupOf(device.value && device.value.id));
+/* 视觉原理演示激活提示（示意动画标注） */
+watch(() => ui.value.demoActive, (v, ov) => {
+  if(v && v !== ov) showToast('视觉原理演示 · ' + v + '（示意动画，非仿真）', 3400);
+});
 const partIndex = computed(() => device.value.parts.findIndex(p => p.id === ui.value.selected));
 /* 移动端详情 sheet 的实际高度：供 Tour / 剖切条 / toast 让位，避免被盖住 */
 watch(selectedPart, (p) => {
