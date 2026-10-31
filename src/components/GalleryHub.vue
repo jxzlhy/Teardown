@@ -56,6 +56,12 @@
     <!-- 筛选与搜索（滚动吸顶） -->
     <div class="hub-filter">
       <div class="filter-row">
+        <div class="filter-group">
+          <span class="fg-label">快捷</span>
+          <div class="fg-chips">
+            <button class="chip" :class="{ on: favOnly }" @click="favOnly = !favOnly">★ 收藏（{{ favs.length }}）</button>
+          </div>
+        </div>
         <div class="filter-group" v-for="fg in filterGroups" :key="fg.key">
           <span class="fg-label">{{ fg.label }}</span>
           <div class="fg-chips">
@@ -269,7 +275,11 @@ const filterGroups = [
   { key:'cat', label:'类型', options: categories, get value(){ return catSel.value; }, set(v){ catSel.value = v; } },
 ];
 
+/* ★ 收藏快捷筛选（探索系统闭环） */
+const favOnly = ref(false);
+
 const filtered = computed(() => devicesIndexed.filter(d => {
+  if(favOnly.value && !favSet.value.has(d.id)) return false;
   if(brandSel.value !== '全部' && (d.brand || 'OTHER') !== brandSel.value) return false;
   if(catSel.value !== '全部' && d.category !== catSel.value) return false;
   if(query.value){
