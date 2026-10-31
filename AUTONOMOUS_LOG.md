@@ -1037,3 +1037,17 @@ era 逐台查证续批（按品牌分组：DJI 8 台官方页 / Apple 10 台 / �
 
 ### 下一项
 Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由），或部件级"运行演示"动画集。
+
+## 2026-10-31 · Phase 3 收尾：P3 记账项复核与许可徽标
+
+### 改动
+- 复核发现「Poly Haven 补链接」实际早已完成：13 台 modelSource 全部存在，抽查 4 条 URL 均 200、
+  CC0 设备零遗漏——关闭该记账项（此前为记账滞后）。
+- 许可证 UI 醒目标注：`DeviceViewer` infoPop 对 CC-BY-NC/CC-BY-SA 设备显示琥珀色
+  `.credit-flag.warn` 徽标（短文案"非商业/同许可"，悬停 title 说明完整义务）；
+  `GalleryHub` 卡片对 NC 设备显示 NC 角标（3 个）；馆内许可分布实测：108 CC-BY、13 CC0、
+  3 CC-BY-NC（combustion-engine/galaxy-s22-ultra/hydraulic-jack）、1 CC-BY-SA（porsche-911-carrera-4s）。
+- 截图目检：S22 Ultra 浮层徽标 + 大厅 3 个 NC 角标。
+
+### 验证
+- `npm run lint:devices` 全绿；`npm run build` 2.3s；`npm run smoke` 23/23。

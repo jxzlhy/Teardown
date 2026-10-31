@@ -103,6 +103,7 @@
             <i>{{ d.parts }} 部件</i>
             <i>{{ d.category }}</i>
             <i class="glb-badge">{{ modelClassLabel(d) }}</i>
+            <i v-if="isNc(d.modelCredit)" class="glb-badge nc-badge" title="CC-BY-NC · 非商业许可">NC</i>
           </span>
         </span>
         <span class="card-arrow">
@@ -136,6 +137,10 @@ import { isCommunityModel, modelClassLabel } from '../lib/model-class.js';
 function eraLabel(d){
   if(d.era == null) return '';
   return typeof d.era === 'number' ? String(d.era) : d.era;
+}
+/* CC-BY-NC（非商业）许可需在列表层醒目提示（合规透明） */
+function isNc(credit){
+  return !!credit && /CC-BY-NC/.test(credit);
 }
 
 const router = useRouter();

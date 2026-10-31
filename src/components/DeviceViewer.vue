@@ -232,6 +232,7 @@
         <div class="d-tip" v-if="device.modelCredit">
           MODEL CREDIT · {{ device.modelCredit }}
           <i v-if="creditUnverified" class="credit-flag" title="仅标注社区来源，作者与许可证尚未核实">来源待核实</i>
+          <i v-if="licenseFlag" class="credit-flag warn" :title="licenseFlag.full">{{ licenseFlag.short }}</i>
           <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 ↗</a>
         </div>
         <div class="d-tip">{{ device.glb ? (device.source || '官方实机模型') : '程序化建模' }} · {{ device.parts.length }} 组核心部件</div>
@@ -387,6 +388,13 @@ watch(
 );
 /* 泛化署名（"by community (Sketchfab)"）没有作者与许可证，明确标出待核实 */
 const creditUnverified = computed(() => /by community/i.test(device.value.modelCredit || ''));
+/* 许可证级别徽标：NC/SA 是有再分发约束的许可，需在 UI 上醒目区分（合规透明） */
+const licenseFlag = computed(() => {
+  const c = device.value.modelCredit || '';
+  if(/CC-BY-NC/.test(c)) return { short: '非商业', full: 'CC-BY-NC · 非商业许可：未经权利人许可不得用于商业用途' };
+  if(/CC-BY-SA/.test(c)) return { short: '同许可', full: 'CC-BY-SA · 相同方式共享：衍生作品须以相同许可发布' };
+  return null;
+});
 const loadFailed = ref(false);
 function reloadPage(){ location.reload(); }
 const tour = computed(() => ui.value.tour);

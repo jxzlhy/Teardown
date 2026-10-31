@@ -253,6 +253,7 @@ html,body,#app{ width:100%; height:100%; overflow:hidden; background:#04070c; fo
 }
 .card-meta i.glb-badge{ color:var(--acc); border-color:color-mix(in srgb, var(--acc) 40%, transparent); }
 .card-meta i.era-badge{ color:var(--txt-2); border-color:rgba(120,150,180,.3); }
+.card-meta i.nc-badge{ color:#e8b45a; border-color:rgba(232,180,90,.5); }
 .card-arrow{
   position:absolute; right:16px; bottom:14px; width:26px; height:26px; color:var(--txt-dim);
   opacity:0; transform:translateX(-6px); transition:all .28s cubic-bezier(.2,.7,.2,1);
@@ -570,6 +571,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .info-status .hud-dot{ width:5px; height:5px; }
 .d-tip{ margin-top:10px; font-family:var(--mono); font-size:9.5px; color:rgba(125,143,163,.7); letter-spacing:.12em; line-height:1.8; }
 .credit-flag{ display:inline-block; margin-left:6px; padding:0 6px; border:1px solid rgba(125,143,163,.35); border-radius:999px; font-style:normal; font-size:9px; letter-spacing:.08em; color:var(--txt-dim); }
+.credit-flag.warn{ color:#e8b45a; border-color:rgba(232,180,90,.45); background:rgba(232,180,90,.08); }
 .credit-link{ margin-left:6px; font-size:9px; letter-spacing:.08em; color:var(--accent, #7fb0d0); text-decoration:none; border-bottom:1px dotted rgba(127,176,208,.45); white-space:nowrap; }
 .credit-link:hover, .credit-link:focus-visible{ color:#a8d0e8; border-bottom-color:#a8d0e8; }
 .info-close{ margin-top:14px; width:100%; }
