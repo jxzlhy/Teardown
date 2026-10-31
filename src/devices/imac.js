@@ -16,6 +16,7 @@ const builders = {
 
 export default makeDevice({
   id: 'imac',
+  era: 2024,
   name: 'Apple iMac 24″ (M4)',
   en: 'IMAC 2024',
   category: '台式机',

@@ -56,6 +56,7 @@ function postLoad({ partsById }){
 
 export default {
   id: 'action5pro',
+  era: 2024,
   brand: 'DJI',
   name: 'DJI Osmo Action 5 Pro',
   en: 'AC204',

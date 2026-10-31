@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'airpods-pro',
+  era: 2022,
   name: 'Apple AirPods Pro 2',
   en: 'A3047 · USB-C',
   category: '耳机',

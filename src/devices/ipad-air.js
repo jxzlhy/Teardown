@@ -13,6 +13,7 @@ const builders = {
 
 export default makeDevice({
   id: 'ipad-air',
+  era: 2025,
   name: 'Apple iPad Air 11″ (M3)',
   en: 'IPAD AIR M3',
   category: '平板',

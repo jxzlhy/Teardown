@@ -25,6 +25,7 @@ function postLoad({ partsById }){
 
 export default {
   id: 'mini4pro',
+  era: 2023,   /* 2023-09-25 发布 */
   brand: 'DJI',
   name: 'DJI Mini 4 Pro',
   en: 'WM240',

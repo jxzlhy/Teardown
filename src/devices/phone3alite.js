@@ -7,6 +7,7 @@ import { makeDevice, composePostLoad } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'phone3alite',
+  era: 2025,
   name: 'Nothing Phone (3a) Lite',
   en: 'SM683',
   category: '手机',

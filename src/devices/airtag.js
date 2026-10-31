@@ -23,6 +23,7 @@ const builders = {
 
 export default makeDevice({
   id: 'airtag',
+  era: 2021,
   name: 'Apple AirTag',
   en: 'AIRTAG',
   category: '穿戴',

@@ -56,6 +56,7 @@ const builders = {
 
 export default makeDevice({
   id: 'flipper-zero',
+  era: 2020,
   name: 'Flipper Zero',
   en: 'FLIPPER ZERO',
   category: '极客工具',

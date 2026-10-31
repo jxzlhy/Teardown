@@ -17,6 +17,7 @@ const builders = {
 
 export default makeDevice({
   id: 'macbook-pro',
+  era: 2024,
   name: 'Apple MacBook Pro 14″ (M4)',
   en: 'MBP14 2024',
   category: '笔记本',

@@ -21,6 +21,7 @@ const builders = {
 
 export default makeDevice({
   id: 's25-ultra',
+  era: 2025,
   name: 'Samsung Galaxy S25 Ultra',
   en: 'SM-S938U',
   category: '手机',

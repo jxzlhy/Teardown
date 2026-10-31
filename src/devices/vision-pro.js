@@ -24,6 +24,7 @@ const builders = {
 
 export default makeDevice({
   id: 'vision-pro',
+  era: 2024,
   name: 'Apple Vision Pro',
   en: 'A2117',
   category: '头显',

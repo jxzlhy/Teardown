@@ -24,6 +24,7 @@ function postLoad({ partsById }){
 
 export default {
   id: 'avata2',
+  era: 2024,
   brand: 'DJI',
   name: 'DJI Avata 2',
   en: 'WM169',

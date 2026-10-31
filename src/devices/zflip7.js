@@ -18,6 +18,7 @@ const builders = {
 
 export default makeDevice({
   id: 'zflip7',
+  era: 2025,
   name: 'Samsung Galaxy Z Flip7',
   en: 'SM-F766U',
   category: '折叠屏',

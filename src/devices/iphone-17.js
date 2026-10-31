@@ -20,6 +20,7 @@ const builders = {
 
 export default makeDevice({
   id: 'iphone-17',
+  era: 2025,
   name: 'Apple iPhone 17',
   en: 'IPHONE 17 2025',
   category: '手机',

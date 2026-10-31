@@ -1014,3 +1014,26 @@ Phase 3 切片 2：设备级 era 字段（逐台查证发布年，lint 强制格
 
 ### 下一项
 era 逐台查证续批（按品牌分组：DJI 8 台官方页 / Apple 10 台 / 相机与乐器等），或 Phase 4 知识图谱。
+
+## 2026-10-31 · Phase 3 切片 2b：era 查证续批至 64/103
+
+### 改动
+- 29 台特定产品新增 era，全部经 WebSearch 实证：DJI 4（mini4pro 2023-09-25 / avata2 2024-04 /
+  mavic3pro 2023-04 / action5pro 2024-09）、Samsung 5（S25 系 2025-01-22 Unpacked；Fold7/Flip7
+  2025-07-09）、Nothing 2（Phone 3 2025-07、3a Lite 2025-10-29）、Apple 13（Vision Pro 2024-02-02、
+  iPad Pro M4 2024-05、Mac mini M4 2024-10、iPhone Air/17 2025-09、AirPods Max 2020、AirPods Pro 2
+  2022、Watch Ultra 2022、Studio Display 2022、iPad Air M3 2025、iMac M4 2024、MacBook Pro M4 2024、
+  AirTag 2021）、Nintendo 2（Switch OLED 2021-10、Switch 2 2025-06-05）、Flipper Zero 2020-08、
+  Framework Laptop 13 2021、Sony TC-510 约 1977。
+- 诚实跳过：DeWalt D28136（证据仅一条零售列表 ~2010）、Smeg TSF01（官方年份不明）、
+  Nothing Phone (4a) Pro（检索无此型号，身份待证）。38 台通用教学/匿名古董模型 era 不适用。
+
+### 方法论收获
+- 记忆偏差实证纠偏两例：Mini 4 Pro（记忆 2024，实为 2023-09-25）、Osmo Action 4（记忆 2024，
+  实为 2023-08）——"逐台查证"不是形式主义。
+
+### 验证
+- `npm run lint:devices` 103 台全绿（era 覆盖 64/103）；`npm run build` 2.1s；`npm run smoke` 23/23。
+
+### 下一项
+Phase 4 知识图谱（gen-knowledge-graph.mjs 构建期生成 + /graph 路由），或部件级"运行演示"动画集。

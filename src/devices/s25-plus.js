@@ -18,6 +18,7 @@ const builders = {
 
 export default makeDevice({
   id: 's25-plus',
+  era: 2025,
   name: 'Samsung Galaxy S25+',
   en: 'SM-S936U',
   category: '手机',

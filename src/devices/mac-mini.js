@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'mac-mini',
+  era: 2024,
   name: 'Apple Mac mini (M4)',
   en: 'MAC MINI 2024',
   category: '台式机',

@@ -17,6 +17,7 @@ const builders = {
 
 export default makeDevice({
   id: 'framework-laptop13',
+  era: 2021,
   name: 'Framework Laptop 13',
   en: 'FW LAPTOP 13',
   category: '笔记本',

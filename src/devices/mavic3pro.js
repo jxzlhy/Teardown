@@ -36,6 +36,7 @@ function postLoad({ partsById, addLiveScreen }){
 
 export default {
   id: 'mavic3pro',
+  era: 2023,
   brand: 'DJI',
   name: 'DJI Mavic 3 Pro',
   en: 'WM260',

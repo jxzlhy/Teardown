@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'ipad-pro',
+  era: 2024,
   name: 'Apple iPad Pro 13″ (M4)',
   en: 'IPAD PRO M4',
   category: '平板',

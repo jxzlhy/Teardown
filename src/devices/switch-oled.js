@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'switch-oled',
+  era: 2021,
   name: 'Nintendo Switch OLED',
   en: 'HAC-001(-01)',
   category: '游戏机',

@@ -18,6 +18,7 @@ const builders = {
 
 export default makeDevice({
   id: 'zfold7',
+  era: 2025,
   name: 'Samsung Galaxy Z Fold7',
   en: 'SM-F966U',
   category: '折叠屏',

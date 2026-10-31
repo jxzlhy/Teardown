@@ -13,6 +13,7 @@ const builders = {
 
 export default makeDevice({
   id: 'watch-ultra',
+  era: 2022,
   name: 'Apple Watch Ultra',
   en: 'A2684',
   category: '穿戴',

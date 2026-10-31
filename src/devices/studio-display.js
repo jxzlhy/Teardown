@@ -13,6 +13,7 @@ const builders = {
 
 export default makeDevice({
   id: 'studio-display',
+  era: 2022,
   name: 'Apple Studio Display',
   en: 'STUDIO DISPLAY',
   category: '台式机',

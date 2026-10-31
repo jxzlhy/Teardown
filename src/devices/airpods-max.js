@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'airpods-max',
+  era: 2020,
   name: 'Apple AirPods Max',
   en: 'A3217 · USB-C',
   category: '耳机',

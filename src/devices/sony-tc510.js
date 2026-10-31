@@ -7,6 +7,7 @@ import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'sony-tc510',
+  era: 1977,   /* 约 1977–1978 */
   name: 'Sony TC-510 磁带机',
   en: 'SONY TC-510',
   category: '音频',

@@ -14,6 +14,7 @@ const builders = {
 
 export default makeDevice({
   id: 'switch-2',
+  era: 2025,
   name: 'Nintendo Switch 2',
   en: 'HAC-002',
   category: '游戏机',

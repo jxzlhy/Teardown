@@ -15,6 +15,7 @@ const builders = {
 
 export default makeDevice({
   id: 'iphone-air',
+  era: 2025,
   name: 'Apple iPhone Air',
   en: 'IPHONE AIR 2025',
   category: '手机',
