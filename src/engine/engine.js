@@ -560,7 +560,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         /* 替换程序化外观（先归零位置） */
         for(const pid of device.realPartIds){
           const p = state.partsById[pid];
-          if(!byPart[pid]) continue;
+          if(!p || !byPart[pid]) continue;   // 防御：realPartIds 引用了未注册部件时降级为程序化外观
           p.group.clear();
           p.group.add(byPart[pid]);
           p.base.set(0,0,0);
@@ -577,7 +577,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }catch(err){
       if(token !== loadSeq) return;   // 已被新装载/切换取代：不覆盖当前状态
       if(err && err.name === 'AbortError') return;   // 切台/卸载主动中止：正常路径，不当错误打印
-      console.error('GLB 装载/接入失败，保留程序化模型\n', err && err.stack || err);
+      console.error('GLB 装载/接入失败，保留程序化模型\n', (device && device.id) || '?', '\n', err && err.stack || err);
       window.__LOAD_ERR = (err && (err.stack || err.message)) || String(err || 'GLB load failed');
       state.modelStatus = 'FALLBACK · PROCEDURAL';
       if(token === loadSeq) finalize(intro);

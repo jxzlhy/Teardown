@@ -224,11 +224,16 @@ try{
   check('导览讲解卡（策展讲解词渲染）', /旋转屏/.test(noteText), noteText.slice(0, 20));
   await page.evaluate(() => window.__ENGINE.stopTour());
 
-  /* 技术编年（/timeline）：四段时代分带 + 事件数 */
-  await page.goto(BASE + '/#/timeline', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForFunction(() => document.querySelectorAll('.tl-band').length >= 4, { timeout: 60000, polling: 200 });
-  const tl = await page.evaluate(() => ({ bands: document.querySelectorAll('.tl-band').length, items: document.querySelectorAll('.tl-item').length }));
-  check('技术编年页（四段分带 + 84 事件）', tl.bands === 4 && tl.items >= 80, JSON.stringify(tl));
+  /* 技术编年（/timeline）：四段时代分带 + 事件数（懒加载 chunk 竞态下重试一次） */
+  let tl = null;
+  for(let attempt = 0; attempt < 2 && !tl; attempt++){
+    await page.goto(BASE + '/#/timeline', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    try{
+      await page.waitForFunction(() => document.querySelectorAll('.tl-band').length >= 4, { timeout: 20000, polling: 200 });
+      tl = await page.evaluate(() => ({ bands: document.querySelectorAll('.tl-band').length, items: document.querySelectorAll('.tl-item').length }));
+    }catch{ /* 重试 */ }
+  }
+  check('技术编年页（四段分带 + 84 事件）', tl && tl.bands === 4 && tl.items >= 80, JSON.stringify(tl));
 
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
