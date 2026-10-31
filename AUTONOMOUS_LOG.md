@@ -1146,3 +1146,28 @@ Phase 5 扩量（≥10 台，逐台确认轴向）或 L0/reduced-motion 降级�
 ### 下一项
 Phase 5 剩余挂账：L0 静帧策略（已倾向维持）→ 可关闭；转向 Phase 6 沉浸导览升级或 Phase 7
 探索系统（收藏/已探索/徽章，localStorage）。
+
+## 2026-10-31 · Phase 7 切片 1：探索系统 v1（收藏/足迹/徽章）
+
+### 改动
+- `src/lib/explore.js`：dtm.favorites / dtm.explored localStorage（隐私模式静默降级）+ pub-sub
+  同页同步；徽章由数据即时推导（无独立存储、无状态漂移），5 枚：初次拆解 / 五湖四海 /
+  十馆之约 / 跨界考察（3 品牌）/ 收藏家。原则：不打分不排行不弹窗。
+- `GalleryHub`：卡片右上收藏星标（role=button，避免 button 嵌套在 router-link 内的无效 HTML，
+  click.stop.prevent 防误触导航）；顶部「我的探索 · ★n 足迹m」入口；抽屉（徽章/收藏/足迹三节，
+  router-link 深链）。
+- `DeviceViewer`：两处装载完成点 markExplored（挂载首载 + 切台 watcher）；信息浮层收藏按钮
+  （★ 已收藏 / ☆ 收藏 态）。
+- `style.css`：fav-star / exploreDrawer / 徽章胶囊样式（earned = accent 点亮，未获得 = 描边灰）。
+- smoke +1（收藏刷新持久），25 → 26 项。
+
+### 验证
+- `/tmp/verify-explore.mjs` 7/7：清空起点 → 卡片星标收藏 → 设备页自动记足迹（跨品牌验证）→
+  浮层收藏切换 → 刷新持久 → 抽屉分节计数与徽章点亮正确。截图目检抽屉。
+- 调试记录：点击后同帧读 DOM 是 Vue 异步更新（测试脚本改 sleep 后读）；测试数据首次同品牌
+  不满足跨界徽章（换 Commodore 64）。
+- `npm run build` 2.2s；`npm run smoke` 26/26；lint 全绿。
+
+### 下一项
+Phase 6 导览升级（Tour 对象格式 + 三模式）或 Phase 5 收尾（L0 静帧策略已拍板维持）——
+下一个最高价值：大厅「收藏」快捷筛选（已收藏设备一键过滤）。

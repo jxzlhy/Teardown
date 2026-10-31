@@ -2,7 +2,11 @@
   <div class="hub">
     <div class="hub-top">
       <div class="hub-eyebrow"><span class="dot"></span>MULTI-BRAND · TEARDOWN GALLERY</div>
-      <div class="hub-top-meta"><router-link to="/graph" class="graph-link">知识星图 ↗</router-link>VOL.04 — 2026 · {{ totalDevices }} DEVICES</div>
+      <div class="hub-top-meta">
+        <router-link to="/graph" class="graph-link">知识星图 ↗</router-link>
+        <button class="explore-link" @click="drawerOpen = true">我的探索 · ★{{ favs.length }} 足迹{{ Object.keys(explored).length }} ↗</button>
+        VOL.04 — 2026 · {{ totalDevices }} DEVICES
+      </div>
     </div>
 
     <div class="hub-hero">
@@ -106,6 +110,13 @@
             <i v-if="isNc(d.modelCredit)" class="glb-badge nc-badge" title="CC-BY-NC · 非商业许可">NC</i>
           </span>
         </span>
+        <span class="fav-star" :class="{ on: favSet.has(d.id) }" role="button" tabindex="0"
+          :aria-label="(favSet.has(d.id) ? '取消收藏 ' : '收藏 ') + d.name"
+          :title="favSet.has(d.id) ? '取消收藏' : '收藏'"
+          @click.stop.prevent="toggleFav(d.id)"
+          @keydown.enter.stop.prevent="toggleFav(d.id)" @keydown.space.stop.prevent="toggleFav(d.id)">
+          <svg viewBox="0 0 24 24" :fill="favSet.has(d.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.6"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6L3.2 9.4l6.1-.8L12 3z"/></svg>
+        </span>
         <span class="card-arrow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M4 12h15M13 5l7 7-7 7"/>
@@ -121,6 +132,36 @@
       <span class="hub-credit">Switch OLED by rtql8d (CC-BY 4.0) via SceneView</span>
       <span>© 2026 TEARDOWN LAB</span>
     </div>
+
+    <!-- 我的探索抽屉（Phase 7）：收藏 / 已探索 / 徽章；纯本地数据 -->
+    <Transition name="drawer">
+      <aside v-if="drawerOpen" id="exploreDrawer" class="hud-panel">
+        <div class="hub-eyebrow">MY EXPLORE · 我的探索</div>
+        <button class="drawer-close" @click="drawerOpen = false" aria-label="关闭">✕</button>
+        <div class="dw-sec">
+          <h4>徽章 <small>{{ badges.filter(b => b.earned).length }}/{{ badges.length }}</small></h4>
+          <div class="dw-badges">
+            <div v-for="b in badges" :key="b.id" class="dw-badge" :class="{ earned: b.earned }" :title="b.desc">
+              <i>{{ b.earned ? '◆' : '◇' }}</i><span>{{ b.zh }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="dw-sec">
+          <h4>收藏 <small>{{ favDevices.length }}</small></h4>
+          <p v-if="!favDevices.length" class="dw-empty">点击卡片右上角的星标收藏设备</p>
+          <router-link v-for="d in favDevices" :key="d.id" :to="'/device/' + d.id" class="dw-item" @click="drawerOpen = false">
+            {{ d.name }}<i>{{ d.brand }}</i>
+          </router-link>
+        </div>
+        <div class="dw-sec">
+          <h4>已探索 <small>{{ exploredDevices.length }}</small></h4>
+          <p v-if="!exploredDevices.length" class="dw-empty">进入任意设备页即记入足迹</p>
+          <router-link v-for="d in exploredDevices" :key="d.id" :to="'/device/' + d.id" class="dw-item" @click="drawerOpen = false">
+            {{ d.name }}<i>{{ d.brand }}</i>
+          </router-link>
+        </div>
+      </aside>
+    </Transition>
   </div>
 </template>
 
@@ -132,6 +173,10 @@ import devices from 'virtual:device-manifest';
 import { prefetchGlb } from '../engine/glbCache.js';
 import { assetUrl } from '../lib/url.js';
 import { isCommunityModel, modelClassLabel } from '../lib/model-class.js';
+import {
+  getFavorites, toggleFavorite, getExplored, getBadges,
+  BADGE_DEFS, subscribeExplore,
+} from '../lib/explore.js';
 
 /* 设备发布年/年代（era）：number → 年份；'1950s' → 年代串 */
 function eraLabel(d){
@@ -146,6 +191,21 @@ function isNc(credit){
 const router = useRouter();
 const devicesIndexed = devices.map((d, idx) => ({ ...d, idx }));
 const totalDevices = devices.length;
+
+/* ---------- 探索系统（Phase 7）：收藏 / 已探索 / 徽章（纯本地） ---------- */
+const exploreVer = ref(0);
+subscribeExplore(() => { exploreVer.value++; });
+const favs = computed(() => { exploreVer.value; return getFavorites(); });
+const favSet = computed(() => new Set(favs.value));
+const explored = computed(() => { exploreVer.value; return getExplored(); });
+const badges = computed(() => { exploreVer.value; return getBadges(); });
+const drawerOpen = ref(false);
+const favDevices = computed(() => favs.value
+  .map(id => devices.find(d => d.id === id)).filter(Boolean));
+const exploredDevices = computed(() => Object.keys(explored.value)
+  .map(id => devices.find(d => d.id === id)).filter(Boolean)
+  .sort((a, b) => (explored.value[b.id].at || 0) - (explored.value[a.id].at || 0)));
+function toggleFav(id){ toggleFavorite(id); }
 const totalParts = devices.reduce((s, d) => s + d.parts, 0);
 const officialCount = devices.filter(d => d.glb && !isCommunityModel(d)).length;
 const communityCount = devices.filter(d => d.glb && isCommunityModel(d)).length;

@@ -199,6 +199,18 @@ try{
   check('运行演示：风扇段选中旋转', d2 > d1 + 0.2, `Δx=${(d2 - d1).toFixed(2)}`);
   await page.evaluate(() => window.__ENGINE.selectPart(null));
 
+  /* 探索系统（Phase 7）：收藏持久化（localStorage）+ 足迹 */
+  await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.evaluate(() => localStorage.removeItem('dtm.favorites'));
+  await page.waitForSelector('.card', { timeout: 30000 });
+  await page.evaluate(() => document.querySelector('.card .fav-star').click());
+  await sleep(400);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.card', { timeout: 30000 });
+  await sleep(400);
+  const starOn = await page.evaluate(() => document.querySelectorAll('.fav-star.on').length);
+  check('探索系统：收藏刷新后持久', starOn === 1, String(starOn));
+
   /* 测量工具（LAB · Phase 2）：BVH 两点表面取点 + 连线 + mm 标定读数（pocket3 带 realSizeMM） */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => {

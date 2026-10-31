@@ -236,9 +236,14 @@
           <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 ↗</a>
         </div>
         <div class="d-tip">{{ device.glb ? (device.source || '官方实机模型') : '程序化建模' }} · {{ device.parts.length }} 组核心部件</div>
-        <button v-if="compareGroup" class="hud-glow-btn cmp-entry" @click="router.push('/compare/' + compareGroup.id + '?focus=' + device.id)">
-          代际对比 · {{ compareGroup.zh }}（{{ compareGroup.ids.length }} 型）↗
-        </button>
+        <div class="info-actions-row">
+          <button v-if="compareGroup" class="hud-glow-btn cmp-entry" @click="router.push('/compare/' + compareGroup.id + '?focus=' + device.id)">
+            代际对比 · {{ compareGroup.zh }}（{{ compareGroup.ids.length }} 型）↗
+          </button>
+          <button class="hud-glow-btn" :class="{ 'fav-on': deviceFav }" @click="toggleFav(device.id)">
+            {{ deviceFav ? '★ 已收藏' : '☆ 收藏' }}
+          </button>
+        </div>
         <button class="hud-glow-btn primary info-close" @click="infoOpen = false">关闭</button>
       </div>
     </Transition>
@@ -303,6 +308,7 @@ import gsap from 'gsap';
 import { createEngine } from '../engine/engine.js?v=30';
 import { techForPart } from '../knowledge/index.js';
 import { groupOf as compareGroupOf } from '../knowledge/comparisons.js';
+import { markExplored, isFavorite, toggleFavorite as toggleFavStore } from '../lib/explore.js';
 /* 元数据来自构建期清单，完整配置按 id 动态加载：进任意设备只解析这一台 */
 import manifest from 'virtual:device-manifest';
 import { loaders } from 'virtual:device-loaders';
@@ -364,6 +370,10 @@ const techOpen = ref(true);
 watch(() => selectedPart.value && selectedPart.value.id, () => { techOpen.value = true; });
 /* 代际对比入口：设备属于策展对比组时，信息浮层给出入口 */
 const compareGroup = computed(() => compareGroupOf(device.value && device.value.id));
+/* 探索系统（Phase 7）：收藏状态（本地 localStorage） */
+const deviceFav = ref(false);
+watch(() => device.value && device.value.id, (id) => { deviceFav.value = !!(id && isFavorite(id)); }, { immediate: true });
+function toggleFav(id){ deviceFav.value = toggleFavStore(id); }
 /* 视觉原理演示激活提示（示意动画标注） */
 watch(() => ui.value.demoActive, (v, ov) => {
   if(v && v !== ov) showToast('视觉原理演示 · ' + v + '（示意动画，非仿真）', 3400);
@@ -698,6 +708,7 @@ onMounted(async () => {
     if(q.hasE) engine.setExplode(q.e);
     applyDeeplink();
     pushRecent(cfg.id);
+    markExplored(cfg.id, cfg.brand);   // 探索足迹（Phase 7）
   }catch(err){
     if(seq !== loadSeq) return;
     window.__ENGINE_ERR = (err && (err.stack || err.message)) || String(err);
@@ -726,6 +737,7 @@ watch(() => route.params.id, async (id) => {
     if(seq !== loadSeq || !engine) return;
     engine.resetView();
     pushRecent(cfg.id);
+    markExplored(cfg.id, cfg.brand);   // 探索足迹（Phase 7）
   }catch(err){
     if(seq !== loadSeq) return;
     window.__ENGINE_ERR = (err && (err.stack || err.message)) || String(err);
