@@ -739,10 +739,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         ft:controls.target.clone(), tt:CAM_TARGET.clone() };
     }else{
       if(!state.stepMode) return false;
-      /* 先补齐装配再交还爆炸系统，避免两套插值口径跳变 */
+      /* 先补齐装配再交还爆炸系统，避免两套插值口径跳变；退出用更快的补齐速度 */
       state.stepTarget = state.stepGroups.length;
       state.stepExitPending = true;
       state.stepEmitPending = true;
+      state.stepSpeed = 3.2;
     }
     emit();
     return true;
