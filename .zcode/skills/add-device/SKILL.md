@@ -41,6 +41,8 @@ npx @gltf-transform/cli draco out.glb out.glb        # 必须最后一步
 node tools/inspect-glb.mjs public/assets/<id>.glb
 ```
 
+⚠️ **inspect 尺寸可能不含节点 scale（SkinnedMesh 高发）**：GLB 节点自带 scale 时，accessor bbox（inspect 输出）与视觉尺寸可差几十倍（m4-carbine 实锤：节点 scale 0.0479，accessor 4169 vs 视觉 0.42 单位，整机在 CAM_HOME 视角完全不可见，thumbView 自取景会掩盖 2 天）。**接入后必查**：页面里比对 `window.__ENGINE.getState().hullRadius`——若与 inspect 最大维度的一半差一个数量级，按比值补偿 `targetWidth`（例：188 = 9/0.0479），并在配置注释记录依据。
+
 ## 4. 配置设备文件
 
 按 `references/calibration.md` 的决策表填写 `src/devices/<id>.js`：映射方式选择、frontAxis/orientationProbe、normalize、targetWidth 与 camDist、parts 的 ex/lo、屏幕贴图。填完先跑一次 `npm run lint:devices`。
