@@ -1493,3 +1493,29 @@ CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数�
 
 ### 下一项
 并行批次提交授权后统一入库；DeviceViewer 递归 P1 排查；星图剩余 ideas（时间轴联动深化等）按反馈。
+
+## 2026-11-01（追加）· 并行批次入库 + 递归 P1 定性关闭
+
+### 并行批次授权入库（303922b → c8b43f5）
+- 用户确认并行任务结束，批次（UI 重构阶段 A–H + 格物馆更名 + radial-engine 104 台 + 星图 v3）
+  分两笔提交：docs 文档体系（2f8d3cd）+ V2 实现与星图 v3（1c28f35）+ skills 修订（c8b43f5 尾随）。
+- 入库前敏感信息扫描（无命中）+ build/lint/smoke 全绿。
+
+### 递归 P1 定性
+- 18 次图⇄设备压力转换（warnHandler 全程埋伏）+ 5 次原条件复刻（0ms 立切、全新页面）全部 0 复现。
+- 原错误发生时并行会话正在编辑 engine.js/DeviceViewer（mtime 16:23），Vite 瞬时半更新模块图为
+  最可能成因；代码落定后不可复现 → 定性为编辑中途伪影，P1 关闭。
+- 诊断法沉淀：`document.querySelector('#app').__vue_app__.config.warnHandler` 运行时捕获递归
+  warning + Vue 组件 trace（记忆库 graph-view-coordinate-system 已更新）。
+
+### 安全审计
+- Mimosa 深度扫描（覆盖入库批次）：0 发现 · 108 依赖包 · 0 命中公告，已封印
+  （scan-2026-11-01T10-45-16.388Z）。反复出现的钩子"扫描不完整"提示就此清零。
+
+## 2026-11-01（追加）· pinball 弹射板挂账核销 + 批次收尾状态
+
+- pinball「疑似缺右只」：inspect-glb 确认 94 网格均为 Object_N 无语义名（映射走 mapByPosition 材质+位置）；
+  爆炸态选中特写实证 flippers 部件成对（红 rubber + 白 plastic 两个板体网格）——源模型无缺失，BACKLOG 关闭。
+- 并行批次已入库（docs 2f8d3cd + V2 实现 1c28f35 + skills c8b43f5）并推送 Gitee；
+  Mimosa 深度审计覆盖批次：0 发现 · 108 依赖包 · 0 命中公告（已封印）。
+- 递归 P1 定性关闭（编辑中途瞬时态伪影，warnHandler 诊断法入记忆库）。

@@ -17,7 +17,7 @@
 | P3 | ak-47/v8-engine/orrery/computer-parts 面数与在线版偏差的存档说明（slug/作者证据已确认，差异疑为 LOD/重传/转换） | 考据严谨性 | 低 | AUTONOMOUS_LOG 已记录 | 已记录 |
 | P2 | 剖切封盖（stencil）或明确的”无封盖”提示 | 剖切可读性 | 中，涉及渲染改法 | 桌面/移动截图对比 | **已完成（务实方案）**：clip 材质切 DoubleSide 内壁可见 + 半透明 accent 剖切指示板（5129158）；真 stencil 需 EffectComposer RT 带 stencilBuffer（现无，改动波及全管线）→ LATER |
 | P2 | 详情卡部件特写小图（按部件取景） | 详情页完成度 | 中，需扩缩略图管线 | 缩略图脚本 + 截图 | **已完成**（引擎 capturePartThumb 运行时离屏捕获，全量 90 台生效，零管线成本） |
-| P1 | 调查：DeviceViewer 间歇性 "Maximum recursive updates exceeded"——星图点击设备节点进入设备页偶发触发，之后整页 Vue 响应式卡死（星图无法重挂）。隔离探针 6 次仅 1 次复现（时序敏感）；DeviceViewer/engine 为并行会话在途文件（2026-11-01 16:23 仍在改），不盲改 | 随机体验杀手 | 间歇性，难稳定复现 | 复现时抓组件栈；优先查 watch(ui)/emit 载荷互喂 | 待办（并行批次落地后优先） |
+| ~~P1~~ | DeviceViewer 间歇性 "Maximum recursive updates"——**已定性（2026-11-01）**：18 次压力转换 + 5 次原条件复刻均 0 复现；原错误发生于并行会话编辑 engine.js/DeviceViewer 的中途（mtime 16:23），Vite 服务半更新模块图的瞬时态。warnHandler 诊断法已入记忆库；若再现用 `__vue_app__.config.warnHandler` 抓 trace | 随机体验杀手 | 代码落定后不可复现 | `__vue_app__.config.warnHandler` 抓 trace（见记忆 graph-view-coordinate-system） | **已定性关闭（瞬时态伪影）** |
 | P2 | 真实 iOS Safari / Android Chrome 回归（含横屏） | 移动端真实体验 | 需真机/远程设备 | 真机录屏/截图 | 待办（环境缺失；浏览器模拟已覆盖三视口+横屏，性能观察见 AUTONOMOUS_METRICS） |
 | P2 | 系统高负载下 smoke 偶发失败（两类：① loadDevice TypeError 'group' 已加固栈打印；② 2026-11-01 新增——load≈8 时各处 waitForFunction 计时等待偶发超时，jet-engine demo 等待已加固 8s→15s，action4 boot 90s 也偶发）。根因：筛查/缩略图批次遗留无头 Chrome 进程堆积（pkill swiftshader/smoke 实例后恢复 31/31） | 套件稳定性 | 低频（高负载才触发） | 负载<2 时连跑两次 | **缓解已落地**（运行 smoke 前清残留无头 Chrome；负载>5 时结果不作数，重跑为准） |
 | P2 | ~~git 初始化与首次提交~~ → 已完成：Gitee teardown-lab 远程（main，vendor/originals 1.2GB 仅本地备份，.gitignore 注明） | 回滚与协作基础 | 低 | push 成功 6d4a18a/2989033 | **已完成** |
@@ -27,7 +27,7 @@
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
 | P2 | 新设备研究接入：已接 8 台（blender/grinder/pinball/triple-engine/gramophone/smeg/tourbillon-movement/grand-piano/gameboy，达 96 台 31 品牌）；GAP 四缺口全部收官：陀飞轮 ✅ 钢琴 ✅ Game Boy ✅（混合路径：真实外壳+明标注示意内构件，baseRotation 引擎能力）/ 手风琴 ❌ 拆解无解；新设备需新一轮外部调研 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
-| P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | 待办 |
+| P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | **已核关闭（2026-11-01）**：inspect-glb 94 网格全 Object_N 无语义名；爆炸态选中特写实证 flippers 部件含两个网格（红 rubber 板体 + 白 plastic 板体）成对存在，与 desc「这两个部件」一致——源模型无缺失，无需补映射 |
 | P0 | 以下为 2026-10-31《MUSEUM-ROADMAP》研究产出的规划项（详见 docs/MUSEUM-ROADMAP.md 第八部分，验收口径以该文为准） | 记录 | — | — | 已固化 |
 | P1 | Phase 2：three-mesh-bvh 引入（MIT，兼容 0.164）+ 两点测量工具态最小原型（单设备试点，区分原始/展示尺寸） | 补齐实验室基础件 | 中：BVH 构建耗时需 <100ms/设备，超时降级普通 raycast | build + smoke + 无头取点断言 + 移动端工具栏不遮画布 | **已完成**（pocket3 123 几何 ≈20-29ms；smoke 17/17 含 2 项新断言；mobile 触屏通过；pocket3 realSizeMM 标定，其余设备显示"未标定"） |
 | P1 | Phase 2：剖切真封盖（官方 stencil 模式 + 自建 stencilBuffer:true RenderTarget 传 EffectComposer；失败回退现行 DoubleSide 方案） | 剖切可读性 | 中：OutlinePass 顺序需实测；此前的 LATER 项就此转正 | 桌面/移动截图对比 + 切模式 20 次状态还原 | **已完成（剖面玻璃形态）**：stencil 掩码约束的半透明截面版，贴合设备轮廓（含镜头圆孔轮廓）、内腔组件始终可见；实测实心盖板在非水密模型上会灌满内腔（action4/pocket3/v8-engine/orrery 四台实测），半透明是全馆混合拓扑下的安全形态；无 stencil 回退指示板；附带修复"部件注册前切入剖切永不生效"（装载后重放模式）；smoke 18 项 |
