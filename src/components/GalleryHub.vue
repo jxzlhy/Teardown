@@ -11,12 +11,12 @@
         <router-link v-else to="/">常设展</router-link>
         <router-link to="/graph">知识星图</router-link>
         <router-link to="/timeline">技术编年</router-link>
+        <button class="explore-link" @click="drawerOpen = true">我的探索{{ favs.length ? ` · ★${favs.length}` : '' }}{{ Object.keys(explored).length ? ` · 足迹${Object.keys(explored).length}` : '' }}</button>
         <button class="hall-link" @click="toggleLobbyHall" :aria-label="lobbyHall === 'day' ? '切换夜厅' : '切换日厅'">
           <svg v-if="lobbyHall === 'day'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.9 1.9M17.1 17.1L19 19M19 5l-1.9 1.9M6.9 17.1L5 19"/></svg>
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z"/></svg>
           {{ lobbyHall === 'day' ? '夜厅' : '日厅' }}
         </button>
-        <button class="explore-link" @click="drawerOpen = true">我的探索{{ favs.length ? ` · ★${favs.length}` : '' }}{{ Object.keys(explored).length ? ` · 足迹${Object.keys(explored).length}` : '' }}</button>
       </nav>
     </header>
 
