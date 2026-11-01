@@ -573,6 +573,17 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   position:absolute; left:24px; top:50%; transform:translateY(-50%); z-index:5;
   display:flex; flex-direction:column; gap:8px;
 }
+/* 紧凑模式 → 展开切换按钮（V2 用户需求：圆点导航区一键展开详细列表） */
+.rdot-expand{
+  width:30px; height:30px; border-radius:50%;
+  border:1px solid color-mix(in srgb, var(--acc) 40%, transparent);
+  background:rgba(7,13,20,.66); color:var(--acc); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  transition:all var(--dur-1) var(--ease-out);
+}
+.rdot-expand svg{ width:14px; height:14px; }
+.rdot-expand:hover{ background:var(--acc-08); box-shadow:0 0 12px var(--acc-16); }
 .rdot{
   position:relative; width:30px; height:30px; border-radius:50%;
   border:1px solid rgba(120,150,180,.25); background:rgba(7,13,20,.66);
