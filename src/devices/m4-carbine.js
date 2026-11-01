@@ -25,7 +25,11 @@ export default makeDevice({
   source: '社区模型（Sketchfab）',
   modelCredit: 'Low-Poly M4A1 by TastyTony (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/low-poly-m4a1-8cab1cbeb82c4396a154f9fc8771417b',
-  targetWidth: 9,
+  /* targetWidth 补偿（PART-01 实锤 #2，2026-11-01）：本 GLB 是 SkinnedMesh 且节点自带
+     scale=0.0479 未烘入顶点——inspect accessor 尺寸（长 4169）与视觉尺寸差 21.6×，
+     原 targetWidth 9 导致整机仅 0.42 单位长（hullRadius 0.21，CAM_HOME 视角不可见，
+     thumbView 自取景掩盖）。188 = 9/0.0479，视觉枪长恢复 9 单位（hullRadius≈4.5 实测）。 */
+  targetWidth: 188,
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/m4-carbine.glb',

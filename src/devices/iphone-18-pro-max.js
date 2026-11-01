@@ -5,10 +5,7 @@
    映射策略：与 iphone-17 同源的 mapByPosition 位置聚类
 ============================================================= */
 import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
 import { mainboard, battery, cameraModule, chargeCoil, speakerBox, portPcb } from './_kit/internals.js';
-
-const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'IPHONE', carrier: '5G', accent: '#45e0ff' });
 
 const builders = {
   board: (g)=> mainboard(g, { w:5.2, h:3.2, soc:[-1.3,.6], ram:[1.2,.9], label:'APPLE A20 PRO', sub:'2nm · MAIN BOARD', pcb:'#1a2a4a', smalls:18 }),
@@ -97,7 +94,6 @@ export default makeDevice({
       specs:[['接口','USB-C'],['传输','USB 3 级']] },
   ],
   postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({
       board:     { ref:'display', dy: 4.6, dz:-.5 },
       battery:   { ref:'display', dy:-1.8, dz:-.6 },
@@ -107,5 +103,4 @@ export default makeDevice({
       'usb-pcb': { ref:'back-glass', dy:-7.0, dz:.5 },
     }),
   ),
-  tick: screen.tick,
 });

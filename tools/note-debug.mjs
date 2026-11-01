@@ -1,0 +1,22 @@
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 1440, height: 900 });
+await page.goto('http://127.0.0.1:8137/#/device/action4', { waitUntil: 'networkidle2', timeout: 90000 });
+await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted; }, { timeout: 80000, polling: 300 });
+await page.evaluate(() => { const b = [...document.querySelectorAll('#topbar .hud-icon')].find(x => x.getAttribute('aria-label') === '设备总览'); b && b.click(); });
+await new Promise(r => setTimeout(r, 700));
+await page.evaluate(() => { const b = document.querySelector('.rate-expand'); b && b.click(); });
+await new Promise(r => setTimeout(r, 400));
+const r1 = await page.evaluate(() => {
+  const t = document.querySelector('.rate-note');
+  t.value = '测试备注 abc';
+  t.dispatchEvent(new Event('input'));
+  return { val: t.value, count: document.querySelectorAll('.rate-note').length };
+});
+await new Promise(r => setTimeout(r, 400));
+const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('dtm.ratings') || '{}')['action4'] || null);
+console.log(JSON.stringify({ r1, saved }), null, 1);
+await browser.close();

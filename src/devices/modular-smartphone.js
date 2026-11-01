@@ -5,10 +5,7 @@
    （contactsyellow）；屏朝 -x（FrontGlass x=-0.3 vs BackGlass
    x=+0.3 实测）→ frontAxis '-x'。零程序化补件。
 ============================================================= */
-import { makeDevice, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
-
-const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'MODULAR', carrier: '5G', accent: '#f2b544' });
+import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'modular-smartphone',
@@ -91,8 +88,4 @@ export default makeDevice({
       desc:'真实主板网格：电路板纹理直接可见，与中框触点阵列对位插接——主板本身也是一个「模块」。',
       specs:[['形态','插接式主板'],['纹理','电路走线可见'],['连接','触点直连']] },
   ],
-  postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
-  ),
-  tick: screen.tick,
 });

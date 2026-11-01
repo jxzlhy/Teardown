@@ -1,0 +1,15 @@
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 844, height: 390, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+await page.goto('http://127.0.0.1:8137/#/device/action4', { waitUntil: 'networkidle2' });
+await new Promise(r => setTimeout(r, 8000));
+await page.screenshot({ path: new URL('../docs/design/screenshots/h2-workspace-landscape.png', import.meta.url).pathname });
+console.log('landscape workspace shot');
+await page.goto('http://127.0.0.1:8137/#/', { waitUntil: 'networkidle2' });
+await new Promise(r => setTimeout(r, 2500));
+await page.screenshot({ path: new URL('../docs/design/screenshots/h2-lobby-landscape.png', import.meta.url).pathname });
+console.log('landscape lobby shot');
+await browser.close();

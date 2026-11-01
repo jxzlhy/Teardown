@@ -84,7 +84,7 @@ const rows = computed(() => {
 #compareView{ position:fixed; inset:0; background:#04070c; overflow:hidden; }
 #cmpBar{ position:absolute; left:16px; right:16px; top:12px; z-index:5; display:flex; align-items:center; gap:14px; padding:10px 14px; }
 .gb-title{ flex:1; min-width:0; }
-.gb-title h2{ margin:3px 0 0; font-size:13px; font-weight:600; color:var(--txt-1); font-family:var(--sans); }
+.gb-title h2{ margin:3px 0 0; font-family:var(--name); font-size:17px; font-weight:800; letter-spacing:.06em; color:var(--txt-1); }
 .cmp-note{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--txt-dim); flex:none; }
 #cmpScroll{ position:absolute; inset:74px 16px 16px; overflow:auto; }
 .cmp-table{ border-collapse:separate; border-spacing:0 4px; width:100%; min-width:640px; }
@@ -92,6 +92,7 @@ const rows = computed(() => {
   padding:9px 12px; font-size:11.5px; line-height:1.7; text-align:left;
   background:rgba(7,13,20,.55); vertical-align:top;
 }
+.cmp-table tbody tr:hover td{ background:rgba(69,224,255,.05); }
 .cmp-table td{ color:#aebfd2; font-family:var(--sans); }
 .cmp-table td:first-of-type, .cmp-table th.cmp-rowhead{
   position:sticky; left:0; z-index:2; color:var(--txt-2);
@@ -101,7 +102,7 @@ const rows = computed(() => {
 .cmp-table thead th{ background:none; }
 .cmp-dev{ display:flex; flex-direction:column; gap:6px; min-width:150px; color:var(--txt-1); text-decoration:none; }
 .cmp-dev img{ width:100%; aspect-ratio:19/12; object-fit:cover; border-radius:7px; background:#060b12; }
-.cmp-dev b{ font-size:12px; font-family:var(--sans); }
+.cmp-dev b{ font-family:var(--name); font-size:14px; font-weight:800; letter-spacing:.03em; }
 .cmp-era{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--acc-dim); font-style:normal; }
 .cmp-dev:focus-visible, .cmp-table td.diff{ outline:none; }
 td.diff{ box-shadow:inset 3px 0 0 color-mix(in srgb, var(--acc) 55%, transparent); }

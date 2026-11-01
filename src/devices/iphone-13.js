@@ -5,10 +5,7 @@
    资产 0.01×0.15×0.07 米 Y 直立，materialMapping 映射
 ============================================================= */
 import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
 import { mainboard, battery, cameraModule, chargeCoil, portPcb } from './_kit/internals.js';
-
-const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'IPHONE', carrier: '5G', accent: '#b7a6e3' });
 
 const builders = {
   board: (g)=> mainboard(g, { w:4.8, h:3.0, soc:[-1.2,.5], ram:[1.1,.8], label:'APPLE A15', sub:'820-0xxxx · MAIN BOARD', pcb:'#1a2a4a', smalls:16 }),
@@ -75,10 +72,10 @@ export default makeDevice({
       ex:[.8,2.6,-.6], lo:[0,1.0,0], tag:'双色温 LED',
       desc:'后置双色温闪光灯：与斜排双摄同处相机岛，按环境色温混合冷暖光。',
       specs:[['类型','双色温 LED']] },
-    { id:'speaker', zh:'扬声器', en:'SPEAKER MODULE', real:true,
-      ex:[1.7,-2.8,-.6], lo:[0,1.0,0], tag:'底部主扬声器',
-      desc:'底部主扬声器与顶部听筒组成立体声双扬，支持杜比全景声与空间音频。',
-      specs:[['配置','立体声双扬']] },
+    { id:'speaker', zh:'听筒（顶部扬声器）', en:'EARPIECE', real:true,
+      ex:[1.7,-2.8,-.6], lo:[0,1.0,0], tag:'立体声双扬之一',
+      desc:'顶部听筒单元（ip_speaker_blk 网格实测位于机身顶部）：与底部主扬声器组成立体声双扬，支持杜比全景声与空间音频。底部主扬声器与尾插小板在模型中同属底部组件区。',
+      specs:[['配置','立体声双扬之一'],['位置','顶部（听筒）']] },
     { id:'internals', zh:'内部结构层', en:'INTERNAL LAYER', real:true,
       ex:[-.6,.6,-1.6], lo:[0,1.1,0], tag:'屏蔽罩 · 支架细节',
       desc:'模型内可见的内部结构细节：螺丝位、内部支撑与屏蔽件——社区建模者连内部朝向的细节都做了还原。',
@@ -105,7 +102,6 @@ export default makeDevice({
       specs:[['接口','Lightning'],['快充','20W PD']] },
   ],
   postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({
       board:     { ref:'display', dy: 4.2, dz:-.5 },
       battery:   { ref:'display', dy:-1.7, dz:-.6 },
@@ -114,5 +110,4 @@ export default makeDevice({
       'usb-pcb': { ref:'back-glass', dy:-6.4, dz:.5 },
     }),
   ),
-  tick: screen.tick,
 });

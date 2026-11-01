@@ -5,10 +5,7 @@
    资产 cm 尺度、Y 宽度轴、Z 长轴（高 14.4cm）、屏幕朝 +x
    （screen x=+0.37 vs back-cover x=-0.40 实测）→ frontAxis '+x'
 ============================================================= */
-import { makeDevice, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
-
-const screen = makePhoneScreen({ w: 580, h: 1256, brand: 'IPHONE', carrier: '5G', accent: '#4f8fd9' });
+import { makeDevice } from './_kit/factory.js';
 
 export default makeDevice({
   id: 'iphone-12-teardown',
@@ -26,6 +23,7 @@ export default makeDevice({
     ['网络','5G（iPhone 首次）'],['重量','162 g'],
   ],
   accent: '#4f8fd9',
+  quality: 'A',   /* 2026-11-01 核验：159 网格全语义命名、原生真实 iOS 屏（SCR-01 已修）、23 部件拆解/复位实测 */
   source: '社区拆解模型（Sketchfab）',
   modelCredit: 'iPhone 12 Teardown by better_peter (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/iphone-12-teardown-708eaa5d195544918e5f70b69eedcdfa',
@@ -168,8 +166,6 @@ export default makeDevice({
       desc:'未归入以上部件的零碎网格：装饰件、缓冲垫等细碎结构归集处。',
       specs:[['构成','细碎结构件']] },
   ],
-  postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
-  ),
-  tick: screen.tick,
+  /* screen: native —— 原生 mat_screen 贴图即真实 iOS 14 主屏/锁屏（screen-audit 2026-11-01），
+     禁止叠加 painted 虚拟 UI（假 UI 会遮盖真屏，任务书 SCR-01） */
 });

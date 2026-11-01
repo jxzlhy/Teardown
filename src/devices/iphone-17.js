@@ -4,10 +4,7 @@
    背部相机岛为竖向椭圆胶囊 → 按位置聚类（哈希网格名）
 ============================================================= */
 import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
 import { mainboard, battery, cameraModule, chargeCoil, speakerBox, portPcb } from './_kit/internals.js';
-
-const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'IPHONE', carrier: '5G', accent: '#45e0ff' });
 
 const builders = {
   board: (g)=> mainboard(g, { w:4.8, h:3.0, soc:[-1.2,.5], ram:[1.1,.8], label:'APPLE A19', sub:'820-0xxxx · MAIN BOARD', pcb:'#1a2a4a', smalls:16 }),
@@ -93,7 +90,6 @@ export default makeDevice({
       specs:[['接口','USB-C 2.0'],['快充','40W PD']] },
   ],
   postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({
       board:     { ref:'display', dy: 4.4, dz:-.5 },
       battery:   { ref:'display', dy:-1.6, dz:-.6 },
@@ -103,5 +99,4 @@ export default makeDevice({
       'usb-pcb': { ref:'back-glass', dy:-6.6, dz:.5 },
     }),
   ),
-  tick: screen.tick,
 });

@@ -1,8 +1,8 @@
 # 已有模型清单（防重复登记表 · 自动生成）
 
-> 生成时间：2026-10-31 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
+> 生成时间：2026-11-01 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**103 台设备** · 815 个部件 · 103 套 GLB · 38 个品牌
+> 当前：**104 台设备** · 815 个部件 · 104 套 GLB · 38 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -83,7 +83,7 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | nikon-d6 | Nikon D6 | 相机 | 9 | 社区 | nikon-d6.glb | 3.3 MB |
-| nikon-z6 | Nikon Z6 | 相机 | 8 | 社区 | nikon-z6.glb | 3.9 MB |
+| nikon-z6 | Nikon Z6 | 相机 | 5 | 社区 | nikon-z6.glb | 3.9 MB |
 
 ### PORSCHE（2 台）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（29 台）
+### GENERIC（30 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -131,6 +131,7 @@
 | triple-engine | 直列三缸摩托车发动机 | 发动机 | 10 | 社区 | triple-engine.glb | 618 KB |
 | gramophone | 手摇留声机 | 影音 | 4 | 社区 | gramophone.glb | 924 KB |
 | grand-piano | 三角钢琴（活动击弦机） | 乐器 | 7 | 社区 | grand-piano.glb | 105 KB |
+| radial-engine | 星型活塞发动机 | 机械 | 3 | 社区 | radial-engine.glb | 5.0 MB |
 
 ### KALASHNIKOV（1 台）
 

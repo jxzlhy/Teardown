@@ -87,7 +87,6 @@
 .hud-chip.on{
   color:var(--acc); border-color:var(--acc); background:var(--acc-08);
   box-shadow:0 0 12px var(--acc-16), inset 0 0 8px var(--acc-08);
-  transform:scale(1.04);
 }
 
 /* HUD 图标按钮（dock 用）：40×40，内嵌 18px SVG，hover 提亮 + tooltip */
@@ -122,6 +121,22 @@
   width:6px; height:6px; border-radius:50%; background:var(--acc);
   box-shadow:0 0 10px var(--acc); animation:hudPulse 1.8s infinite;
 }
-.hud-dot.ok{ background:#4ce88a; box-shadow:0 0 10px #4ce88a; }
-.hud-dot.warn{ background:#f0b429; box-shadow:0 0 10px #f0b429; }
+.hud-dot.ok{ background:var(--ok); box-shadow:0 0 10px var(--ok); }
+.hud-dot.warn{ background:var(--warn); box-shadow:0 0 10px var(--warn); }
 @keyframes hudPulse{ 0%,100%{ opacity:1 } 50%{ opacity:.3 } }
+
+/* ---------- 键盘焦点环（全站统一，审计 P1-4） ---------- */
+.chip:focus-visible, .hud-chip:focus-visible, .hud-glow-btn:focus-visible,
+.hud-icon:focus-visible, .tb-back:focus-visible, .prow:focus-visible,
+.gb-chip:focus-visible, .drawer-close:focus-visible, .hr-chip:focus-visible,
+.explore-link:focus-visible, .graph-link:focus-visible, .step-btn:focus-visible,
+.fav-star:focus-visible, .rdot:focus-visible, .rail-head:focus-visible,
+.tech-head:focus-visible, .card:focus-visible, .p-label:focus-visible{
+  outline:2px solid var(--acc); outline-offset:2px; border-radius:6px;
+}
+.card:focus-visible{ outline-offset:3px; }
+
+/* 顶栏内 tooltip 向下弹（审计 P2-3：向上会贴视口顶被裁） */
+.hud-icon .tip-below{
+  top:calc(100% + 9px); bottom:auto;
+}

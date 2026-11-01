@@ -39,7 +39,7 @@ for(const d of devices){
   const brandId = 'brand:' + (d.brand || 'OTHER');
   const deviceId = 'device:' + d.id;
   addNode(brandId, 'brand', d.brand || 'OTHER', { count: 0 });
-  addNode(deviceId, 'device', d.name, { device: d.id, category: d.category, era: d.era ?? null, community: isCommunityModel(d) });
+  addNode(deviceId, 'device', d.name, { device: d.id, category: d.category, era: d.era ?? null, year: eraYear(d.era), community: isCommunityModel(d) });
   addLink(brandId, deviceId, 'produces');
 
   const techsHit = new Set();
@@ -48,7 +48,7 @@ for(const d of devices){
     addNode(partId, 'part', p.zh || p.id, { part: p.id });
     addLink(deviceId, partId, 'has-part');
     const t = techForPart(p.id);
-    if(t && t.principle){ techsHit.add(t.id); addNode('tech:' + t.id, 'tech', t.zh, { tech: t.id }); }
+    if(t && t.principle){ techsHit.add(t.id); addNode('tech:' + t.id, 'tech', t.zh, { tech: t.id, year: inventedYear(t.invented) }); }
   }
   for(const tid of techsHit) addLink(deviceId, 'tech:' + tid, 'uses');
 }
@@ -80,3 +80,15 @@ const out = {
 const dest = path.join(ROOT, 'public', 'knowledge-graph.json');
 fs.writeFileSync(dest, JSON.stringify(out));
 console.log(`✓ knowledge-graph.json · 设备 ${out.stats.devices} · 品牌 ${out.stats.brands} · 部件类 ${out.stats.parts} · 技术 ${out.stats.techs} · 连边 ${out.stats.links} · ${(fs.statSync(dest).size/1024).toFixed(0)}KB`);
+
+/* era（数字年份或 '1950s' 年代串）/ invented（容忍 '约 1300'、'约公元前 150'）→ 排序年 */
+function eraYear(era){
+  if(era == null) return null;
+  return typeof era === 'string' ? parseInt(era, 10) + 5 : era;
+}
+function inventedYear(s){
+  if(s == null) return null;
+  const m = String(s).match(/(\d{3,4})/);
+  if(!m) return null;
+  return /公元前/.test(s) ? -parseInt(m[1], 10) : parseInt(m[1], 10);
+}

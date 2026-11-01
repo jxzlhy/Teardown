@@ -21,6 +21,7 @@ export default makeDevice({
     ['用途','结构教学 · 拆解演示'],['来源','社区模型（Sketchfab）'],
   ],
   accent: '#8a8f98',
+  quality: 'B',   /* 2026-11-01 核验：拆解布局/部件语义/曲轴活塞演示实测；活塞缸轴方向为位置推断，气门传动细节待核 */
   source: '社区模型（Sketchfab）',
   modelCredit: 'Disassembled V8 Engine Block by Tomasoo (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/disassembled-v8-engine-block-3026bd87ca3945d6829d24c86ce695f0',
@@ -30,6 +31,14 @@ export default makeDevice({
   glb: '/assets/v8-engine.glb',
   /* 策展导览：曲轴→活塞→双缸盖→进气→双排气→前驱动附件（X-Ray 走 realPartIds 兜底全透明） */
   tour: ['crank','pistons','head-l','head-r','intake','exhaust-l','exhaust-r','front-drive'],
+  /* 运行演示（engine runDemos；示意标注由选中 toast 承担）：
+     crank 绕自身长轴（Z）旋转；pistons 沿各自 bank 缸轴往复，
+     相位按曲轴 Z 投影分桶为交叉曲柄 [0,90,270,180] —— 90° V8 点火关系 */
+  demos: [
+    { partId: 'crank', label: '曲轴旋转 · 交叉平面四销曲轴', spinPivot: 'center', spin: [0, 0, 1.5] },
+    { partId: 'pistons', label: '活塞往复 · 90° V8 点火相位',
+      stroke: { axisL: [-0.7, 0.7, 0], axisR: [0.7, 0.7, 0], crankAxis: [0, 0, 1], splitX: 0.2, amp: 0.3, f: 1.05 } },
+  ],
   mapByPosition(name, p, rel){
     if(rel.z < 0.35 && rel.y > 0.4) return 'front-drive';
     if(rel.y > 0.72) return rel.x > 0.5 ? 'head-r' : 'head-l';

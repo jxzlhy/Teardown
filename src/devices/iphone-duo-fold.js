@@ -5,10 +5,7 @@
    映射：rel.z 分层 + rel.x 分左右半区 + 细长小件判铰链
 ============================================================= */
 import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
 import { mainboard, battery, chargeCoil, speakerBox, portPcb } from './_kit/internals.js';
-
-const screen = makePhoneScreen({ w: 1080, h: 800, brand: 'IPHONE', carrier: '5G', accent: '#7fb8d8' });
 
 const builders = {
   board: (g)=> mainboard(g, { w:4.2, h:3.0, soc:[-1.1,.5], ram:[1.0,.8], label:'APPLE A20', sub:'FOLD · MAIN BOARD', pcb:'#1a2a4a', smalls:16 }),
@@ -90,7 +87,6 @@ export default makeDevice({
       specs:[['接口','USB-C'],['位置','底部居中']] },
   ],
   postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({
       board:     { ref:'frame', dy: 3.6, dz:-.5 },
       battery:   { ref:'back-r', dy:-3.4, dz:-.5 },
@@ -99,5 +95,4 @@ export default makeDevice({
       'usb-pcb': { ref:'back-r', dy:-5.4, dz:.5 },
     }),
   ),
-  tick: screen.tick,
 });

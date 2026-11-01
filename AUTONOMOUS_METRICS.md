@@ -45,3 +45,20 @@
 | prefers-reduced-motion | 未处理 | 开场/缓动/浮动/自转/CSS 动画全部降级，7/7 通过 | Chrome 媒体特性模拟 + 无头断言 |
 | 生产预览回归 | 未做 | 13/13 通过（大厅 + action4 + 6 机型 + 移动端） | `vite preview` + 无头 Chrome |
 | 缩略图管线（按需加载后） | 未验证 | 3/3 成功，画面与设备一致 | `npm run thumbs -- --only action4,switch-2,marshall-jcm800` |
+
+## 2026-10-31 · R7 名字层字体（思源宋体 Heavy）
+
+| 指标 | 值 | 备注 |
+|---|---|---|
+| dist 字体资产 | +196 文件 / 7.3MB | @fontsource/noto-serif-sc 900（woff2+woff 双格式，unicode-range 分片） |
+| 运行时首屏字体请求 | ~19 分片 | 门厅页实测 performance entries；按 unicode-range 懒加载 |
+| dist 总量 | 243MB | 其中模型/缩略图等 public 资产 ~236MB（字体占比 ~3%） |
+| document.fonts | 'Noto Serif SC 900' loaded | fonts.check('900 "Noto Serif SC"','格物馆') = true |
+
+## 2026-10-31 · R8 名字层终选黑体（思源黑体 Black）
+
+| 指标 | 值 | 备注 |
+|---|---|---|
+| 字体资产 | 196 文件 / 5.6MB | @fontsource/noto-sans-sc 900（较宋体版 7.3MB -1.7MB） |
+| 字体校验 | fonts.check('900 "Noto Sans SC"','格物馆') = true | macOS headless Chrome |
+| 构建 | 2.18s ✓ | smoke 首跑超时为 Vite 冷启动预打包，复跑 28/28 |

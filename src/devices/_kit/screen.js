@@ -1,6 +1,12 @@
 /* =============================================================
    共享手机实时屏幕：黄昏取景壁纸 + 时钟/状态栏 UI
    返回 { canvas, tex, tick, hook }，hook 里调 addLiveScreen
+   ── 屏幕方案策略（2026-11-01 通宵迭代 SCR-01/02，审计 docs/AUDIT-3D-AUTHENTICITY.md）──
+   仅当设备 GLB 的 display 网格【无原生屏幕贴图】时才允许使用本 API（painted 方案）；
+   原生贴图已含真实系统界面/官方壁纸的设备（iphone-12-teardown、iphone-13、iphone-17、
+   iphone-18-pro-max、iphone-18-pro-max-burgundy、iphone-duo-fold、galaxy-s22-ultra、
+   modular-smartphone）已拆除 painted 接线，禁止再加第二层。
+   接入新设备时先跑 tools/screen-audit.mjs 判定，并在配置中留「screen: native|painted」注释。
 ============================================================= */
 import * as THREE from 'three';
 import { paintPreviewScene } from '../../engine/previewScene.js';
@@ -43,7 +49,7 @@ export function makePhoneScreen({ w=560, h=1212, brand='IPHONE', carrier='5G', a
     g.strokeStyle = 'rgba(140,190,230,.25)'; g.lineWidth = 2; g.stroke();
     g.textAlign = 'left';
     g.fillStyle = accent; g.font = '600 26px ' + ZH_FONT;
-    g.fillText('拆解馆', nx + 30, ny + 46);
+    g.fillText('格物馆', nx + 30, ny + 46);
     g.fillStyle = 'rgba(226,238,248,.88)'; g.font = '500 28px ' + ZH_FONT;
     g.fillText('欢迎回来 — 试试一键拆解', nx + 30, ny + 92);
     /* Dock */

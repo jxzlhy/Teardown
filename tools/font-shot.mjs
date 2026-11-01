@@ -1,0 +1,15 @@
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const OUT = new URL('../docs/design/screenshots/', import.meta.url).pathname;
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+await page.goto('http://127.0.0.1:8137/#/', { waitUntil: 'networkidle2', timeout: 45000 });
+await page.evaluate(async () => { await document.fonts.ready; });
+await new Promise(r => setTimeout(r, 1200));
+const title = await page.$('.hub-title');
+await title.screenshot({ path: `${OUT}r7-title-font.png` });
+await page.screenshot({ path: `${OUT}r7-lobby-font.png` });
+console.log('ok');
+await browser.close();

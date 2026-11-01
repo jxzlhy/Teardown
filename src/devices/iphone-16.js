@@ -106,6 +106,7 @@ export default makeDevice({
       desc:'USB-C 尾插小板：充电与 USB 2.0 数据走线，底部麦克风也在此板。',
       specs:[['接口','USB-C 2.0']] },
   ],
+  /* screen: painted —— display 无原生贴图（screen-audit 2026-11-01），painted UI 为唯一屏方案 */
   postLoad: composePostLoad(
     ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({

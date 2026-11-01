@@ -63,5 +63,35 @@ for(const t of technologies){
 
 const stubs = technologies.filter(t => !(typeof t.principle === 'string' && t.principle.trim()));
 console.log(`  · 已编写 ${technologies.length - stubs.length} / ${technologies.length}（占位待编写 ${stubs.length}）`);
+
+/* ---------- 品牌档案校验 ---------- */
+const brands = (await import(pathToFileURL(path.join(ROOT, 'src/knowledge/brands.js')).href)).default;
+const brandIds = new Set(brands.map(b => b.id));
+const regBrands = [...new Set(devices.map(d => d.brand || 'OTHER'))];
+const KINDS = ['company', 'agency', 'designer', 'author', 'generic'];
+console.log(`品牌档案 · ${brands.length} 条 / registry ${regBrands.length} 个品牌`);
+const seenBrand = new Set();
+for(const b of brands){
+  const at = (m) => `brands[${b.id || '?'}] ${m}`;
+  if(!b.id || typeof b.id !== 'string'){ fail(at('缺少 id')); continue; }
+  if(seenBrand.has(b.id)) fail(at('id 重复'));
+  seenBrand.add(b.id);
+  if(!KINDS.includes(b.kind)) fail(at(`kind 非法："${b.kind}"（允许 ${KINDS.join('/')}）`));
+  /* 事实性字段必须有来源；未核证品牌只登记 kind（UI 显示「档案待考」） */
+  const hasFact = b.founded != null || (b.note && b.note.trim());
+  if(hasFact && (!Array.isArray(b.sources) || b.sources.length < 1)){
+    fail(at('founded/note 非空但无 sources（禁止无来源的品牌史料）'));
+  }
+  if(Array.isArray(b.sources)){
+    for(const s of b.sources){
+      if(!s.url || !/^https:\/\//.test(s.url)) fail(at(`sources url 必须 https："${s.url}"`));
+      if(!s.label) fail(at('sources 缺少 label'));
+    }
+  }
+}
+for(const id of regBrands){
+  if(!brandIds.has(id)) fail(`registry 品牌 "${id}" 无品牌档案（brands.js 补登记，kind=author/generic 亦可）`);
+}
+console.log(`  · 已核证 ${brands.filter(b => b.confidence === 'verified-3rd').length} / ${brands.length}（待考/社区 ${brands.filter(b => b.confidence !== 'verified-3rd').length}）`);
 if(bad){ console.log(`\n✗ 知识库校验失败 ${bad} 项`); process.exit(1); }
 console.log('✓ 知识库校验通过');

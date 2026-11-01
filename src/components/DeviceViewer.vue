@@ -1,6 +1,6 @@
 <template>
-  <div class="viewer" :class="{ immersive: immersiveMode, thumb: thumbMode, 'rail-open': railOpen, 'mp': isMobile, 'has-sheet': !!selectedPart && isMobile }" :style="{ '--sheet-h': sheetH + 'px' }">
-    <canvas id="scene" ref="canvasRef"></canvas>
+  <div class="viewer" :class="{ immersive: immersiveMode, thumb: thumbMode, 'rail-open': railOpen, 'mp': isMobile, 'has-sheet': !!selectedPart && isMobile, 'clip-on': ui.viewMode === 'clip', 'has-vstrip': viewStripOpen }" :style="{ '--sheet-h': sheetH + 'px' }">
+    <canvas id="scene" ref="canvasRef" @pointerdown="viewPreset = null"></canvas>
     <div id="labels" ref="labelsRef"></div>
     <div id="fx-scan"></div>
     <div v-if="bootScanRun" id="bootScan" class="hud-scan once"></div>
@@ -13,7 +13,7 @@
 
     <!-- 顶部细导航条 -->
     <header v-if="!thumbMode" id="topbar" class="hud-panel hud-corner">
-      <router-link class="tb-back" to="/" aria-label="返回大厅">
+      <router-link class="tb-back" to="/" aria-label="返回门厅">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
       </router-link>
       <div class="tb-name">
@@ -25,17 +25,26 @@
       </span>
       <button class="hud-icon" :class="{ on: infoOpen }" @click="infoOpen = !infoOpen" aria-label="设备总览">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v6"/></svg>
-        <span class="tip">总览</span>
+        <span class="tip tip-below">总览</span>
       </button>
     </header>
 
-    <!-- 左侧部件清单：可折叠 rail -->
+    <!-- 左侧部件清单：可折叠 rail（两种导航模式：清单列表 / 宫格面板，V2） -->
     <aside v-if="!thumbMode" id="rail" class="hud-panel" :class="{ open: railOpen }">
-      <button class="rail-head" @click="toggleRail">
-        <span class="hud-eyebrow">部件清单 · {{ device.parts.length }}</span>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
-      </button>
-      <div class="rail-list">
+      <div class="rail-head">
+        <button class="rail-toggle" @click="toggleRail" :aria-expanded="railOpen ? 'true' : 'false'" title="展开 / 收起部件导航（紧凑 ↔ 展开）">
+          <span class="hud-eyebrow">部件清单 · {{ device.parts.length }}</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="rail-mode" @click="toggleRailMode" :title="railMode === 'list' ? '切换宫格导航' : '切换清单导航'" :aria-label="railMode === 'list' ? '切换宫格导航' : '切换清单导航'">
+          <svg v-if="railMode === 'list'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3.5" y="3.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.4"/>
+            <rect x="3.5" y="13.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.4"/>
+          </svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+      <div class="rail-list" v-if="railMode === 'list'">
         <button v-for="(p, i) in device.parts" :key="p.id"
           class="prow" :class="{ active: ui.selected === p.id }"
           @click="pickFromList(p.id)"
@@ -44,6 +53,16 @@
           <span class="idx">{{ String(i+1).padStart(2,'0') }}</span>
           <span class="pname">{{ p.zh }}</span>
           <span class="pen">{{ p.en.split(' ')[0] }}</span>
+        </button>
+      </div>
+      <div class="rail-grid" v-else>
+        <button v-for="(p, i) in device.parts" :key="p.id"
+          class="gcell" :class="{ active: ui.selected === p.id }"
+          @click="pickFromList(p.id)"
+          @pointerenter="engine && engine.setHover(p.id)"
+          @pointerleave="engine && engine.setHover(null)">
+          <b>{{ String(i+1).padStart(2,'0') }}</b>
+          <span>{{ p.zh }}</span>
         </button>
       </div>
     </aside>
@@ -72,7 +91,7 @@
     <Transition name="ctx">
       <aside v-if="selectedPart && !thumbMode" id="ctxCard" ref="sheetEl" class="hud-panel hud-corner" :key="selectedPart.id">
         <div class="sheet-grip" @click="closeDetail"><i></i></div>
-        <div class="hud-eyebrow ctx-eyebrow">PART {{ String(partIndex+1).padStart(2,'0') }} / {{ device.parts.length }} · {{ selectedPart.en }}</div>
+        <div class="hud-eyebrow ctx-eyebrow">展签 SPECIMEN · {{ String(partIndex+1).padStart(2,'0') }} / {{ device.parts.length }}</div>
         <div class="ctx-thumb-wrap">
           <img v-if="partThumb" class="ctx-thumb" :src="partThumb" alt="" aria-hidden="true">
         </div>
@@ -110,8 +129,8 @@
       </aside>
     </Transition>
 
-    <!-- 底部图标 dock -->
-    <div v-if="!thumbMode" id="dock" class="hud-panel">
+    <!-- 底部图标 dock（点击任意工具时收起二级菜单条——V2 第四章 4.2 统一菜单管理） -->
+    <div v-if="!thumbMode" id="dock" class="hud-panel" @click.capture="onDockClick">
       <div class="dock-group">
         <button class="hud-glow-btn primary dock-explode" id="btnExplode"
           @click="toggleExplode"
@@ -134,6 +153,7 @@
       </div>
       <div class="tb-sep"></div>
       <div class="dock-group">
+        <span class="dock-glabel" aria-hidden="true">视图</span>
         <button class="hud-icon" :class="{ on: !ui.viewMode }" @click="engine && engine.setMode(null)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zM12 11L4 6.5M12 11l8-4.5M12 11v9"/></svg>
           <span class="tip">整机 <kbd>1</kbd></span>
@@ -161,6 +181,15 @@
       </div>
       <div class="tb-sep"></div>
       <div class="dock-group">
+        <button class="hud-icon" :class="{ on: viewStripOpen }" @click="viewStripOpen = !viewStripOpen" aria-label="视角预设">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke-dasharray="2.5 2.5"/></svg>
+          <span class="tip">视角 <kbd>V</kbd></span>
+        </button>
+        <button class="hud-icon" :class="{ on: hall === 'day' }" @click="toggleHall" aria-label="白天/黑夜双厅">
+          <svg v-if="hall === 'day'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.9 1.9M17.1 17.1L19 19M19 5l-1.9 1.9M6.9 17.1L5 19"/></svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z"/></svg>
+          <span class="tip">{{ hall === 'day' ? '夜厅' : '日厅' }} <kbd>N</kbd></span>
+        </button>
         <button class="hud-icon" :class="{ on: ui.labelsMode && ui.labelsMode !== 'off' }" @click="cycleLabels">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><path d="M9 12h6"/></svg>
           <span class="tip">标签 {{ labelsName }} <kbd>L</kbd></span>
@@ -193,16 +222,25 @@
       </div>
     </div>
 
-    <!-- 剖切高度滑杆（剖切模式激活时出现） -->
-    <div v-if="!thumbMode && ui.viewMode === 'clip'" id="clipStrip" class="hud-panel">
+    <!-- 剖切高度滑杆（剖切模式激活时出现；浮层栈位由 floatSlots 统一协调） -->
+    <div v-if="!thumbMode && ui.viewMode === 'clip'" id="clipStrip" class="hud-panel" :style="{ bottom: floatY(floatSlots.clip) }">
       <label>切面高度</label>
       <input type="range" min="0" max="1000" :value="Math.round((ui.clipT ?? .62) * 1000)"
         :style="{ '--p': Math.round((ui.clipT ?? .62) * 100) + '%' }"
         @input="onClipInput" aria-label="切面高度">
     </div>
 
+    <!-- 视角预设条（dock 视角键 / V 键切换） -->
+    <div v-if="!thumbMode && viewStripOpen" id="viewStrip" class="hud-panel" :style="{ bottom: floatY(floatSlots.views) }">
+      <button class="hud-chip" :class="{ on: viewPreset === 'front' }" @click="flyView('front')">正面 <kbd>5</kbd></button>
+      <button class="hud-chip" :class="{ on: viewPreset === 'back' }" @click="flyView('back')">背面 <kbd>6</kbd></button>
+      <button class="hud-chip" :class="{ on: viewPreset === 'left' }" @click="flyView('left')">左侧 <kbd>7</kbd></button>
+      <button class="hud-chip" :class="{ on: viewPreset === 'right' }" @click="flyView('right')">右侧 <kbd>8</kbd></button>
+      <button class="hud-chip" @click="resetCam">复位 <kbd>R</kbd></button>
+    </div>
+
     <!-- 自动导览进度条 -->
-    <div v-if="!thumbMode && tour" id="tourBar" class="hud-panel">
+    <div v-if="!thumbMode && tour" id="tourBar" class="hud-panel" :style="{ bottom: floatY(floatSlots.tour) }">
       <span class="hud-eyebrow">TOUR · {{ tour.mode === 'manual' ? '手动' : '连播' }}</span>
       <div class="tour-dots">
         <i v-for="(id, i) in tour.total" :key="i" :class="{ cur: i === tour.i, done: i < tour.i }"></i>
@@ -219,7 +257,7 @@
     </div>
     <!-- 讲解卡：策展讲解词 + 可选 Web Speech 朗读（默认关） -->
     <Transition name="fade">
-      <div v-if="!thumbMode && tour && tour.note" id="tourNote" class="hud-panel">
+      <div v-if="!thumbMode && tour && tour.note" id="tourNote" class="hud-panel" :style="{ bottom: floatY(floatSlots.note) }">
         <p class="tour-note-text">{{ tour.note }}</p>
         <button class="hud-icon tts-btn" :class="{ on: ttsOn }" @click="toggleTts" :title="ttsOn ? '停止朗读' : '朗读讲解'">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path v-if="!ttsOn" d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/><path v-else d="M17 9l6 6M23 9l-6 6"/></svg>
@@ -244,6 +282,31 @@
           <span>RENDER · {{ qualityLabel }}</span>
           <span>LAYOUT · {{ ui.layout === 'radial' ? 'RADIAL' : 'AXIS' }}</span>
         </div>
+        <!-- 我的评分（V2 第七章）：总体常显 + 展开式六维细分 + 个人备注，纯本地 -->
+        <div class="rate-box">
+          <div class="rate-row">
+            <span class="rate-k">总体</span>
+            <span class="rate-stars" role="group" aria-label="总体">
+              <button v-for="i in 5" :key="i" class="star" :class="{ on: i <= (myRating.overall || 0) }"
+                @click="setMyRating('overall', i)" :aria-label="`总体 ${i} 星`">★</button>
+            </span>
+            <button class="rate-expand" @click="rateExpanded = !rateExpanded" :aria-expanded="rateExpanded ? 'true' : 'false'">
+              细分评价 {{ rateExpanded ? '▴' : '▾' }}
+            </button>
+          </div>
+          <div class="rate-detail" v-show="rateExpanded">
+            <div class="rate-row" v-for="dim in RATE_DIMS" :key="dim.key">
+              <span class="rate-k">{{ dim.zh }}</span>
+              <span class="rate-stars" role="group" :aria-label="dim.zh">
+                <button v-for="i in 5" :key="i" class="star sm" :class="{ on: i <= (myRating[dim.key] || 0) }"
+                  @click="setMyRating(dim.key, i)" :aria-label="`${dim.zh} ${i} 星`">★</button>
+              </span>
+            </div>
+            <textarea class="rate-note" v-model="myNote" @change="saveMyNote" @blur="saveMyNote"
+              rows="2" maxlength="300" placeholder="个人备注：还原度、零件细节、值得研究之处…" aria-label="个人备注"></textarea>
+            <button class="rate-clear" v-if="hasMyRating" @click="clearMyRating">清除我的评分</button>
+          </div>
+        </div>
         <div class="d-tip" v-if="device.modelCredit">
           MODEL CREDIT · {{ device.modelCredit }}
           <i v-if="creditUnverified" class="credit-flag" title="仅标注社区来源，作者与许可证尚未核实">来源待核实</i>
@@ -259,12 +322,35 @@
             {{ deviceFav ? '★ 已收藏' : '☆ 收藏' }}
           </button>
         </div>
+        <!-- 收藏馆管理（V2 第六章）：分类标签 + 个人备注（收藏后可用） -->
+        <div class="fav-manage" v-if="deviceFav">
+          <div class="fav-cats">
+            <button v-for="cat in favCats" :key="cat" class="fav-cat" :class="{ on: deviceCats.includes(cat) }"
+              @click="toggleDeviceCat(cat)">{{ cat }}</button>
+          </div>
+          <div class="fav-newcat">
+            <input v-model="newCatName" @keydown.enter="addDeviceCat" maxlength="12"
+              placeholder="新建分类…" aria-label="新建分类">
+            <button @click="addDeviceCat" aria-label="添加分类">＋</button>
+          </div>
+          <textarea class="fav-note" v-model="deviceNote" @change="saveDeviceNote" @blur="saveDeviceNote"
+            rows="2" maxlength="200" placeholder="收藏备注（仅本机可见）…" aria-label="收藏备注"></textarea>
+          <div class="fav-at" v-if="favAt">收藏于 {{ new Date(favAt).toLocaleDateString() }}</div>
+        </div>
         <button class="hud-glow-btn primary info-close" @click="infoOpen = false">关闭</button>
       </div>
     </Transition>
 
+    <!-- 坐标辅助装置（V2 重设计）：方位陀螺 gizmo + 网格开关 -->
+    <div v-if="!thumbMode" id="coordAid">
+      <canvas id="gizmo" ref="gizmoRef" width="128" height="128" @click="viewStripOpen = !viewStripOpen" title="视角方位 · 点击展开视角条" aria-label="视角方位罗盘"></canvas>
+      <button id="gridToggle" class="hud-icon" :class="{ on: gridOn }" @click="toggleGrid" aria-label="网格显隐">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="16.5" rx="9" ry="3.6"/><ellipse cx="12" cy="16.5" rx="4.5" ry="1.8"/><path d="M12 12.9v7.2M3 16.5h18"/></svg>
+      </button>
+    </div>
+
     <!-- 开场提示 toast（也被临时消息复用） -->
-    <div v-if="!thumbMode" id="toast" :class="{ show: toastShow }">{{ toastMsg }}</div>
+    <div v-if="!thumbMode" id="toast" :class="{ show: toastShow }" :style="{ bottom: floatY(floatSlots.toast) }">{{ toastMsg }}</div>
 
     <!-- 沉浸模式下的浮动恢复按钮 -->
     <button v-if="!thumbMode" id="immersiveExit" class="hud-glow-btn" @click="toggleImmersive">退出沉浸 · H</button>
@@ -279,14 +365,16 @@
             <div class="g-row"><span class="g-key">点击部件</span><span>镜头飞近 + 详情卡</span></div>
             <div class="g-row"><span class="g-key">SPACE</span><span>一键拆解 / 组装</span></div>
             <div class="g-row"><span class="g-key">1 - 4</span><span>整机 / X光 / 隔离 / 剖切</span></div>
+            <div class="g-row"><span class="g-key">5 - 8</span><span>机位 正面 / 背面 / 左 / 右</span></div>
             <div class="g-row"><span class="g-key">F</span><span>聚焦选中部件</span></div>
             <div class="g-row"><span class="g-key">M</span><span>两点测量（点模型表面）</span></div>
             <div class="g-row"><span class="g-key">B</span><span>逐步装配（‹ › 逐组拆装）</span></div>
           </div>
           <div class="g-col">
-            <div class="g-row"><span class="g-key">T</span><span>自动导览（一键装杯）</span></div>
+            <div class="g-row"><span class="g-key">T</span><span>自动导览（逐部件讲解）</span></div>
             <div class="g-row"><span class="g-key">S</span><span>截图保存 PNG</span></div>
             <div class="g-row"><span class="g-key">L</span><span>标签 自动/全部/关闭</span></div>
+            <div class="g-row"><span class="g-key">N</span><span>日厅 / 夜厅切换</span></div>
             <div class="g-row"><span class="g-key">H</span><span>沉浸模式</span></div>
             <div class="g-row"><span class="g-key">← →</span><span>切换设备（导览时步进）</span></div>
           </div>
@@ -309,7 +397,7 @@
         <p class="le-msg">设备配置加载失败，可能是页面版本已更新。</p>
         <div class="le-actions">
           <button class="hud-glow-btn primary" @click="reloadPage">重新加载</button>
-          <button class="hud-glow-btn" @click="router.push('/')">返回大厅</button>
+          <button class="hud-glow-btn" @click="router.push('/')">返回门厅</button>
         </div>
       </div>
     </div>
@@ -321,9 +409,10 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import gsap from 'gsap';
 import { createEngine } from '../engine/engine.js?v=30';
+import { getRating, setRating, clearRating, subscribeRatings } from '../lib/ratings.js';
 import { techForPart } from '../knowledge/index.js';
 import { groupOf as compareGroupOf } from '../knowledge/comparisons.js';
-import { markExplored, isFavorite, toggleFavorite as toggleFavStore } from '../lib/explore.js';
+import { markExplored, isFavorite, toggleFavorite as toggleFavStore, getFavMetaOf, getFavMeta, toggleFavCat as toggleFavCatStore, setFavNote as setFavNoteStore, getCats, addCat as addCatStore } from '../lib/explore.js';
 /* 元数据来自构建期清单，完整配置按 id 动态加载：进任意设备只解析这一台 */
 import manifest from 'virtual:device-manifest';
 import { loaders } from 'virtual:device-loaders';
@@ -345,6 +434,101 @@ const scrubbing = ref(false);
 const showGuide = ref(false);
 const immersiveMode = ref(false);
 const infoOpen = ref(false);
+const viewStripOpen = ref(false);
+const viewPreset = ref(null);   // 当前机位（front/back/left/right/null=自由视角）
+function onDockClick(e){
+  /* V2 4.2：点击视角键以外的 dock 工具 → 收起二级菜单条（避免菜单无序滞留） */
+  const btn = e.target.closest('button');
+  if(btn && btn.closest('.dock-group') && !btn.getAttribute('aria-label')?.includes('视角') && !btn.classList.contains('dock-explode')){
+    viewStripOpen.value = false;
+  }
+}
+/* ---------- 浮层栈（V2 遮挡矩阵）：clipStrip/tourBar/viewStrip/tourNote/toast
+   五层共存时的纵向位次集中于此计算——先入层在下，toast 恒在顶；移动端再让位详情 sheet ---------- */
+const floatSlots = computed(() => {
+  const slots = { clip: 0, tour: 0, views: 0, note: 0, toast: 0 };
+  let n = 0;
+  if (ui.value.viewMode === 'clip') slots.clip = n++;
+  if (ui.value.tour) slots.tour = n++;
+  if (viewStripOpen.value) slots.views = n++;
+  slots.note = n;
+  slots.toast = n + (ui.value.tour ? 1 : 0);   // 讲解卡比条高，toast 再上一层
+  return slots;
+});
+const floatY = (slot) => {
+  const base = isMobile.value ? 66 : 86;
+  const lift = isMobile.value && sheetH.value ? sheetH.value + 20 : 0;   // 移动端详情 sheet 让位（原 has-sheet 机制收编）
+  return (base + slot * 46 + lift) + 'px';
+};
+/* ---------- 白天/黑夜双厅（V2）：引擎光照 + 全站 CSS 主题 + localStorage 记忆 ---------- */
+/* ---------- 我的评分（V2）：五星总体 + 多维评价（纯本地 dtm.ratings） ---------- */
+/* ---------- 白天/黑夜双厅（V2 位置保留）：引擎光照 + 全站 CSS 主题 + localStorage 记忆 ---------- */
+const hall = ref((() => { try{ return localStorage.getItem('dtm.hall') === 'day' ? 'day' : 'night'; }catch{ return 'night'; } })());
+function applyHall(mode){
+  document.documentElement.dataset.hall = mode;
+  try{ localStorage.setItem('dtm.hall', mode); }catch{}
+  engine && engine.setHallMode(mode);
+}
+function toggleHall(){ hall.value = hall.value === 'day' ? 'night' : 'day'; applyHall(hall.value); showToast(hall.value === 'day' ? '日厅 · 明亮展厅' : '夜厅 · 深空展厅', 1400); }
+/* ---------- 坐标辅助装置（V2）：方位陀螺 gizmo + 网格开关 ----------
+   gizmo 每帧读相机朝向画罗盘（指针=观察方位角，扇区标注当前机位名）；
+   点击 gizmo 联动视角条。rAF 循环随组件卸载停止。 */
+const gizmoRef = ref(null);
+const gridOn = ref(true);
+function toggleGrid(){
+  gridOn.value = !gridOn.value;
+  engine && engine.setGridVisible(gridOn.value);
+  showToast(gridOn.value ? '网格显示' : '网格隐藏', 1000);
+}
+let gizmoRaf = 0;
+function drawGizmo(){
+  if(gizmoRef.value && engine && engine.getCamera){
+    const g = gizmoRef.value.getContext('2d');
+    const S = 128, C = S / 2;
+    g.clearRect(0, 0, S, S);
+    const dir = engine.getViewDir();
+    const heading = Math.atan2(dir.x, -dir.z);          // 0=正面(+Z 机位) 顺时针为右
+    const pitch = Math.asin(Math.max(-1, Math.min(1, -dir.y)));
+    const hdeg = ((heading * 180 / Math.PI) % 360 + 360) % 360;
+    /* 表盘 */
+    g.beginPath(); g.arc(C, C, 54, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(4,10,16,.55)'; g.fill();
+    g.strokeStyle = 'rgba(120,150,180,.4)'; g.lineWidth = 1; g.stroke();
+    /* 方位刻度：前 0 / 右 90 / 后 180 / 左 270（角距 <45° 高亮） */
+    g.font = '10px ui-monospace, Menlo, monospace';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    const marks = [['前', 0], ['右', 90], ['后', 180], ['左', 270]];
+    for(const [label, deg] of marks){
+      const a = (deg - 90) * Math.PI / 180;
+      const dist = Math.min(Math.abs(hdeg - deg), 360 - Math.abs(hdeg - deg));
+      const tx = C + Math.cos(a) * 42, ty = C + Math.sin(a) * 42;
+      g.fillStyle = dist < 45 ? '#45e0ff' : 'rgba(160,180,200,.6)';
+      g.fillText(label, tx, ty);
+    }
+    /* 指针（观察方位角） */
+    g.save();
+    g.translate(C, C);
+    g.rotate(heading);
+    g.fillStyle = '#45e0ff';
+    g.beginPath(); g.moveTo(0, -34); g.lineTo(5, 6); g.lineTo(0, 2); g.lineTo(-5, 6); g.closePath(); g.fill();
+    g.restore();
+    /* 俯仰读数 */
+    g.fillStyle = 'rgba(200,220,235,.85)';
+    g.fillText(`${Math.round(pitch * 180 / Math.PI)}°`, C, C + 22);
+  }
+  gizmoRaf = requestAnimationFrame(drawGizmo);
+}
+function flyView(preset){
+  if(engine && engine.flyToView(preset)){
+    viewPreset.value = preset;
+    showToast({ front: '正面机位', back: '背面机位', left: '左侧机位', right: '右侧机位' }[preset] || '', 1200);
+  }
+}
+function resetCam(){
+  engine && engine.resetView();
+  viewPreset.value = null;
+  showToast('视角复位', 1200);
+}
 const railOpen = ref(true);
 const isMobile = ref(false);
 const mobileMq = window.matchMedia('(max-width: 700px)');
@@ -389,11 +573,89 @@ const compareGroup = computed(() => compareGroupOf(device.value && device.value.
 const deviceFav = ref(false);
 watch(() => device.value && device.value.id, (id) => { deviceFav.value = !!(id && isFavorite(id)); }, { immediate: true });
 function toggleFav(id){ deviceFav.value = toggleFavStore(id); }
+/* ---------- 我的评分（V2 第七章）：总体常显 + 展开式六维细分 + 个人备注，纯本地 ---------- */
+const RATE_DIMS = [   // V2 第七章 7.2 六维
+  { key: 'appearance', zh: '外观还原度' },
+  { key: 'structure', zh: '内部结构还原度' },
+  { key: 'parts', zh: '零件完整度' },
+  { key: 'material', zh: '材质与贴图' },
+  { key: 'explode', zh: '拆解展示效果' },
+  { key: 'interact', zh: '交互体验' },
+];
+const rateExpanded = ref(false);
+const myNote = ref('');
+const rateVer = ref(0);
+subscribeRatings(() => { rateVer.value++; });
+const myRating = computed(() => { rateVer.value; const id = device.value && device.value.id; return (id && getRating(id)) || {}; });
+const hasMyRating = computed(() => { rateVer.value; const id = device.value && device.value.id; return !!(id && getRating(id)); });
+/* 备注草稿随设备切换同步（切台不串音）；不设 immediate——device 在后方声明，装载后 id 变化自然触发首同步 */
+watch(() => device.value && device.value.id, (id) => {
+  myNote.value = (id && getRating(id)?.note) || '';
+});
+function saveMyNote(){
+  const id = device.value && device.value.id;
+  if(!id) return;
+  setRating(id, { note: myNote.value });
+}
+function setMyRating(dim, n){
+  const id = device.value && device.value.id;
+  if(!id) return;
+  setRating(id, { [dim]: n });
+  showToast(dim === 'overall' ? `已评 ${n} 星` : '已记录评价', 1200);
+}
+function clearMyRating(){
+  const id = device.value && device.value.id;
+  if(id) clearRating(id);
+  showToast('已清除我的评分', 1200);
+}
+
+/* ---------- 收藏馆管理（V2 第六章）：分类 / 备注 / 收藏时间 ---------- */
+const favCats = ref([]);
+const deviceCats = ref([]);
+const deviceNote = ref('');
+const favAt = ref(null);
+const newCatName = ref('');
+function refreshFavMeta(){
+  /* 纯读函数：绝不自增 favVer——favVer 在 watch 源数组里会自触发递归（V2 实测踩坑） */
+  const id = device.value && device.value.id;
+  favCats.value = getCats();
+  const meta = id ? getFavMetaOf(id) : null;
+  deviceCats.value = meta?.cats || [];
+  deviceNote.value = meta?.note || '';
+  favAt.value = meta?.at || null;
+}
+watch([deviceFav, () => device.value && device.value.id], refreshFavMeta, { immediate: true, flush: 'post' });
+function toggleDeviceCat(cat){
+  const id = device.value && device.value.id;
+  if(!id) return;
+  toggleFavCatStore(id, cat);
+  refreshFavMeta();   // 事件处理器内直接重读（不经 favVer 防递归）
+}
+function addDeviceCat(){
+  const name = newCatName.value.trim();
+  if(!name) return;
+  if(addCatStore(name)){
+    const id = device.value && device.value.id;
+    if(id && !getFavMetaOf(id)?.cats?.includes(name)) toggleFavCatStore(id, name);
+    newCatName.value = '';
+    refreshFavMeta();
+    showToast(`已新建分类「${name}」并加入`, 1400);
+  }else{
+    showToast('分类已存在', 1200);
+  }
+}
+function saveDeviceNote(){
+  const id = device.value && device.value.id;
+  if(!id) return;
+  setFavNoteStore(id, deviceNote.value);   // deviceNote 为 v-model 实时值，无需重读
+}
 /* 视觉原理演示激活提示（示意动画标注） */
 watch(() => ui.value.demoActive, (v, ov) => {
   if(v && v !== ov) showToast('视觉原理演示 · ' + v + '（示意动画，非仿真）', 3400);
 });
 const partIndex = computed(() => device.value.parts.findIndex(p => p.id === ui.value.selected));
+/* 视角条与剖切条同位互斥：进入剖切即收起视角条 */
+watch(() => ui.value.viewMode, (m) => { if(m === 'clip') viewStripOpen.value = false; });
 /* 移动端详情 sheet 的实际高度：供 Tour / 剖切条 / toast 让位，避免被盖住 */
 watch(selectedPart, (p) => {
   nextTick(() => {
@@ -625,7 +887,7 @@ function cycleLabels(){
 }
 function toggleTour(){ if(!engine) return; ui.value.tour ? engine.stopTour() : engine.startTour(); }
 function toggleImmersive(){ immersiveMode.value = !immersiveMode.value; }
-function closeDetail(){ engine && engine.selectPart(null); }
+function closeDetail(){ engine && engine.deselect(); }
 function pickFromList(id){
   if(!engine) return;
   engine.selectPart(id);
@@ -649,6 +911,13 @@ function startExperience(){
 function toggleRail(){
   railOpen.value = !railOpen.value;
   try{ localStorage.setItem('teardown-rail', railOpen.value ? '1' : '0'); }catch{}
+}
+/* 零件导航模式（V2）：'list' 清单 | 'grid' 宫格；记忆用户偏好 */
+const railMode = ref((() => { try{ return localStorage.getItem('teardown-rail-mode') === 'grid' ? 'grid' : 'list'; }catch{ return 'list'; } })());
+function toggleRailMode(){
+  railMode.value = railMode.value === 'list' ? 'grid' : 'list';
+  railOpen.value = true;   // 切模式时展开，所见即所得
+  try{ localStorage.setItem('teardown-rail-mode', railMode.value); }catch{}
 }
 
 /* dock 拆解键长按：切换爆炸布局（axis ↔ radial）；长按后松开不再触发 click 的拆解切换 */
@@ -686,6 +955,12 @@ function onKey(e){
   else if(e.code === 'Digit2'){ setViewMode('xray'); }
   else if(e.code === 'Digit3'){ setViewMode('isolate'); }
   else if(e.code === 'Digit4'){ setViewMode('clip'); }
+  else if(e.code === 'Digit5'){ viewStripOpen.value = true; flyView('front'); }
+  else if(e.code === 'Digit6'){ viewStripOpen.value = true; flyView('back'); }
+  else if(e.code === 'Digit7'){ viewStripOpen.value = true; flyView('left'); }
+  else if(e.code === 'Digit8'){ viewStripOpen.value = true; flyView('right'); }
+  else if(e.code === 'KeyV'){ viewStripOpen.value = !viewStripOpen.value; }
+  else if(e.code === 'KeyN'){ toggleHall(); }
   else if(e.code === 'KeyM'){ toggleMeasure(); }
   else if(e.code === 'KeyB'){ toggleStep(); }
   else if(e.code === 'KeyF'){ ui.value.selected && engine && engine.flyToPart(ui.value.selected); }
@@ -697,12 +972,13 @@ function onKey(e){
   else if(e.key === '?'){ showGuide.value = !showGuide.value; }
   else if(e.code === 'Escape'){
     if(showGuide.value) showGuide.value = false;
+    else if(viewStripOpen.value) viewStripOpen.value = false;
     else if(infoOpen.value) infoOpen.value = false;
     else if(immersiveMode.value) immersiveMode.value = false;
     else if(ui.value.tool === 'measure') toggleMeasure();   // 先退出测量工具
     else if(ui.value.step) toggleStep();                    // 逐步装配：先补齐装配再退出
     else if(ui.value.viewMode) setViewMode(ui.value.viewMode);   // 退出查看模式
-    else engine && engine.selectPart(null);
+    else engine && engine.deselect();   // 退出聚焦：取消选中 + 相机回全景
   }
 }
 
@@ -715,6 +991,7 @@ function applyQueryState(){
 }
 
 onMounted(async () => {
+  gizmoRaf = requestAnimationFrame(drawGizmo);   // 坐标辅助 gizmo 循环
   isMobile.value = mobileMq.matches;
   mobileMq.addEventListener('change', onMobileMq);
   try{ railOpen.value = localStorage.getItem('teardown-rail') !== '0' && !isMobile.value; }
@@ -733,6 +1010,7 @@ onMounted(async () => {
       reducedMotion: reduceMotion
     });
     window.__ENGINE = engine;
+    applyHall(hall.value);   // 双厅模式恢复（引擎光照 + CSS 主题）
     const cfg = await loadConfig(mountedId);
     if(seq !== loadSeq || !engine) return;
     config.value = cfg;
@@ -757,7 +1035,7 @@ watch(() => route.params.id, async (id) => {
   const rid = metaById[id] ? id : FALLBACK_ID;
   if(!engine) return;
   const seq = ++loadSeq;
-  showGuide.value = false; infoOpen.value = false;
+  showGuide.value = false; infoOpen.value = false; viewStripOpen.value = false;
   ui.value.booted = false;
   if(route.query.e || route.query.p || route.query.t) router.replace({ query: {} }).catch(() => {});
   pendingDeeplink = null;
@@ -783,6 +1061,7 @@ watch(() => route.params.id, async (id) => {
 });
 onBeforeUnmount(() => {
   loadSeq++;
+  cancelAnimationFrame(gizmoRaf);   // 坐标辅助 gizmo 循环停止
   window.removeEventListener('keydown', onKey);
   mobileMq.removeEventListener('change', onMobileMq);
   if(sheetRO){ sheetRO.disconnect(); sheetRO = null; }

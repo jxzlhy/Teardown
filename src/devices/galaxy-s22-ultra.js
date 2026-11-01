@@ -6,10 +6,7 @@
    映射：materialMapping 材质名直映
 ============================================================= */
 import { makeDevice, anchorParts, composePostLoad } from './_kit/factory.js';
-import { makePhoneScreen } from './_kit/screen.js';
 import { mainboard, battery, chargeCoil, speakerBox, portPcb } from './_kit/internals.js';
-
-const screen = makePhoneScreen({ w: 620, h: 1348, brand: 'SAMSUNG', carrier: '5G', accent: '#7a6ff0' });
 
 const builders = {
   board: (g)=> mainboard(g, { w:5.4, h:3.2, soc:[-1.4,.6], ram:[1.3,.9], label:'SNAPDRAGON 8G1', sub:'SM-S908 · MAIN BOARD', pcb:'#123c2e', smalls:18 }),
@@ -115,7 +112,6 @@ export default makeDevice({
       specs:[['接口','USB-C 3.2']] },
   ],
   postLoad: composePostLoad(
-    ({ addLiveScreen })=>{ screen.hook(addLiveScreen, 'display'); },
     anchorParts({
       board:     { ref:'display', dy: 4.6, dz:-.5 },
       battery:   { ref:'display', dy:-1.8, dz:-.6 },
@@ -124,5 +120,4 @@ export default makeDevice({
       'usb-pcb': { ref:'back-glass', dy:-7.0, dz:.5 },
     }),
   ),
-  tick: screen.tick,
 });

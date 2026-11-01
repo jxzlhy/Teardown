@@ -358,6 +358,7 @@ const parts = [
 ];
 
 /* ================= 设备特有后处理 ================= */
+/* screen: painted —— 官方 GLB 屏幕区为暗玻璃（screen-audit 2026-11-01），RockSteady 录制 UI 与真机一致 */
 function postLoad({ partsById, addLiveScreen }){
   /* 镜头轴检测 → 对位 CMOS 传感器 */
   const lensBox = new THREE.Box3().setFromObject(partsById['lens'].group);

@@ -1,0 +1,22 @@
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+page.on('console', m => { if(m.type() === 'error') console.log('CERR:', m.text().slice(0,120)); });
+page.on('pageerror', e => console.log('PAGEERROR:', e.message.slice(0,120)));
+await page.setViewport({ width: 1440, height: 900 });
+await page.goto('http://127.0.0.1:8137/#/device/action4', { waitUntil: 'networkidle2', timeout: 90000 });
+await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted; }, { timeout: 80000, polling: 300 });
+await page.evaluate(() => { const b = [...document.querySelectorAll('#topbar .hud-icon')].find(x => x.getAttribute('aria-label') === '设备总览'); b && b.click(); });
+await new Promise(r => setTimeout(r, 700));
+const probe = await page.evaluate(() => {
+  const box = document.querySelector('.rate-box');
+  const star = document.querySelector('.rate-row:first-child .star:nth-child(5)');
+  return { box: !!box, star: !!star, starHTML: star ? star.outerHTML.slice(0, 120) : null };
+});
+console.log('probe:', JSON.stringify(probe));
+await page.click('.rate-row:first-child .star:nth-child(5)');
+await new Promise(r => setTimeout(r, 500));
+console.log('after click:', await page.evaluate(() => localStorage.getItem('dtm.ratings')));
+await browser.close();

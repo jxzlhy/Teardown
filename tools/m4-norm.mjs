@@ -1,0 +1,12 @@
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+await page.setViewport({ width: 1280, height: 800 });
+await page.goto('http://127.0.0.1:8137/#/device/m4-carbine', { waitUntil: 'networkidle2', timeout: 90000 });
+await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted; }, { timeout: 80000, polling: 300 });
+await new Promise(r => setTimeout(r, 800));
+const dbg = await page.evaluate(() => { const THREE = window.__THREE; const scene = window.__ENGINE.getScene(); let dg = null; scene.traverse(o => { if(!dg && o.type === 'Group' && o.userData && o.userData.isDeviceGroup) dg = o; }); const out = { finalBbox: window.__RAW && window.__RAW.finalBbox, s: window.__RAW && window.__RAW.s, deviceRadius: window.__ENGINE.getState().deviceRadius }; scene.traverse(o => { if(o.isMesh && o.userData && o.userData.partId){ const b = new THREE.Box3().setFromObject(o); const key = o.userData.partId; out.all = out.all || {}; out.all[key] = out.all[key] || []; out.all[key].push(b.getSize(new THREE.Vector3()).toArray().map(v=>+v.toFixed(2))); } }); out.dgScale = dg ? dg.scale.toArray() : null; return out; });
+console.log(JSON.stringify(dbg, null, 1));
+await browser.close();

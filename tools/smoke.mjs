@@ -87,7 +87,8 @@ try{
     };
   });
   check('大厅卡片渲染', hub.cards > 0, `${hub.cards} 张`);
-  check('大厅统计为 6 项', hub.stats === 6, `${hub.stats} 项`);
+  /* UI 重构（2026-10-31 审计 P1-5）：WEBGL 工程词移出馆藏统计，5 项口径 */
+  check('大厅统计为 5 项', hub.stats === 5, `${hub.stats} 项`);
   check('焦点标签不压副标题', !hub.stageOverlap);
   const hubThree = allReqs.filter(u => /three/i.test(u));
   check('大厅不加载 three.js', hubThree.length === 0, hubThree.slice(0, 2).join(', ') || '0');
@@ -196,7 +197,7 @@ try{
   await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && /COMMUNITY|OFFICIAL/.test(s.modelStatus || ''); }, { timeout: 90000, polling: 200 });
   await sleep(400);
   await page.evaluate(() => window.__ENGINE.selectPart('fan-section'));
-  await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 8000, polling: 100 });
+  await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 15000, polling: 100 });
   const d1 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
   await sleep(900);
   const d2 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
@@ -297,6 +298,45 @@ try{
   check('无策展设备 Tour 按外→内兜底',
     tourFallback.ordered && tourFallback.total === tourFallback.parts,
     `${tourFallback.total}/${tourFallback.parts} 步`);
+
+  /* 视角预设（任务书 §5）：5 = 正面机位，相机应移动到 +Z 方向 */
+  await page.goto(BASE + '/#/device/action4', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => {
+    const e = window.__ENGINE;
+    return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
+  }, { timeout: 90000, polling: 200 });
+  await sleep(1200);
+  await page.keyboard.press('Digit5');
+  await sleep(1400);
+  const vp = await page.evaluate(() => {
+    const cam = window.__ENGINE.getCamera();
+    return { z: +cam.position.z.toFixed(1), y: +cam.position.y.toFixed(1) };
+  });
+  check('视角预设 5=正面（相机移动到 +Z 俯角机位）', vp.z > 14 && vp.y > 5, JSON.stringify(vp));
+  await page.keyboard.press('KeyR');
+  await sleep(1400);
+
+  /* 设备取景合理性（PART-01 实锤 #2 护栏）：SkinnedMesh 节点 scale 脱节会让整机小到不可见 */
+  await page.goto(BASE + '/#/device/m4-carbine', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForFunction(() => {
+    const e = window.__ENGINE;
+    return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
+  }, { timeout: 90000, polling: 200 });
+  await sleep(800);
+  const m4hull = await page.evaluate(() => window.__ENGINE.getState().hullRadius);
+  check('m4 取景尺度护栏（hullRadius ∈ [2, 30]）', m4hull > 2 && m4hull < 30, `hullRadius=${m4hull}`);
+
+  /* 还原路径（用户实测 bug）：点零件聚焦后，空白点击 = 退出聚焦 → 相机回全景 */
+  await page.evaluate(() => { window.__ENGINE.selectPart('battery'); window.__ENGINE.flyToPart('battery'); });
+  await sleep(1400);
+  await page.mouse.click(1350, 150);   // 空白
+  await sleep(1400);
+  const restored = await page.evaluate(() => {
+    const cam = window.__ENGINE.getCamera().position;
+    const s = window.__ENGINE.getState();
+    return { sel: s.selected, z: +cam.z.toFixed(1) };
+  });
+  check('点零件后空白点击还原相机（回全景）', restored.sel === null && restored.z > 12, JSON.stringify(restored));
 
   /* 移动端：详情 sheet 与剖切条不重叠 */
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1 });

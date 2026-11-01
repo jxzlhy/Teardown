@@ -47,6 +47,7 @@ const builders = {
   }
 };
 
+/* screen: painted —— 官方 GLB 屏幕区无原生内容（screen-audit 2026-11-01），时间码 UI 与真机一致 */
 function postLoad({ partsById, addLiveScreen }){
   const body = partsById['body'];
   if(body){

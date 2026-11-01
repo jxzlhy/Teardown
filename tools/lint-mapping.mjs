@@ -67,6 +67,17 @@ for(const d of devices){
       || (typeof d.era === 'string' && /^\d{3}0s$/.test(d.era));
     if(!ok) fail(`era → 必须是 1400–2030 的年份数字或形如 "1950s" 的年代串，当前：${JSON.stringify(d.era)}`);
   }
+  /* 展品质量分级（通宵迭代 Phase 2，口径见 docs/AUDIT-3D-AUTHENTICITY.md）：
+     A=结构/比例/材质/屏幕均核过可作标准展品；B=外观可信部分待核；C=仅概念展示（不得配拆解讲解）；D=隐藏修复中。
+     仅允许写入实际核验过的等级——宁缺勿滥，未分级即"待核"。 */
+  if(d.quality !== undefined){
+    if(!['A','B','C','D'].includes(d.quality)){
+      fail(`quality → 只允许 A/B/C/D，当前：${JSON.stringify(d.quality)}`);
+    }
+    if(d.quality === 'D'){
+      warn(`quality=D → ${d.id} 处于隐藏/修复态，应从 tour/默认展示中摘除问题部件`);
+    }
+  }
   for(const key of ['labelOffsets']){
     for(const k of Object.keys(d[key] || {})){
       if(!ids.has(k)) warn(`${key}["${k}"] → 未在 parts 中声明（锚点不生效）`);

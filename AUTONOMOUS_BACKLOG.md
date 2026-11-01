@@ -5,6 +5,11 @@
 
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
 |---|---|---|---|---|---|
+| P2 | GraphView 品牌标签重叠 + 设备搜索定位输入框 | 星图可读性 | 低：Canvas 绘制层 | 截图 + 标签间距断言 | **已完成**（2026-11-01 续轮 8：两阶段标签去碰撞 + 搜索定位/脉冲/未命中徽标；`"WALTHER` 系标签重叠视觉切片，数据无引号） |
+| P3 | 移动端 dock 溢出项（标签/导览/截图/帮助）加滚动渐隐提示 | 移动可发现性 | 低 | 390×844 截图 | 待办（2026-10-31 审计遗留） |
+| P2 | 触控目标 ≥44px 真机实测（视觉 34–38px + padding 扩展的口径需真机复核） | 移动可用性 | 需真机环境 | iOS Safari / Android Chrome 实测 | 待办（headless 无法覆盖） |
+| P3 | 星图/编年/对比三页头组件化（同构 #graphBar/#tlBar/#cmpBar） | 维护性 | 低 | build + 三页截图 | 待办 |
+| P2 | 任务书 §5 视角预设（正/背/左/右机位 + V 键 + viewStrip） | 展品观察体验 | 低 | build + smoke 机位断言 + 截图 | **已完成**（2026-11-01 续轮 4：flyToView + viewStrip + 5-8 键，smoke 29/29） |
 | P1 | 社区模型署名补齐（作者/许可证/来源链接）+ lint 强制校验 | 合规与可信度，决定能否公开发布 | 已完成 | `npm run lint:devices` 强制 + faceCount 交叉比对 | **已完成**（37 台全量署名 + modelSource；hubble/perseverance 定案 NASA 公有领域；lint 禁止 by community） |
 | P1 | 给更多主力机型补 `xrayShellIds` 与策展 `tour` | X-Ray/导览质量一致性 | 需逐台确认部件语义 | 浏览器抽查 + lint | **已完成 92/93 台（收官）**：全馆仅 marshall-jcm800 刻意保留无策展（smoke 兜底断言依赖）；新增设备默认随接入配 tour |
 | P3 | Poly Haven 17 台 CC0 模型补 polyhaven.com 资产页链接（CC0 无强制义务，完整性加分） | 来源可溯 | 低 | lint + 页面抽查 | **已完成（复核确认）**：13 台 Poly Haven 设备 modelSource 全部就位，抽查 4 条 URL 均 200，CC0 设备无遗漏——记账滞后，本轮核实后关闭 |
@@ -12,8 +17,9 @@
 | P3 | ak-47/v8-engine/orrery/computer-parts 面数与在线版偏差的存档说明（slug/作者证据已确认，差异疑为 LOD/重传/转换） | 考据严谨性 | 低 | AUTONOMOUS_LOG 已记录 | 已记录 |
 | P2 | 剖切封盖（stencil）或明确的”无封盖”提示 | 剖切可读性 | 中，涉及渲染改法 | 桌面/移动截图对比 | **已完成（务实方案）**：clip 材质切 DoubleSide 内壁可见 + 半透明 accent 剖切指示板（5129158）；真 stencil 需 EffectComposer RT 带 stencilBuffer（现无，改动波及全管线）→ LATER |
 | P2 | 详情卡部件特写小图（按部件取景） | 详情页完成度 | 中，需扩缩略图管线 | 缩略图脚本 + 截图 | **已完成**（引擎 capturePartThumb 运行时离屏捕获，全量 90 台生效，零管线成本） |
-| P2 | 真实 iOS Safari / Android Chrome 回归（含横屏） | 移动端真实体验 | 需真机/远程设备 | 真机录屏/截图 | 待办（环境缺失） |
-| P2 | 调查：系统高负载（load>10）下 smoke 偶发 TypeError 'group'（切台 loadDevice 路径）——栈已捕获（DeviceViewer:428→loadDevice），低载多次复跑无再现；疑似 dispose/load 竞态在极端慢帧下可达。已加固：错误打印栈 + 等待 60s | 套件稳定性 | 低频 | 负载正常时多次连跑 | 待办（环境相关） |
+| P1 | 调查：DeviceViewer 间歇性 "Maximum recursive updates exceeded"——星图点击设备节点进入设备页偶发触发，之后整页 Vue 响应式卡死（星图无法重挂）。隔离探针 6 次仅 1 次复现（时序敏感）；DeviceViewer/engine 为并行会话在途文件（2026-11-01 16:23 仍在改），不盲改 | 随机体验杀手 | 间歇性，难稳定复现 | 复现时抓组件栈；优先查 watch(ui)/emit 载荷互喂 | 待办（并行批次落地后优先） |
+| P2 | 真实 iOS Safari / Android Chrome 回归（含横屏） | 移动端真实体验 | 需真机/远程设备 | 真机录屏/截图 | 待办（环境缺失；浏览器模拟已覆盖三视口+横屏，性能观察见 AUTONOMOUS_METRICS） |
+| P2 | 系统高负载下 smoke 偶发失败（两类：① loadDevice TypeError 'group' 已加固栈打印；② 2026-11-01 新增——load≈8 时各处 waitForFunction 计时等待偶发超时，jet-engine demo 等待已加固 8s→15s，action4 boot 90s 也偶发）。根因：筛查/缩略图批次遗留无头 Chrome 进程堆积（pkill swiftshader/smoke 实例后恢复 31/31） | 套件稳定性 | 低频（高负载才触发） | 负载<2 时连跑两次 | **缓解已落地**（运行 smoke 前清残留无头 Chrome；负载>5 时结果不作数，重跑为准） |
 | P2 | ~~git 初始化与首次提交~~ → 已完成：Gitee teardown-lab 远程（main，vendor/originals 1.2GB 仅本地备份，.gitignore 注明） | 回滚与协作基础 | 低 | push 成功 6d4a18a/2989033 | **已完成** |
 | P3 | three.js 单独 manualChunks，进一步降低设备页首包 | 发版后缓存复用 | 低，总量不变 | 构建体积对比 | 已完成（three 771KB 独立 chunk） |
 | P3 | 对齐 `hero` / `parts[].icon` 文档与实现（当前无消费方） | 减少无效配置项 | 低 | 代码检索 | 已完成（文档标注未落地；配置中本来无该字段） |
@@ -33,3 +39,13 @@
 | P3 | Phase 7：探索系统（dtm.* localStorage：收藏/已探索/徽章；不打分不排行不弹窗） | 回访动力 | 低 | 清空存储后从零复现 | **已完成 v1**：src/lib/explore.js（favorites/explored/badges 即时推导 + pub-sub）、大厅卡收藏星标、我的探索抽屉（徽章 5 枚/收藏/足迹）、设备页信息浮层收藏按钮、装载完成自动记足迹；清空 localStorage 从零复现 ✓（smoke 26 项） |
 | P3 | impeccable 接入评估（Apache-2.0，`npx impeccable detect src/` 本地跑）：试用后决定是否纳入 DESIGN_QA 固定流程 | UI 审查标准化 | 低 | 试用轮对比报告 | 待办 |
 | P3 | DESIGN_SKILLS 约束：apple-design-skill（dickwu）无 OSS 许可证——永不作为依赖安装，仅人工摘录原则；对外表述不得称"Apple 官方" | 合规 | 低 | DESIGN_SKILLS.md 已记录 | 已固化 |
+
+## 下一版本候选（2026-11-01 通宵迭代收官时评估，按优先级）
+
+| 优先级 | 事项 | 依据 |
+|---|---|---|
+| P2 | quality 分级逐台覆盖（以 screen-audit + assembly-screen 证据滚动定级；目标先覆盖 50 台主力） | 分级机制已建、2+1 台已定级，证据链现成 |
+| P3 | 三页头组件化（#graphBar/#tlBar/#cmpBar 同构） | 维护性；低风险 |
+| P3 | GraphView 3D 模式再评估（维持暂缓结论，除非有深度感知需求） | MUSEUM-ROADMAP 结论 |
+| P2 | 设备页「内部」视角预设（联动 X-Ray 的组合机位） | 视角预设已上线，组合位是自然延伸；需逐台验证取景 |
+| P0 | （外部依赖）径向发动机 stroke 演示启用——模型活塞未单独建模，如获得分离活塞版资源可启用 phaseN=9 均布相位 | stroke.phaseN 已就绪 |

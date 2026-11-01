@@ -105,6 +105,7 @@ import commodore64 from './commodore-64.js';
 import admiral7t10 from './admiral-7t10.js';
 import we500RotaryPhone from './we500-rotary-phone.js';
 import regencyTr1 from './regency-tr1.js';
+import radialEngine from './radial-engine.js';
 
 export const devices = [
   /* DJI */
@@ -129,7 +130,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano, radialEngine,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */

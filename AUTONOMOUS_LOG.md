@@ -18,6 +18,135 @@
 
 > 只记录可核实的事实：改了什么、怎么验证、还剩什么。设备/部件数量以 `MODEL_INVENTORY.md` 为准。
 
+## 2026-11-01 · 通宵迭代续轮 4：§5 视角预设上线
+
+1. **引擎 `flyToView(preset)`**：正/背/左/右机位（距离沿用 CAM_HOME 含竖屏修正；飞行前停自转/导览/失效测量）。
+2. **UI**：dock「视角」键（V）+ viewStrip 五键条（正5/背6/左7/右8/复位R）；Esc 链、帮助卡、移动端换行、剖切互斥、toast 让位、沉浸/thumb 隐藏、切台关闭。
+3. **验证**：radial-engine 正面机位星环证件照截图 ✓；smoke **29/29**（新增机位断言）✓；build 2.81s ✓。
+4. **清理**：7 个一次性调试探针删除（cam-probe×3/fly-debug/q-check/font-probe/thing-fetch），可复用审计工具保留。
+
+## 2026-11-01 · 通宵迭代续轮：径向受阻转进 + PART 专项
+
+1. **径向发动机集成被下载通道阻塞**：Sketchfab `/i/` 401（需登录态）、Thingiverse/Printables Cloudflare 拦截（curl+headless 双验证）、Wayback 亦挑战页。阻塞与替代方案（用户手动下载入 originals / 登录态注入会话）入 AUDIT；**stroke 演示泛化 `phaseN`**（n 缸均布 360/n，径向到位即接入；V8 缺省交叉曲柄回归 ✓）。
+2. **PART-01 筛查**（`tools/assembly-screen.mjs`，16 台旗舰装配态 bbox→hull 距离）：无真正漂浮件；目检证实 **iphone-13 `ip_speaker_blk` 是顶部听筒而非"底部主扬声器"** → 文案如实修正（desc 记录实测依据）。
+3. **PART-02 小部件特写穿模修复**（engine.js）：finalize 缓存 mesh 级整机 hull（修 `deviceRadius` 对 GLB 直映射件的低估：3.9 vs 实际 7.9）；**小部件（diag<hull/4）不飞相机**——全景+选中+标签指位；中/大部件距离下限挂 hull×0.3。三次公式（0.55/0.75/外向径）实测均不胜任后裁掉改行为级方案（过程记录 changelog）。
+4. **验证**：v8 演示复验 ✓ / lint ✓ / build 2.07s ✓ / smoke 28/28 ✓ / 深链取景截图 ✓。
+5. **留档**：AUDIT（PART-01/02、HOME-01 状态更新）+ changelog Phase 8 续轮 + 交付状态区分更新（径向=被阻塞）。
+
+## 2026-11-01 · 通宵迭代续轮 5：视角预设收官 + m4 取景实锤
+
+1. **视角预设全量落地**：radial-engine 正/背机位截图 ✓（正面 = 9 缸星环证件照）；smoke 新增机位断言。
+2. **PART-01 实锤 #2**：批次 3 抓到 **m4-carbine 整机不可见**——SkinnedMesh 节点 scale=0.0479 未烘入顶点，inspect accessor 尺寸与视觉差 21.6×，targetWidth 9 按错误基准设计 → 整机 0.42 单位（hullRadius 0.21）。10-29 接入至今未暴露：thumbView 自取景掩盖 + smoke 无断言。修复 targetWidth 188（hullRadius→4.401 ✓）+ thumbs 重生成 + smoke 护栏断言「hullRadius∈[2,30]」。
+3. **SOP 更新**：add-device SKILL.md 补「inspect 尺寸可能不含节点 scale」接入必查项。
+4. **验证**：smoke 31 项全绿 ✓ / build 2.63s ✓ / lint ✓ / thumbs ✓。批次 3 累计筛查 56 台。
+5. 清理：7 个一次性调试探针已删（tools/ 42 个文件，可复用审计工具保留）。
+
+## 2026-11-01 · 通宵迭代续轮 7：批次 4–6 补录 + smoke 高负载取证
+
+（批次 4–6 筛查与收官结论见续轮 6；本条补记运行环境事件）续轮 6 末尾 smoke 连续两轮在不同断言处 waitForFunction 超时——取证：6 轮筛查遗留的无头 Chrome 进程堆积（load 8.7，39 个 Chrome 进程，其中 4 个为 smoke 残留）；pkill 残留实例 + 负载回落后 **31/31 恢复**。缓解：jet-engine demo 等待 8s→15s；backlog 环境条目更新「负载>5 时结果不作数、运行前清残留」。非代码回归（两次失败点不同 + 清理后全绿证实）。
+
+## 2026-11-01 · 通宵迭代续轮 6：PART-01 全量筛查收官（104/104）
+
+1. 批次 4（24 台）+ 批次 5（15 台）+ 批次 6（10 台收官）——旗标 19 个逐项核对均为真实端部（digital-watch 表扣 rel 0.96 目检 = 表带端真实位置）。
+2. **PART-01 结论**：全馆装配态结构可信；两处实锤（iphone-13 听筒标签、m4 取景尺度）均已修复且有护栏。筛查工具 SCREEN_BATCH 参数化沉淀。
+3. 归档：AUDIT 台账（结论段）+ changelog 续轮 6。
+
+## 2026-11-01 · V2 续轮：用户实测反馈——拆分悬浮 + 日厅对比度
+
+1. **拆分悬浮交互**：用户参考抖音视频反馈——点击零件应「拆分悬浮」而非仅相机飞近。实现：mainLoop 位置循环新增 focusFloatK（选中零件沿爆炸方向偏移 0.3×worldOffset，取消自动收回，仅装配态生效）；相机不飞近，用户在全景中看到哪个零件从哪里弹出来。
+2. **日厅对比度系统性修复**：~50 行 html[data-hall=day] CSS 覆盖所有硬编码暗色 UI 色值（ctx-desc/tech-body/p-label/measure-tip/toast/tooltip/loader/drawer/guide/step-btn 等），面板内文字统一深色系。
+3. 验证：float-verify 探针（电池浮出/主板不动/精确回位）✓；day 对比度截图 infopop/ctxcard/guide ✓；smoke 32 项 ✓。
+
+## 2026-11-01 · V2 今日需求补充任务书（Phase A–D 全程）
+
+**依据**：《格物馆 V2｜今日新增需求与深度优化任务书》（权威全文 `docs/roadmap/GEWUGUAN_V2_REQUIREMENTS_SUPPLEMENT.md`，799 行）。
+
+1. **阶段 A 遮挡+导航**：浮层遮挡矩阵 floatSlots（5 层统一计算，清 6 处 CSS bottom 特例）；零件导航双模式（清单/宫格 + localStorage 记忆）。
+2. **阶段 B 双厅+坐标台**：白天/黑夜双厅（引擎 setHallMode + 0.6s 灯光渐变 + data-hall CSS 主题 + dtm.hall 记忆 + 大厅/工作空间双入口 N 键）；坐标辅助重设计（罗盘 gizmo + 网格 3 环减量 + 地面 XYZ 轴线 + setGridVisible）。
+3. **阶段 C 收藏+评分**：/collection 个人收藏馆（换厅 hero + 分类导航/排序/管理 + 卡片备注·收藏时间·评分角标 + 空态 CTA）；评分体系（总体常显 + 六维展开式 + 备注，dtm.ratings 新 schema）；infoPop 收藏管理（分类 chips + 新建 + 备注 + 收藏时间）。
+4. **阶段 D 诊断+审计**：tools/quality-diagnose.mjs 全量体检 → docs/QUALITY_DIAGNOSIS.md（14 台待办，0 严重）；impeccable 0 新增；16 张双厅审计截图零 pageerror。修复 hubble draco（幂等重压）。
+5. **P0 实锤修正**：nikon-z6 零网格部件（body/grip/top-plate/back）——mapByPosition 帧系阈值按 __MAPPTS 实测重标定，合并为诚实粒度（mapping-verify 6 台 ✓）。
+6. **关键踩坑**：watch 源含自增 ref → 递归污染（faveVer removed）；three getWorldDirection 需完整 Vector3（改引擎 getViewDir）；inspect bbox 不含节点 scale（__MAPPTS 补 + SOP 更新）；v-model 测试事件需 bubbles+input。
+7. **验证**：build ✓ 2.7s / smoke **32 项全绿** ✓ / lint ✓ / inventory 104 台·818 部件 ✓ / 16 张审计截图零 pageerror ✓ / impeccable 0 新增 ✓。
+
+## 2026-11-01 · 通宵迭代续轮 9：用户实测 bug——零件聚焦后无法还原（已修复）
+
+1. 复现取证：点零件后空白点击/Esc/关闭均不回全景；根因 = pickAt 还原分支在 selectPart(null) 清 flewTo 之后（历史缺陷，HEAD 相同）。
+2. 修复：pickAt 前置保存 wasFlew；引擎新增 deselect()（取消选中+回全景），Esc/关闭走它。
+3. 验证：restore-repro 四路径 ✓；smoke 新增还原断言（32 项全绿）✓。
+
+## 2026-11-01 · 自主通宵迭代：3D 展品真实性专项（Phase 0–5,7）
+
+**依据**：用户《格物馆｜自主通宵迭代任务书》（全文存档 `docs/roadmap/GEWUGUAN_AUTONOMOUS_3D_ITERATION.md`）。核心原则：模型真实性第一，先修正确再做炫酷。
+
+1. **P0 屏幕重叠修复（SCR-01，用户点名）**：全量审计 14 台挂屏设备的原生贴图 vs painted overlay——8 台（iphone-12-teardown/13/17/18-pro-max/18-pmb/duo-fold/galaxy-s22-ultra/modular-smartphone）GLB 自带真实屏幕内容却被通用虚拟 UI 遮盖（iPhone 12 原生=真实 iOS 14 主屏+锁屏、iPhone 13=官方 9:41 沙丘锁屏、S22U=三星官方壁纸，取证 PNG 目检）。拆除 8 台 painted 接线（探针逐台复验只剩原生材质）；4 台合法保留（iphone-16 无原生/action4/pocket3 暗玻璃+真机一致 UI/vision-pro 空 hook）+ `screen: native|painted` 策略注释；screen.js 写入准入策略。近景截图+smoke 28/28 ✓。
+2. **质量分级机制**：`quality` A/B/C/D 字段 + lint 校验；iphone-12-teardown=A、v8-engine=B（实测核过才定级，其余待核）。
+3. **首页首屏（HOME-01）**：馆名 172px→84px 降为识别级，焦点展台成主视觉；长页/吸顶工具栏不变。
+4. **V8 运动演示（任务书试点 A）**：引擎新增 `stroke` 演示类型（活塞沿缸轴往复，相位按曲轴投影分桶 90° 交叉曲柄 [0,90,270,180]）+ `spinPivot:'center'`（修 GLB 组枢轴公转：drift 1.33→0.085）；v8 crank 旋转 + pistons 双 bank 往复实测通过（四相位错峰、退出复位、jet-engine 回归全绿）。
+5. **径向发动机评估（试点 B）**：类型核实为星型/径向；Sketchfab CC-BY 候选 3 个入档；集成走 convert-asset SOP 列为下一切片。
+6. **回归**：build 2.14s ✓ / smoke 28/28 ✓ / lint:devices ✓ / gen:inventory ✓（103 台 · 815 部件）。
+7. **留档**：AUDIT-3D-AUTHENTICITY.md（问题台账）+ changelog/2026-11-01（分 Phase 日志+交付状态区分）+ README/AI_HANDOFF 登记。
+8. 环境坑：长跑 dev server 遇 node_modules 变更后 Vite 预打包失效（vue 解析 404）→ 重启即愈。
+
+**待办**：PART-01 逐台装配核查（滚动）、径向发动机集成、分级全量、真机触控实测（环境缺失，模拟已标注）。
+
+## 2026-10-31 · 第二轮追加（R8）：名字层终选现代黑体（思源黑体 Black）
+
+**起因**：R7 宋体 webfont 上线后用户实机对比「还是一样、没看出变化」——核查 8200 实例确认 webfont 已生效，根因是华文宋体与思源宋体同为明朝体骨架、互换不可感知。**用户三选一裁定现代黑体**（备选：魏碑石刻/楷书题字，均仅 Mac）。
+
+1. 实现：`--serif` 令牌更名 `--name`（13 处引用），字体栈 `"Noto Sans SC"(webfont 900) → PingFang → Hiragino GB → YaHei`；依赖卸载 noto-serif-sc、安装 noto-sans-sc（npm 主源 ECONNRESET，经 npmmirror 完成）。
+2. 体积：字体资产 196 片 / 5.6MB（较宋体版 -1.7MB）；`fonts.check('900 "Noto Sans SC"')` true，特写与宋体版肉眼立辨。
+3. 验证：build 2.18s ✓；smoke 首跑 1 项超时（smoke 自起 Vite 对新依赖冷启动预打包超时，非回归）→ 复跑 28/28 全绿。
+4. 归档：PHASE_R8 + DECISIONS D-20261031-10（09 标注取代）+ DESIGN_SYSTEM/BRAND 同步（名字层=黑体 Heavy）+ PHASE_INDEX。**经验**：同风格「升级替换」对用户不可见，跨风格变更前先确认审美分岔。
+
+## 2026-10-31 · 第二轮追加（R7）：名字层字体换装思源宋体 Heavy
+
+**起因**：用户截图反馈系统宋体（Songti SC Black）大字不好看——横画过细、喇叭衬线收尖过锐。**决策**：`@fontsource/noto-serif-sc/900.css` 本地打包（SIL OFL 许可），unicode-range 分片懒加载，仅 900 一档统一名字层，兜底栈保底；拒绝 1.44MB 单文件版与黑体方案（详见 PHASE_R7 / DECISIONS D-20261031-09）。
+
+1. 实现：main.js 引入 900.css；`--serif` 栈更新为 Noto Serif SC 优先。
+2. 实测：fonts.ready 后特写对比显著改善（`r7-title-font.png`）；`document.fonts.check('900 …"Noto Serif SC"')` true、首屏 19 分片；移动端发现展台英文名 21px 换行孤字 → 移动端降 17px。
+3. 体积：dist +196 分片 / 7.3MB（相对 236MB 资产可忽略），运行时按需懒加载。
+4. 验证：build 2.29s ✓；impeccable detect 0 新增；桌面/移动截图留档 r7-*。
+
+## 2026-10-31 · 第二轮追加（R6）：馆名更名「拆解馆」→「格物馆」
+
+**起因**：用户指出「拆解馆」已不满足现阶段内容（原理库/编年/星图/对比远超拆解动作）。**决策**：取《大学》「格物致知」——拆开机器是格物，看懂技术是致知；「拆解」降级为全站核心**交互动词**保留。完整理由/落选候选/命名规则见 `docs/design/BRAND.md` + DECISIONS D-20261031-08。
+
+1. **单一事实源**：`src/lib/brand.js`（name/nameChars/en/motto/tagline/tagline2），main.js 动态 `<title>`、GalleryHub 馆印/巨字/标语/页脚均从此引用——再更名只改一处。
+2. **落点**：`<title>`+meta、导视条馆印（格物馆 MUSEUM OF MACHINES）、门厅巨字「格物馆」、副标语「格一物，致一知——看清技术的来龙去脉。」、页脚、设备屏幕通知卡（_kit/screen.js，「试试一键拆解」保留）、返回文案（大厅→门厅）、package.json description、README/AGENTS/AI_HANDOFF/DESIGN_SYSTEM 头部（标注沿革）。
+3. **不改写历史**：AUTONOMOUS_LOG 旧条目、PHASE_A–R5 档案、MUSEUM-ROADMAP 等保留「拆解馆」原文。
+4. **验证**：浏览器实测 title/馆印/巨字/页脚/iphone-16 屏幕通知卡（截图 r6-*）；残留扫描 `grep "拆解馆" src/ index.html` 仅余 brand.js 沿革注释与 meta「原拆解馆」标注；build 2.10s ✓；smoke 28/28 ✓。
+
+## 2026-10-31 · 第二轮：彻底重构所有页面（阶段 R1–R5）——「深夜展馆」
+
+**授权**：用户追加「根据最新规范重构 UI、UX，可彻底重构所有页面」（已记入规范附录）；过程要求「可在浏览器中调试，结合实际体验」——本轮每块改动均即时浏览器截图/交互验证后再推进。
+
+1. **R1 概念**：「深夜开放的机械博物馆」论点；`--serif` 名字层字体系（名字/数据/操作三层语义，写入 DESIGN_SYSTEM §1.1）；全馆 NO.001 编号语言；授权与红线入规范附录（smoke DOM 锚点为重构契约）。
+2. **R2 大厅**：馆导视条 + 海报式门厅（100svh，衬线巨字 + 墙面焦点展台撑满右翼 + 统计铭牌化）+ 常设展分区头 + 展签卡（NO. 编号左上、品牌·年代 mono 行、衬线展品名）。浏览器交互实测：hover/品牌展开/抽屉/搜索/点台进设备/返回全过；实测修 3 处（编号与星标重叠→移左上、抽屉全高→自适应、门厅留白→展台拉满）。
+3. **R3 工作空间**：铭牌化——顶栏/详情卡/总览/帮助卡/开场大字的名字层全部衬线；详情卡眉题改「展签 SPECIMEN · 08/14」（浏览器发现英文重复且折行，精简）。HUD 骨架/交互零改动。
+4. **R4 次级页**：编年改时序脊柱（衬线展区题 + 连续轴线 + 菱形节点 + 右对齐年份 + 条目计数，带宽 980px）；对比页组名/列名衬线化 + 行 hover；星图确认数据层口径不变。
+5. **R5 QA**：`impeccable detect` 0 新增反模式；build 2.38s ✓；smoke 28/28 ✓（锚点全保留）；lint:devices ✓；归档 R1–R5 五份档案 + 索引/进度/决策更新。
+
+**已知限制**：衬线在无 Noto Serif SC 环境降级 SimSun（backlog：内置开源衬线子集评估）；GraphView 标签重叠/搜索、移动 dock 渐隐、触控真机实测维持 backlog。
+**验证命令**：build ✓ / smoke 28/28 ✓ / lint ✓ / impeccable 0 新增 / 截图 30+ 张留档。
+
+## 2026-10-31 · 第一轮：UI/UX 系统性审计与重构（阶段 A–H 全程）——103 台 / 815 部件 / 38 品牌
+
+**依据**：用户《UI SKILL 驱动的系统性 UI/UX 审计与界面重构》指令（全文存档 `docs/design/UI_UX_REFACTOR_SPEC.md`）；Skill 组合 `frontend-design` + `impeccable`(context 已跑) + `frontend-skill` 全文通读。
+
+1. **阶段 A 审计**：源码走查（style/hud/GalleryHub/DeviceViewer 等 2600+ 行）+ puppeteer 17 张取证截图（桌面/笔电/移动 × 5 页面，console 零报错）→ 16 项问题（P0×3/P1×6/P2×7）带文件定位，存 `docs/design/UI_UX_AUDIT.md`。
+2. **阶段 B 设计系统**：`docs/design/` 三文档（DESIGN_SYSTEM/UI_GUIDELINES/INTERACTION_GUIDELINES）+ 状态色 token（--ok/--warn/--err/--tech）收口 8 处硬编码；旧 docs/DESIGN_SYSTEM.md 加迁移横幅。
+3. **阶段 C 全局**：全站 18 类控件 `:focus-visible` 焦点环；探索抽屉 Esc+遮罩可退；卡片 hover 瘦身（删光斑/标题变色）；chip 去 scale 跳动；顶栏 tooltip 下弹变体；死代码清理（.row 系孤立媒体查询、重复 .hub-filter 块）。
+4. **阶段 D 大厅**：筛选 IA 重排（搜索主行整页吸顶+类型主轴+品牌折叠 12+更多+清除汇总）；移动端筛选默认收合（激活数徽标，展开取消吸顶）；移动顶栏单列；统计条 6→5（WEBGL 移出，smoke 断言同步）；「我的探索」0 值不显示计数；Hero 展台提亮+CTA 增强。
+5. **阶段 E 工作空间**：**P0-1 竖屏取景裁切引擎修正** —— 根因两层：CAM_HOME 与 aspect 无关 + booted 首帧翻转致开场推近 tween 目标被钉在装载前基值。修复：portraitBoost()（横屏恒 1，桌面零影响）+ applyCamHomes（loadDevice/onResize）+ 推近 tween 迁入 finalize（introPushDone 标志）+ flyToPart 水平视场修正 + window.__CAM 观测点。HUD：dock「视图」微标、滑杆端点、toast 与剖切条让位、移动 sheet 底部预留 dock 高度。
+6. **阶段 F**：帮助卡去黑话+移动单列；编年「64/103 台」口径；tech 配色 token 化。
+7. **阶段 G 移动专项**：9 场景复验矩阵全过（`docs/phases/PHASE_G_MOBILE.md`），横屏 844×390 抽查正常。
+8. **阶段 H QA**：impeccable detect **0 新增**反模式（仅既有 --ease-spring advisory）；`npm run build` ✓ 2.63s；`npm run smoke` **28/28**；`npm run lint:devices` ✓。
+9. 归档：`docs/phases/PHASE_A..H` 八份档案 + `docs/index/PHASE_INDEX.md` + `docs/PROGRESS.md` + `docs/DECISIONS.md`（4 项决策）；README.md / AGENTS.md §11 / docs/AI_HANDOFF.md 登记规范入口。
+
+**已知限制**：GraphView 标签重叠+无搜索（P2-5）转 backlog；移动 dock 溢出无渐隐提示；触控 ≥44px 真机实测未做（headless 无法覆盖，如实标注）。
+**验证命令**：`npm run build` ✓ / `npm run smoke` 28/28 ✓ / `npm run lint:devices` ✓ / impeccable detect 0 新增 / 26 张截图留档 `docs/design/screenshots/`。
+
 ## 2026-10-30 · Stratocaster + C64 接入——**100 台里程碑**（100 台 / 806 部件 / 35 品牌）
 
 1. **Fender Stratocaster 电吉他接入**（99 台）：dark_igorek「Tequila Sunrise」（CC-BY，
@@ -1255,3 +1384,112 @@ CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数�
 - `npm run smoke` 28/28 连续两次通过（含新增时间轴断言与全部历史断言）。
 - 环境注记：本机负载高峰（load 12.9）会放大上述竞态的触发概率——失败点轮换曾误导排查方向，
   清理孤儿进程 + 竞态防御后稳定。
+
+## 2026-10-31（追加）· 设计总览导出（用户任务）
+
+### 交付
+- `docs/design/export/gewu-design-overview.pdf`：16 页 A4《格物馆 · 现阶段设计总览》——品牌/视觉定位/色彩/字体/空间/动效/组件/三类页面/交互/3D/质量闭环/现状遗留，嵌 8 张实景截图；矢量文本，pdf_qa 全绿。
+- `docs/design/export/gewu-design-overview.html`：可编辑源稿（深夜展馆视觉语言，遵循 DESIGN_SYSTEM 三栈字系）。
+
+### 工具链（离线环境，供复用）
+- npm registry 不通：playwright 1.59.1 从 `npm cache` `--offline` 装到 `~/.zcode/pdf-tools`（chromium 1217 缓存已存在）；pdf-lib 无缓存缺失——html2pdf-next 的 postProcess 会失败但 page.pdf 原始产物已落盘，元数据用 pikepdf 补。
+- pdf 插件脚本为 CommonJS 而插件包声明 ESM：复制为 `.cjs` 运行（钩子拦 Bash 写插件目录，用 Read+Write 搬运）。
+- html2pdf-next 预渲染钩子会改写 `.cover` 类元素、把绝对定位贴底的文字元素转为文档流——版式用 flex column + margin-top:auto 贴底规避；固定高度页溢出内容会被下一页不透明背景盖住（静默丢内容），逐页渲染 PNG 核验后修了 5 页。
+
+## 2026-11-01 · 修复：知识星图拖拽平移坐标错乱（用户报告）
+
+### 问题
+用户报告：星图拖动时坐标错乱，整图跑到右下角。根因在星图初版实现的 `onPointerDown`：
+`panStart = { ...view, ...lastPt }` —— `lastPt`（屏幕坐标 x/y）把 `view` 的偏移 x/y **同名覆盖**，
+此后 `view.x = panStart.x + (e.clientX - panStart.x)` 恒等于 `e.clientX`，首次 move 即把视图偏移
+置成数百像素的正值 → 画面甩向右下。此前验证脚本只测了滚轮/过滤/悬停/深链，未测平移——漏网。
+
+### 改动（仅 src/components/GraphView.vue）
+- 平移起点改分字段存储 `panStart = { vx, vy, px, py }`，move 用对应增量（核心修复）。
+- 顺手修交互一致性：`onPointerDown`/`onWheel` 取消 `viewTween`（否则搜索定位的镜头缓动会
+  持续 lerp 吃掉用户手势）；新增 `window.__GRAPH` 观测钩子（同 `__ENGINE` 惯例，卸载时清理）。
+
+### 验证
+- `/tmp/verify-graph-pan.mjs` 7/7：空白云区拖 (+150,+90) → view 恰为 (150.0,90.0)（旧 bug 下
+  会是屏幕坐标 ~(230,230)）；节点拖拽屏幕 1:1（Δworld=(60.0,40.0)，释放后弹簧回拉为预期行为，
+  断言取拖拽中采样）；节点拖拽不动视图；滚轮锚点不变式（Δworld≈0.000，k 1→1.12）；
+  搜索 tween 被手势打断且松手视图冻结；无页面异常。
+- `npm run build` 2.15s；`npm run lint:devices` 全绿；`npm run smoke` 首轮在负载 ~8 + 并行会话
+  在途编辑（DeviceViewer 15:58 仍在改）下测量步抖动失败，复跑 28/28 全绿——失败与本修复无关
+  （改动只在 /graph 路由，不经过测量路径）。
+
+### 记账说明
+- GraphView.vue 的在途改动含并行会话的搜索定位/标签去碰撞特性（与未提交 style.css 的 --warn
+  等耦合）——遵守该批次"待授权"边界，本修复**随批次一起提交**，未单独成 commit。
+
+## 2026-11-01（追加）· 星图交互 v2：复位 + 技术浮层 + 钉住聚焦 + 双指缩放等 6 项（用户反馈驱动）
+
+### 用户输入
+"加个复位的交互；知识星图功能有点少，有什么优化"——按价值排序落地一个垂直切片。
+
+### 改动（仅 src/components/GraphView.vue）
+1. **复位**：工具栏十字准星按钮 + 快捷键 R → viewTween 匀滑回 (0,0,k=1)（tween 扩展支持 k 插值）。
+2. **技术详情浮层**：点击技术节点打开知识库词条（原理/发明年/沿革时间线/应用设备深链 ≤20/来源外链），
+   紫色系视觉；knowledge/index.js 直接 import（chunk 5.15KB gzip，+2KB）。
+3. **钉住聚焦**：点击品牌/技术/部件 → 一跳高亮冻结（hover 暂停），Esc/点空白/✕ 解除——悬停的
+   触屏替代，也是"聚焦子图"阅读模式。
+4. **度数驱动半径**：brand/device/tech/part 按邻接数映射半径（log/线性封顶）——159 部件的
+   iPhone 拆解与 2 部件设备一眼可辨。
+5. **双指捏合缩放**（移动端此前无法缩放）：pointer events 双指距离比驱动 k，初始中点世界点
+   为锚随中点平移；`setPointerCapture` 包 try/catch（合成事件/已释放指针可抛 NotFoundError）。
+6. **已探索联动**：探索系统足迹中的设备在星图描常驻细环。
+
+### 验证
+- `/tmp/verify-graph-v2.mjs` 12/12：R 复位 tween、复位按钮存在、品牌钉住/点空白解除、
+  技术浮层（cmos-sensor 原理+应用设备+来源渲染、✕ 关闭并解除钉住）、度数半径梯度
+  （部件 2.72–5.5 / 设备 7–10.04）、捏合 k×0.75 且锚点世界点 Δ=0.00、Esc 解除、
+  移动端 390×844 开浮层（escapement 词条）、零页面异常；截图目检桌面/移动浮层。
+- 回归：`/tmp/verify-graph-pan.mjs` 7/7（平移修复未破坏）；`npm run smoke` 首轮 2 项失败
+  （信息浮层 era 行 + engine.js:652）——定位为并行会话 16:23 正在编辑 engine.js 的在途状态，
+  等待落定后复跑 **28/28 全绿**（非本切片回归，改动不在该路径）。
+
+### 记账说明
+- 同前：GraphView.vue 属并行会话未提交批次（搜索/标签/本次 6 项叠加），随批次一起提交。
+
+## 2026-11-01（追加）· 星图切片 1-5 依次开工（用户授权）
+
+### 切片 1：URL 深链 /graph?focus=<nodeId>&q=<text>
+- 定位逻辑重构为 applyFocus（pulse+钉住+技术浮层+镜头 tween+URL 写回 router.replace）；
+  locateDevice 复用之。挂载读初始参数；**watch 扩展同时响应 focus/q**（同路由 query 变化不重挂
+  onMounted——CompareView 同款坑第二次出现）。lastFocusId 防自写回环。
+- 深链focus=tech → 钉住+词条浮层；?q= → 定位并写回 focus=device:pocket3。
+
+### 切片 2：品牌档案 + 品牌卡
+- 6 组批量 WebSearch 实证 26 个品牌的创立年/创始人/一句话史（DJI 2006 汪滔 HKUST 宿舍、
+  Apple 1976-04-01、Nintendo 1889 花札、Western Electric 1872、Admiral 1934、Eumig 1919 维也纳、
+  Cherry 1953 餐馆地下室、Regency 1954-10-18 与 TI 合作等）。
+- `src/knowledge/brands.js`：38 档案（32 实证 + HANSEATIC 待考 + 3 社区作者 + GENERIC/CONCEPT），
+  kind 五类；lint-knowledge 扩展：founded/note 非空必须带 https sources（待考者只登记 kind），
+  registry 38 品牌全覆盖校验。
+- 星图品牌卡：点击品牌 → 创立年/史料注/馆藏设备深链/来源；待考品牌诚实显示「史料待考」。
+
+### 切片 3：简洁视图
+- 可见性统一重构为 hiddenNodes 集合（类型/简洁/年代三源合并）；简洁 = 隐藏部件类并**物理冻结**
+  （斥力/积分全跳过，415 节点退出计算）；断言：拖拽激发 sim 时部件位移 = 0。
+
+### 切片 4：年代过滤
+- gen:graph 给设备（era→year，年代串+5）与技术（invented→year，公元前记负）补 year；重生成
+  104 节点/1203 连边（并行会话新增 radial-engine 口径随动）。
+- 从/到双滑杆过滤条；部件/品牌在所有可见关联设备隐藏后跟随隐藏；**无断代节点始终显示**
+  （诚实留白）；实测 1990 起隐藏 30 节点、「全期」清零。
+
+### 切片 5：Barnes-Hut 四叉树
+- 斥力 O(n²)→O(n log n)（θ=0.9，簇合力=(a.r+r̄)×14×count/d² 与旧成对模型等价；重合节点
+  d²<1 剪枝兜底）。bench 钩子 A/B：**11ms→2.0ms/步（5.3×），帧占比 70%→12%**；收敛质量
+  无 NaN、展布 717 合理。
+
+### 验证
+- `/tmp/verify-graph-v3.mjs` 12/12（切片 1-5 全断言）+ v2 套件 11/11 + pan 7/7 回归全绿；
+  `npm run build` 2.2s（GraphView 10.87KB gzip，含品牌数据）；lint 含品牌校验全绿；
+  smoke 首轮负载 10.6 下抖动、复跑 28/28。
+- 新增发现：DeviceViewer 间歇性递归更新卡死（见 BACKLOG P1，并行会话在途文件不盲改）。
+- 修复过程中自纠：#brandPanel 漏定位样式（截图目检暴露）、品牌点击可能落在顶栏下/误中设备节点
+  （测试加安全区缩放重试 + 导航守卫）。
+
+### 下一项
+并行批次提交授权后统一入库；DeviceViewer 递归 P1 排查；星图剩余 ideas（时间轴联动深化等）按反馈。

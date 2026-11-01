@@ -77,14 +77,15 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x04070c, 0.02);
 
+  let nightBgTex = null;   // 夜厅背景纹理（创建时生成；日厅另懒生成 hallBgTex）
   { /* 背景径向渐变 */
     const c = document.createElement('canvas'); c.width = c.height = 1024;
     const g = c.getContext('2d');
     const rg = g.createRadialGradient(512, 420, 60, 512, 512, 720);
     rg.addColorStop(0, '#0e1c2b'); rg.addColorStop(.55, '#071019'); rg.addColorStop(1, '#03050a');
     g.fillStyle = rg; g.fillRect(0,0,1024,1024);
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-    scene.background = tex;
+    nightBgTex = new THREE.CanvasTexture(c); nightBgTex.colorSpace = THREE.SRGBColorSpace;
+    scene.background = nightBgTex;
   }
 
   const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.1, 200);
@@ -153,7 +154,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; }
 
   /* ---------- 灯光 / 地面 / 粒子 ---------- */
-  scene.add(new THREE.HemisphereLight(0x44525f, 0x0a0e14, 0.55));
+  const hemiLight = new THREE.HemisphereLight(0x44525f, 0x0a0e14, 0.55);
+  scene.add(hemiLight);
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(7, 12, 8); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -166,10 +168,18 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const rim2 = new THREE.DirectionalLight(0x8a5cff, 0.55); rim2.position.set(9, -4, -8); scene.add(rim2);
   const front = new THREE.PointLight(0x45e0ff, 8, 22, 2); front.position.set(0, 1.2, 7.5); scene.add(front);
 
-  let grid, glow, shadowPlane, particles;
+  let grid, glow, shadowPlane, particles, axisX, axisZ, axisMat;
   {
-    grid = new THREE.PolarGridHelper(15, 12, 6, 72, 0x14364a, 0x0b1e2c);
+    /* V2 第五章 极简方向式坐标装置：环 6→3 + 地面 XYZ 轴线（X 沿东西 / Z 沿南北），
+       让模型成为视觉中心；gizmo（右下角罗盘）负责与相机同步的方向读数 */
+    grid = new THREE.PolarGridHelper(15, 12, 3, 72, 0x14364a, 0x0b1e2c);
     grid.position.y = -3.9; scene.add(grid);
+
+    axisMat = new THREE.LineBasicMaterial({ color: 0x1e4a63, transparent: true, opacity: 0.9 });
+    const axisGeoX = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-15, 0, 0), new THREE.Vector3(15, 0, 0)]);
+    const axisGeoZ = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, -15), new THREE.Vector3(0, 0, 15)]);
+    axisX = new THREE.Line(axisGeoX, axisMat); axisX.position.y = -3.88; scene.add(axisX);
+    axisZ = new THREE.Line(axisGeoZ, axisMat); axisZ.position.y = -3.885; scene.add(axisZ);
 
     const gc = document.createElement('canvas'); gc.width = gc.height = 512;
     const gg = gc.getContext('2d');
@@ -200,9 +210,87 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     scene.add(particles);
   }
 
+  /* 坐标辅助：网格显隐（V2）——网格与轴线一起，地面光晕与接触阴影保留 */
+  function setGridVisible(v){
+    state.gridVisible = !!v;
+    grid.visible = !!v;
+    axisX.visible = !!v; axisZ.visible = !!v;
+  }
+
   /* ---------- 设备容器与状态 ---------- */
   const deviceGroup = new THREE.Group();
   scene.add(deviceGroup);
+
+  /* ---------- 白天/黑夜双厅（V2）----------
+     夜厅 = 现状（深空冷光 + 星点 + 霓虹轮辉）；日厅 = 明亮美术馆（浅色渐变 + 高环境光 + 霓虹收敛 + 星点隐藏）。
+     只动光照/背景/氛围层，不改模型与取景；reduced-motion 不受影响。 */
+  let hallBgTex = null;   // 日厅背景纹理懒生成缓存
+  let hallTween = null;   // 双厅切换渐变（0.6s 灯光渐变，V2 第二章 2.5）
+  const NIGHT = {
+    fog: 0x04070c, fogDensity: 0.02, hemi: [0x44525f, 0x0a0e14, 0.55],
+    key: 2.4, rim1: 1.1, rim2: 0.55, front: 8, exposure: 1.12,
+    bloom: 0.42, grid: [0x14364a, 0x0b1e2c], glowOpacity: 1, shadow: 0.38, stars: true,
+  };
+  const DAY = {
+    fog: 0xd9e2ea, fogDensity: 0.013, hemi: [0xf2f6fa, 0x99a3ad, 0.95],
+    key: 2.0, rim1: 0.3, rim2: 0.16, front: 3, exposure: 1.0,
+    bloom: 0.16, grid: [0xa9b7c3, 0x96a5b2], glowOpacity: 0.22, shadow: 0.26, stars: false,
+  };
+  function makeHallBg(top, mid, base){
+    const c = document.createElement('canvas'); c.width = c.height = 1024;
+    const g = c.getContext('2d');
+    const rg = g.createRadialGradient(512, 420, 60, 512, 512, 720);
+    rg.addColorStop(0, top); rg.addColorStop(.55, mid); rg.addColorStop(1, base);
+    g.fillStyle = rg; g.fillRect(0, 0, 1024, 1024);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  function setHallMode(mode){
+    const C = mode === 'day' ? DAY : NIGHT;
+    state.hallMode = mode === 'day' ? 'day' : 'night';
+    if(mode === 'day'){
+      if(!hallBgTex) hallBgTex = makeHallBg('#e8eef4', '#cfd9e2', '#b4c1cd');
+      scene.background = hallBgTex;
+    }else{
+      scene.background = nightBgTex;
+    }
+    /* 瞬时切换项（显隐/结构类）；光强/雾/曝光/辉光走 hallTween 0.6s 渐变 */
+    grid.visible = state.gridVisible !== false;
+    axisX.visible = state.gridVisible !== false; axisZ.visible = state.gridVisible !== false;
+    particles.visible = C.stars;
+    /* V2 第二章 2.5：灯光/雾/曝光/辉光 0.6s 渐变过渡（背景纹理为一次性切换，CSS 侧同步过渡） */
+    hallTween = {
+      t: 0,
+      from: {
+        hemiC0: hemiLight.color.clone(), hemiC1: hemiLight.groundColor.clone(), hemiI: hemiLight.intensity,
+        keyI: key.intensity, r1: rim1.intensity, r2: rim2.intensity, frontI: front.intensity,
+        exposure: renderer.toneMappingExposure, bloomS: bloom.strength,
+        fogC: scene.fog.color.clone(), fogD: scene.fog.density,
+        glowO: glow.material.opacity, shadowO: shadowPlane.material.opacity, gridO: grid.material.opacity,
+        axisO: axisMat.opacity,
+      },
+      to: C, mode,
+    };
+    emit();
+  }
+  function applyHallFrame(k){
+    const A = hallTween.from, B = hallTween.to;
+    hemiLight.color.lerpColors(A.hemiC0, new THREE.Color(B.hemi[0]), k);
+    hemiLight.groundColor.lerpColors(A.hemiC1, new THREE.Color(B.hemi[1]), k);
+    hemiLight.intensity = A.hemiI + (B.hemi[2] - A.hemiI) * k;
+    key.intensity = A.keyI + (B.key - A.keyI) * k;
+    rim1.intensity = A.r1 + (B.rim1 - A.r1) * k;
+    rim2.intensity = A.r2 + (B.rim2 - A.r2) * k;
+    front.intensity = A.frontI + (B.front - A.frontI) * k;
+    renderer.toneMappingExposure = A.exposure + (B.exposure - A.exposure) * k;
+    bloom.strength = A.bloomS + (B.bloom - A.bloomS) * k;
+    scene.fog.color.lerpColors(A.fogC, new THREE.Color(B.fog), k);
+    scene.fog.density = A.fogD + (B.fogDensity - A.fogD) * k;
+    glow.material.opacity = A.glowO + (B.glowOpacity - A.glowO) * k;
+    shadowPlane.material.opacity = A.shadowO + (B.shadow - A.shadowO) * k;
+    grid.material.opacity = A.gridO + ((hallTween.mode === 'day' ? 0.35 : 1) - A.gridO) * k;
+    axisMat.opacity = A.axisO + ((hallTween.mode === 'day' ? 0.4 : 0.9) - A.axisO) * k;
+  }
 
   const state = {
     device: null,
@@ -383,6 +471,20 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
 
   let loadSeq = 0;
   let loadAbort = null;
+  let curCamDist = 1;
+  let introPushDone = false;   // 开场推近只做一次（首次装载的 intro）
+  /* 竖屏取景修正（审计 P0-1）：aspect < 1 时水平视场收窄，按 ~1/aspect 拉远相机保证主体完整可见。
+     横屏 aspect ≥ 1 恒为 1，桌面历史取景零影响；1.05 为留白余量，2.6 为极端窄屏上限。 */
+  function portraitBoost(){
+    const a = innerWidth / Math.max(innerHeight, 1);
+    return a < 1 ? Math.min(1 / a, 2.6) * 1.05 : 1;
+  }
+  function applyCamHomes(){
+    const b = portraitBoost();
+    CAM_HOME.copy(CAM_HOME_BASE).multiplyScalar(curCamDist * b);
+    CAM_EXPLODE.copy(CAM_EXPLODE_BASE).multiplyScalar(curCamDist * b);
+    controls.maxDistance = Math.max(36, 36 * curCamDist * b);
+  }
   async function loadDevice(device, opts = {}){
     const token = ++loadSeq;   // 装载序号：切换设备后，旧装载的网络/解析回调一律作废
     if(loadAbort) loadAbort.abort();   // 旧设备的下载不再占用带宽
@@ -394,13 +496,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.device = device;
     state.demos = Array.isArray(device.demos) ? device.demos : null;
     state.demoActive = null;
-    /* 每设备相机距离：大尺寸设备按比例拉远 */
-    const cd = device.camDist || 1;
-    CAM_HOME.copy(CAM_HOME_BASE).multiplyScalar(cd);
-    CAM_EXPLODE.copy(CAM_EXPLODE_BASE).multiplyScalar(cd);
-    controls.maxDistance = Math.max(36, 36*cd);
-    key.shadow.camera.left = key.shadow.camera.bottom = -11*cd;
-    key.shadow.camera.right = key.shadow.camera.top = 11*cd;
+    /* 每设备相机距离：大尺寸设备按比例拉远；竖屏另乘取景修正 */
+    curCamDist = device.camDist || 1;
+    applyCamHomes();
+    key.shadow.camera.left = key.shadow.camera.bottom = -11*curCamDist;
+    key.shadow.camera.right = key.shadow.camera.top = 11*curCamDist;
     key.shadow.camera.updateProjectionMatrix();
     /* OutlinePass 强调色随设备换肤 */
     if(outlineSel && device.accent){
@@ -489,6 +589,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           return device.unmappedTo || 'shell';
         };
         const normSel = device.normalize === 'full' ? localPts : localPts.filter(m => resolvePartId(m.name) === (device.unmappedTo || 'shell'));
+        /* 映射标定观测点（__RAW 同约定）：mapByPosition 收到的 p/rel 即此帧系，校准阈值用它 */
+        window.__MAPPTS = localPts.map(m => ({ name: m.name, p: [+m.p.x.toFixed(2), +m.p.y.toFixed(2), +m.p.z.toFixed(2)] }));
         window.__NORMDBG = { normalize: device.normalize, localN: localPts.length, selN: normSel.length,
           localExtent: localPts.length ? ['x','y','z'].map((a,i)=>{
             const vs = localPts.map(m=>m.p[i] !== undefined ? m.p[i] : m.p.getComponent ? m.p.getComponent(i) : 0);
@@ -614,7 +716,14 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.pickMeshes = [];
     deviceGroup.traverse(o=>{ if(o.isMesh) state.pickMeshes.push(o); });
     { const T = THREE, fb = new T.Box3(); deviceGroup.traverse(o=>{ if(o.isMesh) fb.expandByObject(o); });
-      if(window.__RAW) window.__RAW.finalBbox = fb.getSize(new T.Vector3()).toArray().map(v=>+v.toFixed(2)); }
+      if(window.__RAW) window.__RAW.finalBbox = fb.getSize(new T.Vector3()).toArray().map(v=>+v.toFixed(2));
+      /* 整机真实 hull（mesh 级合并包围盒）：flyToPart 小部件取景用。
+         不能用 p.base 半径 —— GLB 直映射件的坐标在 mesh 上，group 全在原点会低估（iphone-13 实测 3.9 vs 7.9） */
+      if(!fb.isEmpty()){
+        state.hullRadius = +fb.getSize(new T.Vector3()).length().toFixed(3) / 2;
+        const hc = fb.getCenter(new T.Vector3());
+        state.hullCenter = [+hc.x.toFixed(2), +hc.y.toFixed(2), +hc.z.toFixed(2)];
+      } }
     /* 径向布局半径：装配态部件基准位置的包围球半径 */
     { const bb = new THREE.Box3();
       for(const p of state.parts) bb.expandByPoint(p.base);
@@ -629,8 +738,23 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       state.explodeSpeed = 0.42;
       camera.position.copy(CAM_EXPLODE).multiplyScalar(1.42).add(new THREE.Vector3(0, 2.2, 0));
     }
+    /* 开场推近：从散开远景滑向取景位（此刻 CAM_HOME 已含 camDist 与竖屏修正）；
+       introPush 独立于 booted（booted 在引擎首帧即翻转，不能在此复用） */
+    if(intro && !introPushDone){
+      introPushDone = true;
+      state.camTween = { t:0, dur:1.9, fp:camera.position.clone(), tp:CAM_HOME.clone(), ft:controls.target.clone(), tt:CAM_TARGET.clone() };
+    }
     composer.render();
     updateLabelsFrame();
+    /* 取景调试观测点（与 __RAW/__ENGINE 同约定）：pos/home/explode/boost/aspect */
+    window.__CAM = {
+      pos: camera.position.toArray().map(v => +v.toFixed(1)),
+      home: CAM_HOME.toArray().map(v => +v.toFixed(1)),
+      explode: CAM_EXPLODE.toArray().map(v => +v.toFixed(1)),
+      boost: +portraitBoost().toFixed(2),
+      aspect: +(innerWidth / Math.max(innerHeight, 1)).toFixed(3),
+      maxDist: controls.maxDistance,
+    };
     const community = isCommunityModel(device);
     state.modelStatus = device.glb ? ((community ? 'COMMUNITY' : 'OFFICIAL') + ' · ' + device.en) : 'PROCEDURAL';
     /* 慢网时模式可能在部件注册前就被切入（applyClip/applyXray 落在空部件集上）：
@@ -768,6 +892,29 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
      示意动画而非仿真，UI 侧以「视觉原理演示」toast 明确标注。
      spin:'auto' → 按部件包围盒最薄轴推导旋转轴（圆盘/薄板类零件的最薄维度即转轴）；
      reducedMotion 下整体静帧（晕动症友好）。 */
+  /* spin 演示的枢轴修正：GLB 拆解件的组枢轴常不在几何中心，
+     直接转 group 会「公转」。按 bbox 中心建内枢轴组并补偿子件位移，
+     世界位姿不变；退出归零后保留（identity 无副作用）。 */
+  const _viewDir = new THREE.Vector3();   // getViewDir 复用
+  function ensureSpinPivot(p){
+    if(p.__spinPivot) return p.__spinPivot;
+    const g = p.group;
+    const bb = _bb.setFromObject(g);
+    if(bb.isEmpty()) return g;
+    const c = bb.getCenter(new THREE.Vector3());
+    g.worldToLocal(c);
+    const pivot = new THREE.Group();
+    pivot.position.copy(c);
+    g.add(pivot);
+    for(const k of [...g.children]){
+      if(k === pivot) continue;
+      k.position.sub(c);
+      pivot.add(k);
+    }
+    p.__spinPivot = pivot;
+    return pivot;
+  }
+
   function runDemos(dt, t){
     if(!state.demos || !state.demos.length || reducedMotion) return;
     for(const d of state.demos){
@@ -775,24 +922,31 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       if(!p) continue;
       const active = state.selected === d.partId;
       if(active && !p.__demo){
-        p.__demo = { base: { x: p.group.rotation.x, y: p.group.rotation.y, z: p.group.rotation.z }, t: 0 };
+        const target = d.spinPivot === 'center' ? ensureSpinPivot(p) : p.group;
+        p.__demo = { base: { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, t: 0, target };
         state.demoActive = d.label;
         emit();
       }else if(!active && p.__demo && !p.__demo.exit){
         p.__demo.exit = true;
         p.__demo.t = 0;
-        p.__demo.fromRot = { x: p.group.rotation.x, y: p.group.rotation.y, z: p.group.rotation.z };
+        p.__demo.fromRot = { x: p.__demo.target.rotation.x, y: p.__demo.target.rotation.y, z: p.__demo.target.rotation.z };
       }
       const D = p.__demo;
       if(!D) continue;
       if(D.exit){
         D.t = Math.min(1, D.t + dt * 2.2);
         const k = easeIO(D.t);
-        p.group.rotation.x = D.fromRot.x + (D.base.x - D.fromRot.x) * k;
-        p.group.rotation.y = D.fromRot.y + (D.base.y - D.fromRot.y) * k;
-        p.group.rotation.z = D.fromRot.z + (D.base.z - D.fromRot.z) * k;
+        D.target.rotation.x = D.fromRot.x + (D.base.x - D.fromRot.x) * k;
+        D.target.rotation.y = D.fromRot.y + (D.base.y - D.fromRot.y) * k;
+        D.target.rotation.z = D.fromRot.z + (D.base.z - D.fromRot.z) * k;
+        /* stroke 演示：mesh 位置同步缓动回 base（与旋转退出同一段 t） */
+        if(D.strokes){
+          if(!D.fromStrokes) D.fromStrokes = D.strokes.map(s => ({ o: s.o, from: s.o.position.clone(), base: s.base }));
+          for(const s of D.fromStrokes) s.o.position.lerpVectors(s.from, s.base, k);
+        }
         if(D.t >= 1){
-          p.group.rotation.set(D.base.x, D.base.y, D.base.z);
+          D.target.rotation.set(D.base.x, D.base.y, D.base.z);
+          if(D.fromStrokes) for(const s of D.fromStrokes) s.o.position.copy(s.base);
           p.__demo = null;
           if(state.demoActive){ state.demoActive = null; emit(); }
         }
@@ -801,9 +955,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       if(d.spin){
         if(Array.isArray(d.spin)){
           /* 数组 = 各轴角速度（rad/s），jet-engine 试点沿用的显式写法 */
-          p.group.rotation.x += d.spin[0] * dt;
-          p.group.rotation.y += d.spin[1] * dt;
-          p.group.rotation.z += d.spin[2] * dt;
+          D.target.rotation.x += d.spin[0] * dt;
+          D.target.rotation.y += d.spin[1] * dt;
+          D.target.rotation.z += d.spin[2] * dt;
         }else{
           /* 'auto' = 按包围盒最薄轴推导旋转轴 */
           if(!D.axis){
@@ -812,9 +966,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
             D.axis = s.x <= s.y && s.x <= s.z ? [1, 0, 0] : (s.y <= s.z ? [0, 1, 0] : [0, 0, 1]);
           }
           const sp = d.speed || 4;
-          p.group.rotation.x += D.axis[0] * sp * dt;
-          p.group.rotation.y += D.axis[1] * sp * dt;
-          p.group.rotation.z += D.axis[2] * sp * dt;
+          D.target.rotation.x += D.axis[0] * sp * dt;
+          D.target.rotation.y += D.axis[1] * sp * dt;
+          D.target.rotation.z += D.axis[2] * sp * dt;
         }
       }
       if(d.wobble){
@@ -822,6 +976,39 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         p.group.rotation.x = D.base.x + Math.sin(t * f) * d.wobble[0];
         p.group.rotation.y = D.base.y + Math.sin(t * f * 0.83 + 1.3) * d.wobble[1];
         p.group.rotation.z = D.base.z + Math.sin(t * f * 1.21 + 2.6) * d.wobble[2];
+      }
+      if(d.stroke){
+        /* 往复演示（v8-engine 试点）：部件内每个 mesh 沿各自缸轴往复；
+           相位按 mesh 在曲轴轴向的投影分桶为交叉曲柄相位 [0,90,270,180]，
+           同销连杆共享相位 —— 机械关系成立（90° V8 四销曲轴） */
+        if(!D.strokes){
+          D.strokes = [];
+          const bb = _bb.setFromObject(p.group);
+          const bc = bb.getCenter(new THREE.Vector3());
+          const crankAxis = new THREE.Vector3(...(d.stroke.crankAxis || [0, 0, 1])).normalize();
+          p.group.traverse(o => {
+            if(!o.isMesh) return;
+            const mb = new THREE.Box3().setFromObject(o);
+            const mc = mb.getCenter(new THREE.Vector3());
+            const proj = mc.clone().sub(bc).dot(crankAxis);
+            const bank = mc.x < (d.stroke.splitX ?? bc.x) ? 0 : 1;
+            const axis = new THREE.Vector3(...(bank === 0 ? d.stroke.axisL : d.stroke.axisR)).normalize();
+            D.strokes.push({ o, base: o.position.clone(), axis, proj });
+          });
+          const projs = D.strokes.map(s => s.proj);
+          D.projMin = Math.min(...projs); D.projMax = Math.max(...projs);
+        }
+        const S = d.stroke, f = (S.f ?? 1.2), amp = S.amp ?? 0.35;
+        /* 相位表：默认 4 相位交叉曲柄 [0,90,270,180]（90° V8）；phaseN = n 缸均布（径向发动机用 360/n） */
+        const PHASES = S.phaseN
+          ? Array.from({ length: S.phaseN }, (_, i) => i * Math.PI * 2 / S.phaseN)
+          : [0, Math.PI / 2, Math.PI * 1.5, Math.PI];
+        const span = Math.max(D.projMax - D.projMin, 1e-4);
+        for(const s of D.strokes){
+          const bucket = Math.min(PHASES.length - 1, Math.floor((s.proj - D.projMin) / span * PHASES.length));
+          const off = Math.sin(t * f * Math.PI * 2 + PHASES[bucket]) * amp;
+          s.o.position.copy(s.base).addScaledVector(s.axis, off);
+        }
       }
     }
   }
@@ -831,7 +1018,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     syncOutlineEnabled();
     emit();
   }
-  /* 点击部件 = 相机飞近：包围盒中心 + 对角线×2.2，复用 camTween 缓动 0.8s */
+  /* 退出聚焦：取消选中 + 相机飞回全景（Esc / 详情卡「关闭」用——用户预期「还原」） */
+  function deselect(){
+    const restore = state.flewTo;
+    selectPart(null);
+    if(restore) resetView();
+  }
+  /* 点击部件 = 相机飞近：包围盒中心 + 对角线×2.2（竖屏按水平视场修正保证部件完整），复用 camTween 缓动 0.8s */
   function flyToPart(id){
     const p = id && state.partsById[id];
     if(!p){ resetView(); return; }
@@ -839,10 +1032,20 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     if(_bb.isEmpty()){ return; }
     const c = _bb.getCenter(new THREE.Vector3());
     const diag = _bb.getSize(new THREE.Vector3()).length();
-    const dist = clamp(diag * 2.2, 3.2, controls.maxDistance * 0.85);
+    const halfV = THREE.MathUtils.degToRad(camera.fov / 2);
+    const half = Math.min(halfV, Math.atan(Math.tan(halfV) * camera.aspect));
+    const distFit = (diag / 2) / Math.tan(half) * 1.15;   // 部件完整可见（含 15% 边距）
+    const hullR = state.hullRadius || state.deviceRadius || diag;
+    /* 小部件（diag < hull/4：薄片听筒/螺丝等）不飞相机——退化网格特写无意义，
+       保持全景 + 选中高亮 + 标签（labelOffsets）指示位置（PART-02 实测裁掉公式化取景） */
+    if(diag < hullR * 0.25){
+      state.flewTo = id;
+      return;
+    }
     const dir = _v.copy(camera.position).sub(controls.target);
     if(![dir.x, dir.y, dir.z].every(isFinite) || dir.lengthSq() < 1e-6) dir.set(0.55, 0.38, 0.74);
     dir.normalize();
+    const dist = clamp(Math.max(diag * 2.2, distFit, hullR * 0.3), 3.2, controls.maxDistance * 0.9);
     controls.minDistance = Math.min(controls.minDistance, Math.max(dist * 0.8, 2));
     state.flewTo = id;
     state.camTween = { t:0, dur:0.8,
@@ -872,16 +1075,38 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       fp:camera.position.clone(), tp:CAM_HOME.clone(),
       ft:controls.target.clone(), tt:CAM_TARGET.clone() };
   }
+  /* 视角预设（任务书 §5）：正/背/左/右一键机位——距离沿用 CAM_HOME（含 camDist 与竖屏修正），
+     方向绕目标点旋转，Y 分量保持与主视角同族的俯角。影响范围：仅相机，不触碰模型。 */
+  const VIEW_PRESETS = {
+    front: [0, 0.42, 1], back: [0, 0.42, -1], left: [-1, 0.42, 0], right: [1, 0.42, 0],
+  };
+  function flyToView(preset){
+    if(!VIEW_PRESETS[preset]) return false;
+    state.userInteracted = true;
+    controls.autoRotate = false;
+    stopTour(false);
+    invalidateMeasure();
+    const dist = CAM_HOME.length();
+    const tp = new THREE.Vector3(...VIEW_PRESETS[preset]).normalize().multiplyScalar(dist).add(CAM_TARGET);
+    state.camTween = { t:0, dur:0.9,
+      fp:camera.position.clone(), tp,
+      ft:controls.target.clone(), tt:CAM_TARGET.clone() };
+    emit();
+    return true;
+  }
   function pickAt(clientX, clientY, fly){
     pointer.x = (clientX/innerWidth)*2-1;
     pointer.y = -(clientY/innerHeight)*2+1;
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(state.pickMeshes, false)[0];
     const id = hit ? hit.object.userData.partId : null;
+    /* 还原语义（用户实测 bug）：若正聚焦某部件，点空白 = 退出聚焦 → 相机飞回全景。
+       必须在 selectPart 之前保存——selectPart(null) 会清 flewTo（历史顺序缺陷） */
+    const wasFlew = state.flewTo;
     selectPart(id);
     if(fly !== false){
       if(id) flyToPart(id);
-      else if(state.flewTo) resetView();     // 点空白：若正聚焦某部件则飞回全景
+      else if(wasFlew) resetView();
     }
   }
 
@@ -1142,6 +1367,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     const rawDt = Math.min(clock.getDelta(), 1);
     const dt = Math.min(rawDt, 0.05);
     const t = clock.elapsedTime;
+    /* 双厅灯光渐变（V2）：0.6s ease 过渡 */
+    if(hallTween){
+      hallTween.t = Math.min(1, hallTween.t + rawDt / 0.6);
+      applyHallFrame(easeIO(hallTween.t));
+      if(hallTween.t >= 1) hallTween = null;
+    }
     const viaWatchdog = watchdogStep; watchdogStep = false;
 
     /* 设备动态贴图刷新（屏幕 UI 等） */
@@ -1171,6 +1402,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
     const ex = state.explodeCurrent;
     const n = state.parts.length || 1;
+    /* 拆分悬浮（V2 用户反馈）：选中零件且整机装配态时，沿爆炸方向浮出——
+       相机不飞近，用户在全景中看到「哪个零件从哪里弹出来」。取消选中或爆炸度
+       >0.2 时自动收回。渐入渐出由 focusFloatK 驱动（速度 3.5/s ≈ 0.3s）。 */
+    const floatTarget = (state.selected && ex < 0.2 && !state.stepMode) ? 1 : 0;
+    state.focusFloatK = state.focusFloatK ?? 0;
+    state.focusFloatK += (floatTarget - state.focusFloatK) * Math.min(1, dt * 3.5);
+    const floatK = state.focusFloatK > 0.001 ? easeIO(clamp(state.focusFloatK, 0, 1)) : 0;
     for(const p of state.parts){
       let lt;
       if(state.stepMode){
@@ -1181,6 +1419,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         lt = easeIO(lt);
       }
       const wo = p.worldOffset || p.offset;
+      /* 选中零件的拆分悬浮偏移（仅装配态生效） */
+      if(floatK > 0 && state.selected === p.data.id){
+        lt = clamp(lt + floatK * 0.3, 0, 1);
+      }
       p.group.position.copy(p.base).addScaledVector(wo, lt);
       if(!isFinite(p.group.position.x)) p.group.position.copy(p.base);
       if(p.axisLine){ p.axisLine.material.opacity = lt*0.38; p.axisLine.visible = lt>0.03; }
@@ -1255,7 +1497,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     if(!booted){
       booted = true;
       syncOutlineEnabled();
-      state.camTween = { t:0, dur:1.9, fp:camera.position.clone(), tp:CAM_HOME.clone(), ft:controls.target.clone(), tt:CAM_TARGET.clone() };
+      /* 开场推近不在首帧做：CAM_HOME 须等 loadDevice 应用 camDist/竖屏修正后再取（finalize 内补间），
+         否则 tween 目标被钉在装载前的基值，竖屏修正失效 */
       hooks.onBooted && hooks.onBooted();
       emit();
     } else {
@@ -1288,6 +1531,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
     composer.setSize(innerWidth, innerHeight);
+    applyCamHomes();   // 旋转屏幕/改窗口后重算竖屏取景（审计 P0-1）
   }
   window.addEventListener('resize', onResize);
 
@@ -1395,14 +1639,18 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
 
   return {
-    loadDevice, setExplode, setExplodeLayout, selectPart, setHover, setLabels, setAutoRotate,
+    loadDevice, setExplode, setExplodeLayout, selectPart, deselect, setHover, setLabels, setAutoRotate,
+    setHallMode, setGridVisible,
     resetView, pickAt, onResize, thumbView, snapshot,
+    flyToView,
     flyToPart, setMode, isolate, setClipT,
     setMeasure, stepAssembly, stepNext, stepPrev,
     capturePartThumb,
     startTour, stopTour, tourNext, tourPrev, setTourMode,
     step: mainLoop,
     getCamera: () => camera,
+    getScene: () => scene,   // 调试观测点（__RAW/__CAM 同约定）：审计/测试遍历用
+    getViewDir: () => camera.getWorldDirection(_viewDir),   // 坐标辅助 gizmo 用（复用向量，只读）
     getPartOffset: (id) => {
       const p = state.partsById[id];
       return p ? +p.group.position.distanceTo(p.base).toFixed(4) : null;

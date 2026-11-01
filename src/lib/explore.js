@@ -37,12 +37,17 @@ export function getFavorites(){
 export function isFavorite(id){
   return getFavorites().includes(id);
 }
-/** 切换收藏，返回切换后的状态 */
+/** 切换收藏，返回切换后的状态；收藏时自动记入收藏时间（V2 第六章） */
 export function toggleFavorite(id){
   const cur = getFavorites();
   const i = cur.indexOf(id);
   if(i >= 0) cur.splice(i, 1); else cur.push(id);
   writeJSON(K_FAV, cur);
+  if(i < 0){
+    const map = ensureMeta(id);
+    if(!map[id].at) map[id].at = Date.now();
+    writeJSON(K_META, map);
+  }
   return i < 0;
 }
 
@@ -79,4 +84,76 @@ export function getBadges(){
   if(brands.size >= 3) earned.add('brand-hopper');
   if(favs.length >= 3) earned.add('collector');
   return BADGE_DEFS.map(d => ({ ...d, earned: earned.has(d.id) }));
+}
+
+/* ---------- 收藏馆元数据（V2 第六章）：自定义分类 / 备注 / 收藏时间 ----------
+   dtm.favmeta = { [deviceId]: { cats: [分类名], note: '', at: 收藏时间戳 } }
+   dtm.cats = [分类名...]（有序）；首次使用时给两个默认分类。
+   一个模型可加入多个分类；分类删除时自动从所有模型摘除。 ---------- */
+const K_META = 'dtm.favmeta';
+const K_CATS = 'dtm.cats';
+const DEFAULT_CATS = ['最喜欢的模型', '值得研究'];
+
+export function getFavMeta(){
+  const v = readJSON(K_META, {});
+  return (typeof v === 'object' && v) ? v : {};
+}
+export function getFavMetaOf(id){
+  return getFavMeta()[id] || null;
+}
+function ensureMeta(id){
+  const map = getFavMeta();
+  if(!map[id]) map[id] = { cats: [], note: '', at: Date.now() };
+  if(!map[id].at) map[id].at = Date.now();
+  if(!Array.isArray(map[id].cats)) map[id].cats = [];
+  return map;
+}
+export function getCats(){
+  const v = readJSON(K_CATS, null);
+  if(Array.isArray(v) && v.every(x => typeof x === 'string')) return v;
+  return [...DEFAULT_CATS];
+}
+export function addCat(name){
+  const name2 = (name || '').trim();
+  if(!name2) return false;
+  const list = getCats();
+  if(list.includes(name2)) return false;
+  writeJSON(K_CATS, [...list, name2]);
+  return true;
+}
+export function renameCat(oldName, newName){
+  const name2 = (newName || '').trim();
+  if(!name2 || oldName === name2) return false;
+  const list = getCats();
+  const i = list.indexOf(oldName);
+  if(i < 0 || list.includes(name2)) return false;
+  list[i] = name2;
+  writeJSON(K_CATS, list);
+  const map = getFavMeta();
+  for(const id of Object.keys(map)){
+    const m = map[id];
+    if(m.cats?.includes(oldName)) m.cats = m.cats.map(c => c === oldName ? name2 : c);
+  }
+  writeJSON(K_META, map);
+  return true;
+}
+export function delCat(name){
+  writeJSON(K_CATS, getCats().filter(c => c !== name));
+  const map = getFavMeta();
+  for(const id of Object.keys(map)){
+    const m = map[id];
+    if(m.cats?.includes(name)) m.cats = m.cats.filter(c => c !== name);
+  }
+  writeJSON(K_META, map);
+}
+export function toggleFavCat(id, cat){
+  const map = ensureMeta(id);
+  const m = map[id];
+  m.cats = m.cats.includes(cat) ? m.cats.filter(c => c !== cat) : [...m.cats, cat];
+  writeJSON(K_META, map);
+}
+export function setFavNote(id, note){
+  const map = ensureMeta(id);
+  map[id].note = String(note || '').slice(0, 200);
+  writeJSON(K_META, map);
 }
