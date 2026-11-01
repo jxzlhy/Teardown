@@ -21,6 +21,8 @@ export default makeDevice({
     ['来源', 'Poly Haven（CC0 扫描）'],
   ],
   accent: '#d4b06a',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（Poly Haven CC0 扫描）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: 'Poly Haven（CC0）',
   modelCredit: 'Vintage Microscope by Poly Haven (CC0)',
   modelSource: 'https://polyhaven.com/a/vintage_microscope',
@@ -28,6 +30,9 @@ export default makeDevice({
   normalize: 'full',
   glb: '/assets/vintage-microscope.glb',
   tour: ['base','arm','focus','condenser','revolver','body-tube','eyepiece'],
+  /* X-Ray 外壳：镜臂（内藏调焦齿条）与底座是结构件即「壳体」；镜筒/目镜/聚光器等光学件
+     不做半透明（雾化易叠 Bloom 过曝，与引擎 NON_SHELL 口径一致） */
+  xrayShellIds: ['arm', 'base'],
   mapping: {
     'vintage_microscope_mirror_arm': 'arm',
     'vintage_microscope_condenser': 'condenser',

@@ -21,6 +21,8 @@ export default makeDevice({
     ['来源', '社区模型（Sketchfab · CC-BY）'],
   ],
   accent: '#8899aa',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Hypoid Gear by cyamahat (Sketchfab, CC-BY)',
   modelSource: 'https://sketchfab.com/3d-models/hypoid-gear-6592b808326541dd8b887bcf3da44619',
@@ -29,6 +31,9 @@ export default makeDevice({
   glb: '/assets/hypoid-gear.glb',
   /* 策展导览：输入轴→主动小齿轮→从动大齿轮（准双曲面偏置）→输出轴 */
   tour: ['input-shaft','pinion','ring-gear','output-shaft'],
+  /* X-Ray 外壳：全暴露齿轮副、无差速器壳体，按「最外层 1-2 件」口径选盘状大齿轮
+     （最能遮挡小齿轮啮合的一件）作半透明目标；避免 realPartIds 兜底全部雾化 */
+  xrayShellIds: ['ring-gear'],
   mapping: {
     /* 节点名点号被 sanitizeNodeName 清洗：axis1.001_0 → axis1001_0 */
     'axis1001_0': 'input-shaft',

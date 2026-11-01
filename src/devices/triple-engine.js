@@ -24,6 +24,8 @@ export default makeDevice({
     ['拆解', '10 组核心部件'],
   ],
   accent: '#c9743a',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY · jamie3d）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Three Cylinder Motorcycle Engine by jamie3d (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/three-cylinder-motorcycle-engine-ad2416e341cb4beca3f86b0b00e84749',
@@ -91,6 +93,9 @@ export default makeDevice({
     'oil_cooler':      'lubrication',
   },
   tour: ['crankcase', 'cylinders', 'valvetrain', 'timing-covers', 'clutch', 'induction', 'exhaust', 'cooling', 'lubrication', 'electrics'],
+  /* X-Ray 外壳：曲轴箱/油底壳与右侧三层边盖（正时/磁电机/输出）是主要罩壳件；
+     离合盖并入离合部件（弹簧片/摩擦片需保持可见），故不作 shell */
+  xrayShellIds: ['crankcase', 'timing-covers'],
   realPartIds: ['crankcase', 'cylinders', 'valvetrain', 'timing-covers', 'clutch', 'induction', 'exhaust', 'cooling', 'lubrication', 'electrics'],
   parts: [
     { id: 'crankcase', zh: '曲轴箱与油底壳', en: 'CRANKCASE', real: true,

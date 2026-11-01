@@ -1,15 +1,11 @@
 <template>
   <div id="compareView">
-    <header id="cmpBar" class="hud-panel">
-      <router-link :to="focusId ? '/device/' + focusId : '/'" class="hud-icon" aria-label="返回">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
-      </router-link>
-      <div class="gb-title">
-        <span class="hud-eyebrow">GENERATION COMPARE · 代际对比</span>
-        <h2>{{ group ? group.zh : '加载中…' }}</h2>
-      </div>
-      <span class="cmp-note">规格行按同名键自动聚类 · 缺项显示 —</span>
-    </header>
+    <PageHeader id="cmpBar" :back-to="focusId ? '/device/' + focusId : '/'" back-label="返回"
+      eyebrow="GENERATION COMPARE · 代际对比" :title="group ? group.zh : '加载中…'">
+      <template #right>
+        <span class="cmp-note">规格行按同名键自动聚类 · 缺项显示 —</span>
+      </template>
+    </PageHeader>
 
     <div id="cmpScroll" v-if="group">
       <table class="cmp-table">
@@ -43,6 +39,7 @@
    设备配置经 device-loaders 按需加载（懒 chunk），不进主包。 */
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import PageHeader from './PageHeader.vue';
 import comparisons from '../knowledge/comparisons.js';
 import { loaders } from 'virtual:device-loaders';
 import { assetUrl } from '../lib/url.js';
@@ -82,9 +79,9 @@ const rows = computed(() => {
 
 <style scoped>
 #compareView{ position:fixed; inset:0; background:#04070c; overflow:hidden; }
-#cmpBar{ position:absolute; left:16px; right:16px; top:12px; z-index:5; display:flex; align-items:center; gap:14px; padding:10px 14px; }
-.gb-title{ flex:1; min-width:0; }
-.gb-title h2{ margin:3px 0 0; font-family:var(--name); font-size:17px; font-weight:800; letter-spacing:.06em; color:var(--txt-1); }
+/* 页头基样（.page-header / .gb-title）已合并进 PageHeader.vue；
+   代际对比标题沿用名字层字体，:deep 穿透覆盖共享基样 */
+#cmpBar :deep(.gb-title h2){ font-family:var(--name); font-size:17px; font-weight:800; letter-spacing:.06em; }
 .cmp-note{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--txt-dim); flex:none; }
 #cmpScroll{ position:absolute; inset:74px 16px 16px; overflow:auto; }
 .cmp-table{ border-collapse:separate; border-spacing:0 4px; width:100%; min-width:640px; }

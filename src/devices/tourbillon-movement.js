@@ -24,6 +24,8 @@ export default makeDevice({
     ['来源', '开源硬件 CC-BY 4.0'],
   ],
   accent: '#c9a227',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（开源硬件 CC-BY 4.0）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '开源分件模型（Pinshape · CC-BY 4.0）',
   modelCredit: '3D-printed Watch with Tourbillon by Christoph Laimer (Pinshape, CC-BY 4.0)',
   modelSource: 'https://pinshape.com/items/30212-3d-printed-watch-with-tourbillon',
@@ -69,6 +71,9 @@ export default makeDevice({
     'Jig':              'assembly-aids',
   },
   tour: ['mainspring', 'wheel-train', 'escapement', 'cage', 'belt-drive', 'plates', 'assembly-aids'],
+  /* X-Ray 外壳：主夹板+立柱框架是机芯的结构件（相当于壳体），半透明后轮系/擒纵更突出；
+     陀飞轮框架虽包裹擒纵但是展品主角，不做雾化 */
+  xrayShellIds: ['plates'],
   realPartIds: ['mainspring', 'escapement', 'cage', 'wheel-train', 'belt-drive', 'plates', 'assembly-aids'],
   parts: [
     { id: 'mainspring', zh: '打印主发条', en: 'PRINTED MAINSPRING', real: true,

@@ -236,6 +236,7 @@
       <button class="hud-chip" :class="{ on: viewPreset === 'back' }" @click="flyView('back')">背面 <kbd>6</kbd></button>
       <button class="hud-chip" :class="{ on: viewPreset === 'left' }" @click="flyView('left')">左侧 <kbd>7</kbd></button>
       <button class="hud-chip" :class="{ on: viewPreset === 'right' }" @click="flyView('right')">右侧 <kbd>8</kbd></button>
+      <button class="hud-chip" :class="{ on: viewPreset === 'interior' }" @click="flyView('interior')">内部 <kbd>9</kbd></button>
       <button class="hud-chip" @click="resetCam">复位 <kbd>R</kbd></button>
     </div>
 
@@ -366,6 +367,7 @@
             <div class="g-row"><span class="g-key">SPACE</span><span>一键拆解 / 组装</span></div>
             <div class="g-row"><span class="g-key">1 - 4</span><span>整机 / X光 / 隔离 / 剖切</span></div>
             <div class="g-row"><span class="g-key">5 - 8</span><span>机位 正面 / 背面 / 左 / 右</span></div>
+            <div class="g-row"><span class="g-key">9</span><span>内部视角（联动 X 光）</span></div>
             <div class="g-row"><span class="g-key">F</span><span>聚焦选中部件</span></div>
             <div class="g-row"><span class="g-key">M</span><span>两点测量（点模型表面）</span></div>
             <div class="g-row"><span class="g-key">B</span><span>逐步装配（‹ › 逐组拆装）</span></div>
@@ -520,13 +522,22 @@ function drawGizmo(){
 }
 function flyView(preset){
   if(engine && engine.flyToView(preset)){
+    const prev = viewPreset.value;
     viewPreset.value = preset;
-    showToast({ front: '正面机位', back: '背面机位', left: '左侧机位', right: '右侧机位' }[preset] || '', 1200);
+    /* 内部视角联动 X-Ray（V2 第四章 4.3）：切进去开 X 光，切出来关 */
+    if(preset === 'interior' && prev !== 'interior'){
+      engine.setMode('xray');
+    }else if(prev === 'interior' && preset !== 'interior'){
+      engine.setMode(null);
+    }
+    showToast({ front: '正面机位', back: '背面机位', left: '左侧机位', right: '右侧机位',
+      interior: '内部视角 · X 光' }[preset] || '', 1400);
   }
 }
 function resetCam(){
   engine && engine.resetView();
   viewPreset.value = null;
+  if(ui.value.viewMode === 'xray') engine.setMode(null);
   showToast('视角复位', 1200);
 }
 const railOpen = ref(true);
@@ -959,6 +970,7 @@ function onKey(e){
   else if(e.code === 'Digit6'){ viewStripOpen.value = true; flyView('back'); }
   else if(e.code === 'Digit7'){ viewStripOpen.value = true; flyView('left'); }
   else if(e.code === 'Digit8'){ viewStripOpen.value = true; flyView('right'); }
+  else if(e.code === 'Digit9'){ viewStripOpen.value = true; flyView('interior'); }
   else if(e.code === 'KeyV'){ viewStripOpen.value = !viewStripOpen.value; }
   else if(e.code === 'KeyN'){ toggleHall(); }
   else if(e.code === 'KeyM'){ toggleMeasure(); }

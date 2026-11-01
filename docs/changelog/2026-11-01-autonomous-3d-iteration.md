@@ -189,3 +189,36 @@
 - **修复**：~50 行 `html[data-hall=day]` CSS 覆盖——ctx-desc/tech-body/d-tip/g-row/p-label/measure-tip/toast/tooltip/loader/drawer/guide/step-btn/filter-search/info-status/credit-flag/tb-sep/ctx-thumb 等全部面板内文字/背景/边框统一切换日厅浅色系。
 - **验证**：`v2-day-infopop.png`（总览弹层可读 ✓）、`v2-day-ctxcard.png`（详情卡可读 ✓）、`v2-day-guide.png`（帮助卡可读 ✓）。
 - smoke 32 项 ✓ / build ✓。
+
+## V2 续轮 — 内部视角预设 + 映射校准 + 递归排查（2026-11-01 续）
+
+1. **内部视角预设（第九章 §5 融合）**：VIEW_PRESETS 新增 `interior`（低角度近距离）+ DeviceViewer flyView 联动 X-Ray（切进去开 X 光/切出来关）+ viewStrip「内部」键 + 9 快捷键 + Esc 链/复位联动 X-Ray 退出。
+2. **映射校准确认**：mapping-verify 6 台全过（action4/iphone-12/v8/radial/digital-watch/nikon-z6）。
+3. **递归排查结论**：DeviceViewer 11 个 watch 逐一审过，源/写入无自反馈；间歇性递归为路由切换时新旧实例 overlapping 时序问题，`__VUE_ERRS` 注入模式可复现时抓栈。
+
+## V2 续轮 — 内部视角预设上线（2026-11-01 续）
+
+- VIEW_PRESETS 新增 `interior: [0.15, 0.08, 0.3]`（低角度近距离）+ DeviceViewer flyView 联动 X-Ray（切进去自动开 X 光、切出来自动关）+ viewStrip「内部」键（9 快捷键）+ Esc 链/R 联动退出。
+- 验证：radial-engine Digit9 → viewMode=xray ✓ + 截图（X-Ray 下 9 缸内部结构清晰可见，`v2-interior-preset.png`）✓。
+
+## V2 续轮 — 并行子代理集成 + 诊断清零（2026-11-01 收官）
+
+- **Agent B2 完成**：14 台补 xrayShellIds（全馆 104 台均已显式声明）+ marshall-jcm800 补策展 tour + 12 台 quality B（全馆 A×1 + B×14 = 15/104 已定级）。lint ✓ / inventory ✓ / build ✓。
+- **诊断清零**：QUALITY_DIAGNOSIS.md 重跑 → **104 台 · 0 问题**。hasDraco 检查窗口 256KB→1MB（大 JSON chunk 修正）；credit 口径对齐 lint（官方/社区分级）。
+- **smoke 口径更新**：「无策展设备兜底」→「已全量补齐策展 tour（104/104）」——marshall 补 tour 后原断言前提不再成立。
+- **Agent C 完成**：PageHeader 三页头组件化 ✓ + 移动端 dock 渐隐 ✓ + build ✓。
+- **最终回归**：build 2.65s ✓ / smoke 32 项 ✓ / lint ✓ / inventory 104·815·38 ✓ / 诊断 0 问题 ✓。
+
+### V2 全部章节完成状态
+
+| 章节 | 内容 | 状态 |
+|---|---|---|
+| 第二章 | 白天/黑夜双厅 | ✅ |
+| 第三章 | 零件导航双模式 + 映射准确 | ✅ |
+| 第四章 | 底部工具栏 + 浮层管理 | ✅ |
+| 第五章 | 坐标辅助装置重设计 | ✅ |
+| 第六章 | 个人收藏馆 + 分类 | ✅ |
+| 第七章 | 评分体系 + 备注 | ✅ |
+| 第八章 | 质量诊断 + 追溯 | ✅ |
+| 第九章 | 全站 UI 审计 | ✅ |
+| 第十一章 | 最终验收 | ✅ |

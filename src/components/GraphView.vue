@@ -1,39 +1,35 @@
 <template>
   <div id="graphView">
     <canvas ref="canvasRef" id="graphCanvas"></canvas>
-    <header id="graphBar" class="hud-panel">
-      <router-link to="/" class="hud-icon" aria-label="返回大厅">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
-      </router-link>
-      <div class="gb-title">
-        <span class="hud-eyebrow">KNOWLEDGE GRAPH · 知识星图</span>
-        <h2>{{ graph ? `${graph.stats.devices} 台设备 · ${graph.stats.brands} 品牌 · ${graph.stats.techs} 项技术 · ${graph.stats.links} 连边` : '构建星图中…' }}</h2>
-      </div>
-      <button class="hud-icon" @click="resetView" aria-label="复位视图" title="复位视图（R）">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg>
-      </button>
-      <div class="gb-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-          <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
-        </svg>
-        <input type="text" v-model="searchQuery" @keydown.enter="locateDevice"
-          placeholder="定位设备…" aria-label="定位设备" list="graph-devices">
-        <datalist id="graph-devices">
-          <option v-for="d in deviceLabels" :key="d" :value="d"/>
-        </datalist>
-      </div>
-      <div class="gb-filters">
-        <button class="hud-icon" :class="{ on: liteMode }" @click="toggleLite" aria-label="简洁视图" title="简洁视图：隐藏部件类并冻结其物理（低端设备更流畅）">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5" stroke-dasharray="2.5 2.5"/></svg>
+    <PageHeader id="graphBar" eyebrow="KNOWLEDGE GRAPH · 知识星图"
+      :title="graph ? `${graph.stats.devices} 台设备 · ${graph.stats.brands} 品牌 · ${graph.stats.techs} 项技术 · ${graph.stats.links} 连边` : '构建星图中…'">
+      <template #right>
+        <button class="hud-icon" @click="resetView" aria-label="复位视图" title="复位视图（R）">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg>
         </button>
-        <button class="hud-icon" :class="{ on: timeFilter.on }" @click="toggleTime" aria-label="年代过滤" title="按年代过滤馆藏与技术">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
-        </button>
-        <button v-for="t in TYPES" :key="t.id" class="gb-chip" :class="{ off: !visibleTypes.has(t.id) }" @click="toggleType(t.id)">
-          <i :style="{ background: t.color }"></i>{{ t.zh }}
-        </button>
-      </div>
-    </header>
+        <div class="gb-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+          </svg>
+          <input type="text" v-model="searchQuery" @keydown.enter="locateDevice"
+            placeholder="定位设备…" aria-label="定位设备" list="graph-devices">
+          <datalist id="graph-devices">
+            <option v-for="d in deviceLabels" :key="d" :value="d"/>
+          </datalist>
+        </div>
+        <div class="gb-filters">
+          <button class="hud-icon" :class="{ on: liteMode }" @click="toggleLite" aria-label="简洁视图" title="简洁视图：隐藏部件类并冻结其物理（低端设备更流畅）">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5" stroke-dasharray="2.5 2.5"/></svg>
+          </button>
+          <button class="hud-icon" :class="{ on: timeFilter.on }" @click="toggleTime" aria-label="年代过滤" title="按年代过滤馆藏与技术">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>
+          </button>
+          <button v-for="t in TYPES" :key="t.id" class="gb-chip" :class="{ off: !visibleTypes.has(t.id) }" @click="toggleType(t.id)">
+            <i :style="{ background: t.color }"></i>{{ t.zh }}
+          </button>
+        </div>
+      </template>
+    </PageHeader>
     <!-- 年代过滤条：从/到双滑杆；无断代节点始终显示 -->
     <div id="graphTimeStrip" v-if="timeFilter.on" class="hud-panel">
       <span class="hud-eyebrow">ERA</span>
@@ -104,6 +100,7 @@
 ============================================================= */
 import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import PageHeader from './PageHeader.vue';
 import { technologies } from '../knowledge/index.js';
 import { brandFor } from '../knowledge/brands.js';
 import { getExplored } from '../lib/explore.js';
@@ -680,12 +677,7 @@ function onWheel(e){
 <style scoped>
 #graphView{ position:fixed; inset:0; background:#04070c; }
 #graphCanvas{ position:absolute; inset:0; cursor:grab; touch-action:none; }
-#graphBar{
-  position:absolute; left:16px; right:16px; top:12px; z-index:5;
-  display:flex; align-items:center; gap:14px; padding:10px 14px;
-}
-.gb-title{ flex:1; min-width:0; }
-.gb-title h2{ margin:3px 0 0; font-size:13px; font-weight:600; color:var(--txt-1); font-family:var(--sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* 页头基样（.page-header / .gb-title）已合并进 PageHeader.vue；此处仅留页级差异 */
 .gb-filters{ display:flex; gap:6px; flex:none; }
 /* 搜索定位 */
 .gb-search{
@@ -772,7 +764,7 @@ function onWheel(e){
 .fade-enter-from, .fade-leave-to{ opacity:0; transform:translateX(16px); }
 @media (max-width:700px){
   #graphBar{ left:10px; right:10px; flex-wrap:wrap; }
-  .gb-title h2{ font-size:11px; }
+  #graphBar :deep(.gb-title h2){ font-size:11px; }
   .gb-search{ order:5; width:100%; }
   .gb-filters{ width:100%; justify-content:flex-start; }
   #graphMiss{ top:112px; }

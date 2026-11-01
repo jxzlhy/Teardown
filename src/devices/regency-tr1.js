@@ -25,6 +25,8 @@ export default makeDevice({
     ['意义', '史上首台商用晶体管收音机'],
   ],
   accent: '#7a9e7e',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY 4.0）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Regency TR-1 Transistor Radio by cyclonicninja69 (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/vintage-portable-transistor-radioregency-tr-1-c01869269a8b4bd2a8a05b8162fe7a11',
@@ -38,6 +40,9 @@ export default makeDevice({
     'Object_5': 'back-plate',
   },
   tour: ['body', 'back-plate'],
+  /* X-Ray 外壳：注塑机身与背盖即整机全部外壳（电路板未单独建模），两件均作半透明目标，
+     显式声明以免走 realPartIds 兜底 */
+  xrayShellIds: ['body', 'back-plate'],
   realPartIds: ['body', 'back-plate'],
   parts: [
     { id: 'body', zh: '机身（面板拨盘一体）', en: 'BODY', real: true,

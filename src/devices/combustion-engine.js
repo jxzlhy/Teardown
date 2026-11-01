@@ -21,6 +21,8 @@ export default makeDevice({
     ['用途','原理教学拆解'],['来源','社区模型（Sketchfab）'],
   ],
   accent: '#5b7f95',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY-NC）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Internal Combustion Engine by tflexcad (Sketchfab, CC-BY-NC 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/internal-combustion-engine-0be463c1041743d88f0c35b1c2f50f2f',
@@ -30,6 +32,9 @@ export default makeDevice({
   glb: '/assets/combustion-engine.glb',
   /* 策展导览：曲轴→活塞→缸体→缸盖→配气→飞轮→附件 */
   tour: ['crank','pistons','block','head','valvetrain','flywheel','ancillaries'],
+  /* X-Ray 外壳：整机装配态，缸体+缸盖是仅有的封闭壳体，半透明后露出活塞/曲轴/飞轮；
+     避免 realPartIds 兜底把全部 7 组部件雾化 */
+  xrayShellIds: ['block', 'head'],
   mapByPosition(name, p, rel){
     if(rel.y > 0.85) return 'valvetrain';
     if(rel.y > 0.62) return 'head';

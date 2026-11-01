@@ -1079,6 +1079,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
      方向绕目标点旋转，Y 分量保持与主视角同族的俯角。影响范围：仅相机，不触碰模型。 */
   const VIEW_PRESETS = {
     front: [0, 0.42, 1], back: [0, 0.42, -1], left: [-1, 0.42, 0], right: [1, 0.42, 0],
+    interior: [0.15, 0.08, 0.3],   // 内部：低角度近距离（联动 X-Ray 由 UI 侧协调）
   };
   function flyToView(preset){
     if(!VIEW_PRESETS[preset]) return false;

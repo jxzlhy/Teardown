@@ -62,3 +62,18 @@
 | 字体资产 | 196 文件 / 5.6MB | @fontsource/noto-sans-sc 900（较宋体版 7.3MB -1.7MB） |
 | 字体校验 | fonts.check('900 "Noto Sans SC"','格物馆') = true | macOS headless Chrome |
 | 构建 | 2.18s ✓ | smoke 首跑超时为 Vite 冷启动预打包，复跑 28/28 |
+
+## 2026-11-01 · V2 任务书指标
+
+| 指标 | 值 | 备注 |
+|---|---|---|
+| 设备总数 | 104 台 · 818 部件 · 104 GLB · 38 品牌 | gen:inventory 生成值 |
+| 构建体积 | three chunk 771KB（不变）| 无包体退化 |
+| smoke 断言 | 32 项 | 含视角预设 + m4 取景护栏 + 还原相机 |
+| quality 已定级 | 3/104 台 | iphone-12=A / v8=B / radial=B（证据驱动，其余待核） |
+| 映射准确性 | 6 台抽查全过 | mapping-verify.mjs（action4/iphone12/v8/radial/digital-watch/nikon-z6） |
+| 装配筛查覆盖 | 104/104 台（6 批） | 零漂浮件，2 处实锤修复 |
+| 屏幕方案 | 8 native / 4 painted / 92 无屏 | screen-audit 全量取证 |
+| impeccable | 0 新增反模式 | 仅既有 --ease-spring advisory |
+| 双厅资产 | 日厅背景懒生成 + 星点显隐 | 0 额外纹理下载 |
+| 字体资产 | 思源黑体 196 片 / 5.6MB | @fontsource/noto-sans-sc 900 |

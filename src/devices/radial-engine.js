@@ -31,6 +31,9 @@ export default makeDevice({
   frontAxis: '-x',
   glb: '/assets/radial-engine.glb',
   tour: ['crankcase','cylinders','hub'],
+  /* X-Ray 外壳：曲轴箱/气缸环即发动机本体（无独立罩壳网格），按「最外层 1-2 件」口径
+     选 -X 端桨毂与螺旋桨作半透明目标；避免 realPartIds 兜底把全部 3 组部件雾化 */
+  xrayShellIds: ['hub'],
   demos: [
     { partId: 'hub', label: '螺旋桨轴旋转 · 星型发动机输出端', spinPivot: 'center', spin: 'auto' },
   ],

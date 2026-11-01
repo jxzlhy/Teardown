@@ -21,6 +21,8 @@ export default makeDevice({
     ['用途','结构教学拆解'],['来源','社区模型（Sketchfab）'],
   ],
   accent: '#c9a227',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'V6 car engine with engine [MoreThem] by Blendoriano (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/v6-car-engine-with-engine-morethem-7309cf5e6b07435c962f954513ca170e',
@@ -30,6 +32,9 @@ export default makeDevice({
   glb: '/assets/v6-engine.glb',
   /* 策展导览：缸体→活塞→连杆→火花塞→管路→前驱动 */
   tour: ['block','pistons','rods','plugs','hoses','drive-front'],
+  /* X-Ray 外壳：缸体总成（缸体+缸盖+歧管一体）是唯一罩壳件，半透明后露出活塞/连杆/火花塞；
+     避免 realPartIds 兜底把全部 6 组部件雾化 */
+  xrayShellIds: ['block'],
   mapByPosition(name, p, rel){
     if(name.includes('zierCurve')) return 'hoses';
     if(name.startsWith('Piston')) return 'pistons';

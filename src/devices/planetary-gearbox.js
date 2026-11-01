@@ -22,6 +22,8 @@ export default makeDevice({
     ['来源', 'Khronos glTF 官方样例（CC-BY）'],
   ],
   accent: '#a4b494',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（Khronos 官方样例 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: 'Khronos glTF 样例',
   modelCredit: 'Gearbox Assy by Khronos Group (glTF Sample Models, CC-BY)',
   targetWidth: 12,
@@ -29,6 +31,9 @@ export default makeDevice({
   normalize: 'full',
   glb: '/assets/planetary-gearbox.glb',
   tour: ['gears-a','gears-b','hardware-a','hardware-b'],
+  /* X-Ray 外壳：两排行星轮系（含外圈齿圈）是箱内最外层，半透明后露出轴系/卡簧小件；
+     避免 realPartIds 兜底把全部 4 组部件雾化 */
+  xrayShellIds: ['gears-a', 'gears-b'],
   mapByPosition(name, p, rel, ext) {
     const big = ext && Math.max(ext.x, ext.y, ext.z) > 3.2;
     const left = rel.x < 0.5;

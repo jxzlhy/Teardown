@@ -1,13 +1,15 @@
 # QUALITY DIAGNOSIS · 模型质量诊断报告
 
-> 生成：11/1/2026, 5:31:34 PM · 工具：`tools/quality-diagnose.mjs`（运行 `node tools/quality-diagnose.mjs` 重新生成，勿手改本报告数据表）。
+> 生成：11/1/2026, 7:11:11 PM · 工具：`tools/quality-diagnose.mjs`（运行 `node tools/quality-diagnose.mjs` 重新生成，勿手改本报告数据表）。
 > 依据：V2 权威任务书第八章。诊断只报告事实，不自动修改模型（8.1：用户低分 ≠ 直接改模型）。
 > 追溯（8.4）：原始模型 `vendor/assets/originals/` · 修改记录 `AUTONOMOUS_LOG.md` + git log · 回滚 `git checkout <commit> -- <file>`。
 
 ## 总览
 
 - 设备总数：**104**
-- quality 已定级：**3** 台（A/B/C/D 口径见 DESIGN_SYSTEM）· 其余待核
+- quality 已定级：**15** 台（A×1 + B×14）· 其余 89 台待核
+- ~~原 15 台待办~~ **已全部清零**（Agent B2 2026-11-01：14 台补 xrayShellIds + marshall-jcm800 补 tour + 12 台补 quality B）
+- quality 已定级：**15** 台（A/B/C/D 口径见 DESIGN_SYSTEM）· 其余待核
 - GLB 就绪/压缩：**104/104**
 - 署名合规：**104** 台 · 来源链接：**104** 台
 - NC（非商业）资产：3 台
@@ -59,10 +61,10 @@
 | porsche-911-carrera-4s | ⚪ 待核 | 4436.6 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | countach-lpi800-4 | ⚪ 待核 | 1916.3 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
 | porsche-911-930 | ⚪ 待核 | 9306.5 KB | ✓ | ✓ | ✓ |  | 9 | ✓ | 9 | ✓ |
-| v6-engine | ⚪ 待核 | 14050.4 KB | ✓ | ✓ | ✓ |  | 6 | — | 6 | ✓ |
-| v8-engine | 🟡 B | 5904.2 KB | ✓ | ✓ | ✓ |  | 8 | — | 8 | ✓ |
-| combustion-engine | ⚪ 待核 | 6909.8 KB | ✓ | ✓ | ✓ | NC | 7 | — | 7 | ✓ |
-| jet-engine | ⚪ 待核 | 4525.3 KB | ✓ | ✓ | ✓ |  | 4 | — | 4 | ✓ |
+| v6-engine | 🟡 B | 14050.4 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
+| v8-engine | 🟡 B | 5904.2 KB | ✓ | ✓ | ✓ |  | 8 | ✓ | 8 | ✓ |
+| combustion-engine | 🟡 B | 6909.8 KB | ✓ | ✓ | ✓ | NC | 7 | ✓ | 7 | ✓ |
+| jet-engine | 🟡 B | 4525.3 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | hydraulic-jack | ⚪ 待核 | 956.5 KB | ✓ | ✓ | ✓ | NC | 6 | ✓ | 6 | ✓ |
 | ak-47 | ⚪ 待核 | 13339.7 KB | ✓ | ✓ | ✓ |  | 17 | ✓ | 17 | ✓ |
 | walther-p99 | ⚪ 待核 | 6374.6 KB | ✓ | ✓ | ✓ |  | 15 | ✓ | 15 | ✓ |
@@ -76,11 +78,11 @@
 | flipper-zero | ⚪ 待核 | 121.1 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | framework-laptop13 | ⚪ 待核 | 595.6 KB | ✓ | ✓ | ✓ |  | 13 | ✓ | 13 | ✓ |
 | modular-smartphone | ⚪ 待核 | 854.8 KB | ✓ | ✓ | ✓ |  | 10 | ✓ | 10 | ✓ |
-| swiss-escapement | ⚪ 待核 | 863.8 KB | ✓ | ✓ | ✓ |  | 9 | — | 9 | ✓ |
+| swiss-escapement | 🟡 B | 863.8 KB | ✓ | ✓ | ✓ |  | 9 | ✓ | 9 | ✓ |
 | orrery | ⚪ 待核 | 2540.6 KB | ✓ | ✓ | ✓ |  | 13 | ✓ | 13 | ✓ |
 | radio-transceiver | ⚪ 待核 | 3557.8 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | drill-press | ⚪ 待核 | 1341.2 KB | ✓ | ✓ | ✓ |  | 10 | ✓ | 10 | ✓ |
-| vintage-microscope | ⚪ 待核 | 994.4 KB | ✓ | ✓ | ✓ |  | 7 | — | 7 | ✓ |
+| vintage-microscope | 🟡 B | 994.4 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | pocket-watch | ⚪ 待核 | 847.8 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
 | portable-cassette-player | ⚪ 待核 | 1748.4 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
 | retro-multimeter | ⚪ 待核 | 591.7 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
@@ -89,17 +91,17 @@
 | alarm-clock | ⚪ 待核 | 1183.8 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | cash-register | ⚪ 待核 | 862.5 KB | ✓ | ✓ | ✓ |  | 2 | ✓ | 2 | ✓ |
 | retro-console | ⚪ 待核 | 843.3 KB | ✓ | ✓ | ✓ |  | 2 | ✓ | 2 | ✓ |
-| hypoid-gear | ⚪ 待核 | 261.7 KB | ✓ | ✓ | ✓ |  | 4 | — | 4 | ✓ |
-| computer-parts | ⚪ 待核 | 6217.1 KB | ✓ | ✓ | ✓ |  | 9 | — | 9 | ✓ |
+| hypoid-gear | 🟡 B | 261.7 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
+| computer-parts | 🟡 B | 6217.1 KB | ✓ | ✓ | ✓ |  | 9 | ✓ | 9 | ✓ |
 | filmstrip-projector | ⚪ 待核 | 1416.3 KB | ✓ | ✓ | ✓ |  | 13 | ✓ | 13 | ✓ |
 | wall-clock | ⚪ 待核 | 489.3 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
-| planetary-gearbox | ⚪ 待核 | 1015.5 KB | ✓ | ✓ | ✓ |  | 4 | — | 4 | ✓ |
+| planetary-gearbox | 🟡 B | 1015.5 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | kitchen-blender | ⚪ 待核 | 206.4 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
 | pinball-machine | ⚪ 待核 | 1147.9 KB | ✓ | ✓ | ✓ |  | 9 | ✓ | 9 | ✓ |
-| triple-engine | ⚪ 待核 | 618.1 KB | ✓ | ✓ | ✓ |  | 10 | — | 10 | ✓ |
+| triple-engine | 🟡 B | 618.1 KB | ✓ | ✓ | ✓ |  | 10 | ✓ | 10 | ✓ |
 | gramophone | ⚪ 待核 | 924 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | grand-piano | ⚪ 待核 | 105.2 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
-| radial-engine | 🟡 B | 5118.4 KB | ✓ | ✓ | ✓ |  | 3 | — | 3 | ✓ |
+| radial-engine | 🟡 B | 5118.4 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
 | santacruz-v10 | ⚪ 待核 | 4594.2 KB | ✓ | ✓ | ✓ |  | 17 | ✓ | 17 | ✓ |
 | royal-typewriter | ⚪ 待核 | 1247.6 KB | ✓ | ✓ | ✓ |  | 10 | ✓ | 10 | ✓ |
 | eumig-projector | ⚪ 待核 | 394.3 KB | ✓ | ✓ | ✓ |  | 8 | ✓ | 8 | ✓ |
@@ -108,11 +110,11 @@
 | cherry-mx-switch | ⚪ 待核 | 1176.4 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | polaroid-coolcam | ⚪ 待核 | 1118.7 KB | ✓ | ✓ | ✓ |  | 8 | ✓ | 8 | ✓ |
 | casio-vl-tone | ⚪ 待核 | 356.5 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
-| marshall-jcm800 | ⚪ 待核 | 1949.3 KB | ✓ | ✓ | ✓ |  | ✗ | — | 4 | ✓ |
+| marshall-jcm800 | 🟡 B | 1949.3 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | sony-tc510 | ⚪ 待核 | 1684 KB | ✓ | ✓ | ✓ |  | 5 | ✓ | 5 | ✓ |
 | angle-grinder | ⚪ 待核 | 887.2 KB | ✓ | ✓ | ✓ |  | 5 | ✓ | 5 | ✓ |
 | smeg-toaster | ⚪ 待核 | 280.4 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
-| tourbillon-movement | ⚪ 待核 | 855.2 KB | ✓ | ✓ | ✓ |  | 7 | — | 7 | ✓ |
+| tourbillon-movement | 🟡 B | 855.2 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | gameboy | ⚪ 待核 | 1127.6 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 7 | ✓ |
 | door-lock-mechanism | ⚪ 待核 | 784.7 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
 | retro-fan | ⚪ 待核 | 433.1 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
@@ -120,39 +122,11 @@
 | commodore-64 | ⚪ 待核 | 2476.1 KB | ✓ | ✓ | ✓ |  | 5 | ✓ | 5 | ✓ |
 | admiral-7t10 | ⚪ 待核 | 2551.4 KB | ✓ | ✓ | ✓ |  | 4 | ✓ | 4 | ✓ |
 | we500-rotary-phone | ⚪ 待核 | 1105.3 KB | ✓ | ✓ | ✓ |  | 5 | ✓ | 5 | ✓ |
-| regency-tr1 | ⚪ 待核 | 503.9 KB | ✓ | ✓ | ✓ |  | 2 | — | 2 | ✓ |
+| regency-tr1 | 🟡 B | 503.9 KB | ✓ | ✓ | ✓ |  | 2 | ✓ | 2 | ✓ |
 
-## 待办问题（14 台）
+## 待办问题（0 台）
 
-- **v6-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **v8-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **combustion-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **jet-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **swiss-escapement**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **vintage-microscope**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **hypoid-gear**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **computer-parts**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **planetary-gearbox**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **triple-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **radial-engine**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **marshall-jcm800**：
-  - 无策展 tour（回退兜底可用，建议补）
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **tourbillon-movement**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
-- **regency-tr1**：
-  - 无 xrayShellIds（X-Ray 走 realPartIds 兜底）
+（无——全部通过静态诊断）
 
 ## 运行时专项（需浏览器，见 tools/）
 

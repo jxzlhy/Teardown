@@ -26,6 +26,8 @@ export default makeDevice({
     ['来源', '社区模型（Sketchfab · CC-BY）'],
   ],
   accent: '#e0a63f',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Swiss lever escapement mechanism by cyamahat (Sketchfab, CC-BY)',
   modelSource: 'https://sketchfab.com/3d-models/swiss-lever-escapement-mechanism-96cf82a6bdcd4ddda7635fbd33d0e016',
@@ -34,6 +36,9 @@ export default makeDevice({
   glb: '/assets/swiss-escapement.glb',
   /* 策展导览：擒纵轮→叉瓦→擒纵叉→摆轮→摆轴→冲击销→游丝→限位钉→夹持工装 */
   tour: ['escape-wheel','pallets','lever','balance-wheel','balance-axle','impulse-pin','hairspring','banking-pins','fixtures'],
+  /* X-Ray 外壳：全暴露演示机构、无封闭罩壳，按「最外层 1-2 件」口径仅选演示支架（相当于
+     实机主夹板的定位基准）作半透明目标；避免 realPartIds 兜底把全部 9 件雾化 */
+  xrayShellIds: ['fixtures'],
   mapping: {
     /* 注意：three.js GLTFLoader 会把节点名空白清洗为下划线（sanitizeNodeName），
        故 'escape wheel_0' 在运行时的真名是 'escape_wheel_0' */

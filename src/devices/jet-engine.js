@@ -20,6 +20,8 @@ export default makeDevice({
     ['用途','推进原理教学'],['来源','社区模型（Sketchfab）'],
   ],
   accent: '#ff8c42',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Jet Engine by playerhack (Sketchfab, CC-BY 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/jet-engine-ea66c2db873d4182b116529697d18571',
@@ -38,6 +40,10 @@ export default makeDevice({
   demos: [
     { partId: 'fan-section', label: '进气风扇段旋转 · 布雷顿循环吸气', spin: [3.4, 0, 0] },
   ],
+  /* X-Ray 外壳：模型仅 4 大段网格、无独立外壳件，按「最外层 1-2 件」口径选两端
+     （进气风扇段/尾喷管）作半透明目标，核心机与加力段保持实心；
+     避免 realPartIds 兜底把全部 4 段雾化 */
+  xrayShellIds: ['fan-section', 'nozzle'],
   mapping: {
     'Object_12': 'fan-section',
     'Object_13': 'nozzle',

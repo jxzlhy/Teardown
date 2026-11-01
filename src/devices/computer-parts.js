@@ -26,6 +26,8 @@ export default makeDevice({
     ['来源', '社区模型（Sketchfab · CC-BY）'],
   ],
   accent: '#5fd0a5',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Computer Components by crimsonfalcon (Sketchfab, CC-BY)',
   modelSource: 'https://sketchfab.com/3d-models/computer-components-4daeb72925d140809bdfd51634a1908e',
@@ -34,6 +36,9 @@ export default makeDevice({
   normalize: 'full',
   glb: '/assets/computer-parts.glb',
   tour: ['cpu','heatsink','ram','ssd','hdd-35','hdd-25','psu','fan','sata'],
+  /* X-Ray 外壳：电源铁壳与两块封闭盘体（3.5"/2.5" HDD）是仅有罩壳件，半透明可窥内部；
+     CPU/内存/散热器/风扇/SATA 线全暴露，保持实心 */
+  xrayShellIds: ['psu', 'hdd-35', 'hdd-25'],
   mappingPrefix: {
     /* 点号被 sanitizeNodeName 清洗：3.5inch_HDD.001 → 35inch_HDD001 */
     '35inch_HDD': 'hdd-35',

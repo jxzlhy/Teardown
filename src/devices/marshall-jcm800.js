@@ -23,6 +23,8 @@ export default makeDevice({
     ['来源', '社区模型（Sketchfab · CC-BY）'],
   ],
   accent: '#d4b13f',
+  /* 质量分级 B：策展 tour + xrayShellIds 齐备，署名/许可证/部件 desc 完整（社区模型 CC-BY · dark_igorek）；未经运行时逐件核验，不评 A */
+  quality: 'B',
   source: '社区模型（Sketchfab）',
   modelCredit: 'Marshall Sc20h // JCM 800 by dark_igorek (Sketchfab, CC-BY)',
   modelSource: 'https://sketchfab.com/3d-models/marshall-sc20h-jcm-800-7b93c2501e0646cbbf49d1d594fde9a0',
@@ -37,6 +39,11 @@ export default makeDevice({
     'inner_details_mat': 'panel',
   },
   realPartIds: ['cabinet', 'badge', 'trim', 'panel'],
+  /* 策展导览：外壳→护角→标牌→核心面板（从整机外观逐步收拢到音色的物理载体） */
+  tour: ['cabinet', 'trim', 'badge', 'panel'],
+  /* X-Ray 外壳：箱体与外部护角/提手是仅有的罩壳件，半透明后金面板组件浮出；
+     面板/标牌保持实心（面板即「内部核心」，标牌是展品图腾不做雾化） */
+  xrayShellIds: ['cabinet', 'trim'],
   postLoad: ({ partsById }) => {
     /* 模型自带"About Marshall"说明卡与纸条：主体包围盒之外的游离 mesh 一律隐藏 */
     const T = window.__THREE;

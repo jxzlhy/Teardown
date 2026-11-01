@@ -1,15 +1,11 @@
 <template>
   <div id="timelineView">
-    <header id="tlBar" class="hud-panel">
-      <router-link to="/" class="hud-icon" aria-label="返回大厅">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
-      </router-link>
-      <div class="gb-title">
-        <span class="hud-eyebrow">TIMELINE · 技术编年</span>
-        <h2>{{ data ? `${data.coverage.devices} / ${data.coverage.total} 台馆藏 + ${data.coverage.techs} 项技术 · ${span}` : '生成时间轴中…' }}</h2>
-      </div>
-      <span class="tl-note">覆盖 {{ data ? Math.round(data.coverage.devices / data.coverage.total * 100) : 0 }}% 馆藏 · 其余设备无断代信息，诚实留白</span>
-    </header>
+    <PageHeader id="tlBar" eyebrow="TIMELINE · 技术编年"
+      :title="data ? `${data.coverage.devices} / ${data.coverage.total} 台馆藏 + ${data.coverage.techs} 项技术 · ${span}` : '生成时间轴中…'">
+      <template #right>
+        <span class="tl-note">覆盖 {{ data ? Math.round(data.coverage.devices / data.coverage.total * 100) : 0 }}% 馆藏 · 其余设备无断代信息，诚实留白</span>
+      </template>
+    </PageHeader>
     <div id="tlScroll" v-if="data">
       <section v-for="band in data.bands" :key="band.name" class="tl-band">
         <div class="tl-bandhead">
@@ -38,6 +34,7 @@
 /* 技术编年（Phase 3 衍生）：device.era + technology.invented 构建期汇总（gen:timeline），
    视图只读产物——四段时代分带，设备可点进拆解，技术条目展示实用化起点。 */
 import { ref, computed, onMounted } from 'vue';
+import PageHeader from './PageHeader.vue';
 
 const data = ref(null);
 const span = computed(() => {
@@ -52,9 +49,7 @@ onMounted(async () => {
 
 <style scoped>
 #timelineView{ position:fixed; inset:0; background:#04070c; overflow:hidden; }
-#tlBar{ position:absolute; left:16px; right:16px; top:12px; z-index:5; display:flex; align-items:center; gap:14px; padding:10px 14px; }
-.gb-title{ flex:1; min-width:0; }
-.gb-title h2{ margin:3px 0 0; font-size:13px; font-weight:600; color:var(--txt-1); font-family:var(--sans); }
+/* 页头基样（.page-header / .gb-title）已合并进 PageHeader.vue */
 .tl-note{ font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--txt-dim); flex:none; }
 #tlScroll{ position:absolute; inset:74px 16px 16px; overflow-y:auto; padding:6px 4px 40px; }
 /* 展厅分带：衬线展区题 + mono 年代跨度（带宽约束保证可读行长） */

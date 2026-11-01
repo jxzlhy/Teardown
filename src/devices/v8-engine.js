@@ -29,8 +29,11 @@ export default makeDevice({
   camDist: 1.0,
   normalize: 'full',
   glb: '/assets/v8-engine.glb',
-  /* 策展导览：曲轴→活塞→双缸盖→进气→双排气→前驱动附件（X-Ray 走 realPartIds 兜底全透明） */
+  /* 策展导览：曲轴→活塞→双缸盖→进气→双排气→前驱动附件 */
   tour: ['crank','pistons','head-l','head-r','intake','exhaust-l','exhaust-r','front-drive'],
+  /* X-Ray 外壳：拆解态陈列，外壳已拆（缸盖/歧管均分列排开），无封闭罩壳件；
+     指定曲轴作半透明目标，避免 realPartIds 兜底把全部 8 组部件整体雾化 */
+  xrayShellIds: ['crank'],
   /* 运行演示（engine runDemos；示意标注由选中 toast 承担）：
      crank 绕自身长轴（Z）旋转；pistons 沿各自 bank 缸轴往复，
      相位按曲轴 Z 投影分桶为交叉曲柄 [0,90,270,180] —— 90° V8 点火关系 */
