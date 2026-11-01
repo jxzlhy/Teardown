@@ -1143,6 +1143,22 @@ html[data-hall="day"] .measure-tip{ background:rgba(252,254,255,.94); color:var(
 html[data-hall="day"] #toast{ background:rgba(255,255,255,.92); color:#243240; border-color:var(--line); }
 html[data-hall="day"] .hud-icon .tip{ background:rgba(252,254,255,.94); color:#243240; border-color:var(--line); }
 html[data-hall="day"] .hud-icon .tip kbd{ color:var(--acc); }
+/* 圆点导航（紧凑模式）：日厅浅色圆 + 深字（用户实测深色圆在浅底不可读） */
+html[data-hall="day"] .rdot{
+  background:rgba(255,255,255,.6); border-color:rgba(90,120,150,.3); color:#546577;
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+}
+html[data-hall="day"] .rdot:hover, html[data-hall="day"] .rdot.active{
+  color:var(--acc); background:rgba(10,126,164,.06); border-color:var(--acc);
+  box-shadow:0 0 10px rgba(10,126,164,.1);
+}
+html[data-hall="day"] .rdot::after{
+  color:#1c2836; background:rgba(252,254,255,.94); border-color:rgba(90,120,150,.2);
+}
+html[data-hall="day"] .rdot-expand{
+  background:rgba(255,255,255,.6); border-color:rgba(10,126,164,.35);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+}
 /* overlay / loader / drawer */
 html[data-hall="day"] .overlay{ background:rgba(230,238,244,.72); }
 html[data-hall="day"] #loader{ background:var(--bg-1); }
