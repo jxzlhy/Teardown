@@ -1,5 +1,7 @@
 # DESIGN SYSTEM · 拆解馆视觉规范
 
+> ⚠️ **本文已升级迁移（2026-10-31 阶段B）**：规范主文档现为 [`docs/design/DESIGN_SYSTEM.md`](design/DESIGN_SYSTEM.md)（配套 `UI_GUIDELINES.md` / `INTERACTION_GUIDELINES.md` / `UI_UX_AUDIT.md` / `UI_UX_REFACTOR_SPEC.md`）。下文保留为原始实测汇编，历史内容仍有效；两处冲突时以 `docs/design/` 版本为准。
+
 > 2026-10-31 起生效。本文档为**实测汇编**：所有 token 来自 `src/style.css` / `src/ui/hud.css`，修改 CSS 时同步更新本文。
 > 审查基线：Apple HIG 原则层（层级/对比/克制/触达目标），不照抄 iOS 组件形态（本站是 Web + 自绘 HUD）。
 

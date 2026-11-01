@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>格物馆 · 现阶段设计总览</title>
+<style>
+  /* ===== 格物馆设计总览 · A4 多页 · 深夜展馆视觉语言 =====
+     本文档自身遵循 docs/design/DESIGN_SYSTEM.md：三栈字系、单一强调色、mono 眉题体例。
+     输出：html2pdf-next.js（Chromium page.pdf 矢量输出，A4 margin 0）。 */
+
+  :root {
+    --bg-0: #030509;
+    --bg-1: #04070c;
+    --bg-2: #0a121c;
+    --panel: rgba(10, 18, 28, .72);
+    --txt-1: #f2f7fc;
+    --txt: #dfe8f2;
+    --txt-2: #c9d6e4;
+    --txt-3: #7d8fa3;
+    --acc: #45e0ff;
+    --acc-dim: rgba(69, 224, 255, .58);
+    --acc-08: rgba(69, 224, 255, .08);
+    --acc-16: rgba(69, 224, 255, .16);
+    --line: rgba(69, 224, 255, .15);
+    --line-soft: rgba(223, 232, 242, .09);
+    --ok: #4ce88a;
+    --warn: #f0b429;
+    --err: #ff7d7d;
+    --tech: #c792ea;
+    --serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+    --mono: "SF Mono", ui-monospace, Menlo, "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  }
+
+  @page { size: A4; margin: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-0);
+  }
+  body {
+    font-family: var(--sans), sans-serif;
+    color: var(--txt);
+    font-size: 12.5px;
+    line-height: 1.72;
+    line-break: strict;
+    overflow-wrap: break-word;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @media screen {
+    html { background: var(--bg-0); }
+    body { zoom: .8; padding: 20px 0; }
+    .page { margin: 0 auto 18px; outline: 1px solid var(--line-soft); }
+  }
+
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    padding: 46px 54px 40px;
+    background: var(--bg-0);
+    break-after: page;
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+  }
+  .page.last { break-after: auto; page-break-after: auto; }
+
+  /* 紧凑页修饰：内容偏满的页面收紧行距（仅调间距，不缩字号） */
+  .tight h3.bt { margin: 14px 0 6px; }
+  .tight table.t td { padding: 5px 8px; }
+  .tight ul.rl li { margin-bottom: 3px; }
+  .tight p { margin-bottom: 6px; }
+
+  /* ---- 页眉 / 页脚（导视条） ---- */
+  .runhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 22px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .runhead .l { font-family: var(--mono), monospace; font-size: 8.5px; letter-spacing: .26em; color: var(--txt-3); }
+  .runhead .l b { color: var(--acc-dim); font-weight: 400; }
+  .runhead .r { font-family: var(--mono), monospace; font-size: 8.5px; letter-spacing: .2em; color: var(--txt-3); }
+
+  .pgfoot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-soft);
+    font-family: var(--mono), monospace;
+    font-size: 8.5px;
+    letter-spacing: .18em;
+    color: var(--txt-3);
+  }
+  .pgfoot .pn { color: var(--acc-dim); }
+
+  /* ---- 体例：eyebrow / 章头 / 标题 ---- */
+  .eyebrow {
+    font-family: var(--mono), monospace;
+    font-size: 9px;
+    letter-spacing: .3em;
+    color: var(--acc-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--acc-dim); }
+
+  .sec-head { margin-bottom: 18px; }
+  .sec-head .no {
+    font-family: var(--mono), monospace;
+    font-size: 10.5px;
+    letter-spacing: .3em;
+    color: var(--acc);
+    margin-bottom: 6px;
+  }
+  .sec-head h2 {
+    margin: 0;
+    font-family: var(--serif), serif;
+    font-size: 27px;
+    font-weight: 800;
+    color: var(--txt-1);
+    letter-spacing: .06em;
+    line-height: 1.25;
+  }
+  .sec-head .en {
+    font-family: var(--mono), monospace;
+    font-size: 9px;
+    letter-spacing: .3em;
+    color: var(--txt-3);
+    margin-top: 7px;
+  }
+
+  h3.bt {
+    font-family: var(--sans), sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--txt-1);
+    margin: 20px 0 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  h3.bt .tag { font-family: var(--mono), monospace; font-size: 8.5px; letter-spacing: .2em; color: var(--txt-3); font-weight: 400; }
+  p { margin: 0 0 8px; }
+  b, strong { color: var(--txt-1); font-weight: 600; }
+  .k { font-family: var(--mono), monospace; font-size: .92em; color: var(--acc); }
+  .dim { color: var(--txt-3); }
+  .acc-t { color: var(--acc); }
+
+  ul.rl { margin: 4px 0 10px; padding-left: 0; list-style: none; }
+  ul.rl li { position: relative; padding-left: 16px; margin-bottom: 5px; }
+  ul.rl li::before { content: ""; position: absolute; left: 2px; top: .72em; width: 6px; height: 1px; background: var(--acc-dim); }
+
+  /* ---- 面板 ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-sizing: border-box;
+  }
+  .panel .pt {
+    font-family: var(--mono), monospace;
+    font-size: 9px;
+    letter-spacing: .24em;
+    color: var(--acc-dim);
+    margin-bottom: 8px;
+  }
+
+  /* ---- 表格 ---- */
+  table.t { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
+  table.t th {
+    font-family: var(--mono), monospace;
+    font-size: 8.5px;
+    font-weight: 400;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--acc-dim);
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.t td {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--txt-2);
+    padding: 6.5px 8px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  table.t td:first-child { color: var(--txt); }
+  table.t .m { font-family: var(--mono), monospace; font-size: 10px; color: var(--acc); white-space: nowrap; }
+  table.t .c { color: var(--txt-3); font-family: var(--mono), monospace; font-size: 10px; white-space: nowrap; }
+
+  /* ---- 色卡 ---- */
+  .sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin: 8px 0 4px; }
+  .sw { display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-bottom: 1px solid var(--line-soft); }
+  .sw .chip { width: 30px; height: 30px; border-radius: 6px; border: 1px solid rgba(255,255,255,.14); flex: none; }
+  .sw .meta { min-width: 0; }
+  .sw .tk { font-family: var(--mono), monospace; font-size: 10px; color: var(--txt-1); }
+  .sw .val { font-family: var(--mono), monospace; font-size: 9px; color: var(--txt-3); }
+  .sw .sem { font-size: 9.5px; color: var(--txt-3); margin-top: 1px; }
+
+  /* ---- 三层字系卡 ---- */
+  .layer-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 10px 0; }
+  .layer-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 13px 14px; }
+  .layer-card .lname { font-size: 15px; font-weight: 700; color: var(--txt-1); margin-bottom: 2px; }
+  .layer-card .ldemo { font-size: 17px; color: var(--acc); margin: 6px 0 4px; line-height: 1.3; }
+  .layer-card .luse { font-size: 10px; color: var(--txt-3); line-height: 1.6; }
+
+  /* ---- 截图 ---- */
+  figure.fig { margin: 10px 0 4px; }
+  figure.fig .imgbox {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg-1);
+    line-height: 0;
+  }
+  figure.fig img { width: 100%; display: block; border-radius: 8px; }
+  figure.fig figcaption {
+    font-family: var(--mono), monospace;
+    font-size: 8.5px;
+    letter-spacing: .16em;
+    color: var(--txt-3);
+    padding: 7px 2px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .fig-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fig-duo figure.fig { margin: 10px 0 0; }
+
+  /* ---- 键帽 ---- */
+  .kbd {
+    display: inline-block;
+    font-family: var(--mono), monospace;
+    font-size: 9.5px;
+    color: var(--txt-1);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 1px 7px;
+    margin-right: 2px;
+    background: var(--bg-2);
+    white-space: nowrap;
+  }
+
+  /* ---- 键盘两栏地图 ---- */
+  .kb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; }
+  .kb-row { display: flex; gap: 10px; padding: 4.5px 0; border-bottom: 1px solid var(--line-soft); align-items: baseline; }
+  .kb-row .keys { width: 86px; flex: none; }
+  .kb-row .act { font-size: 10.5px; color: var(--txt-2); }
+
+  /* ---- 阶段史时间列 ---- */
+  .ph-row { display: flex; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--line-soft); }
+  .ph-row .ph { font-family: var(--mono), monospace; font-size: 9.5px; color: var(--acc); width: 30px; flex: none; padding-top: 1px; }
+  .ph-row .phd { font-size: 10.5px; color: var(--txt-2); line-height: 1.55; }
+
+  /* ---- 状态点 ---- */
+  .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+  .dot.ok { background: var(--ok); }
+  .dot.warn { background: var(--warn); }
+  .dot.err { background: var(--err); }
+  .dot.tech { background: var(--tech); }
+  .dot.acc { background: var(--acc); }
+
+  /* ================= 封面 ================= */
+  .front { padding: 58px 62px 52px; }
+  .front .nav {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 16px; border-bottom: 1px solid var(--line);
+  }
+  .front .seal { display: flex; align-items: baseline; gap: 12px; }
+  .front .seal .zh { font-family: var(--serif), serif; font-size: 17px; font-weight: 800; color: var(--txt-1); letter-spacing: .2em; }
+  .front .seal .en { font-family: var(--mono), monospace; font-size: 8.5px; letter-spacing: .3em; color: var(--txt-3); }
+  .front .nav .links { font-family: var(--mono), monospace; font-size: 8.5px; letter-spacing: .22em; color: var(--txt-3); }
+
+  .front .hero { margin-top: 92px; }
+  .front .vol { font-family: var(--mono), monospace; font-size: 10px; letter-spacing: .34em; color: var(--acc-dim); display: flex; align-items: center; gap: 12px; }
+  .front .vol::before { content: ""; width: 30px; height: 1px; background: var(--acc-dim); }
+  .front h1 {
+    margin: 26px 0 0;
+    font-family: var(--serif), serif;
+    font-size: 118px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    color: var(--txt-1);
+    line-height: 1.04;
+  }
+  .front .en-sub {
+    font-family: var(--mono), monospace;
+    font-size: 12px;
+    letter-spacing: .58em;
+    color: var(--acc);
+    margin-top: 18px;
+  }
+  .front .slogan { margin-top: 26px; font-size: 14px; color: var(--txt-2); line-height: 1.9; }
+  .front .slogan .sub { color: var(--txt-3); }
+
+  .front .sum {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+  }
+  .front .sum .st { font-family: var(--mono), monospace; font-size: 9px; letter-spacing: .3em; color: var(--acc-dim); margin-bottom: 10px; }
+  .front .sum .sd { font-size: 11.5px; color: var(--txt-2); line-height: 1.85; }
+  .front .meta { font-family: var(--mono), monospace; font-size: 9.5px; color: var(--txt-3); line-height: 2.15; letter-spacing: .08em; }
+  .front .meta b { color: var(--txt); font-weight: 400; }
+
+  /* ================= 目录 ================= */
+  .toc-row {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 8.5px 2px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .toc-row .tno { font-family: var(--mono), monospace; font-size: 10px; color: var(--acc); width: 26px; flex: none; }
+  .toc-row .tt { font-size: 13px; color: var(--txt-1); font-weight: 600; width: 150px; flex: none; }
+  .toc-row .td { font-size: 10px; color: var(--txt-3); flex: 1; }
+  .toc-row .tp { font-family: var(--mono), monospace; font-size: 9px; color: var(--txt-3); }
+
+  /* ================= 色彩演示条 ================= */
+  .skin-strip {
+    display: flex; gap: 8px; margin: 10px 0 4px;
+  }
+  .skin-strip .sc { flex: 1; border-radius: 8px; border: 1px solid var(--line-soft); padding: 9px 10px 8px; }
+  .skin-strip .sc .nm { font-family: var(--mono), monospace; font-size: 8px; letter-spacing: .14em; color: var(--txt-3); }
+  .skin-strip .sc .bar { height: 5px; border-radius: 3px; margin-top: 6px; }
+
+  /* ================= 组件小样 ================= */
+  .demo-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0 4px; }
+  .demo-btn {
+    font-size: 11px; padding: 6px 16px; border-radius: 7px;
+    border: 1px solid var(--line); color: var(--txt); background: transparent;
+  }
+  .demo-btn.primary {
+    border: 1px solid var(--acc); color: #06121a; font-weight: 600;
+    background: linear-gradient(180deg, #6fe6ff, #2fc4e6);
+  }
+  .demo-chip {
+    font-family: var(--mono), monospace; font-size: 10px; padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--line-soft); color: var(--txt-2);
+  }
+  .demo-chip.on { border-color: var(--acc); color: var(--acc); background: var(--acc-08); }
+  .demo-panel {
+    width: 120px; height: 44px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); position: relative;
+  }
+  .demo-panel::after {
+    content: ""; position: absolute; top: -1px; right: -1px;
+    width: 14px; height: 14px;
+    background: var(--bg-0);
+    border-left: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    border-bottom-right-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ P1 封面 ============ -->
+<div class="page front">
+    <div class="nav">
+      <div class="seal"><span class="zh">格物馆</span><span class="en">MUSEUM OF MACHINES</span></div>
+      <div class="links">知识星图 · 技术编年 · 常设展</div>
+    </div>
+    <div class="hero">
+      <div class="vol">DESIGN OVERVIEW · VOL.04 — 2026</div>
+      <h1>格物馆</h1>
+      <div class="en-sub">MUSEUM OF MACHINES</div>
+      <div class="slogan">
+        深夜开放的机械博物馆——展柜里的设备被单束冷光照亮，<br>
+        <span class="sub">界面是馆内的导视、铭牌与氛围系统。设备模型是唯一发光体。</span>
+      </div>
+    </div>
+    <div class="sum">
+      <div>
+        <div class="st">SUMMARY · 本文范围</div>
+        <div class="sd">汇编格物馆截至 2026-10-31 的完整设计现状：品牌与命名、视觉论点、设计系统全部 Token、组件与页面规范、交互与 3D 呈现约束、质量闭环与遗留事项。内容依据 docs/design/ 三大规范与两轮重构（阶段 A–H、R1–R6）实施档案整理，与代码事实源一致。</div>
+      </div>
+      <div class="meta">
+        <div>版本 <b>阶段 R6 收官</b></div>
+        <div>日期 <b>2026-10-31</b></div>
+        <div>馆藏 <b>103 台 · 815 部件 · 38 品牌</b></div>
+        <div>事实源 <b>src/style.css :root · src/lib/brand.js</b></div>
+      </div>
+    </div>
+  </div>
+<!-- ============ P2 目录 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">CONTENTS</span></div>
+  <div class="sec-head">
+    <div class="no">CONTENTS</div>
+    <h2>目录与文档地图</h2>
+    <div class="en">READING GUIDE · SOURCE DOCS</div>
+  </div>
+
+  <div class="toc-row"><span class="tno">01</span><span class="tt">品牌与命名</span><span class="td">格物致知：从「拆解」动作到「格物」目的的更名决策与文案资产</span><span class="tp">P.03</span></div>
+  <div class="toc-row"><span class="tno">02</span><span class="tt">视觉定位</span><span class="td">深夜展馆论点、三条铁律、大胆预算与 NO. 编号语言</span><span class="tp">P.04</span></div>
+  <div class="toc-row"><span class="tno">03</span><span class="tt">色彩系统</span><span class="td">基础底色、强调色体系与状态色 Token；设备换肤流程</span><span class="tp">P.05</span></div>
+  <div class="toc-row"><span class="tno">04</span><span class="tt">字体系统</span><span class="td">名字层 / 数据层 / 操作层三栈语义与字号阶梯</span><span class="tp">P.06</span></div>
+  <div class="toc-row"><span class="tno">05</span><span class="tt">空间 · 玻璃 · 层级</span><span class="td">间距与圆角、三级玻璃配方、z-index 层级与焦点环</span><span class="tp">P.07</span></div>
+  <div class="toc-row"><span class="tno">06</span><span class="tt">动效系统</span><span class="td">时长与缓动 Token、三层职责边界、面板进出与降级</span><span class="tp">P.08</span></div>
+  <div class="toc-row"><span class="tno">07</span><span class="tt">组件规范</span><span class="td">按钮 / 图标 / 面板 / 卡片 / 弹层 / 输入 / 状态反馈</span><span class="tp">P.09</span></div>
+  <div class="toc-row"><span class="tno">08</span><span class="tt">页面 · 门厅与大厅</span><span class="td">海报式门厅、墙面展台、展签卡与筛选信息架构</span><span class="tp">P.10</span></div>
+  <div class="toc-row"><span class="tno">09</span><span class="tt">页面 · 3D 工作空间</span><span class="td">HUD 骨架、视觉权重序、铭牌化与移动端布局</span><span class="tp">P.11</span></div>
+  <div class="toc-row"><span class="tno">10</span><span class="tt">页面 · 知识展区</span><span class="td">技术编年时序脊柱、代际对比展签化、知识星图</span><span class="tp">P.12</span></div>
+  <div class="toc-row"><span class="tno">11</span><span class="tt">交互 · 键盘 · 无障碍</span><span class="td">动效原则、全键盘地图、可退出性与触控目标</span><span class="tp">P.13</span></div>
+  <div class="toc-row"><span class="tno">12</span><span class="tt">3D 呈现规范</span><span class="td">取景与姿态、爆炸与视图四态、画质阶梯与接入门禁</span><span class="tp">P.14</span></div>
+  <div class="toc-row"><span class="tno">13</span><span class="tt">质量闭环</span><span class="td">审计问题全景、两轮重构阶段史与验证口径</span><span class="tp">P.15</span></div>
+  <div class="toc-row"><span class="tno">14</span><span class="tt">现状 · 遗留 · 展望</span><span class="td">馆藏数据、技术架构与已知待办</span><span class="tp">P.16</span></div>
+
+  <h3 class="bt">文档地图 <span class="tag">SOURCE DOCS · 规范以代码为最终事实</span></h3>
+  <table class="t">
+    <tr><th style="width:190px">文档</th><th>职责</th></tr>
+    <tr><td class="m">docs/design/BRAND.md</td><td>馆牌与命名规范（单一事实源 src/lib/brand.js）</td></tr>
+    <tr><td class="m">docs/design/DESIGN_SYSTEM.md</td><td>视觉规范主文档：全部 Token 的语义定义（代码事实源 src/style.css :root）</td></tr>
+    <tr><td class="m">docs/design/UI_GUIDELINES.md</td><td>组件形态与页面组织规范</td></tr>
+    <tr><td class="m">docs/design/INTERACTION_GUIDELINES.md</td><td>交互 / 动效 / 键盘 / 无障碍行为约定</td></tr>
+    <tr><td class="m">docs/MOTION_GUIDELINES.md · 3D_EXPERIENCE_GUIDELINES.md</td><td>动效铁律与 3D 体验、拆解质量规范</td></tr>
+    <tr><td class="m">docs/design/UI_UX_AUDIT.md · docs/phases/PHASE_*.md</td><td>审计问题清单与阶段 A–H、R1–R6 实施档案</td></tr>
+  </table>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.02 / 16 · 2026-10-31</span></div>
+</div>
+
+<!-- ============ P3 品牌与命名 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§01 BRAND</span></div>
+  <div class="sec-head">
+    <div class="no">01</div>
+    <h2>品牌与命名</h2>
+    <div class="en">BRAND · 馆牌唯一事实源 src/lib/brand.js</div>
+  </div>
+
+  <p><b>格物馆 · MUSEUM OF MACHINES</b>（2026-10-31 由「拆解馆」更名，决策记录 D-20261031-08）。更名的根据是项目已从单一拆解动作成长为「动作 × 知识 × 展览」三层：</p>
+
+  <table class="t">
+    <tr><th style="width:90px">层</th><th>内容</th><th style="width:150px">「拆解馆」覆盖？</th></tr>
+    <tr><td>动作</td><td>3D 拆解 / 装配 / X 光 / 剖切 / 测量</td><td>成立，但只是入口</td></tr>
+    <tr><td>知识</td><td>20 项技术原理库、运行演示、两点测量</td><td>不覆盖</td></tr>
+    <tr><td>展览</td><td>技术编年（公元前 150 年—2026）、知识星图、代际对比、常设展 103 台</td><td>不覆盖</td></tr>
+  </table>
+
+  <p><b>「格物馆」的语义</b>：取自《大学》「格物致知」——研究事物而获得知识。拆开机器是「格物」，原理库 / 编年 / 星图是「致知」。馆名从<b>动作</b>升维到<b>目的</b>，且三字结构与衬线巨字门厅完全同构。<b>「拆解」降级但不消失</b>：保留为全站核心交互动词（拆解按钮、拆解度、开始拆解、试试一键拆解）。</p>
+
+  <h3 class="bt">文案资产 <span class="tag">brand.js 单一来源，改品牌 = 改这一个文件 + BRAND.md</span></h3>
+  <div class="panel">
+    <div class="pt">COPY ASSETS</div>
+    <table class="t" style="margin:0">
+      <tr><td style="width:120px" class="c">主标语</td><td><b>把每一台机器，拆到最后一颗螺丝。</b></td></tr>
+      <tr><td class="c">副标语</td><td>格一物，致一知——看清技术的来龙去脉。</td></tr>
+      <tr><td class="c">英文副标</td><td class="m">MUSEUM OF MACHINES（mono 数据层小字，不做英文大标题）</td></tr>
+      <tr><td class="c">页面 title</td><td class="m">格物馆 · MUSEUM OF MACHINES（main.js 从 brand.js 动态覆写）</td></tr>
+      <tr><td class="c">页脚</td><td class="m">© 2026 格物馆 MUSEUM OF MACHINES</td></tr>
+      <tr><td class="c">导视返回</td><td>返回门厅</td></tr>
+    </table>
+  </div>
+
+  <h3 class="bt">命名规则</h3>
+  <ul class="rl">
+    <li>馆名只出现在：门厅巨字、导视条馆印、页脚、<span class="k">&lt;title&gt;</span>、设备屏幕通知卡。<b>禁止</b>在按钮 / 表格 / 部件级 UI 复读馆名。</li>
+    <li>「拆解」作为动词不受限；「拆解馆」字样只允许存在于历史文档（LOG / 旧阶段档案，不改写历史）。</li>
+    <li>数量口径诚实：统计与页脚数字全部来自 <span class="k">virtual:device-manifest</span> 生成值，不得手写。</li>
+  </ul>
+
+  <h3 class="bt">落选候选存档 <span class="tag">如需再更名，先评估此表</span></h3>
+  <table class="t">
+    <tr><th style="width:170px">候选</th><th>未采用原因</th></tr>
+    <tr><td>内构 / INNERWORKS</td><td>造词认知成本高，无典故纵深</td></tr>
+    <tr><td>机械纪元</td><td>偏向时间维度，盖不住拆解动作</td></tr>
+    <tr><td>千机馆</td><td>数量虚指与 103 台诚实口径冲突</td></tr>
+    <tr><td>万物拆解馆 / TEARDOWN LAB</td><td>仍是「拆解」单一动作命名</td></tr>
+  </table>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.03 / 16</span></div>
+</div>
+
+<!-- ============ P4 视觉定位 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§02 VISUAL THESIS</span></div>
+  <div class="sec-head">
+    <div class="no">02</div>
+    <h2>视觉定位</h2>
+    <div class="en">VISUAL THESIS · 深夜展馆 NIGHT WING × MISSION CONTROL</div>
+  </div>
+
+  <p><b>高端数字科技博物馆 + 未来科技展馆 + 沉浸式 3D 探索空间。</b>一句话论点（第二轮重构定稿）：<b>深夜开放的机械博物馆</b>——设备模型是唯一发光体；UI 只做三类事：<span class="acc-t">导视</span>（导航 / 检索）、<span class="acc-t">铭牌</span>（名字与数据）、<span class="acc-t">氛围</span>（深空底 + 扫描线）。不是 SaaS 后台、不是电商、不是 AI Dashboard 模板。</p>
+
+  <h3 class="bt">三条铁律</h3>
+  <div class="layer-row">
+    <div class="layer-card">
+      <div class="lname">克制</div>
+      <div class="luse">不堆特效，一屏一个焦点。玻璃面板、chips、表格维持既有 Token，不做二次装饰。</div>
+    </div>
+    <div class="layer-card">
+      <div class="lname">层级</div>
+      <div class="luse">信息按博物馆铭牌逻辑分层：编号 → 名字 → 读数 → 说明，逐级弱化。</div>
+    </div>
+    <div class="layer-card">
+      <div class="lname">真实</div>
+      <div class="luse">不掩盖模型几何 / 映射问题，不把程序化示意包装成官方真实内部构件。</div>
+    </div>
+  </div>
+
+  <h3 class="bt">大胆预算 <span class="tag">frontend-design：boldness 花在一处</span></h3>
+  <p>「大」只留给四处：<b>3D 模型、衬线巨字馆名、焦点展台、开场演出</b>。其余界面元素一律安静——深空底色上的玻璃面板与 mono 读数，构成馆内的安静导视系统。</p>
+
+  <h3 class="bt">展品编号语言 <span class="tag">全馆贯通的连续编号</span></h3>
+  <p>全馆统一 <span class="k">NO.001</span> 三位编号，形成连续的博物馆编号语言：<b>大厅焦点展台 <span class="k">NO.002</span> → 展签卡左上 <span class="k">NO.001</span> → 工作空间左 rail 序号 <span class="k">01</span> → 部件展签 <span class="k">08 / 14</span></b>。编号一律 mono 数据层。</p>
+
+  <figure class="fig">
+    <div class="imgbox"><img src="../screenshots/d2-lobby-desktop-top.png" alt="门厅首屏"></div>
+    <figcaption><span>SCREEN · 门厅首屏（海报式两栏：衬线巨字 + 墙面展台）</span><span>1440 × 900</span></figcaption>
+  </figure>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.04 / 16</span></div>
+</div>
+
+<!-- ============ P5 色彩系统 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§03 COLOR</span></div>
+  <div class="sec-head">
+    <div class="no">03</div>
+    <h2>色彩系统</h2>
+    <div class="en">COLOR TOKENS · 代码唯一来源 src/style.css :root</div>
+  </div>
+
+  <h3 class="bt">基础底色与文本 <span class="tag">BASE</span></h3>
+  <div class="sw-grid">
+    <div class="sw"><span class="chip" style="background:#030509"></span><div class="meta"><div class="tk">--bg-0 · #030509</div><div class="sem">页面底</div></div></div>
+    <div class="sw"><span class="chip" style="background:#04070c"></span><div class="meta"><div class="tk">--bg-1 · #04070c</div><div class="sem">面板底</div></div></div>
+    <div class="sw"><span class="chip" style="background:#0a121c"></span><div class="meta"><div class="tk">--bg-2 · #0a121c</div><div class="sem">次级块</div></div></div>
+    <div class="sw"><span class="chip" style="background:rgba(7,13,20,.85)"></span><div class="meta"><div class="tk">--glass · rgba(7,13,20,.62)</div><div class="sem">玻璃面板底</div></div></div>
+    <div class="sw"><span class="chip" style="background:#f2f7fc"></span><div class="meta"><div class="tk">--txt-1 · #f2f7fc</div><div class="sem">标题</div></div></div>
+    <div class="sw"><span class="chip" style="background:#dfe8f2"></span><div class="meta"><div class="tk">--txt · #dfe8f2</div><div class="sem">正文</div></div></div>
+    <div class="sw"><span class="chip" style="background:#c9d6e4"></span><div class="meta"><div class="tk">--txt-2 · #c9d6e4</div><div class="sem">次级文本</div></div></div>
+    <div class="sw"><span class="chip" style="background:#7d8fa3"></span><div class="meta"><div class="tk">--txt-3 · #7d8fa3</div><div class="sem">弱化（对 bg-1 ≈ 5.9 : 1，勿再调暗）</div></div></div>
+  </div>
+  <p class="dim" style="font-size:10.5px">描边与分隔线不设固定色：<span class="k">--line = color-mix(in srgb, var(--acc) 18%, transparent)</span>，随强调色自动换肤。</p>
+
+  <h3 class="bt">强调色体系 <span class="tag">换肤核心</span></h3>
+  <div class="sw-grid">
+    <div class="sw"><span class="chip" style="background:#45e0ff"></span><div class="meta"><div class="tk">--acc · #45e0ff</div><div class="sem">强调、激活态、eyebrow、HUD 点（设备配置 accent 可覆写）</div></div></div>
+    <div class="sw"><span class="chip" style="background:rgba(69,224,255,.55)"></span><div class="meta"><div class="tk">--acc-dim · 55%</div><div class="sem">次级强调</div></div></div>
+    <div class="sw"><span class="chip" style="background:rgba(69,224,255,.08)"></span><div class="meta"><div class="tk">--acc-08 / --acc-16</div><div class="sem">强调背景梯度（color-mix 派生，禁止手写 rgba 代替）</div></div></div>
+    <div class="sw"><span class="chip" style="background:linear-gradient(90deg,#45e0ff,#c792ea)"></span><div class="meta"><div class="tk">--stage-acc</div><div class="sem">设备级，仅大厅展台作用域</div></div></div>
+  </div>
+
+  <h3 class="bt">状态色 <span class="tag">阶段 B 统一收口，禁止散落硬编码</span></h3>
+  <div class="sw-grid">
+    <div class="sw"><span class="chip" style="background:#4ce88a"></span><div class="meta"><div class="tk">--ok · #4ce88a</div><div class="sem">正常 / 已就绪（hud-dot.ok）</div></div></div>
+    <div class="sw"><span class="chip" style="background:#f0b429"></span><div class="meta"><div class="tk">--warn · #f0b429</div><div class="sem">警示 / 降级 / NC 许可标</div></div></div>
+    <div class="sw"><span class="chip" style="background:#ff7d7d"></span><div class="meta"><div class="tk">--err · #ff7d7d</div><div class="sem">错误 / 失败（loadErr、错误 toast）</div></div></div>
+    <div class="sw"><span class="chip" style="background:#c792ea"></span><div class="meta"><div class="tk">--tech · #c792ea</div><div class="sem">知识 / 技术条目专属，不得挪作装饰</div></div></div>
+  </div>
+
+  <h3 class="bt">用色规则与换肤流程</h3>
+  <ul class="rl">
+    <li>新颜色一律 <span class="k">color-mix</span> 派生自 <span class="k">--acc</span> / <span class="k">--bg-*</span>，或使用状态色 Token；<b>强调色仅做点缀，禁止大面积铺底</b>；每设备只允许换 <span class="k">--acc</span>。</li>
+    <li>换肤流程：设备配置 <span class="k">accent</span> → 引擎根元素写 <span class="k">--acc</span> → 梯度自动派生。接入检查：与 #45e0ff 可区分、bg-0 上对比度达标、<span class="k">--acc-08</span> 上文本 ≥ 4.5 : 1。</li>
+    <li>Bloom 在引擎 L0 画质档关闭；CSS 侧同样克制，禁止过曝光晕叠加。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.05 / 16</span></div>
+</div>
+
+<!-- ============ P6 字体系统 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§04 TYPE</span></div>
+  <div class="sec-head">
+    <div class="no">04</div>
+    <h2>字体系统</h2>
+    <div class="en">TYPOGRAPHY · 名字层 / 数据层 / 操作层 三分语义</div>
+  </div>
+  <p>第二轮重构确立的核心规则：<b>三栈各司其职，不得混用层级</b>。衬线不进按钮 / 表格 / HUD 微标注；等宽不做大标题。</p>
+
+  <div class="layer-row">
+    <div class="layer-card">
+      <div class="lname" style="font-family:var(--serif), serif">名字层</div>
+      <div class="ldemo" style="font-family:var(--serif), serif;font-weight:800">格物馆 · 电池</div>
+      <div class="luse"><span class="k">--serif</span>：Songti SC / Noto Serif SC 栈。<br>馆名、展区标题、展品名、部件名——只用于「这是什么东西」。</div>
+    </div>
+    <div class="layer-card">
+      <div class="lname">数据层</div>
+      <div class="ldemo" style="font-family:var(--mono), monospace;font-size:14px">NO.008 · 1770 MAH</div>
+      <div class="luse"><span class="k">--mono</span>：SF Mono / Menlo 栈。<br>编号、年份、规格、状态、eyebrow——只用于「读数与标注」。</div>
+    </div>
+    <div class="layer-card">
+      <div class="lname">操作层</div>
+      <div class="ldemo">开始拆解 →</div>
+      <div class="luse"><span class="k">--sans</span>：PingFang SC 系统栈。<br>按钮、说明、正文——「用户要做什么」。</div>
+    </div>
+  </div>
+
+  <h3 class="bt">字号阶梯 <span class="tag">现状实测 + 约束</span></h3>
+  <table class="t">
+    <tr><th style="width:92px">级</th><th>用途</th><th style="width:250px">规格</th></tr>
+    <tr><td>Display</td><td>大厅馆名（衬线巨字）</td><td class="m">clamp(84px, 15vw, 190px) / 900</td></tr>
+    <tr><td>H1</td><td>展品名（设备页标题 / 详情卡 / 卡片名）</td><td class="m">17–22px 衬线 700–800</td></tr>
+    <tr><td>H2</td><td>次级页 / 展区标题</td><td class="m">13–20px（衬线展区 / sans 页头）</td></tr>
+    <tr><td>Body</td><td>正文、部件描述</td><td class="m">12–13.5px，行高 ≥ 1.7</td></tr>
+    <tr><td>Caption</td><td>卡片 tagline、辅助说明</td><td class="m">11–12.5px</td></tr>
+    <tr><td>Label / HUD</td><td>eyebrow、状态、徽标</td><td class="m">8.5–11px mono，宽字距</td></tr>
+  </table>
+
+  <h3 class="bt">硬性规则</h3>
+  <ul class="rl">
+    <li>中文正文 ≥ 13px（长文 ≥ 12px 需行高 ≥ 1.8 兜底）；&lt;10px 仅限 HUD 装饰性标注，且必配 tooltip / aria-label，不做唯一信息载体。</li>
+    <li>数字读数一律 <span class="k">--mono</span>；<span class="k">--fs-hud: 10px</span> 仅装饰性标注，配 ≥ .2em 字距。</li>
+    <li>eyebrow 体例：一层信息最多一个 eyebrow；同屏 ≤ 3 个；内容为「分类词 + 编号 / 英文注」，正文永不重复 eyebrow 内容；禁止 eyebrow 嵌套。</li>
+  </ul>
+
+  <figure class="fig" style="margin-top:16px">
+    <div class="imgbox"><img src="../screenshots/e2-ctxcard-mobile.png" alt="移动端部件详情" style="width:58%;height:212px;object-fit:cover;object-position:bottom;margin:0 auto"></div>
+    <figcaption><span>SCREEN · 移动端部件详情（展签眉题 SPECIMEN · 08/14 + 衬线部件名，字体三栈落位实例）</span><span>390 × 844</span></figcaption>
+  </figure>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.06 / 16</span></div>
+</div>
+
+<!-- ============ P7 空间·玻璃·层级 ============ -->
+<div class="page tight">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§05 LAYOUT</span></div>
+  <div class="sec-head">
+    <div class="no">05</div>
+    <h2>空间 · 玻璃 · 层级</h2>
+    <div class="en">SPACING · MATERIAL · ELEVATION</div>
+  </div>
+
+  <h3 class="bt">间距 / 圆角 / 边距</h3>
+  <table class="t">
+    <tr><th style="width:120px">项</th><th>规则</th></tr>
+    <tr><td>间距标尺</td><td>4 的倍数（4 / 8 / 12 / 16 / 24 / 32 / 48）；组件内边距主用 8–16，面板间 24+</td></tr>
+    <tr><td>圆角</td><td><span class="k">--corner: 10px</span>（面板）；按钮 / 输入 7–8px；chip 全圆 999px；<b>不再新增圆角档位</b></td></tr>
+    <tr><td>HUD 缺角</td><td><span class="k">--notch: 14px</span>（.hud-panel 右上切角）；条状面板与移动端 sheet 必须 <span class="k">clip-path: none</span></td></tr>
+    <tr><td>页面边距</td><td>大厅 <span class="k">clamp(24px, 7vw, 110px)</span>；工作空间 HUD 安全边距 24px（移动端 10–14px）</td></tr>
+  </table>
+
+  <h3 class="bt">阴影与层级表达</h3>
+  <p>深色 UI <b>不用投影表达层级</b>——用「背景透明度 + 描边 + blur」三件套；<span class="k">box-shadow</span> 仅允许强调色光晕与 <span class="k">--acc-16</span> 级辉光。</p>
+
+  <h3 class="bt">玻璃材质 · 三级配方 <span class="tag">勿发明第四级</span></h3>
+  <table class="t">
+    <tr><th style="width:110px">级</th><th style="width:270px">配方</th><th>用途</th></tr>
+    <tr><td>G1 主面板</td><td class="m">blur(16px) saturate(1.3) + --glass</td><td>HUD 工具栏、详情卡、总览弹层</td></tr>
+    <tr><td>G2 次面板</td><td class="m">blur(14px) saturate(1.2)</td><td>大厅吸顶筛选、浮层</td></tr>
+    <tr><td>G3 轻遮罩</td><td class="m">blur(3–8px)</td><td>toast、提示条、overlay 遮罩</td></tr>
+  </table>
+  <p class="dim" style="font-size:10.5px">性能边界：G1 / G2 只上静态悬浮件，禁止加到跟随相机 / 逐帧变化元素；移动端交给浏览器降级，不写 JS 探测。</p>
+
+  <h3 class="bt">z-index 层级 <span class="tag">事实汇编，新增浮层对号入座</span></h3>
+  <table class="t">
+    <tr><th style="width:130px">层</th><th style="width:80px">值</th><th>成员</th></tr>
+    <tr><td>画布 / 标签</td><td class="m">0–2</td><td>#scene、#labels、卡内装饰</td></tr>
+    <tr><td>内容 HUD</td><td class="m">5</td><td>#rail、#railDots、#ctxCard、#mpChips</td></tr>
+    <tr><td>控制浮层</td><td class="m">6</td><td>#topbar、#dock、#clipStrip、#tourBar、#toast</td></tr>
+    <tr><td>弹层</td><td class="m">7</td><td>#infoPop、#immersiveExit、抽屉 30</td></tr>
+    <tr><td>引导 / 开机</td><td class="m">8–9</td><td>#bootTitle、#bootScan、.overlay</td></tr>
+    <tr><td>加载 / 错误</td><td class="m">10 / 30</td><td>#loader、#loadErr</td></tr>
+  </table>
+
+  <h3 class="bt">焦点环 <span class="tag">全站统一，阶段 C 落地</span></h3>
+  <p>全站 <span class="k">:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px }</span>（.hud-focus 工具类 + hud.css 全局按钮 / chip / 卡片规则）；禁止移除 outline 后不加替代。交互四态（hover / focus-visible / active / disabled）为组件准入门槛；触控目标 ≥ 44 × 44px（移动端图标按钮 34px 视觉 + 透明扩展 hit-area 达标）。</p>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.07 / 16</span></div>
+</div>
+
+<!-- ============ P8 动效系统 ============ -->
+<div class="page tight">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§06 MOTION</span></div>
+  <div class="sec-head">
+    <div class="no">06</div>
+    <h2>动效系统</h2>
+    <div class="en">MOTION TOKENS · CSS 微交互 / GSAP 编排 / 引擎 3D</div>
+  </div>
+
+  <h3 class="bt">时长与缓动 Token <span class="tag">禁止内联 transition 绕过</span></h3>
+  <table class="t">
+    <tr><th style="width:130px">Token</th><th style="width:230px">值</th><th>语义</th></tr>
+    <tr><td class="m">--dur-1</td><td class="m">.18s</td><td>微反馈（hover / 按下 / 开关）</td></tr>
+    <tr><td class="m">--dur-2</td><td class="m">.32s</td><td>面板出入、浮层</td></tr>
+    <tr><td class="m">--dur-3</td><td class="m">.6s</td><td>大区块转场</td></tr>
+    <tr><td class="m">--ease-out</td><td class="m">cubic-bezier(.22,.9,.28,1)</td><td>默认</td></tr>
+    <tr><td class="m">--ease-spring</td><td class="m">cubic-bezier(.34,1.45,.5,1)</td><td>强调回弹（仅点缀，勿全站弹簧）</td></tr>
+  </table>
+
+  <h3 class="bt">三层职责边界 <span class="tag">铁律</span></h3>
+  <table class="t">
+    <tr><th style="width:150px">层</th><th>负责</th><th style="width:170px">不负责</th></tr>
+    <tr><td>CSS transition / animation</td><td>hover、面板出入、装饰循环（扫描线 / 脉冲）</td><td>任何 3D 相关</td></tr>
+    <tr><td>GSAP</td><td>设备页开机时间线、UI 编排、文本 / 数字补间</td><td>不接管 three ticker</td></tr>
+    <tr><td>引擎（自研缓动）</td><td>相机 flyTo、爆炸 / 装配插值、呼吸浮动、待机自转</td><td>不操作 DOM</td></tr>
+  </table>
+  <p class="dim" style="font-size:10.5px">禁止：同一元素同时挂 CSS transition 与 GSAP 补间；JS 手写 style.transition 绕过 Token。</p>
+
+  <h3 class="bt">面板进出 · 标准时序</h3>
+  <table class="t">
+    <tr><th style="width:150px">面板</th><th style="width:240px">进</th><th>备注</th></tr>
+    <tr><td>顶栏 / rail / dock</td><td class="m">boot 时间线 0.5s · 依次 0.12s 错峰</td><td>GSAP 只此一处；沉浸淡出 .35s</td></tr>
+    <tr><td>ctxCard 桌面</td><td class="m">右侧滑入 .34s</td><td>滑出 .22s；切部件重触发</td></tr>
+    <tr><td>ctxCard 移动 sheet</td><td>底部上滑</td><td>grip 可关；不遮 dock</td></tr>
+    <tr><td>infoPop / tourNote</td><td class="m">fade .25s</td><td>非模态</td></tr>
+    <tr><td>exploreDrawer</td><td class="m">右滑 .25s</td><td>Esc / 遮罩可关</td></tr>
+    <tr><td>guide overlay</td><td class="m">fade .5s</td><td>Esc 可关；主 CTA 显式</td></tr>
+  </table>
+
+  <h3 class="bt">3D 侧节奏与降级</h3>
+  <ul class="rl">
+    <li>相机过渡单段 0.6–1.2s；Tour 步间停留 1–1.5s；爆炸 / 装配整段 0.8–1.2s，不做逐件 stagger。</li>
+    <li>待机自转 &gt; 5s 无操作启动，速度以「读得清标签」为上限；呼吸浮动幅度 ≤ 设备高度 1%、周期 ≥ 4s。</li>
+    <li><b>reduced-motion 三层降级</b>：CSS 压至 0.001ms；GSAP 跳过开场编排；引擎直达 / 停转——新动效必配 reduce 分支。</li>
+  </ul>
+
+  <h3 class="bt">禁止模式</h3>
+  <ul class="rl">
+    <li>长页视差 / 平滑滚动库不引入；不引入第二个 DOM 动效库（motion / anime / AutoAnimate 均不进）。</li>
+    <li>弹簧缓动不用于错误提示；开场强制动画 ≤ 2.5s 且可跳过；无意义循环动画常驻必可关（L0 画质与 reduced-motion）。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.08 / 16</span></div>
+</div>
+
+<!-- ============ P9 组件规范 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§07 COMPONENTS</span></div>
+  <div class="sec-head">
+    <div class="no">07</div>
+    <h2>组件规范</h2>
+    <div class="en">COMPONENTS · 形态定义见 docs/design/UI_GUIDELINES.md</div>
+  </div>
+
+  <div class="demo-row panel" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px">
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="demo-btn primary">开始拆解</span>
+      <span class="demo-btn">组装</span>
+      <span class="demo-chip on">相机</span>
+      <span class="demo-chip">无人机</span>
+    </div>
+    <div class="demo-panel"></div>
+  </div>
+  <p class="dim" style="font-size:10px;font-family:var(--mono), monospace;letter-spacing:.1em;margin-bottom:6px">DEMO · primary 按钮 / 描边按钮 / 选中与未选中 chip / 带 --notch 缺角面板（仅示意，非组件库——全部手写，零依赖）</p>
+
+  <table class="t">
+    <tr><th style="width:105px">组件</th><th>规范要点</th></tr>
+    <tr><td>Button<span class="c"> .hud-glow-btn</span></td><td>描边态默认；<span class="k">.primary</span> 强调（渐变底 + 描边 + 600 字重）；<span class="k">.on</span> 激活（内辉光）。高 32–34px（HUD 密度），主 CTA 可到 44px；<b>同一视图 primary ≤ 1 个</b>。错误提示禁弹簧。</td></tr>
+    <tr><td>Icon Button<span class="c"> .hud-icon</span></td><td>38 × 38（顶栏 / dock 34–38px），内嵌 18px stroke 图标；<b>必配 tooltip</b>（mono 9px + 可选 kbd 快捷键）；顶栏内向下弹、dock 内向上弹；破坏性 / 低频动作降视觉权重。</td></tr>
+    <tr><td>Panel<span class="c"> .hud-panel</span></td><td>G1 玻璃 + 10px 圆角 + 右上 14px 缺角；四角 L 角标仅用于「有身份的主面板」（顶栏 / 详情卡 / 总览 / 引导卡）。</td></tr>
+    <tr><td>Card<span class="c"> 大厅 .card</span></td><td>媒体区（19/14 快照）+ body（品牌 eyebrow / 名称 / tagline / meta 徽标行）。hover 预算 = 抬升 + 边框提亮 + 箭头浮现<b>三件套为上限</b>；列表视图横排 92 × 66 缩略图（同一信息两种密度，不新增第三种）。</td></tr>
+    <tr><td>Chip / Badge</td><td><span class="k">.hud-chip</span> mono 10.5px 胶囊；选中态 accent 描边 + 8% 底 + 辉光，<b>不用 scale 跳动</b>。徽标小方签：glb 用设备 accent、nc 用 --warn、era 用中性。状态灯 --acc / --ok / --warn。</td></tr>
+    <tr><td>Modal / Drawer</td><td>总览弹层右上定位（非全屏遮罩）；引导卡全屏遮罩 + 居中面板 + 明确主 CTA；探索抽屉右滑 340px（Esc / 遮罩可关）；移动端详情 sheet 底部上滑，内容底部预留 dock 高度。</td></tr>
+    <tr><td>Input / 滑杆</td><td>胶囊输入 mono placeholder，聚焦 accent 描边 + 辉光；滑杆轨道 2px + accent 填充 --p，thumb 12px grab 态，0 态保留端点可辨识。</td></tr>
+    <tr><td>状态反馈</td><td>Loading 分段真实进度（构建 → 下载 → 编译 → 装配）；Empty 一句话 + 指向动作，不放插画；Error 给恢复路径（重新加载 / 返回门厅），不道歉、给方案；Toast mono 胶囊 3s 自动退，与 clipStrip / sheet 共存时自动让位。</td></tr>
+  </table>
+
+  <h3 class="bt">组件准入规则</h3>
+  <ul class="rl">
+    <li>复用 G1–G3 与既有 Token，零新依赖；四态完备 + 触控 ≥ 44px + 长文本截断策略。</li>
+    <li>图标内联 SVG stroke 1.6–1.8px，不混填充风；每个新面板先问「能否是普通排版而非卡片」（cardless 默认）。</li>
+    <li>文案口径：动宾短语、同一动作全站同名（拆解 ↔ 组装互斥命名；「关闭」不是「取消」）；数字来自生成数据，0 值不展示；技术演示标注「示意动画，非仿真」。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.09 / 16</span></div>
+</div>
+
+<!-- ============ P10 页面·门厅与大厅 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§08 HUB</span></div>
+  <div class="sec-head">
+    <div class="no">08</div>
+    <h2>页面 · 门厅与大厅</h2>
+    <div class="en">GALLERY HUB · 首屏即海报</div>
+  </div>
+
+  <h3 class="bt">门厅（首屏）</h3>
+  <ul class="rl">
+    <li><b>导视条</b>：左「格物馆（衬线）+ MUSEUM OF MACHINES（mono）」馆印，右星图 / 编年 / 我的探索链接。</li>
+    <li><b>海报式两栏</b>：左列 VOL 眉题 → 衬线巨字馆名（逐字 riseIn）→ 副标 → 5 项馆藏统计（mono 数字白、标签弱化，铭牌读数）；右列<b>墙面展台</b>撑满门厅高，双辉光阴影营造单束冷光，含 NO 展签 chip、轮播点、衬线展品名 + mono 品牌·年代、开始拆解 CTA。</li>
+    <li>移动端 ≤ 860px：展台先行单列，馆名 clamp(64px, 19vw, 110px)。</li>
+  </ul>
+
+  <h3 class="bt">常设展与展签卡</h3>
+  <ul class="rl">
+    <li>分区头：衬线「常设展」+ mono「COLLECTION · 103 件展品 · 815 部件」。</li>
+    <li>展签卡：NO 编号 chip 在缩略图<b>左上</b>；品牌行「DJI · 2024」（mono 含年代）；展品名衬线 20px；hover 三件套（抬升 / 边框 / 箭头）。</li>
+    <li>收藏星标 28px（hit-area ≥ 44）；列表视图为同信息的高密度形态。</li>
+  </ul>
+
+  <figure class="fig">
+    <div class="imgbox"><img src="../screenshots/d2-lobby-desktop-scrolled.png" alt="大厅筛选与展签卡" style="height:300px;object-fit:cover;object-position:top"></div>
+    <figcaption><span>SCREEN · 筛选区信息架构：搜索第一入口 → 类型 chips → 品牌（≥14 项折叠「更多」）；展签卡 NO.001 左上 + hover 三件套</span><span>1440 × 900</span></figcaption>
+  </figure>
+
+  <h3 class="bt">筛选 IA 与移动端</h3>
+  <p>搜索是第一入口 → 类型主轴 chips → 品牌（≥ 14 项折叠展开）；收藏快捷并入首行；激活筛选以可清除 chip 汇总。移动端 ≤ 860px 筛选默认收合（「筛选」按钮 + 激活数徽标），展开为抽屉面板；顶栏单列不折行。页脚三行 mono：引擎 / 版权 / 署名。</p>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.10 / 16</span></div>
+</div>
+
+<!-- ============ P11 页面·3D 工作空间 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§09 WORKSPACE</span></div>
+  <div class="sec-head">
+    <div class="no">09</div>
+    <h2>页面 · 3D 工作空间</h2>
+    <div class="en">DEVICE VIEWER · 展馆铭牌化</div>
+  </div>
+
+  <h3 class="bt">布局骨架与视觉权重</h3>
+  <p>顶栏（身份 + 状态 + 总览）/ 左 rail（部件清单，可折叠为圆点列）/ 底 dock（动作组）/ 右 ctxCard（选中部件详情）/ 浮层（clipStrip / tourBar / tourNote）。视觉权重序：<b>3D 主体 &gt; 顶栏 &gt; dock 主键（拆解）&gt; dock 图标组 &gt; rail &gt; ctxCard</b>，任意时刻一个焦点。</p>
+
+  <figure class="fig">
+    <div class="imgbox"><img src="../screenshots/e2-workspace-desktop.png" alt="工作空间整机态" style="height:296px;object-fit:cover;object-position:top"></div>
+    <figcaption><span>SCREEN · 整机态：衬线展品名牌 + rail 部件清单 + dock 分组</span><span>1440 × 900</span></figcaption>
+  </figure>
+
+  <div class="fig-duo">
+    <figure class="fig">
+      <div class="imgbox"><img src="../screenshots/e2-workspace-mobile-exploded.png" alt="移动端爆炸态" style="height:252px;object-fit:cover;object-position:top"></div>
+      <figcaption><span>移动端 · 爆炸态（竖屏取景修正后）</span><span>390 × 844</span></figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="imgbox"><img src="../screenshots/e2-ctxcard-mobile.png" alt="移动端部件 sheet" style="height:252px;object-fit:cover;object-position:top"></div>
+      <figcaption><span>移动端 · 部件详情 sheet（底部上滑，不遮 dock）</span><span>390 × 844</span></figcaption>
+    </figure>
+  </div>
+
+  <h3 class="bt">铭牌化与 dock 分组 <span class="tag">阶段 R3 · 不动 HUD 骨架</span></h3>
+  <ul class="rl">
+    <li>顶栏设备名衬线 18px（型号保持 mono）；详情卡部件名衬线 20px；眉题「展签 SPECIMEN · 08 / 14」。</li>
+    <li>dock 分组语义：拆解主键 ‖ 视图四模式 + 测量 + 装配（加「视图」微标）‖ 标签 / 自转 / 截图 / 导览 / 沉浸 / 帮助 ‖ 切台；组间距 .tb-sep；帮助 / 切台低饱和弱化。</li>
+    <li>沉浸模式全部面板淡出仅留退出键；thumb 模式全部隐藏（渲染管线专用）。</li>
+    <li>移动端画布可操作性优先：sheet 展开时浮层按 --sheet-h 让位；横滑 chips 必须可滑动。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.11 / 16</span></div>
+</div>
+
+<!-- ============ P12 页面·知识展区 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§10 EXHIBITIONS</span></div>
+  <div class="sec-head">
+    <div class="no">10</div>
+    <h2>页面 · 知识展区</h2>
+    <div class="en">TECHNICAL EXHIBITIONS · 编年 / 对比 / 星图</div>
+  </div>
+
+  <h3 class="bt">技术编年 /timeline · 时序脊柱 <span class="tag">博物馆年廊</span></h3>
+  <p>展区题衬线化 + mono 年代跨度 + 条目计数；<b>连续脊柱</b>：垂直轴线 accent 渐变淡出，每条目菱形节点以颜色区分类型（技术条目紫、设备条目青灰），年份右对齐于轴左；行式排布（带宽 ≤ 980px），hover 变展签底色 + 节点点亮。窄屏 ≤ 700px 轴线 / 年份列左移收窄。标题数量口径「已编目 X / 共 Y 台」（诚实留白）。</p>
+  <figure class="fig">
+    <div class="imgbox"><img src="../screenshots/timeline-desktop.png" alt="技术编年" style="height:252px;object-fit:cover;object-position:top"></div>
+    <figcaption><span>SCREEN · 技术编年（四段时代 · 时序脊柱 · 84 事件）</span><span>1440 × 900</span></figcaption>
+  </figure>
+
+  <div class="fig-duo">
+    <figure class="fig">
+      <div class="imgbox"><img src="../screenshots/compare-desktop.png" alt="代际对比" style="height:196px;object-fit:cover;object-position:top"></div>
+      <figcaption><span>代际对比 · 系列展签化（组名 / 设备列名衬线）</span><span>1440 × 900</span></figcaption>
+    </figure>
+    <figure class="fig">
+      <div class="imgbox"><img src="../screenshots/graph-desktop.png" alt="知识星图" style="height:196px;object-fit:cover;object-position:top"></div>
+      <figcaption><span>知识星图 · Canvas 2D 力导向（数据层 sans / mono）</span><span>1440 × 900</span></figcaption>
+    </figure>
+  </div>
+
+  <h3 class="bt">次级页共性</h3>
+  <ul class="rl">
+    <li>共用页头模式：返回 + eyebrow + 标题（#graphBar / #cmpBar / #tlBar 同构）；内容区铺满余幅。</li>
+    <li>代际对比：组名与设备列名衬线（系列展签）；表格行 hover 高亮；diff 焦点列强调。</li>
+    <li>知识星图：数据可视化页维持 sans / mono（数据层），页头 / 图例 / 提示不变——星图无「名字层」大字场景。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.12 / 16</span></div>
+</div>
+
+<!-- ============ P13 交互·键盘·无障碍 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§11 INTERACTION</span></div>
+  <div class="sec-head">
+    <div class="no">11</div>
+    <h2>交互 · 键盘 · 无障碍</h2>
+    <div class="en">INTERACTION & ACCESSIBILITY</div>
+  </div>
+
+  <h3 class="bt">动效原则</h3>
+  <ul class="rl">
+    <li><b>动效回答操作</b>：打开 / 收起 / 确认 / 切换必须让用户看清「什么变了」；非用户触发动效仅限开场演出与氛围层。</li>
+    <li><b>一屏一焦点</b>：页面加载只做一次编排（大厅 riseIn / 设备页 boot 时间线）。</li>
+    <li>时长一律 Token、缓动一律 --ease-out；空状态前置校验（隔离模式未选中时 toast 指引，不静默失败）。</li>
+    <li>深链 <span class="k">?e/p/t</span> 一等公民：任何状态改动经 syncUrl 回写（260ms 防抖）；切台废弃旧参数。</li>
+  </ul>
+
+  <h3 class="bt">键盘地图 <span class="tag">工作空间 · 已实现为准</span></h3>
+  <div class="kb-grid">
+    <div>
+      <div class="kb-row"><span class="keys"><span class="kbd">Space</span></span><span class="act">拆解 / 组装</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">1</span>–<span class="kbd">4</span></span><span class="act">整机 / X 光 / 隔离 / 剖切</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">B</span></span><span class="act">逐步装配</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">L</span></span><span class="act">标签三态</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">H</span></span><span class="act">沉浸模式</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">←</span> <span class="kbd">→</span></span><span class="act">切台（导览 / 装配时步进）</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">Esc</span></span><span class="act">逐层退出（见下）</span></div>
+    </div>
+    <div>
+      <div class="kb-row"><span class="keys"><span class="kbd">F</span></span><span class="act">聚焦选中部件</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">M</span></span><span class="act">测量</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">T</span></span><span class="act">自动导览</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">S</span></span><span class="act">截图</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">R</span></span><span class="act">复位视角</span></div>
+      <div class="kb-row"><span class="keys"><span class="kbd">?</span></span><span class="act">帮助卡</span></div>
+      <div class="kb-row"><span class="keys" style="width:auto"><span class="kbd">长按拆解 520ms</span></span><span class="act">布局切换彩蛋（toast 反馈）</span></div>
+    </div>
+  </div>
+  <p style="margin-top:8px"><b>Esc 退出顺序不可倒置</b>：帮助 → 总览 → 沉浸 → 测量 → 装配 → 模式 → 选中（外层浮层先退，选中最后清）。输入框聚焦时按键不劫持。</p>
+
+  <h3 class="bt">无障碍约定</h3>
+  <ul class="rl">
+    <li><b>焦点可见</b>：全站 :focus-visible 2px --acc 环 + 2px offset；Tab 顺序遵循 DOM（顶栏 → rail → dock → 浮层）。</li>
+    <li><b>可退出</b>：所有浮层有 Esc 路径 + 可点关闭；沉浸模式有显式退出键。</li>
+    <li><b>触控目标</b>：视觉 34–38px 的图标按钮以 padding 扩展至 ≥ 44 × 44 有效区；移动 sheet grip 高 ≥ 32px。</li>
+    <li><b>对比度</b>：正文 ≥ 4.5 : 1；HUD 装饰标注不做唯一信息载体（必配 tooltip / aria-label）。</li>
+    <li><b>屏幕阅读器</b>：图标按钮必配 aria-label；折叠组件用 aria-expanded；toast / 错误用 role="alert"。</li>
+  </ul>
+
+  <h3 class="bt">移动端专项 <span class="tag">390 × 844 基准</span></h3>
+  <ul class="rl">
+    <li>画布可操作性优先：面板不长期遮挡模型主体；双指缩放 / 单指旋转由引擎控制，页面级禁止劫持 pinch。</li>
+    <li>桌面 hover 能力（tooltip、卡片箭头）在移动端必有无 hover 等价路径（点按直达）。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.13 / 16</span></div>
+</div>
+
+<!-- ============ P14 3D 呈现规范 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§12 3D</span></div>
+  <div class="sec-head">
+    <div class="no">12</div>
+    <h2>3D 呈现规范</h2>
+    <div class="en">3D EXPERIENCE · 引擎与资产管线现行约定</div>
+  </div>
+
+  <h3 class="bt">取景与姿态</h3>
+  <ul class="rl">
+    <li>归一化 <span class="k">targetWidth</span>（米）+ <span class="k">normalize: full</span>；<span class="k">frontAxis</span> 声明正面轴；竖屏按宽高比修正取景距离（阶段 E 修复，主体不裁切）。</li>
+    <li>地面接触：设备底面贴 y=0 展台，禁止悬空 / 穿模；进场相机缓推，主体占高 ≥ 70%、四周留白 ≥ 10%；flyToPart 特写距离 ≤ 部件对角线 3 倍。</li>
+    <li>灯光冷光主调，禁三灯全开；白漆材质过曝压暗而非关灯，黑壳材质防自发光糊死。</li>
+  </ul>
+
+  <h3 class="bt">材质 / 爆炸 / 标签</h3>
+  <ul class="rl">
+    <li>材质 9 预设（matSilver / matGold / matScreen…），新材质先加预设再使用；屏幕一律 CanvasTexture 实时绘制；<b>材质分区 ≠ 独立零件</b>，匿名网格用 mapByPosition 位置聚类。</li>
+    <li>爆炸方向沿真实装配路径（外壳沿法向、内构件沿抽拉方向），禁止「全部向上飞」；爆炸后不遮相邻标签；<span class="k">assembledPos</span> 精确复位（切换 N 次状态不变）。</li>
+    <li>程序化内构件与真实模型视觉风格一致，并在 UI 如实标注示意性质；labelOffsets 逐部件校准，两标签屏幕间距 &lt; 18px 视为遮挡。</li>
+  </ul>
+
+  <h3 class="bt">视图四态 <span class="tag">view-modes.js 现行规则</span></h3>
+  <table class="t">
+    <tr><th style="width:100px">态</th><th>规则</th></tr>
+    <tr><td>X-Ray</td><td>仅外壳半透明（xrayShellIds 策展优先，INTERNAL_KEYS 兜底）；<b>光学件不雾化</b></td></tr>
+    <tr><td>Isolate</td><td>非目标件透明度逐帧 lerp → 0.06；退出精确还原材质快照</td></tr>
+    <tr><td>Clip</td><td>无封盖实现：材质 DoubleSide 内壁 + accent 指示板（stencil 真封盖为预留方案）</td></tr>
+  </table>
+
+  <h3 class="bt">画质阶梯 <span class="tag">engine 自适应 · FPS &lt; 42 自动降级</span></h3>
+  <table class="t">
+    <tr><th style="width:70px">级</th><th style="width:130px">pixelRatio</th><th style="width:100px">阴影</th><th>辉光 / 描边</th></tr>
+    <tr><td class="m">L2</td><td class="m">满配</td><td class="m">1024</td><td>开</td></tr>
+    <tr><td class="m">L1</td><td class="m">1.5</td><td class="m">1024</td><td>开</td></tr>
+    <tr><td class="m">L0</td><td class="m">1</td><td class="m">512</td><td>关（新增特效必须声明 L0 形态：静态 / 关闭）</td></tr>
+  </table>
+
+  <h3 class="bt">新设备质量门槛 <span class="tag">接入门禁</span></h3>
+  <ul class="rl">
+    <li>inspect-glb 体检（网格 / 材质 / 几何岛 / 命名语义）；部件可独立拾取 / 隐藏；真实件与示意件区分标注。</li>
+    <li>tour、xrayShellIds、labelOffsets 随接入配齐；npm run lint:devices + thumbs + 浏览器实载 + 移动端特写检查。</li>
+    <li>署名合规：modelCredit / modelSource 必填，lint 禁止「by community」；GPU 资源可完整释放（切台 20 次内存平稳），geometry / material 共享走 glbCache 层。</li>
+  </ul>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.14 / 16</span></div>
+</div>
+
+<!-- ============ P15 质量闭环 ============ -->
+<div class="page">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§13 QUALITY</span></div>
+  <div class="sec-head">
+    <div class="no">13</div>
+    <h2>质量闭环</h2>
+    <div class="en">AUDIT & REFACTOR HISTORY · 两轮重构全闭环</div>
+  </div>
+
+  <h3 class="bt">审计全景 <span class="tag">阶段 A · 17 张取证截图 + 源码走查</span></h3>
+  <p>P0 × 3 + P1 × 6 + P2 × 7，共 16 项，<b>已全部闭环</b>。P0 三项：</p>
+  <table class="t">
+    <tr><th style="width:60px">级</th><th>问题</th><th style="width:110px">归属</th></tr>
+    <tr><td><span class="dot err"></span>P0</td><td>移动端竖屏 3D 取景裁切主体（引擎取景未按宽高比修正）</td><td class="c">E 引擎修正</td></tr>
+    <tr><td><span class="dot err"></span>P0</td><td>移动端大厅吸顶筛选器占满整屏，网格不可达</td><td class="c">G 移动专项</td></tr>
+    <tr><td><span class="dot err"></span>P0</td><td>移动端大厅顶栏折行破碎</td><td class="c">D 大厅重构</td></tr>
+  </table>
+  <p class="dim" style="font-size:10.5px">P1：sheet 遮挡 / 筛选失衡 / 展台氛围 / 焦点态缺失 / 统计工程味 / 帮助卡黑话；P2：dock 同权 / 滑杆 0 态 / tooltip 裁切 / hover 堆叠 / 编年口径 / toast 重叠 / eyebrow 密度。</p>
+
+  <h3 class="bt">两轮重构阶段史</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 26px">
+    <div>
+      <div class="ph-row"><span class="ph">A</span><span class="phd">审计：3 Skill 通读 + 17 张取证截图 + 16 项问题清单</span></div>
+      <div class="ph-row"><span class="ph">B</span><span class="phd">设计系统：docs/design 三文档 + 状态色 Token 收口</span></div>
+      <div class="ph-row"><span class="ph">C</span><span class="phd">全局框架：焦点环 / 可退出性 / hover 瘦身 / 死代码清理</span></div>
+      <div class="ph-row"><span class="ph">D</span><span class="phd">大厅重构：筛选 IA 重排 + 移动收合 + 顶栏 / 统计 / 展台</span></div>
+      <div class="ph-row"><span class="ph">E</span><span class="phd">工作空间：竖屏取景引擎修正（P0-1）+ HUD 层级细节</span></div>
+      <div class="ph-row"><span class="ph">F</span><span class="phd">组件反馈：帮助卡 / 编年口径 / tech 配色 Token</span></div>
+      <div class="ph-row"><span class="ph">G</span><span class="phd">移动专项：9 视口场景复验矩阵 + 留白如实标注</span></div>
+      <div class="ph-row"><span class="ph">H</span><span class="phd">Design QA：impeccable 0 新增 + smoke 28/28 + 闭环表</span></div>
+    </div>
+    <div>
+      <div class="ph-row"><span class="ph">R1</span><span class="phd">概念：深夜展馆论点 + 三层字体系 + NO. 编号语言</span></div>
+      <div class="ph-row"><span class="ph">R2</span><span class="phd">大厅：海报式门厅 + 墙面展台 + 常设展分区 + 展签卡</span></div>
+      <div class="ph-row"><span class="ph">R3</span><span class="phd">工作空间：铭牌化（衬线展品名 + SPECIMEN 眉题）</span></div>
+      <div class="ph-row"><span class="ph">R4</span><span class="phd">次级页：编年时序脊柱 / 对比展签化 / 星图语义确认</span></div>
+      <div class="ph-row"><span class="ph">R5</span><span class="phd">QA：impeccable 0 新增 + build / smoke / lint 全绿</span></div>
+      <div class="ph-row"><span class="ph">R6</span><span class="phd">馆牌：更名「格物馆」（格物致知），brand.js 单一事实源</span></div>
+    </div>
+  </div>
+
+  <h3 class="bt">验证口径 <span class="tag">每轮 UI 改动的合入门禁</span></h3>
+  <table class="t">
+    <tr><th style="width:200px">项</th><th>结果 / 要求</th></tr>
+    <tr><td>npm run build</td><td>通过（2.38s；three chunk 771KB 不变）</td></tr>
+    <tr><td>npm run smoke</td><td>28 / 28 全绿（统计 5 项 / 编年四带 / 对比 2 列 / 移动 sheet 等锚点）</td></tr>
+    <tr><td>npm run lint:devices</td><td>通过（设备配置零改动）</td></tr>
+    <tr><td>impeccable detect</td><td>0 新增反模式</td></tr>
+    <tr><td>浏览器交互回归</td><td>hover / 筛选 / 抽屉 / 搜索 / 进出场馆，零 console 错误</td></tr>
+    <tr><td>视口清单</td><td>1440 × 900 / 1280 × 720 / 390 × 844 竖横；动效改动另跑 reduced-motion 7 项断言</td></tr>
+  </table>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.15 / 16</span></div>
+</div>
+
+<!-- ============ P16 现状·遗留·展望 ============ -->
+<div class="page tight last">
+  <div class="runhead"><span class="l"><b>GEWU</b> DESIGN OVERVIEW</span><span class="r">§14 STATUS</span></div>
+  <div class="sec-head">
+    <div class="no">14</div>
+    <h2>现状 · 遗留 · 展望</h2>
+    <div class="en">STATUS & NEXT</div>
+  </div>
+
+  <h3 class="bt">馆藏现状 <span class="tag">数据来自 virtual:device-manifest 生成值</span></h3>
+  <div class="panel" style="display:flex;justify-content:space-between;text-align:center;padding:14px 10px">
+    <div style="flex:1"><div style="font-family:var(--mono), monospace;font-size:24px;color:var(--txt-1)">103</div><div class="dim" style="font-size:10px">台展品</div></div>
+    <div style="flex:1"><div style="font-family:var(--mono), monospace;font-size:24px;color:var(--txt-1)">815</div><div class="dim" style="font-size:10px">个部件</div></div>
+    <div style="flex:1"><div style="font-family:var(--mono), monospace;font-size:24px;color:var(--txt-1)">38</div><div class="dim" style="font-size:10px">个品牌</div></div>
+    <div style="flex:1"><div style="font-family:var(--mono), monospace;font-size:24px;color:var(--acc)">35</div><div class="dim" style="font-size:10px">套官方模型</div></div>
+    <div style="flex:1"><div style="font-family:var(--mono), monospace;font-size:24px;color:var(--txt-3)">68</div><div class="dim" style="font-size:10px">套社区模型</div></div>
+  </div>
+
+  <h3 class="bt">技术架构基线</h3>
+  <ul class="rl">
+    <li>Vue 3.5 + Vite 5 + vue-router 4（UI 壳）；Three.js 0.164 vanilla 引擎（src/engine/ 与壳解耦）；GSAP 仅 UI 时间线；原生 CSS。</li>
+    <li>manifest 分包（大厅不加载 three chunk）；glbCache 缓存层；自适应画质三档；运行时模型唯一格式 GLB（压缩流程 webp → draco 顺序）。</li>
+    <li>展示原则：真实模型与程序化示意构件清楚区分，推测结构不包装成事实；来源 / 许可 / 署名全程留档展示。</li>
+  </ul>
+
+  <h3 class="bt">已知遗留 <span class="tag">backlog · 按 R5 / R6 档案</span></h3>
+  <table class="t">
+    <tr><th style="width:210px">事项</th><th>说明</th></tr>
+    <tr><td>知识星图标签重叠</td><td>偶发品牌标签重叠；无搜索定位（低优先）</td></tr>
+    <tr><td>移动 dock 溢出渐隐</td><td>横滑渐隐提示待补</td></tr>
+    <tr><td>触控 ≥ 44px 真机实测</td><td>桌面模拟已达标，真机待验</td></tr>
+    <tr><td>衬线字体降级</td><td>非 macOS / 无 Noto Serif SC 环境降级为系统 serif（SimSun 兜底）；建议后续评估内置开源衬线子集化字体</td></tr>
+    <tr><td>Clip 真封盖</td><td>stencil 方案需 stencilBuffer RenderTarget（预留 P2）</td></tr>
+    <tr><td>测量 / 装配顺序深化</td><td>BVH 表面吸附取点显示 mm；assembleStep 策展字段逐步高亮</td></tr>
+  </table>
+
+  <h3 class="bt">设计治理约定 <span class="tag">改设计先改这里</span></h3>
+  <ul class="rl">
+    <li>Token 改动必须同步 docs/design/DESIGN_SYSTEM.md（代码事实源 src/style.css :root）；品牌改动只改 src/lib/brand.js + BRAND.md。</li>
+    <li>禁止事项：硬编码色值 / 新玻璃配方 / 新字号家族 / 新圆角档；单页引入组件库；强调色大面积铺底；用 CSS 修补 3D 层问题。</li>
+    <li>历史文档保留「拆解馆」原文不改写；目录名 / repo 名不改。</li>
+  </ul>
+
+  <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline">
+    <div>
+      <div style="font-family:var(--serif), serif;font-size:19px;font-weight:800;color:var(--txt-1);letter-spacing:.1em">格一物，致一知</div>
+      <div class="dim" style="font-size:10px;margin-top:3px">把每一台机器，拆到最后一颗螺丝。</div>
+    </div>
+    <div style="font-family:var(--mono), monospace;font-size:9px;letter-spacing:.24em;color:var(--txt-3)">© 2026 格物馆 MUSEUM OF MACHINES</div>
+  </div>
+  <div class="pgfoot"><span>格物馆 MUSEUM OF MACHINES · 设计总览</span><span class="pn">P.16 / 16</span></div>
+</div>
+
+</body>
+</html>
