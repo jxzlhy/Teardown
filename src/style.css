@@ -1081,10 +1081,12 @@ html[data-hall="day"]{
 }
 html[data-hall="day"] body{ background:#e9eef3; }
 html[data-hall="day"] .hub{ background:#e9eef3; }
+/* V2 割裂感修复：filter-main 融入页面底色，边框极淡——避免吸顶条在浅底上形成色带断层 */
 html[data-hall="day"] .hub .filter-main{
-  background:linear-gradient(180deg, rgba(238,243,247,.94) 55%, rgba(233,239,245,.82));
-  border-top-color:rgba(90,120,150,.14);
-  border-bottom-color:rgba(90,120,150,.12);
+  background:rgba(233,238,243,.88);
+  border-top-color:transparent;
+  border-bottom-color:rgba(90,120,150,.1);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
 }
 html[data-hall="day"] .hub::before{
   background:
@@ -1165,6 +1167,29 @@ html[data-hall="day"] .info-status{ color:#5f7080; }
 html[data-hall="day"] .credit-flag{ color:#6d7e8f; border-color:rgba(90,120,150,.3); }
 html[data-hall="day"] .credit-flag.warn{ color:var(--warn); border-color:color-mix(in srgb, var(--warn) 40%, transparent); }
 html[data-hall="day"] .tb-sep{ background:rgba(90,120,150,.18); }
+
+/* ---------- 日厅协调统一（V2 用户反馈：割裂感） ----------
+   卡片/分区/页面底色融为一体，减少"补丁感" */
+html[data-hall="day"] .card{
+  border-color:rgba(90,120,150,.13);
+  background:rgba(255,255,255,.42);
+  box-shadow:0 1px 4px rgba(60,90,120,.06);
+}
+html[data-hall="day"] .card:hover{
+  border-color:rgba(90,120,150,.28);
+  box-shadow:0 4px 16px rgba(60,90,120,.1);
+}
+html[data-hall="day"] .card-thumbwrap{ background:#d6dee6; }
+html[data-hall="day"] .hub-sect{ border-top-color:rgba(90,120,150,.1); }
+html[data-hall="day"] .hub-recent .hr-chip{ border-color:rgba(90,120,150,.14); background:rgba(90,120,150,.03); }
+html[data-hall="day"] .hub-recent .hr-chip:hover{ border-color:var(--acc); background:rgba(10,126,164,.04); }
+html[data-hall="day"] .hub-index{ border-top-color:rgba(90,120,150,.1); }
+html[data-hall="day"] .hud-panel{ border-color:rgba(90,120,150,.14); }
+html[data-hall="day"] .view-toggle .hud-icon{ border-color:transparent; background:none; }
+html[data-hall="day"] .view-toggle .hud-icon.on{ border-color:var(--acc); background:rgba(10,126,164,.04); }
+html[data-hall="day"] .view-toggle .hud-icon:hover{ border-color:rgba(90,120,150,.25); background:rgba(90,120,150,.05); }
+html[data-hall="day"] .fav-chip{ border-color:rgba(90,120,150,.18); }
+html[data-hall="day"] .fav-chip.on{ border-color:var(--acc); background:rgba(10,126,164,.04); }
 
 /* ---------- 日厅全量色值映射（一次性覆盖所有残留暗色硬编码） ---------- */
 /* 浅色文字 → 深色（日厅底色上可读） */
