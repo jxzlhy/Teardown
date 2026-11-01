@@ -210,6 +210,39 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     scene.add(particles);
   }
 
+  /* ---------- 博物馆展台（V2 用户需求）：深色圆墩 + accent 环圈 + 浅色台面 ----------
+     顶面与设备地面接触面齐平（y=-3.9），设备位置不变；半径随每台 deviceRadius 缩放。
+     不参与拾取（raycaster 只查 pickMeshes）；thumb 模式隐藏（旧缩略图一致性）。 */
+  let pedestal, pedestalRing, pedestalCap;
+  const PED_BASE_R = 4.2;
+  {
+    const sideMat = new THREE.MeshStandardMaterial({ color:0x0c141d, metalness:.55, roughness:.42 });
+    pedestal = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R, PED_BASE_R + 0.14, 0.5, 72), sideMat);
+    pedestal.position.y = -3.9 - 0.25;
+    pedestal.receiveShadow = true;
+
+    const capMat = new THREE.MeshStandardMaterial({ color:0x13202e, metalness:.4, roughness:.55 });
+    pedestalCap = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R + 0.14, PED_BASE_R + 0.14, 0.03, 72), capMat);
+    pedestalCap.position.y = -3.895;
+    pedestalCap.receiveShadow = true;
+
+    pedestalRing = new THREE.Mesh(
+      new THREE.TorusGeometry(PED_BASE_R + 0.1, 0.02, 10, 96),
+      new THREE.MeshStandardMaterial({ color:0x0a2a36, emissive:0x45e0ff, emissiveIntensity:0.55, metalness:.3, roughness:.4 }));
+    pedestalRing.rotation.x = -Math.PI / 2;
+    pedestalRing.position.y = -3.9;
+
+    scene.add(pedestal, pedestalCap, pedestalRing);
+    if(hooks.adaptive === false) pedestal.visible = pedestalCap.visible = pedestalRing.visible = false;   // thumb 模式
+  }
+  function setPedestalHall(mode){
+    const day = mode === 'day';
+    pedestal.material.color.setHex(day ? 0xdde4ea : 0x0c141d);
+    pedestal.material.roughness = day ? .65 : .42;
+    pedestalCap.material.color.setHex(day ? 0xf0f4f8 : 0x13202e);
+    pedestalRing.material.emissiveIntensity = day ? 0.3 : 0.55;
+  }
+
   /* 坐标辅助：网格显隐（V2）——网格与轴线一起，地面光晕与接触阴影保留 */
   function setGridVisible(v){
     state.gridVisible = !!v;
@@ -258,6 +291,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     grid.visible = state.gridVisible !== false;
     axisX.visible = state.gridVisible !== false; axisZ.visible = state.gridVisible !== false;
     particles.visible = C.stars;
+    setPedestalHall(mode);
     /* V2 第二章 2.5：灯光/雾/曝光/辉光 0.6s 渐变过渡（背景纹理为一次性切换，CSS 侧同步过渡） */
     hallTween = {
       t: 0,
@@ -289,8 +323,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     glow.material.opacity = A.glowO + (B.glowOpacity - A.glowO) * k;
     shadowPlane.material.opacity = A.shadowO + (B.shadow - A.shadowO) * k;
     grid.material.opacity = A.gridO + ((hallTween.mode === 'day' ? 0.35 : 1) - A.gridO) * k;
-    axisMat.opacity = A.axisO + ((hallTween.mode === 'day' ? 0.4 : 0.9) - A.axisO) * k;
-  }
+    axisMat.opacity = A.axisO + ((hallTween.mode === 'day' ? 0.4 : 0.9) - A.axisO) * k;  }
 
   const state = {
     device: null,
@@ -728,6 +761,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     { const bb = new THREE.Box3();
       for(const p of state.parts) bb.expandByPoint(p.base);
       state.deviceRadius = bb.isEmpty() ? 5 : Math.max(2.2, bb.getSize(new THREE.Vector3()).length()/2); }
+    /* 展台随设备缩放：半径 = hull×0.66（mesh 级真实包围，deviceRadius 对 GLB 直映射件低估），钳制 [2.6, 6.4] */
+    { const rr = state.hullRadius || state.deviceRadius;
+      const pr = clamp(rr * 0.66, 2.6, 6.4), k = pr / PED_BASE_R;
+      pedestal.scale.set(k, 1, k); pedestalRing.scale.set(k, 1, k);
+      pedestalCap.scale.set(k, 1, k); }
     captureExplodeBasis(CAM_EXPLODE);
     /* rAF 停摆环境下立即同步位置并渲染一帧 */
     for(const p of state.parts){ p.group.position.copy(p.base).addScaledVector(p.worldOffset || p.offset, 0); }
