@@ -59,7 +59,7 @@ html,body,#app{ width:100%; height:100%; overflow:hidden; background:#04070c; fo
 .hub-mark{ display:flex; align-items:baseline; gap:10px; min-width:0; }
 .hub-mark-zh{ font-family:var(--name); font-size:17px; font-weight:900; letter-spacing:.16em; color:var(--txt-1); }
 .hub-mark small{ font-family:var(--mono); font-size:8.5px; letter-spacing:.3em; color:var(--txt-3); white-space:nowrap; }
-.hub-links{ display:flex; gap:clamp(14px,2vw,26px); align-items:baseline; flex:none; }
+.hub-links{ display:flex; gap:clamp(14px,2vw,26px); align-items:center; flex:none; }
 .hub-links a, .hub-links .explore-link{
   background:none; border:none; padding:0; cursor:pointer;
   font-family:var(--sans); font-size:12px; letter-spacing:.14em; color:var(--txt-2);
@@ -1035,7 +1035,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .fav-note:focus{ border-color:var(--acc); }
 .fav-at{ margin-top:6px; font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--txt-3); }
 /* ---------- 坐标辅助装置（V2 重设计）：方位陀螺 gizmo + 网格开关 ---------- */#coordAid{
-  position:absolute; right:24px; bottom:24px; z-index:6;
+  position:absolute; right:24px; bottom:86px; z-index:5;
   display:flex; flex-direction:column; align-items:center; gap:8px;
 }
 #gizmo{ width:64px; height:64px; cursor:pointer; border-radius:50%; transition:transform var(--dur-1) var(--ease-out); }
