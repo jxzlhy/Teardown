@@ -510,13 +510,13 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 #rail{
   position:absolute; left:24px; top:88px; width:236px; z-index:5;
   display:flex; flex-direction:column; max-height:calc(100vh - 200px);
-  /* V2 操作栏动画：滑入滑出（替代 display 瞬切） */
-  opacity:0; transform:translateX(-18px); pointer-events:none;
-  transition:opacity .3s ease, transform .3s var(--ease-out);
+  /* V2 操作栏动画：visibility 延迟隐藏——收起时整面板（含内容）一起滑出，无瞬切 */
+  opacity:0; transform:translateX(-18px); pointer-events:none; visibility:hidden;
+  transition:opacity .3s ease, transform .3s var(--ease-out), visibility 0s linear .3s;
 }
-#rail.open{ opacity:1; transform:none; pointer-events:auto; }
-/* 展开面板在折叠时隐藏内容区（容器用 opacity/transform 过渡，不能 display 瞬切） */
-#rail:not(.open) .rail-list, #rail:not(.open) .rail-grid{ display:none; }
+#rail.open{ opacity:1; transform:none; pointer-events:auto; visibility:visible;
+  transition:opacity .3s ease, transform .3s var(--ease-out); }
+/* 折叠时内容随面板整体隐藏（visibility 继承），保留 DOM 供过渡；指针事件由容器关闭 */
 /* rail 头部：折叠开关 + 导航模式切换（V2 双模式） */
 .rail-head{ display:flex; align-items:center; width:100%; border-bottom:1px solid rgba(69,224,255,.1); }
 .rail-toggle{
@@ -577,15 +577,22 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 #railDots{
   position:absolute; left:24px; top:50%; transform:translateY(-50%); z-index:5;
   display:flex; flex-direction:column; gap:8px;
-  /* V2 操作栏动画：圆点交错弹入（animation 入场 + transition 出场） */
-  opacity:0; pointer-events:none; transition:opacity .22s ease;
+  /* V2 操作栏动画：visibility 延迟隐藏 + 圆点纯 transition（入场交错/出场同步，双向均有动画；
+     animation+fill both 方案在收起移除 .open 时会瞬间跳回基态——已废弃） */
+  visibility:hidden; pointer-events:none;
+  transition:visibility 0s linear .3s;
 }
-#railDots.open{ opacity:1; pointer-events:auto; }
-#railDots .rdot{ opacity:0; transform:translateX(-10px); transition:opacity .2s ease, transform .2s ease; }
-#railDots.open .rdot{ opacity:1; transform:none; transition:none; animation:dotIn .32s var(--ease-out) both; }
-#railDots .rdot-expand{ opacity:0; transform:translateX(-10px); transition:opacity .2s ease, transform .2s ease, background var(--dur-1), color var(--dur-1), border-color var(--dur-1); }
-#railDots.open .rdot-expand{ opacity:1; transform:none; transition:none; animation:dotIn .32s var(--ease-out) both; }
-@keyframes dotIn{ from{ opacity:0; transform:translateX(-10px); } to{ opacity:1; transform:none; } }
+#railDots.open{ visibility:visible; pointer-events:auto; transition:visibility 0s; }
+#railDots .rdot, #railDots .rdot-expand{
+  opacity:0; transform:translateX(-14px);
+  transition:opacity .22s ease, transform .22s var(--ease-out),
+    background var(--dur-1), color var(--dur-1), border-color var(--dur-1), box-shadow var(--dur-1);
+}
+#railDots.open .rdot, #railDots.open .rdot-expand{
+  opacity:1; transform:none;
+  transition:opacity .26s ease calc(var(--i, 0)*24ms), transform .26s var(--ease-out) calc(var(--i, 0)*24ms),
+    background var(--dur-1), color var(--dur-1), border-color var(--dur-1), box-shadow var(--dur-1);
+}
 /* 紧凑模式 → 展开切换按钮（V2 用户需求：圆点导航区一键展开详细列表） */
 .rdot-expand{
   width:30px; height:30px; border-radius:50%;
