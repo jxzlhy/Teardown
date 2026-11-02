@@ -13,6 +13,11 @@
       <section class="studio-stage" :class="{ dragging }">
         <canvas ref="cv" class="studio-cv" aria-label="模型预览视口"></canvas>
 
+        <!-- 参考图叠层（V5.0.3）：仅作对照参考——不承诺从图片推断几何 -->
+        <img v-if="refImg" ref="refImgEl" class="st-refimg" :src="refImg.src" alt="参考图"
+          :style="{ opacity: refCfg.opacity / 100, width: refCfg.scale + '%',
+                    left: refCfg.x + '%', top: refCfg.y + '%' }" />
+
         <div v-if="st.phase === 'idle'" class="st-empty">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
           <b>拖入 GLB / GLTF 开始</b>
@@ -171,7 +176,26 @@
             <p v-if="st.report.materials.length > 60" class="st-note">另有 {{ st.report.materials.length - 60 }} 个材质未列出</p>
           </div>
 
-          <!-- 07 我的作品（V5.0.8 本地作品库） -->
+          <!-- 07 参考图（V5.0.3 图片入口·对照层） -->
+          <div class="st-panel">
+            <div class="st-eyebrow">07 · 参考图 <small>对照参考 · 不推断几何</small></div>
+            <div class="st-actions">
+              <button @click="$refs.refimg.click()">{{ refImg ? '更换参考图' : '上传参考图' }}</button>
+              <button v-if="refImg" @click="clearRef">清除</button>
+            </div>
+            <input ref="refimg" id="studioRefInput" type="file" accept="image/png,image/jpeg,image/webp" hidden @change="onRefPick" />
+            <template v-if="refImg">
+              <div class="st-refcfg">
+                <label class="st-rangelab">不透明 <input type="range" min="0" max="100" v-model.number="refCfg.opacity" /><i>{{ refCfg.opacity }}%</i></label>
+                <label class="st-rangelab">宽度 <input type="range" min="10" max="100" v-model.number="refCfg.scale" /><i>{{ refCfg.scale }}%</i></label>
+                <label class="st-rangelab">横移 <input type="range" min="-50" max="50" v-model.number="refCfg.x" /><i>{{ refCfg.x }}%</i></label>
+                <label class="st-rangelab">纵移 <input type="range" min="-50" max="50" v-model.number="refCfg.y" /><i>{{ refCfg.y }}%</i></label>
+              </div>
+              <p class="st-note">参考图叠在视口上对照观察；可在其上正常旋转/缩放模型（叠层不拦截指针）。图片不会从平面推断 3D 结构。</p>
+            </template>
+          </div>
+
+          <!-- 08 我的作品（V5.0.8 本地作品库） -->
           <div class="st-panel">
             <div class="st-eyebrow">07 · 我的作品 <small>浏览器本地 · 不上传</small></div>
             <div class="st-libsave">
@@ -277,6 +301,20 @@ async function doExport() {
   exporting.value = true;
   try { await studio.value.downloadGlb(); } finally { exporting.value = false; }
 }
+
+/* —— 参考图（V5.0.3） —— */
+const refImg = ref(null);              // { src, name }
+const refCfg = reactive({ opacity: 60, scale: 50, x: 0, y: 0 });
+function onRefPick(e) {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  if (!/^image\//.test(f.type)) { libNote('参考图仅支持 PNG / JPEG / WebP', true); return; }
+  const rd = new FileReader();
+  rd.onload = () => { refImg.value = { src: rd.result, name: f.name }; };
+  rd.readAsDataURL(f);
+}
+function clearRef() { refImg.value = null; }
 
 /* —— 我的作品（V5.0.8） —— */
 const libName = ref('');
@@ -540,7 +578,14 @@ function toggleSpin() {
   background:var(--wash-1); border:1px solid var(--hairline); color:var(--txt-2);
 }
 .st-libfoot button:hover:not(:disabled){ color:var(--acc); border-color:var(--acc); }
-.st-libfoot button:disabled{ opacity:.45; cursor:not-allowed; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+.st-libfoot button:disabled{ opacity:.45; cursor:not-allowed; }
+
+/* —— 参考图（V5.0.3） —— */
+.st-refimg{
+  position:absolute; max-width:none; border:1px dashed var(--acc);
+  box-shadow:0 2px 18px rgba(0,0,0,.35); pointer-events:none; z-index:1;
+}
+.st-refcfg{ display:flex; flex-direction:column; gap:6px; margin-top:12px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{

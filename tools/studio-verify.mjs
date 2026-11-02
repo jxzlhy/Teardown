@@ -163,6 +163,43 @@ try {
   check('作品库：非法备份拒收', libRes.badRejected === true);
   check('作品库：清理后为空', libRes.listClean === 0);
 
+  /* 4d. 参考图对照层（V5.0.3）：上传→叠层可见→参数生效→非图片拒收→清除 */
+  const refRes = await page.evaluate(async () => {
+    const out = {};
+    const canvas = document.createElement('canvas');
+    canvas.width = 8; canvas.height = 8;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0044'; ctx.fillRect(0, 0, 8, 8);
+    const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
+    const png = new File([blob], 'ref.png', { type: 'image/png' });
+    const dt = new DataTransfer();
+    dt.items.add(png);
+    const inp = document.getElementById('studioRefInput');
+    inp.files = dt.files;
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 800));
+    out.shown = !!document.querySelector('.st-refimg');
+    const range = [...document.querySelectorAll('.st-refcfg input[type=range]')][0];
+    range.value = '25';
+    range.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 300));
+    out.op = document.querySelector('.st-refimg').style.opacity;
+    const dt2 = new DataTransfer();
+    dt2.items.add(new File([new Uint8Array([1])], 'x.txt', { type: 'text/plain' }));
+    inp.files = dt2.files;
+    inp.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 400));
+    out.rejected = /参考图仅支持/.test(document.body.textContent);
+    [...document.querySelectorAll('button')].find((b) => /^清除$/.test(b.textContent.trim())).click();
+    await new Promise((r) => setTimeout(r, 300));
+    out.cleared = !document.querySelector('.st-refimg');
+    return out;
+  });
+  check('参考图：上传→叠层渲染', refRes.shown === true);
+  check('参考图：不透明度参数生效', refRes.op === '0.25', 'opacity=' + refRes.op);
+  check('参考图：非图片类型拒收', refRes.rejected === true);
+  check('参考图：清除后移除', refRes.cleared === true);
+
   /* —— 错误路径组（5-9）改在全新页面跑：与主流程解耦，OOM 崩页不连坐。
         先关主页面——它的满帧视口还在软件渲染，双实例会互相拖垮计时 —— */
   await page.close().catch(() => {});
@@ -221,19 +258,29 @@ try {
   check('空场景 → ERR_EMPTY（可解析但无网格）', true);
 
   /* 9. 体积上限（?cap=1 + 2MB 假 GLB → ERR_SIZE，读取前拒收）
-     hash-only goto 是同文档导航不会重挂载 → 显式 reload 让 readCapMB 重新取参 */
-  await p2.goto(`${BASE}/#/studio?cap=1`, { waitUntil: 'domcontentloaded' });
-  await p2.reload({ waitUntil: 'domcontentloaded' });
-  await p2.waitForSelector('.studio-cv', { timeout: 20000 });
-  await p2.evaluate(() => {
-    const dt = new DataTransfer();
-    dt.items.add(new File([new Uint8Array(2 * 1024 * 1024)], 'big.glb'));
-    const input = document.getElementById('studioFileInput');
-    input.files = dt.files;
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-  await p2.waitForFunction(() => /ERR_SIZE/.test(document.body.textContent), { timeout: 30000 });
-  check('?cap=1 体积守卫生效', true);
+     hash-only goto 是同文档导航不会重挂载 → 显式 reload 让 readCapMB 重新取参；
+     OOM 冻结 → 独立页面重试 */
+  let capOk = false;
+  for (let a = 0; a < 3 && !capOk; a++) {
+    const p3 = await browser.newPage();
+    try {
+      await p3.goto(`${BASE}/#/studio?cap=1`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await p3.reload({ waitUntil: 'domcontentloaded' });
+      await p3.waitForSelector('.studio-cv', { timeout: 20000 });
+      await p3.evaluate(() => {
+        const dt = new DataTransfer();
+        dt.items.add(new File([new Uint8Array(2 * 1024 * 1024)], 'big.glb'));
+        const input = document.getElementById('studioFileInput');
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      await p3.waitForFunction(() => /ERR_SIZE/.test(document.body.textContent), { timeout: 30000 });
+      capOk = true;
+      check('?cap=1 体积守卫生效', true);
+    } catch { console.log(`  …?cap 步骤重试 ${a + 1}/3（环境冻结）`); }
+    finally { await p3.close().catch(() => {}); }
+  }
+  if (!capOk) check('?cap=1 体积守卫生效', false, '三次环境冻结');
 
   /* 10. 大厅不预载 studio chunk（hash-only goto 是同文档导航，先 reload 清空资源计时；
         OOM 下页面可能中途崩溃——换新页面重试） */
