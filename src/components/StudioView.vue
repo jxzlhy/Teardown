@@ -171,12 +171,41 @@
             <p v-if="st.report.materials.length > 60" class="st-note">另有 {{ st.report.materials.length - 60 }} 个材质未列出</p>
           </div>
 
+          <!-- 07 我的作品（V5.0.8 本地作品库） -->
+          <div class="st-panel">
+            <div class="st-eyebrow">07 · 我的作品 <small>浏览器本地 · 不上传</small></div>
+            <div class="st-libsave">
+              <input v-model="libName" type="text" maxlength="60" placeholder="作品名称"
+                :disabled="st.phase !== 'ready'" aria-label="作品名称" />
+              <button :disabled="st.phase !== 'ready' || libBusy" @click="doSaveWork">{{ libBusy ? '保存中…' : '保存当前' }}</button>
+            </div>
+            <p v-if="libMsg" class="st-note" :class="{ 'st-miss': libErr }">{{ libMsg }}</p>
+            <div v-if="works.length" class="st-works">
+              <div v-for="w in works" :key="w.id" class="st-work">
+                <span class="st-workname" :title="w.name">{{ w.name }}</span>
+                <small>{{ new Date(w.ts).toLocaleDateString() }} · {{ fmtTri(w.meta && w.meta.triTotal) }} tri</small>
+                <span class="st-workbtns">
+                  <button :disabled="libBusy" @click="doLoadWork(w.id)" :aria-label="'载入作品：' + w.name">载入</button>
+                  <button :disabled="libBusy" @click="doRename(w)" :aria-label="'改名：' + w.name">改名</button>
+                  <button class="st-danger" :disabled="libBusy" @click="doDeleteWork(w)" :aria-label="'删除作品：' + w.name">删</button>
+                </span>
+              </div>
+            </div>
+            <p v-else class="st-note">还没有保存的作品——编辑满意后点「保存当前」</p>
+            <div class="st-libfoot">
+              <button @click="doBackup" :disabled="!works.length">⬇ 备份全部（JSON）</button>
+              <button @click="$refs.restore.click()">⬆ 恢复备份</button>
+              <input ref="restore" type="file" accept=".json" hidden @change="doRestore" />
+            </div>
+            <p class="st-note">作品存于本浏览器的 IndexedDB——清理站点数据会丢失，请用「备份全部」导出留底</p>
+          </div>
+
           <p class="st-foot">阶段口径：V5.0.0 基础架构 + V5.0.1 导入/体检。编辑工作台、本地作品库与程序化建模在后续版本接入；诊断结论为确定性规则检查，供人工复核。</p>
         </template>
       </aside>
     </main>
 
-    <input ref="file" type="file" multiple accept=".glb,.gltf,.bin,.png,.jpg,.jpeg,.webp,.ktx2" hidden @change="onFilePick" />
+    <input id="studioFileInput" ref="file" type="file" multiple accept=".glb,.gltf,.bin,.png,.jpg,.jpeg,.webp,.ktx2" hidden @change="onFilePick" />
   </div>
 </template>
 
@@ -208,6 +237,7 @@ onMounted(() => {
       st.lastEditLabel = s.lastEditLabel ?? '';
     },
   });
+  refreshWorks();
 });
 onBeforeUnmount(() => { studio.value && studio.value.dispose(); });
 
@@ -248,6 +278,71 @@ async function doExport() {
   try { await studio.value.downloadGlb(); } finally { exporting.value = false; }
 }
 
+/* —— 我的作品（V5.0.8） —— */
+const libName = ref('');
+const libBusy = ref(false);
+const libMsg = ref('');
+const libErr = ref(false);
+const works = ref([]);
+
+async function refreshWorks() {
+  try { works.value = await studio.value.listWorks(); }
+  catch { works.value = []; }
+}
+function libNote(msg, isErr) { libMsg.value = msg; libErr.value = !!isErr; }
+async function doSaveWork() {
+  libBusy.value = true; libNote('');
+  try {
+    const rec = await studio.value.saveWork(libName.value || ('作品 ' + new Date().toLocaleString()));
+    libName.value = '';
+    libNote('已保存「' + rec.name + '」');
+    await refreshWorks();
+  } catch (e) { libNote(String(e.message || e).slice(0, 90), true); }
+  finally { libBusy.value = false; }
+}
+async function doLoadWork(id) {
+  libBusy.value = true; libNote('');
+  try { await studio.value.loadWork(id); libNote('作品已载入画布'); }
+  catch (e) { libNote(String(e.message || e).slice(0, 90), true); }
+  finally { libBusy.value = false; }
+}
+async function doRename(w) {
+  const name = prompt('新名称（最长 60 字）', w.name);
+  if (!name || name === w.name) return;
+  try { await studio.value.renameWork(w.id, name); await refreshWorks(); }
+  catch (e) { libNote(String(e.message || e).slice(0, 90), true); }
+}
+async function doDeleteWork(w) {
+  if (!confirm(`删除作品「${w.name}」？此操作不可撤销。`)) return;
+  try { await studio.value.deleteWork(w.id); libNote('已删除「' + w.name + '」'); await refreshWorks(); }
+  catch (e) { libNote(String(e.message || e).slice(0, 90), true); }
+}
+async function doBackup() {
+  try {
+    const data = await studio.value.backupJson();
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gewu-studio-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    libNote(`备份已导出（${data.works.length} 件作品）`);
+  } catch (e) { libNote(String(e.message || e).slice(0, 90), true); }
+}
+async function doRestore(e) {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  libBusy.value = true; libNote('');
+  try {
+    const data = JSON.parse(await f.text());
+    const n = await studio.value.restoreBackup(data);
+    libNote(`已恢复 ${n} 件作品`);
+    await refreshWorks();
+  } catch (err) { libNote(String(err.message || err).slice(0, 90), true); }
+  finally { libBusy.value = false; }
+}
+
 const MAX_TREE_ROWS = 500;
 const shownNodes = computed(() => (st.report ? st.report.nodes.slice(0, MAX_TREE_ROWS) : []));
 const dims = computed(() => {
@@ -256,6 +351,7 @@ const dims = computed(() => {
   return s.map((n) => (Math.abs(n) >= 100 ? Math.round(n) : +n.toFixed(2))).join(' × ');
 });
 const fmt = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : String(n));
+const fmtTri = (n) => (n ? fmt(n) : '0');
 
 function onFilePick(e) {
   const files = [...e.target.files];
@@ -410,7 +506,41 @@ function toggleSpin() {
 .st-colorlab span{ font-family:var(--mono); font-size:10.5px; color:var(--txt-2); }
 .st-rangelab{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--txt-3); flex:1; min-width:120px; }
 .st-rangelab input{ flex:1; accent-color:var(--acc); }
-.st-rangelab i{ font-style:normal; font-family:var(--mono); font-size:10px; color:var(--txt-2); min-width:30px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+.st-rangelab i{ font-style:normal; font-family:var(--mono); font-size:10px; color:var(--txt-2); min-width:30px; }
+
+/* —— 我的作品（V5.0.8） —— */
+.st-libsave{ display:flex; gap:8px; margin-bottom:10px; }
+.st-libsave input{
+  flex:1; min-width:0; padding:7px 10px; font-size:12px;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:7px; color:var(--txt-1);
+}
+.st-libsave input:focus{ outline:1px solid var(--acc); outline-offset:1px; }
+.st-libsave button{
+  cursor:pointer; padding:0 14px; border-radius:7px; font-size:11.5px; white-space:nowrap;
+  color:var(--acc); border:1px solid var(--acc); background:var(--acc-bg);
+}
+.st-libsave button:disabled{ opacity:.5; cursor:not-allowed; }
+.st-works{ display:flex; flex-direction:column; gap:6px; margin:10px 0; max-height:220px; overflow-y:auto; }
+.st-work{
+  display:flex; align-items:center; gap:8px; padding:7px 10px;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:8px; font-size:11.5px;
+}
+.st-workname{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--txt-1); }
+.st-work small{ font-family:var(--mono); font-size:9px; color:var(--txt-3); white-space:nowrap; }
+.st-workbtns{ display:flex; gap:4px; }
+.st-workbtns button{
+  cursor:pointer; padding:3px 9px; border-radius:6px; font-size:10.5px;
+  background:transparent; border:1px solid var(--hairline); color:var(--txt-2);
+}
+.st-workbtns button:hover:not(:disabled){ color:var(--acc); border-color:var(--acc); }
+.st-workbtns .st-danger:hover:not(:disabled){ color:var(--err); border-color:var(--err); }
+.st-libfoot{ display:flex; gap:8px; margin-top:8px; }
+.st-libfoot button{
+  cursor:pointer; padding:5px 11px; border-radius:7px; font-size:10.5px;
+  background:var(--wash-1); border:1px solid var(--hairline); color:var(--txt-2);
+}
+.st-libfoot button:hover:not(:disabled){ color:var(--acc); border-color:var(--acc); }
+.st-libfoot button:disabled{ opacity:.45; cursor:not-allowed; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{

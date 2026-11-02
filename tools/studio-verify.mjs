@@ -132,8 +132,48 @@ try {
   });
   check('编辑器：工具条撤销按钮状态同步（历史已清空 → disabled）', undoDisabled === true, 'disabled=' + undoDisabled);
 
+  /* 4c. 本地作品库（V5.0.8）：保存→列表→载入→备份→删除→恢复→非法拒收→清理 */
+  const libRes = await page.evaluate(async () => {
+    const S = window.__STUDIO;
+    const out = {};
+    const rec = await S.saveWork('验证作品A');
+    out.saved = rec.name;
+    out.list1 = (await S.listWorks()).length;
+    await S.loadWork(rec.id);
+    for (let i = 0; i < 40 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
+    out.reloaded = !!document.querySelector('.st-stats');
+    const backup = await S.backupJson();
+    out.backupWorks = backup.works.length;
+    out.backupFmt = backup.fmt;
+    await S.deleteWork(rec.id);
+    out.list0 = (await S.listWorks()).length;
+    out.restored = await S.restoreBackup(backup);
+    out.list2 = (await S.listWorks()).length;
+    let badRejected = false;
+    try { await S.restoreBackup({ fmt: 'bad' }); } catch { badRejected = true; }
+    out.badRejected = badRejected;
+    for (const w of await S.listWorks()) await S.deleteWork(w.id);
+    out.listClean = (await S.listWorks()).length;
+    return out;
+  });
+  check('作品库：保存→列表', libRes.saved === '验证作品A' && libRes.list1 === 1, JSON.stringify({ saved: libRes.saved, list1: libRes.list1 }));
+  check('作品库：载入回画布（完整 importFrom 管线）', libRes.reloaded === true, '');
+  check('作品库：备份格式与数量', libRes.backupFmt === 'gewu-studio-backup/1' && libRes.backupWorks === 1, libRes.backupFmt + '×' + libRes.backupWorks);
+  check('作品库：删除→恢复往返', libRes.list0 === 0 && libRes.restored === 1 && libRes.list2 === 1, JSON.stringify({ list0: libRes.list0, restored: libRes.restored, list2: libRes.list2 }));
+  check('作品库：非法备份拒收', libRes.badRejected === true);
+  check('作品库：清理后为空', libRes.listClean === 0);
+
+  /* —— 错误路径组（5-9）改在全新页面跑：与主流程解耦，OOM 崩页不连坐。
+        先关主页面——它的满帧视口还在软件渲染，双实例会互相拖垮计时 —— */
+  await page.close().catch(() => {});
+  const p2 = await browser.newPage();
+  p2.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });
+  p2.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0, 160)));
+  await p2.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await p2.waitForSelector('.studio-cv', { timeout: 30000 });
+
   /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错） */
-  await page.evaluate(() => {
+  await p2.evaluate(() => {
     const head = new Uint8Array(1024);
     const dv = new DataView(head.buffer);
     dv.setUint32(0, 0x46546c67, true);   // 'glTF'
@@ -141,58 +181,58 @@ try {
     dv.setUint32(8, 0x7fffffff, true);   // 总长度越界 → 头部校验失败
     const dt = new DataTransfer();
     dt.items.add(new File([head], 'broken.glb'));
-    const input = document.querySelector('input[type=file]');
+    const input = document.getElementById('studioFileInput');
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await page.waitForFunction(() => /ERR_/.test(document.querySelector('.st-eyebrow')?.textContent || ''), { timeout: 45000 });
-  const errCode = await page.evaluate(() => document.querySelector('.st-eyebrow').textContent.trim());
+  await p2.waitForFunction(() => /ERR_/.test(document.querySelector('.st-eyebrow')?.textContent || ''), { timeout: 45000 });
+  const errCode = await p2.evaluate(() => document.querySelector('.st-eyebrow').textContent.trim());
   check('损坏 GLB → 分类错误面板', /ERR_PARSE/.test(errCode), errCode);
 
   /* 6. 错误后恢复：重新导入示例 */
-  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /重新导入/.test(b.textContent)).click());
-  await page.waitForSelector('.st-empty', { timeout: 5000 });
-  await page.evaluate(() => [...document.querySelectorAll('.st-empty-actions button, .st-actions button')]
+  await p2.evaluate(() => [...document.querySelectorAll('button')].find((b) => /重新导入/.test(b.textContent)).click());
+  await p2.waitForSelector('.st-empty', { timeout: 5000 });
+  await p2.evaluate(() => [...document.querySelectorAll('.st-empty-actions button, .st-actions button')]
     .find((b) => /馆内示例 A/.test(b.textContent)).click());
-  await page.waitForFunction(() => !!document.querySelector('.st-stats'), { timeout: 90000 });
+  await p2.waitForFunction(() => !!document.querySelector('.st-stats'), { timeout: 90000 });
   check('错误态复位后再导入成功', true);
 
   /* 7. 不支持格式 → ERR_FORMAT */
-  await page.evaluate(() => {
+  await p2.evaluate(() => {
     const dt = new DataTransfer();
     dt.items.add(new File([new Uint8Array([1, 2, 3])], 'notes.txt', { type: 'text/plain' }));
-    const input = document.querySelector('input[type=file]');
+    const input = document.getElementById('studioFileInput');
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await page.waitForFunction(() => /ERR_FORMAT/.test(document.body.textContent), { timeout: 30000 });
+  await p2.waitForFunction(() => /ERR_FORMAT/.test(document.body.textContent), { timeout: 30000 });
   check('.txt → ERR_FORMAT', true);
 
   /* 8. 空场景 gltf → ERR_EMPTY */
-  await page.evaluate(() => {
+  await p2.evaluate(() => {
     const json = JSON.stringify({ asset: { version: '2.0' }, scene: 0, scenes: [{ nodes: [0] }], nodes: [{ name: 'EmptyRoot' }] });
     const dt = new DataTransfer();
     dt.items.add(new File([json], 'empty.gltf', { type: 'model/gltf+json' }));
-    const input = document.querySelector('input[type=file]');
+    const input = document.getElementById('studioFileInput');
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await page.waitForFunction(() => /ERR_EMPTY/.test(document.body.textContent), { timeout: 30000 });
+  await p2.waitForFunction(() => /ERR_EMPTY/.test(document.body.textContent), { timeout: 30000 });
   check('空场景 → ERR_EMPTY（可解析但无网格）', true);
 
   /* 9. 体积上限（?cap=1 + 2MB 假 GLB → ERR_SIZE，读取前拒收）
      hash-only goto 是同文档导航不会重挂载 → 显式 reload 让 readCapMB 重新取参 */
-  await page.goto(`${BASE}/#/studio?cap=1`, { waitUntil: 'domcontentloaded' });
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.studio-cv', { timeout: 20000 });
-  await page.evaluate(() => {
+  await p2.goto(`${BASE}/#/studio?cap=1`, { waitUntil: 'domcontentloaded' });
+  await p2.reload({ waitUntil: 'domcontentloaded' });
+  await p2.waitForSelector('.studio-cv', { timeout: 20000 });
+  await p2.evaluate(() => {
     const dt = new DataTransfer();
     dt.items.add(new File([new Uint8Array(2 * 1024 * 1024)], 'big.glb'));
-    const input = document.querySelector('input[type=file]');
+    const input = document.getElementById('studioFileInput');
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await page.waitForFunction(() => /ERR_SIZE/.test(document.body.textContent), { timeout: 30000 });
+  await p2.waitForFunction(() => /ERR_SIZE/.test(document.body.textContent), { timeout: 30000 });
   check('?cap=1 体积守卫生效', true);
 
   /* 10. 大厅不预载 studio chunk（hash-only goto 是同文档导航，先 reload 清空资源计时；

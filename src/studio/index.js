@@ -8,6 +8,7 @@ import { runDiagnostics } from './diagnostics.js';
 import { createViewer } from './viewer.js';
 import { createWorkshop } from './workshop.js';
 import { exportGlb, downloadBlob } from './exporter.js';
+import * as library from './library.js';
 
 export { ERR, DEFAULT_CAP_MB };
 
@@ -132,6 +133,30 @@ export function createStudio({ canvas, onState }) {
       downloadBlob(out.blob, out.filename);
       return true;
     },
+
+    /* —— 本地作品库（V5.0.8）：IndexedDB 持久化 —— */
+    saveWork: async (name) => {
+      if (!report) throw new Error('先载入模型再保存作品');
+      const out = await exportGlb(report);
+      const rec = await library.saveWork({ name, glbData: out.blob, meta: { ...report.stats, bbox: undefined } });
+      return rec;
+    },
+    listWorks: () => library.listWorks(),
+    loadWork: async (id) => {
+      const rec = await library.getWork(id);
+      if (!rec) throw new Error('作品不存在或已被删除');
+      const src = rec.glb;   // 存的是 Blob（结构化克隆）；兼容 ArrayBuffer 旧档
+      await importFiles([{
+        name: (rec.name || 'work') + '.glb',
+        size: src.size ?? src.byteLength,
+        read: async () => (src.arrayBuffer ? src.arrayBuffer() : src.slice(0)),
+      }]);
+      return { id: rec.id, name: rec.name };
+    },
+    deleteWork: (id) => library.deleteWork(id),
+    renameWork: (id, name) => library.renameWork(id, name),
+    backupJson: () => library.exportBackup(),
+    restoreBackup: (data) => library.importBackup(data),
   };
 
   /* 馆内调试/测试钩子（与 __ENGINE/__RAW 同约定） */
