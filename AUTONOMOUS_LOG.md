@@ -1778,3 +1778,35 @@ Phase 2-A 日厅令牌反转 + 2-B 对比度 CI（P1-3）；随后 2-D 移动端
 - 验证：lint:devices ✓ / inventory 117 台·890 部件·40 品牌 ✓ / thumbs 2 台夜+日 ✓ / build 4.42s ✓ / preview EXIT 0 ✓ / 双台映射计数（43/43、6/6）+ 装配/爆炸截图目检 ✓（docs/design/screenshots/nasa-{spitzer,chandra}-*.png）。
 - 工具沉淀：tools/tmp-glb-dump.mjs 离线 GLB JSON chunk 解析（node 名+平移+每 primitive 材质+accessor bbox）替代页内动态 import 探针（CDP 高负载下超时）——已验证后清理。
 - 至此「大天文台」主题三件聚齐：哈勃（可见光/已有）+ 斯皮策（红外）+ 钱德拉（X 射线）。
+
+### V4.1 · 性能与兼容性回归
+
+- fps-probe 基线复跑：action4/v8-engine/grand-piano 均 60.3fps（headless swiftshader 软渲染参考值，探针画质档字段显示 Lundefined 为显示小疵——实际档位由引擎自适应）。
+- 新增 tools/v4-viewport-sweep.mjs：V4.0 全部新面板（机构/诊断/运动状态/相连关系）四视口（1440/1280/768/390）扫查——无横向溢出、dock 可达、面板宽度合规、弹层不超视口、0 控制台错误，EXIT 0。
+- 探针画质档显示小疵挂 BACKLOG（Lundefined：fps-probe 读取的画质字段口径过时）。
+
+### V4.1 · 性能回归 + 兼容性扫查 + 体验小修
+
+- fps-probe 修复：getState 暴露 quality（自适应画质档 0-2 可观测，此前 Lundefined）；parts 计数兜底。基线复跑：3 台 60.3fps（软渲染参考）全档 L2。
+- tools/v4-viewport-sweep.mjs（新）：V4.0 全部新面板四视口（1440/1280/768/390）扫查——无横向溢出/dock 可达/面板合规/弹层不超视口/0 错误，EXIT 0。
+- forge 设备上一台/下一台导航修正：生成物隐藏 nav 按钮（原回绕到任意展品的怪癖），真实设备保留。
+- 验证：forge nav=0 / real nav=2 / 0 错误；smoke 全过；build ✓。
+
+### 2026-11-03 续轮 · Forge 新生成器：锁式线迹机构（自行创造分支）
+- **引擎扩展（V4.1）**：demos 新增 `slide` 原语——部件内全部 mesh 沿同一轴同相正弦平移（刚性单自由度机构）；可选 `axis2/amp2/phase2` 合成李萨如闭环（送布牙椭圆轨迹）。关键设计：位移改在 **mesh 级**（group.position 每帧被爆炸管线覆写不可碰）；不走 stroke 的分相位路径（刚性件会被"撕开"）；退出缓动归位与 strokes 同段 t。既有演示零影响（纯新增字段）。
+- **src/forge/lockstitch.js**：平缝机锁式线迹（Lockstitch 301）运动学概念机——11 部件（机身/手轮/针杆/挑线杆/走线/张力器/压脚/针板/送布牙/旋梭梭芯/布样），全部参数化网格 + 种子工艺细节（涂装色/线色/布样行数/螺丝数）。5 路联动 = 手轮 spin(1×) + also[针杆 slide、挑线杆 wobble、旋梭 spin(2×)、送布牙 slide 椭圆]，频率比精确 1:2:2:1（cadence Hz 统一时基）。V4 机构关系图 11 边（revolute/slider_crank/gear_mesh ratio2/linkage/fixed/visual_only/bearing_support），mech.js validateMech ok:true。
+- **参数**：needleStroke 26-42mm / feedStroke 2-6mm / cadence 0.5-1.2Hz / finish / detail；预设 4 个（标准/厚料长行程/紧凑家用/教学慢动作）；真实口径如实标注（送布轨迹放大 ~2.2×、走线静态示意、布样不随动）。
+- **修真实缺陷：ForgeView 深链竞态**——`gen.value` 赋值触发的 watch（pre-flush）在 onMounted 同步体之后才重置 params，导致深链 preset/参数覆盖被默认值吞掉（实测 preset=teach&needleStroke=36 全部失效）。修复：gen 切换后 `await nextTick()` 再应用 preset/参数/seed/auto。
+- **验证（tools/forge-ls-verify.mjs）**：深链三链路 ✓ / 联动成立（Δwheel=7.54 Δhook=15.08 **ratio=2.00** + needleSwing 0.317 + 送布椭圆双轴 0.106/0.178）✓ / deselect 复位（mesh 归基位）✓ / 爆炸复位 ✓ / 厚料参数重生 11 部件 ✓ / 0 页面错误 ✓；截图 forge-ls-{night,demo,explode,day}.png 目检通过（爆炸 10 方向散开、选中高亮+展品卡正常）；mech validateMech ok；build 3.45s ✓。
+- **验证方法学**：联动采样间隔必须 ≥1.2s——高负载（load>9）下 rAF 节流到低帧率，密集采样会落在同一帧之间造成"冻结"假象（两次误判根因）；系统负载 13-15 时 smoke 出现 Target closed 崩溃（backlog 已知模式），干净 smoke 待负载回落补跑。
+- 下一轮候选：forge 预设导出 JSON 已有；涡扇/锁式线迹的 mech 面板联动核验；Nixie/Braun 接入前位置聚类评估。
+
+## 2026-11-03（续）· 自创模型轮：锻造所第 5 生成器「转子发动机（Wankel）」收官
+
+- 目标分支「自行创造有趣的模型」：新增 src/forge/wankel.js——单转子概念机 7 部件（缸体/三角转子/偏心轴/前端盖/后端板飞轮/皮带轮/双火花塞），构建 16-52ms/台，~7.1k tris。
+- 几何真实性口径：缸体 epitrochoid 型线解析生成 x(φ)=e·cosφ+R·cos(φ/3)；转子三尖端恒在缸壁（构造保证）；**侧翼圆弧为包络的圆弧近似——构建期二分搜索全相位有符号径向间隙的相切边界**（m≈−1.2R，经典「R+2e」说法经数值证伪：该参数会穿透缸壁 12.7mm）；排量 V=3·√3·e·R·W 推导（classic13 预设 0.655L，与真 13B 单转子 0.654L 一致）。
+- 引擎演示系统新增 `eccOrbit` 类型（纯增量）：部件内指定内核 Group 同时公转（半径 e 小圆平移）+ 自转（轴速 1/3 同向），相位内部累加避免激活跳变，退出同段 t 缓动复位——镜像 meshSpin/slide 先例。**首版 fromEcc 漏带 basePos/baseRot 致退出首帧 lerpVectors 抛错卡死复位**（15 次 PAGEERROR），修复后 0 错误。
+- 演示验证（无头实测）：公转半径恒 0.150（=e）✓ 转子自转率 0.885 rad/s（=ω/3）✓ 复位 r=0.15/rot=0 ✓ 爆炸-装配 maxErr=0 ✓ mech 8 边（revolute 3:1 + gear_mesh 内啮合 + 3×bearing_support + 3×fixed）✓。
+- ForgeView GEN_META 补 wankel 条目；深链 /forge?gen=wankel&preset=&seed=&auto=1 实测生成-跳转-booted 全通；GLB 导出 541KB（命名规约✓）复检可重导入（84 节点/73 网格）✓；3 种子构建稳定性 ✓；lint ✓ build 3.54s ✓。
+- 环境：并行会话同窗活跃（lockstitch 生成器中途语法态/HMR 重载致探针 frame detach 多次）——验证脚本一律改轮询重开页容错；在馆口径 117→118 台由 gen:inventory 自动同步。
+- 落选记录：NASA Dawn（tex_01 大网格吞并主体+双翼，部件无法诚实分离）、Stardust（tex_01/02/03 为贴图分区非功能件）——不入馆。

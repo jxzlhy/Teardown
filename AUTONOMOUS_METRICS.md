@@ -134,3 +134,30 @@
 - 设备规模：110 → **117 台 / 890 部件 / 40 品牌**（含并行会话同窗新增）。
 - 新资产：spitzer-space-telescope.glb 242KB（原 245KB，无贴图材质件）、chandra-x-ray-observatory.glb 232KB（原 975KB，24%）；原件入 vendor/assets/originals/nasa-2026-11-02/。
 - 验证：build 4.42s / preview EXIT 0 / 映射 43/43+6/6 / thumbs 夜+日 20KB 级。
+
+## 2026-11-02/03 · 全网搜罗批次一（本会话 4 台；接入时点 110 台，馆现已 117）
+- 新资产与压缩（webp→draco）：
+  - curta-type2.glb 9.97MB（原 123.5MB；123→131MB@resize2048 失败教训→1K+q78 路线 12.3%；45 张纹理为主）——全馆最重 GLB，按需加载
+  - vintage-binocular.glb 1.41MB（原 7.95MB）
+  - manual-gearbox.glb 1.35MB（原 12.4MB；flatten 后重打包）
+  - wankel-engine.glb 5.76MB（原 43.6MB；flatten 后重打包）
+- 压缩率：四台平均 ~10%（102→17.5MB 合计）
+- 验证：lint 0 错（110 台时点）/ gen:inventory 110·855 ✓ / thumbs 4/4 含日变体 / build 2.68s / 首屏+爆炸态截图目检 4 台全过；smoke 因负载 9-11 未跑（并行会话同因跳过；其后续批次 smoke 全过可作回归旁证）
+- 调研产出：2 份报告（/tmp/research-community.md、/tmp/research-museum.md）+ Smithsonian 免 key 通道（si_titles.tsv 104k 目录）+ radial 分离活塞 4 CC-BY 候选
+
+## 2026-11-03 续轮 · Forge 锁式线迹机构（自行创造）
+
+| 指标 | 数值 | 测量方式 |
+|---|---|---|
+| 生成器 | lockstitch v1 · 11 部件 · 11 mech 边（validateMech ok） · 4 预设 · 5 参数 | tools/forge-ls-verify.mjs + mech.js |
+| 联动频率比 | Δwheel=7.54 rad vs Δhook=15.08 rad → **ratio 2.00**（期望 2）；needleSwing 0.317；送布椭圆双轴 0.106/0.178 | 同上（采样间隔 1.2s） |
+| 复位干净度 | deselect 后 mesh 归基位误差 0；爆炸→复位 group 距 base <0.02 | 同上 |
+| 产物 | 锻造件运行时生成（几何不落盘）；GLB 导出能力复用 export.js | /forge 页 |
+| 构建 | 3.45s ✓（three chunk 无变化） | npm run build |
+| smoke | 本轮环境负载 15-24（并行会话压机），无头 Chrome 反复 Target closed —— **结果不作数，待负载回落补跑**；此前 5 台批次 smoke 33/33 全过 | npm run smoke |
+
+## 2026-11-03（续）· Wankel 生成器
+- 锻造所生成器：4 → 5（v8/turbofan/ringdrive/lockstitch/wankel）。
+- 引擎演示类型：spin/wobble/meshSpin/stroke/slide + **eccOrbit**（公转+1/3 自转复合）。
+- Wankel 产物：7 部件 / ~7.1k tris / 构建 16-52ms / GLB 导出 541KB。
+- 验证：orbit 半径恒=0.150、自转率 0.885=ω/3、复位 0 误差、爆炸-装配 0 误差、0 控制台错误。
