@@ -10,6 +10,7 @@ import { createWorkshop } from './workshop.js';
 import { exportGlb, downloadBlob } from './exporter.js';
 import * as library from './library.js';
 import { planRepairs, buildRepairCommands, REPAIR_LABELS } from './repair.js';
+import { generateFromText } from './textgen.js';
 
 export { ERR, DEFAULT_CAP_MB };
 
@@ -133,6 +134,28 @@ export function createStudio({ canvas, onState }) {
 
     /* —— 诊断→修复（V5.0.5 部分）：可确定性修复的规则 → 单条可撤销命令组 —— */
     planRepairs: () => (diag ? planRepairs(diag) : { fixable: [], manual: [] }),
+
+    /* —— 文字程序化建模（V5.0.4）：关键词模板解析（非 AI），产物走导入同一下游 —— */
+    generateFromText: (text) => {
+      const out = generateFromText(text);
+      if (!out.ok) return out;
+      const s = surveyScene(out.root);
+      const stats = { file: '文字生成', fileSize: 0, ...s.stats, animationCount: 0 };
+      report = {
+        root: out.root, nodes: s.nodes, nodesByPath: s.nodesByPath,
+        meshes: s.meshes, materials: s.materials, animations: [],
+        stats, missingResources: [], textGen: true,
+      };
+      diag = runDiagnostics(report);
+      if (workshop) workshop.dispose();
+      workshop = createWorkshop(report);
+      viewer.setModel(out.root);
+      selectedPath = null;
+      viewer.onPick = (path) => { selectedPath = path; emit({ selectedPath: path }); };
+      phase = 'ready';
+      emit({});
+      return { ok: true, parts: out.parts.length, summary: out.summary, unknown: out.spec.unknown };
+    },
     repair: (rule) => {
       if (!report || !diag || !workshop) return null;
       const built = buildRepairCommands(report, rule);

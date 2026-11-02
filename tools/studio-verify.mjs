@@ -240,14 +240,66 @@ try {
   check('修复：撤销后问题回归', /missing-normals:1/.test(repRes.planUndo), repRes.planUndo || '(空)');
   check('修复：重做后再次消除', !/missing-normals/.test(repRes.planRedo), repRes.planRedo || '(空)');
 
-  /* —— 错误路径组（5-9）改在全新页面跑：与主流程解耦，OOM 崩页不连坐。
-        先关主页面——它的满帧视口还在软件渲染，双实例会互相拖垮计时 —— */
+  /* —— 第二页面组（4f 文字生成 + 5-9 错误路径）：与主流程解耦，OOM 崩页不连坐。
+        先关主页面——它的满帧视口还在软件渲染，双实例会互相拖垮计时；
+        启动带 3 次重试（OOM 冻结特征） —— */
   await page.close().catch(() => {});
-  const p2 = await browser.newPage();
-  p2.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });
-  p2.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0, 160)));
-  await p2.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await p2.waitForSelector('.studio-cv', { timeout: 30000 });
+  let p2 = null;
+  let p2Booted = false;
+  for (let a = 0; a < 3 && !p2Booted; a++) {
+    try {
+      if (p2) await p2.close().catch(() => {});
+      p2 = await browser.newPage();
+      p2.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });
+      p2.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0, 160)));
+      await p2.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await p2.waitForSelector('.studio-cv', { timeout: 25000 });
+      p2Booted = true;
+    } catch { console.log(`  …第二页面启动重试 ${a + 1}/3（环境冻结）`); }
+  }
+  if (!p2Booted) throw new Error('第二页面三次未启动（环境冻结）');
+
+  /* 4f. 文字程序化建模（V5.0.4）：示例描述 → 确定性结构 → 确定性复现 → 未识别如实列出 → 无结构拒析 → 产物入库往返 */
+  const genRes = await p2.evaluate(async () => {
+    const S = window.__STUDIO;
+    const EX = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
+    const out = {};
+    const a = S.generateFromText(EX);
+    const b = S.generateFromText(EX);
+    out.ok = a.ok;
+    out.parts = a.parts;
+    out.deterministic = a.ok && b.ok && a.summary === b.summary && a.parts === b.parts;
+    const withJunk = S.generateFromText('中央圆柱核心，今天是星期天');
+    out.unknownListed = withJunk.ok && Array.isArray(withJunk.unknown) && withJunk.unknown.some((u) => /星期天/.test(u));
+    const bad = S.generateFromText('今天天气不错');
+    out.rejectOk = bad.ok === false && !!bad.reason && !!bad.hint;
+    /* UI 流：示例 → 生成 → 概览/树渲染 */
+    const ta = document.querySelector('.st-gentext');
+    const set = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+    set.call(ta, EX);
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    [...document.querySelectorAll('button')].find((x) => /解析并生成/.test(x.textContent)).click();
+    for (let i = 0; i < 20 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
+    out.uiStats = !!document.querySelector('.st-stats');
+    out.uiTree = document.querySelectorAll('.st-node').length;
+    out.uiFile = document.body.textContent.includes('程序化生成');
+    /* 产物入库往返 */
+    const rec = await S.saveWork('文字生成作品');
+    const list1 = (await S.listWorks()).length;
+    await S.loadWork(rec.id);
+    for (let i = 0; i < 40 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
+    const reloaded = !!document.querySelector('.st-stats');
+    await S.deleteWork(rec.id);
+    out.roundtrip = list1 === 1 && reloaded;
+    return out;
+  });
+  check('文字生成：示例解析出 10 部件（核心1+外围3+上下板2+支撑4）', genRes.ok && genRes.parts === 10, 'parts=' + genRes.parts);
+  check('文字生成：同描述确定性复现', genRes.deterministic === true);
+  check('文字生成：未识别子句如实列出', genRes.unknownListed === true);
+  check('文字生成：无结构描述拒析（给原因+支持词提示）', genRes.rejectOk === true);
+  check('文字生成：UI 载入（概览/层级树/程序化标注）', genRes.uiStats && genRes.uiTree === 10 && genRes.uiFile, 'tree=' + genRes.uiTree);
+  check('文字生成：产物保存→载入库往返', genRes.roundtrip === true);
+
 
   /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错） */
   await p2.evaluate(() => {

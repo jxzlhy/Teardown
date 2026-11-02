@@ -91,7 +91,7 @@
               <div><b>{{ st.report.stats.animationCount }}</b><span>动画</span></div>
               <div><b>{{ dims }}</b><span>尺寸（原单位）</span></div>
             </div>
-            <p class="st-note">{{ st.report.stats.file }} · {{ (st.report.stats.fileSize / 1048576).toFixed(2) }}MB
+            <p class="st-note">{{ st.report.stats.file }}<template v-if="!st.report.textGen"> · {{ (st.report.stats.fileSize / 1048576).toFixed(2) }}MB</template><template v-else> · 程序化生成（无源文件）</template>
               <template v-if="st.report.missingResources.length"> · <em class="st-miss">{{ st.report.missingResources.length }} 个外部资源未命中</em></template>
             </p>
           </div>
@@ -205,9 +205,22 @@
             </template>
           </div>
 
-          <!-- 08 我的作品（V5.0.8 本地作品库） -->
+          <!-- 09 文字生成（V5.0.4 · 关键词模板解析） -->
           <div class="st-panel">
-            <div class="st-eyebrow">07 · 我的作品 <small>浏览器本地 · 不上传</small></div>
+            <div class="st-eyebrow">08 · 文字生成 <small>关键词模板 · 非 AI</small></div>
+            <textarea v-model="genText" class="st-gentext" rows="4"
+              placeholder='描述结构，例如：&#10;中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光'></textarea>
+            <div class="st-edrow" style="margin-top:10px">
+              <button class="st-apply" :disabled="!genText.trim()" @click="doGenerate">⚒ 解析并生成</button>
+              <button @click="genExample">填入示例</button>
+            </div>
+            <p v-if="genMsg" class="st-note" :class="{ 'st-miss': genErr }">{{ genMsg }}</p>
+            <p class="st-note">确定性模板解析：同一描述恒产生同一结构（无模型推断/无概率输出）；未识别的字词会被如实列出并忽略。支持词：中央/核心 · 外围 N 个 · 上下两层 · N 组支撑/连接 · 圆柱/球/环/立方/圆锥 · 金属/深色/发光/塑料。</p>
+          </div>
+
+          <!-- 09 我的作品（V5.0.8 本地作品库） -->
+          <div class="st-panel">
+            <div class="st-eyebrow">09 · 我的作品 <small>浏览器本地 · 不上传</small></div>
             <div class="st-libsave">
               <input v-model="libName" type="text" maxlength="60" placeholder="作品名称"
                 :disabled="st.phase !== 'ready'" aria-label="作品名称" />
@@ -330,6 +343,23 @@ function doRepairAll() {
   repairMsg.value = lastAfter
     ? `已修复 ${n} 处：错误 ${firstBefore.error}→${lastAfter.error} · 警告 ${firstBefore.warn}→${lastAfter.warn} · 提示 ${firstBefore.info}→${lastAfter.info}（撤销可整体还原）`
     : '没有可应用的修复';
+}
+
+/* —— 文字生成（V5.0.4） —— */
+const genText = ref('');
+const genMsg = ref('');
+const genErr = ref(false);
+const GEN_EXAMPLE = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
+function genExample() { genText.value = GEN_EXAMPLE; genMsg.value = ''; genErr.value = false; }
+function doGenerate() {
+  genMsg.value = ''; genErr.value = false;
+  const out = studio.value.generateFromText(genText.value);
+  if (!out.ok) {
+    genErr.value = true;
+    genMsg.value = (out.reason || '解析失败') + (out.hint ? ' — ' + out.hint : '') + (out.unknown && out.unknown.length ? '；未识别忽略：' + out.unknown.slice(0, 3).join('、') : '');
+    return;
+  }
+  genMsg.value = `已生成 ${out.parts} 个部件并载入画布（${out.summary}）——可用编辑器调整、保存进作品库`;
 }
 
 /* —— 参考图（V5.0.3） —— */
@@ -628,7 +658,15 @@ function toggleSpin() {
 .st-manual{ margin:10px 0 0; font-size:10.5px; color:var(--txt-3); }
 .st-manual summary{ cursor:pointer; font-size:10.5px; }
 .st-manual ul{ margin:6px 0 0; padding-left:16px; line-height:1.8; }
-.st-manual b{ font-family:var(--mono); font-weight:500; color:var(--txt-2); }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+.st-manual b{ font-family:var(--mono); font-weight:500; color:var(--txt-2); }
+
+/* —— 文字生成（V5.0.4） —— */
+.st-gentext{
+  width:100%; min-width:0; resize:vertical; padding:10px 12px;
+  font-size:12px; line-height:1.7;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:8px; color:var(--txt-1);
+}
+.st-gentext:focus{ outline:1px solid var(--acc); outline-offset:1px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{
