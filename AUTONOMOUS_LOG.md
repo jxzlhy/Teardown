@@ -1844,3 +1844,16 @@ Smithsonian 剩余候选（Wright Flyer 双版本 / Apollo 11 舱门+指令舱�
 
 - 系统负载回落至 3.79 后复跑 tools/smoke.mjs：**✓ 冒烟通过（含 无控制台错误 / m4 hullRadius 护栏 / 移动端 sheet 全组）**——前 5 轮在负载 6.6–11.6 下的 4 种单点环境抖动（frame detached / 拒连 / 读早）全部定性为过载伪影。本会话全部切片（NASA 4 官方件 / Wankel / 微波炉混合）自此处于全绿回归覆盖下。
 - 首跑曾于尾段遇 Chrome 进程崩溃（Target closed，低负载瞬时崩溃，与负载无关），重跑即过。
+
+### 2026-11-03 续轮 2 · 候选复核：Nixie 判死 / Braun SK55 立项待做
+- **Nixie 辉光钟（panmax，L158）淘汰**：1162 网格实为三套完整变体叠放（材质前缀 new*/old*/hlam* 各一套整机），全部烘在原点（accessor 中心全 [0,0,0]）+ 西里尔乱码名——位置聚类无解，双变体剥离也不可行。证据在 /tmp/sf2/nixie.glb 分析。
+- **Braun SK55（eltayerkebulan，L26，610 网格 58 万 tri）立项**：双份完整模型左右并排（x<0 与 x>0 各 305 网格，直方图双峰 0 处清晰断开）；名字段位分离——右侧原件 Object_1-272、左侧副本 Object_47x-611（strip-nodes 正则可剥）。506 个喇叭网孔小网格（材质 Plastic_4×382 + Plastic_6×124）是 draw call 炸弹，接入前须按材质合并（CLI join 粒度不够——所有节点有名，--keepNamed 保不住部件边界；需自写 tools/join-materials.mjs 用 core API 连接 accessor）。剩余 ~20 个语义组（Custom=转盘件×8 / Glass_1=玻璃×4 / Metal 系列=底盘 / Plastic=壳体）可按材质+位置映射。合并脚本属可复用基建（Nixie 类叠孔模型亦受益）。
+- 下轮接入步骤预估：strip 副本 → join 网孔 → 512 重采样压缩 → 材质映射配置（转盘/唱臂/旋钮/格栅/壳体）→ 校准。
+
+## 2026-11-03（续 4）· 自创收官件：锻造所第 6 生成器「瓦特离心调速器」
+
+- 目标分支「自行创造」第 2 件：src/forge/governor.js——4 部件（底座轴承/立轴+飞球臂/套筒+联动杆/节流蝶阀），构建 0ms，黄铜/钢制双风格。复用既有 spin 演示（立轴组+套筒同速随动，无引擎改动）。
+- 机构真实性：反馈链 转速→张角→套筒位移→蝶阀开度 为真实机构关系（mech 5 边：revolute/prismatic/linkage/bearing_support）；**张角与套筒位置为静止工作点示意**（真实随转速连续变化，页面口径如实标注）；工作点转速按经典近似 tanθ=ω²r/g 反推（默认参数 107rpm，米制换算修正）。
+- 几何守卫：对置双球在张角 θ 下互撞 → validateParams 钳制 ballR ≤ 0.85·arm·sinθ（默认 55→38，极端 15° 触底 18），errors 注明。
+- 验证：Forge 页 6 生成器 ✓ 深链生成-booted ✓ 头/套筒同速旋转（Δ4.71=4.71）✓ 复位 0 ✓ 爆炸-装配 0 误差 ✓ 0 控制台错误 ✓ 截图目检（双球分离、蝶阀独立）✓。
+- 锻造所生成器：5 → 6。本会话自创线两件（Wankel + Governor）+ 引擎 eccOrbit 能力沉淀。

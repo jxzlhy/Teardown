@@ -7,6 +7,7 @@ import { buildTurbofan, GENERATOR_ID as TF_ID, GENERATOR_VERSION as TF_VER } fro
 import { buildRingDrive, GENERATOR_ID as RD_ID, GENERATOR_VERSION as RD_VER } from './ringdrive.js';
 import { buildLockstitch, GENERATOR_ID as LS_ID, GENERATOR_VERSION as LS_VER } from './lockstitch.js';
 import { buildWankel, GENERATOR_ID as WK_ID, GENERATOR_VERSION as WK_VER } from './wankel.js';
+import { buildGovernor, GENERATOR_ID as GV_ID, GENERATOR_VERSION as GV_VER } from './governor.js';
 
 const GENERATORS = {
   [V8_ID]: { build: buildV8, version: V8_VER, label: 'V8 内燃机（交叉曲柄）' },
@@ -14,6 +15,7 @@ const GENERATORS = {
   [RD_ID]: { build: buildRingDrive, version: RD_VER, label: 'FORGE-99 环式磁耦合核心（虚构概念）' },
   [LS_ID]: { build: buildLockstitch, version: LS_VER, label: '锁式线迹机构（缝纫原理）' },
   [WK_ID]: { build: buildWankel, version: WK_VER, label: '转子发动机（Wankel 偏心轴系）' },
+  [GV_ID]: { build: buildGovernor, version: GV_VER, label: '瓦特离心调速器（飞球反馈）' },
 };
 
 const reg = new Map();

@@ -6,7 +6,7 @@
 
 - V3 UI/UX、V3.0 Forge（PHASE 0-8 三大标杆）、OPEN_MUSEUM 前置 Slice 1-4 全部验证收官（见 AUTONOMOUS_LOG 当日各节）。
 - V4.0 MI 已完成：**①Mechanism Graph 首切片**——`src/forge/mech.js`（10 类关系 + validateMech）+ 锻造 V8 试点 `mech` 14 边（4 曲柄滑块 approx / 3 轴承支撑 exact / 7 固定）+ DeviceViewer 总览弹层「机构关系」面板（无数据/校验失败即隐藏）。验证工具 `tools/v4-mech-verify.mjs` EXIT 0。
-- 全部改动**未提交**（工作区含 V3 UI + Forge + V4.0 大批修改，等用户授权入库）。
+- ~~全部改动未提交~~ **已入库**（并行会话于 2026-11-03 凌晨分批提交：V3 UI/Forge/MI/缩略图资产全部入库，达 119 台 39 品牌；此后又新增 Wankel 生成器/微波炉混合路径/NASA×4——注意本档为多会话接力档，以 git log 与 AUTONOMOUS_LOG 最新节为准）。
 
 ## 下一次最先执行（按序）
 

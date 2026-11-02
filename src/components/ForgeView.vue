@@ -97,6 +97,7 @@ import { SCHEMA as TF_SCHEMA, defaultParams as tfDefault, PRESETS as TF_PRESETS 
 import { SCHEMA as RD_SCHEMA, defaultParams as rdDefault, PRESETS as RD_PRESETS } from '../forge/ringdrive.js';
 import { SCHEMA as LS_SCHEMA, defaultParams as lsDefault, PRESETS as LS_PRESETS } from '../forge/lockstitch.js';
 import { SCHEMA as WK_SCHEMA, defaultParams as wkDefault, PRESETS as WK_PRESETS } from '../forge/wankel.js';
+import { SCHEMA as GV_SCHEMA, defaultParams as gvDefault, PRESETS as GV_PRESETS } from '../forge/governor.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -107,6 +108,7 @@ const GEN_META = {
   ringdrive: { schema: RD_SCHEMA, defaults: rdDefault, presets: RD_PRESETS },
   lockstitch: { schema: LS_SCHEMA, defaults: lsDefault, presets: LS_PRESETS },
   wankel: { schema: WK_SCHEMA, defaults: wkDefault, presets: WK_PRESETS },
+  governor: { schema: GV_SCHEMA, defaults: gvDefault, presets: GV_PRESETS },
 };
 const gen = ref(gens[0] && gens[0].id);
 const schema = ref(GEN_META[gen.value].schema);

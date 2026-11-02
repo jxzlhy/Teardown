@@ -1237,10 +1237,26 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           const proj = mc.clone().sub(bc).dot(crankAxis);
           const bank = mc.x < (d.stroke.splitX ?? bc.x) ? 0 : 1;
           const axis = new THREE.Vector3(...(bank === 0 ? d.stroke.axisL : d.stroke.axisR)).normalize();
-          D.strokes.push({ o, base: o.position.clone(), axis, proj });
+          D.strokes.push({ o, base: o.position.clone(), axis, proj, mc: mc.clone() });
         });
         const projs = D.strokes.map(s => s.proj);
         D.projMin = Math.min(...projs); D.projMax = Math.max(...projs);
+        if(d.stroke.phaseMode === 'radial'){
+          /* 星型均布相位：活塞轴 = 环心→活塞中心的径向（⊥曲轴），
+             相位 = 绕曲轴方位角排序后均布 —— 环心取部件包围盒中心（9 活塞对称即环心） */
+          const up = Math.abs(crankAxis.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+          const u = new THREE.Vector3().crossVectors(crankAxis, up).normalize();
+          const v = new THREE.Vector3().crossVectors(crankAxis, u).normalize();
+          for(const s of D.strokes){
+            const rel = s.mc.clone().sub(bc);
+            const radial = rel.clone().addScaledVector(crankAxis, -rel.dot(crankAxis));
+            if(radial.lengthSq() < 1e-6) radial.copy(u);
+            s.axis = radial.normalize();
+            s.ang = Math.atan2(rel.dot(v), rel.dot(u));
+          }
+          D.strokes.sort((a, b) => a.ang - b.ang);
+          D.strokes.forEach((s, i) => { s.rank = i; });
+        }
       }
       const S = d.stroke, f = (S.f ?? 1.2), amp = S.amp ?? 0.35;
       /* 相位表：默认 4 相位交叉曲柄 [0,90,270,180]（90° V8）；phaseN = n 缸均布（径向发动机用 360/n） */
@@ -1249,7 +1265,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         : [0, Math.PI / 2, Math.PI * 1.5, Math.PI];
       const span = Math.max(D.projMax - D.projMin, 1e-4);
       for(const s of D.strokes){
-        const bucket = Math.min(PHASES.length - 1, Math.floor((s.proj - D.projMin) / span * PHASES.length));
+        const bucket = S.phaseMode === 'radial'
+          ? Math.min(PHASES.length - 1, Math.floor((s.rank ?? 0) / Math.max(1, D.strokes.length) * PHASES.length))
+          : Math.min(PHASES.length - 1, Math.floor((s.proj - D.projMin) / span * PHASES.length));
         const off = Math.sin(t * f * Math.PI * 2 + PHASES[bucket]) * amp;
         s.o.position.copy(s.base).addScaledVector(s.axis, off);
       }
