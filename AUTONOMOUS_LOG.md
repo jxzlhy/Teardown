@@ -1839,3 +1839,8 @@ Smithsonian 剩余候选（Wright Flyer 双版本 / Apollo 11 舱门+指令舱�
 - 摆位三坑沉淀：①GLB 归一化后坐标系以 bbox 为准但 **bbox 会被电源线等游离件撑大**（壳体实际窄于 bbox，磁控管鳍片曾穿壁）；②`spin:'auto'` 绕部件组原点转——旋转件必须把 `pos` 设在旋转轴心（托盘心），mesh 用局部坐标；③X-Ray 切换走 `__ENGINE.setMode('xray')`（state 上无此 API）。
 - 转盘演示用真实速率 ~5rpm（spin auto 推导薄轴=y）不降频；断电致命电容等安全口径写入部件 desc。
 - 验证：映射 shell:1/door-glass:1 + 内构件 9/5/2/3 mesh ✓ 0 控制台错误 ✓ 复位 0 误差 ✓ X-Ray/爆炸截图目检 ✓ thumbs 夜+日 ✓ build ✓ preview EXIT 0 ✓。
+
+## 2026-11-03（续 3）· 挂账清账：全量 smoke 首次全绿
+
+- 系统负载回落至 3.79 后复跑 tools/smoke.mjs：**✓ 冒烟通过（含 无控制台错误 / m4 hullRadius 护栏 / 移动端 sheet 全组）**——前 5 轮在负载 6.6–11.6 下的 4 种单点环境抖动（frame detached / 拒连 / 读早）全部定性为过载伪影。本会话全部切片（NASA 4 官方件 / Wankel / 微波炉混合）自此处于全绿回归覆盖下。
+- 首跑曾于尾段遇 Chrome 进程崩溃（Target closed，低负载瞬时崩溃，与负载无关），重跑即过。
