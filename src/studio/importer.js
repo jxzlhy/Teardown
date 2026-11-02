@@ -115,6 +115,23 @@ async function importFrom(inputs, capMB) {
 
 function buildReport(gltf, rootFile, missing) {
   const scene = gltf.scene || gltf.scenes[0];
+  const survey = surveyScene(scene);
+
+  const stats = {
+    file: rootFile.name, fileSize: rootFile.size,
+    ...survey.stats,
+    animationCount: (gltf.animations || []).length,
+  };
+
+  const animations = (gltf.animations || []).map((c) => ({
+    name: c.name || '(未命名)', duration: +c.duration.toFixed(2), tracks: c.tracks.length, ref: c,
+  }));
+
+  return { root: scene, ...survey, animations, stats, missingResources: [] };
+}
+
+/* 场景结构普查：节点树/网格/材质/统计——导入报告与修复后重普查共用这一实现 */
+export function surveyScene(scene) {
   const nodes = [];
   const meshes = [];
   const matMap = new Map();
@@ -136,14 +153,13 @@ function buildReport(gltf, rootFile, missing) {
     if (isMesh) {
       meshCount++;
       const geo = obj.geometry;
-      const prims = 1;
       const verts = geo && geo.attributes.position ? geo.attributes.position.count : 0;
       const tris = geo ? (geo.index ? geo.index.count / 3 : (verts / 3)) : 0;
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
       vertTotal += verts; triTotal += Math.round(tris);
       const entry = {
         name: obj.name || '(未命名网格)', path, ref: obj,
-        verts, tris: Math.round(tris), prims,
+        verts, tris: Math.round(tris),
         hasNormals: !!(geo && geo.attributes.normal),
         materials: mats.map((m) => registerMaterial(m, matMap)),
       };
@@ -158,10 +174,8 @@ function buildReport(gltf, rootFile, missing) {
   const texCount = materials.reduce((n, m) => n + m.textureCount, 0);
 
   const stats = {
-    file: rootFile.name, fileSize: rootFile.size,
     nodeCount: nodes.length, meshCount, vertTotal, triTotal,
     materialCount: materials.length, textureCount: texCount,
-    animationCount: (gltf.animations || []).length,
   };
 
   /* 尺寸：模型原始单位（不缩放不重定位——工作台如实呈现导入状态） */
@@ -174,11 +188,7 @@ function buildReport(gltf, rootFile, missing) {
     center: center.toArray().map((n) => +n.toFixed(4)),
   };
 
-  const animations = (gltf.animations || []).map((c) => ({
-    name: c.name || '(未命名)', duration: +c.duration.toFixed(2), tracks: c.tracks.length, ref: c,
-  }));
-
-  return { root: scene, nodes, nodesByPath, meshes, materials, animations, stats, missingResources: [] };
+  return { nodes, nodesByPath, meshes, materials, stats };
 }
 
 function registerMaterial(m, matMap) {

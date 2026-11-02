@@ -114,6 +114,16 @@ export function createWorkshop(report) {
   return {
     getTransform, setTransform, resetTransform,
     getMaterial, setMaterialProp,
+    /* 组合命令：一次提交多条原子操作，撤销/重做整体生效（修复批次用） */
+    applyCommands(cmds, label) {
+      if (!cmds || !cmds.length) return false;
+      push({
+        label: label || '批量编辑',
+        undo: () => { for (let i = cmds.length - 1; i >= 0; i--) cmds[i].undo(); },
+        redo: () => { for (const c of cmds) c.redo(); },
+      });
+      return true;
+    },
     undo: () => { const c = history.pop(); if (c) { c.undo(); future.push(c); } return !!c; },
     redo: () => { const c = future.pop(); if (c) { c.redo(); history.push(c); } return !!c; },
     canUndo: () => history.length > 0,

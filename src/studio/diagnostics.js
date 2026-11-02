@@ -4,7 +4,7 @@
 
 const RULES = [
   {
-    rule: 'empty-mesh', severity: 'error',
+    rule: 'empty-mesh', severity: 'error', fixable: true,
     title: '空网格（无顶点）', run: (r) => r.meshes.filter((m) => m.verts === 0)
       .map((m) => ({ node: m.name, detail: '0 顶点 · 渲染与导出均无意义，多为建模残留' })),
   },
@@ -36,7 +36,7 @@ const RULES = [
     title: '几何含无效坐标（NaN/Infinity）', run: (r) => r.stats.bbox.ok ? [] : [{ detail: '包围盒计算结果非法，场景中存在非有限坐标' }],
   },
   {
-    rule: 'missing-normals', severity: 'warn',
+    rule: 'missing-normals', severity: 'warn', fixable: true,
     title: '缺失法线（光照将失效）', run: (r) => r.meshes
       .filter((m) => !m.hasNormals && m.materials.some((x) => x.ref && x.ref.isMeshStandardMaterial))
       .map((m) => ({ node: m.name, detail: '标准材质依赖法线属性，缺失会导致全黑/平光' })),
@@ -103,7 +103,7 @@ export function runDiagnostics(report) {
   for (const r of RULES) {
     try {
       for (const hit of r.run(report) || []) {
-        findings.push({ rule: r.rule, severity: r.severity, title: r.title, ...hit });
+        findings.push({ rule: r.rule, severity: r.severity, title: r.title, fixable: !!r.fixable, ...hit });
       }
     } catch { /* 单条规则异常不阻塞其余诊断 */ }
   }
@@ -111,3 +111,6 @@ export function runDiagnostics(report) {
   for (const f of findings) bySeverity[f.severity]++;
   return { findings, bySeverity };
 }
+
+/* 可自动修复规则清单（修复面板据此生成计划；不在列的如实标注「需人工判断」） */
+export const FIXABLE_RULES = RULES.filter((r) => r.fixable).map((r) => r.rule);

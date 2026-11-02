@@ -124,10 +124,20 @@
             <p v-if="!st.diag.findings.length" class="st-note">✓ 未命中任何规则</p>
             <ul v-else class="st-findings">
               <li v-for="(f, i) in st.diag.findings" :key="i" :class="'sev-' + f.severity">
-                <b>{{ f.title }}</b><span v-if="f.node"> · {{ f.node }}</span>
+                <b>{{ f.title }}</b><i v-if="f.fixable" class="st-fixbadge">可自动修复</i><span v-if="f.node"> · {{ f.node }}</span>
                 <p>{{ f.detail }}</p>
               </li>
             </ul>
+            <template v-if="repairPlan.fixable.length">
+              <div class="st-repairbar">
+                <button class="st-apply" @click="doRepairAll">⚡ 自动修复 {{ repairTotal }} 处（可撤销）</button>
+              </div>
+              <p v-if="repairMsg" class="st-note st-repairmsg">{{ repairMsg }}</p>
+            </template>
+            <details v-if="repairPlan.manual.length" class="st-manual">
+              <summary>{{ repairPlan.manual.length }} 类问题需人工判断（自动修复不做不可证实的改动）</summary>
+              <ul><li v-for="m in repairPlan.manual" :key="m.rule"><b>{{ m.rule }}</b> — {{ m.reason }}</li></ul>
+            </details>
           </div>
 
           <!-- 05 编辑器（选中网格的变换/材质，V5.0.2） -->
@@ -300,6 +310,26 @@ function applyMaterial() {
 async function doExport() {
   exporting.value = true;
   try { await studio.value.downloadGlb(); } finally { exporting.value = false; }
+}
+
+/* —— 诊断→修复（V5.0.5 部分） —— */
+const repairMsg = ref('');
+const repairPlan = computed(() => {
+  if (!st.diag || !studio.value) return { fixable: [], manual: [] };
+  return studio.value.planRepairs();
+});
+const repairTotal = computed(() => repairPlan.value.fixable.reduce((n, f) => n + f.count, 0));
+function doRepairAll() {
+  const plan = studio.value.planRepairs();
+  if (!plan.fixable.length) { repairMsg.value = '没有可自动修复的项'; return; }
+  let firstBefore = null, lastAfter = null, n = 0;
+  for (const f of plan.fixable) {
+    const r = studio.value.repair(f.rule);
+    if (r) { if (!firstBefore) firstBefore = r.before; lastAfter = r.after; n += r.touched.length; }
+  }
+  repairMsg.value = lastAfter
+    ? `已修复 ${n} 处：错误 ${firstBefore.error}→${lastAfter.error} · 警告 ${firstBefore.warn}→${lastAfter.warn} · 提示 ${firstBefore.info}→${lastAfter.info}（撤销可整体还原）`
+    : '没有可应用的修复';
 }
 
 /* —— 参考图（V5.0.3） —— */
@@ -585,7 +615,20 @@ function toggleSpin() {
   position:absolute; max-width:none; border:1px dashed var(--acc);
   box-shadow:0 2px 18px rgba(0,0,0,.35); pointer-events:none; z-index:1;
 }
-.st-refcfg{ display:flex; flex-direction:column; gap:6px; margin-top:12px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+.st-refcfg{ display:flex; flex-direction:column; gap:6px; margin-top:12px; }
+
+/* —— 修复闭环（V5.0.5 部分） —— */
+.st-fixbadge{
+  font-style:normal; font-family:var(--mono); font-size:8.5px; letter-spacing:.08em;
+  color:var(--acc); border:1px solid var(--acc); border-radius:999px; padding:1px 6px; margin-left:6px; vertical-align:1px;
+}
+.st-repairbar{ margin-top:12px; }
+.st-repairbar .st-apply{ cursor:pointer; padding:8px 14px; border-radius:8px; font-size:12px; color:var(--acc); border:1px solid var(--acc); background:var(--acc-bg); width:100%; }
+.st-repairmsg{ color:var(--ok) !important; }
+.st-manual{ margin:10px 0 0; font-size:10.5px; color:var(--txt-3); }
+.st-manual summary{ cursor:pointer; font-size:10.5px; }
+.st-manual ul{ margin:6px 0 0; padding-left:16px; line-height:1.8; }
+.st-manual b{ font-family:var(--mono); font-weight:500; color:var(--txt-2); }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{

@@ -3,12 +3,13 @@
    Vue 壳只消费状态回调，不碰 three —— 与 src/engine、src/forge 同一分工哲学。 */
 
 import * as THREE from 'three';
-import { importFrom, normalizeInput, DEFAULT_CAP_MB, ERR } from './importer.js';
+import { importFrom, normalizeInput, DEFAULT_CAP_MB, ERR, surveyScene } from './importer.js';
 import { runDiagnostics } from './diagnostics.js';
 import { createViewer } from './viewer.js';
 import { createWorkshop } from './workshop.js';
 import { exportGlb, downloadBlob } from './exporter.js';
 import * as library from './library.js';
+import { planRepairs, buildRepairCommands, REPAIR_LABELS } from './repair.js';
 
 export { ERR, DEFAULT_CAP_MB };
 
@@ -39,6 +40,15 @@ export function createStudio({ canvas, onState }) {
   };
 
   const capMB = readCapMB();
+
+  /* 重普查：保证报告与场景一致（修复/撤销/重做后法线与拓扑都可能变化；
+     stats 合并保留 file/fileSize/animationCount） */
+  function resurvey() {
+    if (!report) return;
+    const s = surveyScene(report.root);
+    Object.assign(report, s, { stats: { ...report.stats, ...s.stats } });
+    diag = runDiagnostics(report);
+  }
 
   async function importFiles(fileList) {
     const inputs = normalizeInput(fileList);
@@ -115,11 +125,29 @@ export function createStudio({ canvas, onState }) {
     resetTransform: (p) => commit(() => workshop && workshop.resetTransform(p)),
     getMaterial: (p) => workshop && p ? workshop.getMaterial(p) : null,
     setMaterialProp: (p, patch, l) => commit(() => workshop && workshop.setMaterialProp(p, patch, l)),
-    undo: () => { if (!workshop) return false; const ok = workshop.undo(); if (ok) emit({}); return ok; },
-    redo: () => { if (!workshop) return false; const ok = workshop.redo(); if (ok) emit({}); return ok; },
+    undo: () => { if (!workshop) return false; const ok = workshop.undo(); if (ok) { resurvey(); emit({ report: report ? { ...report } : null }); } return ok; },
+    redo: () => { if (!workshop) return false; const ok = workshop.redo(); if (ok) { resurvey(); emit({ report: report ? { ...report } : null }); } return ok; },
     canUndo: () => workshop ? workshop.canUndo() : false,
     canRedo: () => workshop ? workshop.canRedo() : false,
     lastEditLabel: () => workshop ? workshop.lastLabel() : '',
+
+    /* —— 诊断→修复（V5.0.5 部分）：可确定性修复的规则 → 单条可撤销命令组 —— */
+    planRepairs: () => (diag ? planRepairs(diag) : { fixable: [], manual: [] }),
+    repair: (rule) => {
+      if (!report || !diag || !workshop) return null;
+      const built = buildRepairCommands(report, rule);
+      if (!built) return null;
+      const before = diag.bySeverity;
+      workshop.applyCommands(built.cmds, `修复：${REPAIR_LABELS[rule] || rule}`);
+      built.cmds.forEach((c) => c.redo());   // 命令契约：push 只入栈，执行由调用方触发
+      resurvey();
+      emit({ report: { ...report } });
+      return {
+        before, after: diag.bySeverity,
+        touched: built.touched,
+        label: REPAIR_LABELS[rule] || rule,
+      };
+    },
     selected: () => selectedPath,
     exportGlb: async (filename) => {
       if (!report) throw new Error('没有可导出的模型');

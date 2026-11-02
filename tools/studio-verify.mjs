@@ -200,6 +200,46 @@ try {
   check('参考图：非图片类型拒收', refRes.rejected === true);
   check('参考图：清除后移除', refRes.cleared === true);
 
+  /* 4e. 修复闭环（V5.0.5 部分）：无法线三角 fixture → 计划含 missing-normals → 修复 → 计划消失 → 撤销还原 → 重做再修 */
+  const repRes = await page.evaluate(async () => {
+    const out = {};
+    const pos = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
+    let bin = '';
+    const u8 = new Uint8Array(pos.buffer);
+    for (const b of u8) bin += String.fromCharCode(b);
+    const gltf = {
+      asset: { version: '2.0' }, scene: 0,
+      scenes: [{ nodes: [0] }],
+      nodes: [{ name: 'NoNormRoot', mesh: 0 }],
+      meshes: [{ name: 'NoNormTri', primitives: [{ attributes: { POSITION: 0 } }] }],
+      accessors: [{ bufferView: 0, componentType: 5126, count: 3, type: 'VEC3', min: [0, 0, 0], max: [1, 1, 0] }],
+      bufferViews: [{ buffer: 0, byteOffset: 0, byteLength: 36 }],
+      buffers: [{ uri: 'data:application/octet-stream;base64,' + btoa(bin) }],
+    };
+    const f = new File([JSON.stringify(gltf)], 'nonorm.gltf', { type: 'model/gltf+json' });
+    await window.__STUDIO.importFiles([f]);
+    for (let i = 0; i < 40 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
+    out.loaded = !!document.querySelector('.st-stats');
+    const plan = window.__STUDIO.planRepairs();
+    out.planBefore = plan.fixable.map((x) => x.rule + ':' + x.count).join(',');
+    out.badgeShown = !!document.querySelector('.st-fixbadge');
+    const r = window.__STUDIO.repair('missing-normals');
+    out.repaired = r ? r.touched.length : 0;
+    out.after = r ? r.before.warn + '→' + r.after.warn : 'skip';
+    out.planAfter = window.__STUDIO.planRepairs().fixable.map((x) => x.rule + ':' + x.count).join(',');
+    window.__STUDIO.undo();
+    out.planUndo = window.__STUDIO.planRepairs().fixable.map((x) => x.rule + ':' + x.count).join(',');
+    window.__STUDIO.redo();
+    out.planRedo = window.__STUDIO.planRepairs().fixable.map((x) => x.rule + ':' + x.count).join(',');
+    return out;
+  });
+  check('修复：无法线 fixture 载入', repRes.loaded === true);
+  check('修复：计划含 missing-normals:1 + 徽标渲染', /missing-normals:1/.test(repRes.planBefore) && repRes.badgeShown, repRes.planBefore);
+  check('修复：执行成功（touched=1，警告下降）', repRes.repaired === 1, repRes.after);
+  check('修复：修复后计划不再含 missing-normals', !/missing-normals/.test(repRes.planAfter), repRes.planAfter || '(空)');
+  check('修复：撤销后问题回归', /missing-normals:1/.test(repRes.planUndo), repRes.planUndo || '(空)');
+  check('修复：重做后再次消除', !/missing-normals/.test(repRes.planRedo), repRes.planRedo || '(空)');
+
   /* —— 错误路径组（5-9）改在全新页面跑：与主流程解耦，OOM 崩页不连坐。
         先关主页面——它的满帧视口还在软件渲染，双实例会互相拖垮计时 —— */
   await page.close().catch(() => {});
