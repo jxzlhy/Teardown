@@ -129,6 +129,12 @@ const brands = [
       { label: 'NASA — JWST international collaboration', url: 'https://science.nasa.gov/mission/webb/about-international-collaboration/' },
       { label: 'ESA — Webb overview', url: 'https://www.esa.int/Science_Exploration/Space_Science/Webb' },
     ], confidence: 'verified-3rd' },
+  { id: 'SMITHSONIAN', kind: 'institution', founded: '1846',
+    note: '史密森尼学会（Smithsonian Institution）1846 年依国会法令创立；旗下国家航空航天博物馆（NASM）的开放获取 3D 项目将馆藏扫描件以 CC0 发布——1903 莱特飞行者（NASM A19610048000）为其旗舰藏品。',
+    sources: [
+      { label: 'Smithsonian Open Access', url: 'https://www.si.edu/openaccess' },
+      { label: 'NASM — 1903 Wright Flyer', url: 'https://airandspace.si.edu/collection-objects/1903-wright-flyer/nasm_A19610048000' },
+    ], confidence: 'verified-3rd' },
 ];
 
 export default brands;

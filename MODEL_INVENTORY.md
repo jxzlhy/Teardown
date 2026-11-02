@@ -2,7 +2,7 @@
 
 > 生成时间：2026-11-03 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**121 台设备** · 922 个部件 · 121 套 GLB · 42 个品牌
+> 当前：**124 台设备** · 932 个部件 · 123 套 GLB · 43 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（40 台）
+### GENERIC（42 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -142,6 +142,8 @@
 | vintage-stapler | 经典订书机 | 文具 | 3 | 社区 | vintage-stapler.glb | 401 KB |
 | vintage-microwave | 复古微波炉 | 厨电 | 6 | 社区 | vintage-microwave.glb | 900 KB |
 | grandfather-clock | 落地摆钟 | 钟表 | 6 | 社区 | grandfather-clock.glb | 1.3 MB |
+| vintage-kettle | 复古电水壶 | 厨电 | 6 | 社区 | vintage-kettle.glb | 1.7 MB |
+| armillary-sphere | 浑天仪 | 天文仪器 | 1 | 程序化 | — | — |
 
 ### KALASHNIKOV（1 台）
 
@@ -351,4 +353,14 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | braun-sk55 | Braun SK 55 收音唱机 | 影音 | 7 | 社区 | braun-sk55.glb | 735 KB |
+
+### SMITHSONIAN（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| wright-flyer | 1903 莱特飞行者 | 航天 | 3 | 社区 | wright-flyer.glb | 3.8 MB |
+
+## ⚠️ 孤儿 GLB（public/assets 有文件但 registry 未注册，共 1 个）
+
+- armillary-sphere.glb（5.8 MB）
 
