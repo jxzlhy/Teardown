@@ -53,9 +53,15 @@ page.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0
 /* 页内造文件 → DataTransfer → file input（覆盖真实 UI 通道），各用例内联构造 */
 
 try {
-  /* 1. 壳渲染 + 空态 */
-  await page.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.waitForSelector('.studio-cv', { timeout: 20000 });
+  /* 1. 壳渲染 + 空态（高内存压力下动态 import 可能冻结——OOM 定性见 AUTONOMOUS_LOG；
+        重试 reload 给新上下文，静默窗口内即可启动） */
+  let booted = false;
+  for (let a = 0; a < 3 && !booted; a++) {
+    await page.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    try { await page.waitForSelector('.studio-cv', { timeout: 25000 }); booted = true; }
+    catch { console.log(`  …启动重试 ${a + 1}/3（环境冻结特征，非代码路径）`); }
+  }
+  if (!booted) throw new Error('studio 壳三次未启动（环境冻结）');
   check('壳渲染：视口 canvas + 空态文案', !!(await page.$('.studio-cv')) && !!(await page.$('.st-empty')));
 
   /* 2. 馆内示例导入（真实 fetch → 同一 importFrom 管线） */
@@ -77,6 +83,54 @@ try {
   /* 4. 自动旋转 */
   await page.evaluate(() => [...document.querySelectorAll('.st-tools button')].find((b) => /自动旋转/.test(b.textContent)).click());
   check('自动旋转开关', !!(await page.$('.st-tools button.on')));
+
+  /* 4b. 编辑器（V5.0.2）：变换 → 撤销 → 重做 → 复位 → 材质 → 导出（__STUDIO 与 UI 同一调用路径） */
+  const sel = await page.evaluate(() => window.__STUDIO && window.__STUDIO.selected());
+  check('编辑器：选中路径可用', !!sel, sel || 'null');
+  const wt = await page.evaluate((p) => window.__STUDIO.getTransform(p), sel);
+  check('编辑器：读取变换', !!wt && Array.isArray(wt.position) && wt.rotation.every((n) => Math.abs(n) <= 360.01), JSON.stringify(wt && wt.rotation));
+  await page.evaluate((p) => window.__STUDIO.setTransform(p, { position: [1.25, 0.5, -0.75] }, '编辑变换'), sel);
+  const moved = await page.evaluate((p) => window.__STUDIO.getTransform(p).position, sel);
+  check('编辑器：应用变换生效', moved[0] === 1.25 && moved[1] === 0.5 && moved[2] === -0.75, JSON.stringify(moved));
+  const undoRes = await page.evaluate((p) => {
+    const ok = window.__STUDIO.undo();
+    return { ok, pos: window.__STUDIO.getTransform(p).position, canRedo: window.__STUDIO.canRedo() };
+  }, sel);
+  check('编辑器：撤销回原值', undoRes.ok && undoRes.canRedo, JSON.stringify(undoRes.pos));
+  const redoRes = await page.evaluate((p) => { window.__STUDIO.redo(); return window.__STUDIO.getTransform(p).position; }, sel);
+  check('编辑器：重做到编辑值', redoRes[0] === 1.25, JSON.stringify(redoRes));
+  const resetRes = await page.evaluate((p) => {
+    window.__STUDIO.resetTransform(p);
+    return window.__STUDIO.getTransform(p).position;
+  }, sel);
+  check('编辑器：复位到导入态', JSON.stringify(resetRes) === JSON.stringify(wt.position), JSON.stringify(resetRes));
+  const matRes = await page.evaluate((p) => {
+    const m0 = window.__STUDIO.getMaterial(p);
+    if (!m0 || !m0.hasColor) return { skip: true, m0 };
+    window.__STUDIO.setMaterialProp(p, { color: '#ff0000' }, '编辑材质');
+    return { skip: false, after: window.__STUDIO.getMaterial(p).color, shared: m0.shared };
+  }, sel);
+  check('编辑器：材质颜色修改' + (matRes.skip ? '（该网格无颜色属性，跳过）' : ''), matRes.skip || matRes.after === '#ff0000', JSON.stringify(matRes));
+  const exported = await page.evaluate(() => window.__STUDIO.exportGlb('verify-export.glb').then((r) => ({ bytes: r.bytes })));
+  check('编辑器：GLB 导出（编辑后场景）', exported.bytes > 1000, exported.bytes + 'B');
+  /* 撤销链一致性：连续回退直至历史清空（材质编辑可能被跳过，按实际命令数排干） */
+  const drained = await page.evaluate(() => {
+    let n = 0;
+    while (window.__STUDIO.undo() && n < 60) n++;
+    return n;
+  });
+  check('编辑器：撤销链排干（≥变换+复位+材质）', drained >= 2, 'undone=' + drained);
+  /* DOM 侧：撤销/重做按钮禁用态与状态同步 */
+  await page.waitForFunction(() => {
+    const btns = [...document.querySelectorAll('.st-tools button')];
+    const undo = btns.find((b) => /撤销/.test(b.textContent));
+    return undo && !undo.disabled;
+  }, { timeout: 10000 }).catch(() => {});
+  const undoDisabled = await page.evaluate(() => {
+    const undo = [...document.querySelectorAll('.st-tools button')].find((b) => /撤销/.test(b.textContent));
+    return undo ? undo.disabled : null;
+  });
+  check('编辑器：工具条撤销按钮状态同步（历史已清空 → disabled）', undoDisabled === true, 'disabled=' + undoDisabled);
 
   /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错） */
   await page.evaluate(() => {
@@ -141,14 +195,21 @@ try {
   await page.waitForFunction(() => /ERR_SIZE/.test(document.body.textContent), { timeout: 30000 });
   check('?cap=1 体积守卫生效', true);
 
-  /* 10. 大厅不预载 studio chunk（hash-only goto 是同文档导航，先 reload 清空资源计时） */
-  await page.goto(`${BASE}/#/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.hub-nav', { timeout: 20000 });
-  await sleep(2000);
-  const leaked = await page.evaluate(() => performance.getEntriesByType('resource')
-    .map((r) => r.name).filter((n) => /StudioView|studio\/(importer|viewer|index)/.test(n)));
-  check('大厅未预载 studio 模块（懒加载边界）', leaked.length === 0, leaked.join(','));
+  /* 10. 大厅不预载 studio chunk（hash-only goto 是同文档导航，先 reload 清空资源计时；
+        OOM 下页面可能中途崩溃——换新页面重试） */
+  let leaked = null;
+  for (let a = 0; a < 3 && leaked === null; a++) {
+    try {
+      const p2 = await browser.newPage();
+      await p2.goto(`${BASE}/#/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await p2.waitForSelector('.hub-nav', { timeout: 20000 });
+      await sleep(2000);
+      leaked = await p2.evaluate(() => performance.getEntriesByType('resource')
+        .map((r) => r.name).filter((n) => /StudioView|studio\/(importer|viewer|index)/.test(n)));
+      await p2.close();
+    } catch { leaked = null; }
+  }
+  check('大厅未预载 studio 模块（懒加载边界）', Array.isArray(leaked) && leaked.length === 0, Array.isArray(leaked) ? leaked.join(',') : '页面三次崩溃');
 
   /* 控制台错误门（排除资源 404 类噪音：本页无外部引用，任何 error 都算数） */
   check('全程无 console error / pageerror', consoleErrors.length === 0, consoleErrors.slice(0, 3).join(' | '));

@@ -34,6 +34,11 @@
           <button :class="{ on: spin }" @click="toggleSpin" :aria-pressed="spin">⟳ 自动旋转</button>
           <button @click="studio && studio.reframe()">⌖ 复位视角</button>
           <button @click="$refs.file.click()">＋ 导入替换</button>
+          <i class="st-tools-sep"></i>
+          <button :disabled="!st.canUndo" @click="studio.undo()" aria-label="撤销">↩ 撤销</button>
+          <button :disabled="!st.canRedo" @click="studio.redo()" aria-label="重做">↪ 重做</button>
+          <button @click="doExport" :disabled="exporting">{{ exporting ? '导出中…' : '⬇ 导出 GLB' }}</button>
+          <span v-if="st.lastEditLabel" class="st-history">{{ st.lastEditLabel }}</span>
         </div>
       </section>
 
@@ -120,9 +125,40 @@
             </ul>
           </div>
 
-          <!-- 05 资源 -->
+          <!-- 05 编辑器（选中网格的变换/材质，V5.0.2） -->
+          <div v-if="st.report && st.selectedPath && ed.t" ref="edPanel" class="st-panel">
+            <div class="st-eyebrow">05 · 编辑器 <small>网格级 · 可撤销</small></div>
+            <p class="st-ednode"><b>{{ selName }}</b></p>
+
+            <div class="st-grid3">
+              <label v-for="(row, axis) in [{ k: 'pos', label: '位置' }, { k: 'rot', label: '旋转°' }, { k: 'scl', label: '缩放' }]" :key="row.k">
+                <span>{{ row.label }}</span>
+                <span class="st-ax">
+                  <input v-for="(n, i) in ed[row.k]" :key="i" type="number" step="0.01" v-model.number="ed[row.k][i]" :aria-label="row.label + ' ' + 'XYZ'[i]" />
+                </span>
+              </label>
+            </div>
+            <div class="st-edrow">
+              <button class="st-apply" @click="applyTransform">应用变换</button>
+              <button @click="studio.resetTransform(st.selectedPath)">复位</button>
+            </div>
+
+            <div v-if="ed.mat" class="st-matedit">
+              <p v-if="ed.mat.shared > 1" class="st-note st-miss">⚠ 该材质被 {{ ed.mat.shared }} 块网格共享——修改会同时生效</p>
+              <div class="st-matrow">
+                <label v-if="ed.mat.hasColor" class="st-colorlab"><input type="color" v-model="ed.color" aria-label="材质颜色" /><span>{{ ed.color }}</span></label>
+                <label v-if="ed.mat.hasPbr" class="st-rangelab">金属 <input type="range" min="0" max="1" step="0.01" v-model.number="ed.metalness" /><i>{{ ed.metalness.toFixed(2) }}</i></label>
+                <label v-if="ed.mat.hasPbr" class="st-rangelab">粗糙 <input type="range" min="0" max="1" step="0.01" v-model.number="ed.roughness" /><i>{{ ed.roughness.toFixed(2) }}</i></label>
+              </div>
+              <div class="st-edrow">
+                <button class="st-apply" @click="applyMaterial">应用材质</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 06 资源 -->
           <div v-if="st.report" class="st-panel">
-            <div class="st-eyebrow">05 · 材质与资源</div>
+            <div class="st-eyebrow">06 · 材质与资源</div>
             <template v-if="st.report.missingResources.length">
               <p class="st-note st-miss">缺失的外部资源（材质将不完整）：</p>
               <ul class="st-findings"><li v-for="m in st.report.missingResources" :key="m" class="sev-warn"><b>{{ m }}</b></li></ul>
@@ -145,14 +181,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, markRaw, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, computed, markRaw, watch, onMounted, onBeforeUnmount } from 'vue';
 import { createStudio, readCapMB } from '../studio/index.js';
 
 const cv = ref(null);
+const edPanel = ref(null);
 const studio = ref(null);
 const dragging = ref(false);
 const spin = ref(false);
-const st = reactive({ phase: 'idle', report: null, diag: null, error: null, selectedPath: null });
+const exporting = ref(false);
+const st = reactive({ phase: 'idle', report: null, diag: null, error: null, selectedPath: null, canUndo: false, canRedo: false, lastEditLabel: '' });
 const capMB = readCapMB();
 
 onMounted(() => {
@@ -165,10 +203,50 @@ onMounted(() => {
       st.diag = s.diag ? markRaw(s.diag) : null;
       st.error = s.error ?? null;
       st.selectedPath = s.selectedPath ?? null;
+      st.canUndo = s.canUndo ?? false;
+      st.canRedo = s.canRedo ?? false;
+      st.lastEditLabel = s.lastEditLabel ?? '';
     },
   });
 });
 onBeforeUnmount(() => { studio.value && studio.value.dispose(); });
+
+/* —— 编辑器草稿（V5.0.2）：选中变化时从实时对象读回，应用时提交为单条可撤销命令 —— */
+const ed = reactive({ t: null, mat: null, pos: null, rot: null, scl: null, color: '#ffffff', metalness: 0.5, roughness: 0.5 });
+const selName = computed(() => {
+  if (!st.report || !st.selectedPath) return '';
+  const row = st.report.nodes.find((n) => n.path === st.selectedPath);
+  return row ? (row.name || '(' + row.type + ')') : st.selectedPath;
+});
+watch(() => st.selectedPath, () => {
+  const p = st.selectedPath;
+  ed.t = p ? studio.value.getTransform(p) : null;
+  ed.mat = p ? studio.value.getMaterial(p) : null;
+  if (ed.t) { ed.pos = [...ed.t.position]; ed.rot = [...ed.t.rotation]; ed.scl = [...ed.t.scale]; }
+  if (ed.mat) { ed.color = ed.mat.color || '#ffffff'; ed.metalness = ed.mat.metalness ?? 0; ed.roughness = ed.mat.roughness ?? 0.5; }
+  /* 编辑器在右列下方：选中后滚入视野（reduced-motion 用瞬时跳转） */
+  if (p && edPanel.value) {
+    edPanel.value.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+});
+function applyTransform() {
+  if (!ed.t) return;
+  studio.value.setTransform(st.selectedPath, { position: ed.pos.slice(), rotation: ed.rot.slice(), scale: ed.scl.slice() }, '编辑变换');
+  ed.t = studio.value.getTransform(st.selectedPath);
+}
+function applyMaterial() {
+  if (!ed.mat) return;
+  studio.value.setMaterialProp(st.selectedPath, {
+    color: ed.color,
+    metalness: ed.metalness,
+    roughness: ed.roughness,
+  }, '编辑材质');
+  ed.mat = studio.value.getMaterial(st.selectedPath);
+}
+async function doExport() {
+  exporting.value = true;
+  try { await studio.value.downloadGlb(); } finally { exporting.value = false; }
+}
 
 const MAX_TREE_ROWS = 500;
 const shownNodes = computed(() => (st.report ? st.report.nodes.slice(0, MAX_TREE_ROWS) : []));
@@ -234,7 +312,9 @@ function toggleSpin() {
 }
 .st-dropmask b{ font-family:var(--mono); font-size:13px; letter-spacing:.2em; color:var(--acc); }
 
-.st-tools{ position:absolute; left:12px; bottom:12px; display:flex; gap:8px; z-index:2; }
+.st-tools-sep{ width:1px; height:18px; background:var(--hairline); margin:0 2px; align-self:center; }
+.st-history{ font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; color:var(--txt-3); align-self:center; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.st-tools{ position:absolute; left:12px; bottom:12px; display:flex; gap:8px; z-index:2; flex-wrap:wrap; max-width:calc(100% - 24px); }
 .st-tools button{
   cursor:pointer; padding:7px 13px; border-radius:8px; font-size:11.5px;
   background:var(--panel-bg); border:1px solid var(--hairline); color:var(--txt-2);
@@ -303,7 +383,34 @@ function toggleSpin() {
 .st-mat i{ font-style:normal; font-size:9.5px; color:var(--txt-3); }
 
 .st-errpanel{ border-color:color-mix(in srgb, var(--err) 40%, transparent); }
-.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+
+/* —— 编辑器（V5.0.2） —— */
+.st-ednode{ margin:0 0 10px; font-size:12px; color:var(--txt-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.st-ednode b{ color:var(--acc); font-family:var(--mono); font-size:11.5px; font-weight:500; }
+.st-grid3{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+.st-grid3 label{ display:grid; grid-template-columns:44px 1fr; align-items:center; gap:8px; }
+.st-grid3 label > span:first-child{ font-size:11px; color:var(--txt-3); }
+.st-ax{ display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+.st-ax input{
+  width:100%; min-width:0; padding:6px 7px; font-family:var(--mono); font-size:11px;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:6px; color:var(--txt-1);
+}
+.st-ax input:focus{ outline:1px solid var(--acc); outline-offset:1px; }
+.st-edrow{ display:flex; gap:8px; }
+.st-edrow button{
+  cursor:pointer; padding:7px 14px; border-radius:7px; font-size:11.5px;
+  background:var(--wash-1); border:1px solid var(--hairline); color:var(--txt-1);
+}
+.st-edrow button:hover{ color:var(--acc); border-color:var(--acc); }
+.st-edrow .st-apply{ color:var(--acc); border-color:var(--acc); background:var(--acc-bg); }
+.st-matedit{ margin-top:12px; padding-top:12px; border-top:1px solid var(--hairline); }
+.st-matrow{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.st-colorlab{ display:flex; align-items:center; gap:7px; cursor:pointer; }
+.st-colorlab input{ width:34px; height:26px; padding:0; border:1px solid var(--hairline); border-radius:6px; background:transparent; cursor:pointer; }
+.st-colorlab span{ font-family:var(--mono); font-size:10.5px; color:var(--txt-2); }
+.st-rangelab{ display:flex; align-items:center; gap:7px; font-size:11px; color:var(--txt-3); flex:1; min-width:120px; }
+.st-rangelab input{ flex:1; accent-color:var(--acc); }
+.st-rangelab i{ font-style:normal; font-family:var(--mono); font-size:10px; color:var(--txt-2); min-width:30px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{

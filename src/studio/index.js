@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { importFrom, normalizeInput, DEFAULT_CAP_MB, ERR } from './importer.js';
 import { runDiagnostics } from './diagnostics.js';
 import { createViewer } from './viewer.js';
+import { createWorkshop } from './workshop.js';
+import { exportGlb, downloadBlob } from './exporter.js';
 
 export { ERR, DEFAULT_CAP_MB };
 
@@ -22,10 +24,16 @@ export function createStudio({ canvas, onState }) {
   let report = null;
   let diag = null;
   let phase = 'idle';
+  let workshop = null;
+  let selectedPath = null;
 
   const emit = (patch) => {
     onState({
-      phase, report, diag, selectedPath: null, ...patch,
+      phase, report, diag, selectedPath,
+      canUndo: workshop ? workshop.canUndo() : false,
+      canRedo: workshop ? workshop.canRedo() : false,
+      lastEditLabel: workshop ? workshop.lastLabel() : '',
+      ...patch,
     });
   };
 
@@ -40,12 +48,17 @@ export function createStudio({ canvas, onState }) {
       const r = await importFrom(inputs, capMB);
       report = r;
       diag = runDiagnostics(r);
+      if (workshop) workshop.dispose();
+      workshop = createWorkshop(r);
       viewer.setModel(r.root);
-      viewer.onPick = (path) => emit({ selectedPath: path });
+      selectedPath = null;
+      viewer.onPick = (path) => { selectedPath = path; emit({ selectedPath: path }); };
       phase = 'ready';
       emit({});
     } catch (e) {
       report = null; diag = null;
+      if (workshop) { workshop.dispose(); workshop = null; }
+      selectedPath = null;
       viewer.setModel(new THREE.Group()); // 清空视口
       phase = 'error';
       emit({
@@ -79,17 +92,51 @@ export function createStudio({ canvas, onState }) {
     viewer.setHighlight(obj && obj.isMesh ? obj : null, path);
   }
 
-  function reset() {
-    report = null; diag = null; phase = 'idle';
-    viewer.setModel(new THREE.Group());
-    emit({ error: null });
-  }
+  /* —— 编辑器 API（V5.0.2）：网格级变换/材质 + 撤销重做 + GLB 导出 —— */
+  const commit = (fn) => { const ok = fn(); if (ok) emit({}); return ok; };
 
-  emit({});
-  return {
-    importFiles, loadSample, highlightByPath, reset,
+  const api = {
+    importFiles, loadSample, highlightByPath,
+    reset() {
+      report = null; diag = null; phase = 'idle';
+      if (workshop) { workshop.dispose(); workshop = null; }
+      selectedPath = null;
+      viewer.setModel(new THREE.Group());
+      emit({ error: null });
+    },
     reframe: () => viewer.reframe(),
     setAutoRotate: (v) => viewer.setAutoRotate(v),
     dispose: () => viewer.dispose(),
+
+    /* 编辑器（无选中/未就绪返回 false/null） */
+    getTransform: (p) => workshop && p ? workshop.getTransform(p) : null,
+    setTransform: (p, t, l) => commit(() => workshop && workshop.setTransform(p, t, l)),
+    resetTransform: (p) => commit(() => workshop && workshop.resetTransform(p)),
+    getMaterial: (p) => workshop && p ? workshop.getMaterial(p) : null,
+    setMaterialProp: (p, patch, l) => commit(() => workshop && workshop.setMaterialProp(p, patch, l)),
+    undo: () => { if (!workshop) return false; const ok = workshop.undo(); if (ok) emit({}); return ok; },
+    redo: () => { if (!workshop) return false; const ok = workshop.redo(); if (ok) emit({}); return ok; },
+    canUndo: () => workshop ? workshop.canUndo() : false,
+    canRedo: () => workshop ? workshop.canRedo() : false,
+    lastEditLabel: () => workshop ? workshop.lastLabel() : '',
+    selected: () => selectedPath,
+    exportGlb: async (filename) => {
+      if (!report) throw new Error('没有可导出的模型');
+      const out = await exportGlb(report, filename);
+      return out;
+    },
+    downloadGlb: async () => {
+      if (!report) return false;
+      const base = (report.stats.file || 'model').replace(/\.(glb|gltf)$/i, '');
+      const out = await exportGlb(report, `${base}-gewu-edited.glb`);
+      downloadBlob(out.blob, out.filename);
+      return true;
+    },
   };
+
+  /* 馆内调试/测试钩子（与 __ENGINE/__RAW 同约定） */
+  if (typeof window !== 'undefined') window.__STUDIO = api;
+
+  emit({});
+  return api;
 }
