@@ -161,3 +161,14 @@
 - 引擎演示类型：spin/wobble/meshSpin/stroke/slide + **eccOrbit**（公转+1/3 自转复合）。
 - Wankel 产物：7 部件 / ~7.1k tris / 构建 16-52ms / GLB 导出 541KB。
 - 验证：orbit 半径恒=0.150、自转率 0.885=ω/3、复位 0 误差、爆炸-装配 0 误差、0 控制台错误。
+
+## 2026-11-03 续轮 3 · Braun SK 55（join-materials 基建首发）
+
+| 指标 | 数值 | 测量方式 |
+|---|---|---|
+| 网格治理 | 610 → 54（剥副本 305 + 网孔合并 253→2） | tools/join-materials.mjs |
+| GLB | 52MB 源 → 735KB（512 重采样 + webp→draco，8%） | optimize-glb |
+| 映射 | 7 部件全带网格（7/4/5/28/2/1/7）、0 幽灵 0 空、0 页面错误 | 页面探针 |
+| 演示 | 转盘 Δ3.139 rad/0.9s = 33⅓ rpm（真实速率） | 页面采样 |
+| 门槛 | lint 全绿（计数四处同步 120）· build 2.97s · thumbs 双布光 ✓ | npm run |
+| 馆口径 | 120 台 · 916 部件 · 42 品牌 | gen:inventory |

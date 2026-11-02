@@ -103,17 +103,27 @@ if (opt.stripMinX !== null || opt.stripMaxX !== null) {
 }
 
 /* —— 按材质 join —— */
+function worldMatrix(node) {
+  let m = null, cur = node;
+  while (cur) {
+    const lm = cur.getMatrix ? cur.getMatrix() : null;
+    if (lm) m = m ? mul(m, lm) : lm.slice();
+    cur = parentOf.get(cur);
+  }
+  return m;
+}
 if (opt.joinMats.length) {
   const matName = (mat) => (mat && mat.getName) ? mat.getName() : '';
   for (const target of opt.joinMats) {
     const prims = [];
-    let nodeCount = 0;
+    let nodeCount = 0, firstNode = null;
     for (const node of root.listNodes()) {
       const mesh = node.getMesh();
       if (!mesh) continue;
       const match = mesh.listPrimitives().some((p) => matName(p.getMaterial()) === target);
       if (!match) continue;
       nodeCount++;
+      if (!firstNode) firstNode = node;
       for (const p of mesh.listPrimitives()) if (matName(p.getMaterial()) === target) prims.push(p);
     }
     if (!prims.length) { console.log(`join '${target}': 无匹配 primitive，跳过`); continue; }
@@ -122,6 +132,9 @@ if (opt.joinMats.length) {
     mesh.addPrimitive(joined);
     const node = doc.createNode(`JOINED_${target}`);
     node.setMesh(mesh);
+    /* 关键：继承源节点的世界矩阵（源常挂在带缩放的父链下，否则合并件尺度错误） */
+    const wm = firstNode ? worldMatrix(firstNode) : null;
+    if (wm) node.setMatrix(wm);
     root.listScenes()[0].addChild(node);
     /* 释放旧载体：先摘 Mesh 再 dispose 节点 */
     for (const node2 of [...root.listNodes()]) {

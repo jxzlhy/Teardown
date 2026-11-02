@@ -784,6 +784,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           p.base.set(0,0,0);
           p.group.position.set(0,0,0);
           collectGlowMats(p);
+          /* GLB 合并替换了组内网格：演示状态作废（D.strokes 等缓存引用旧网格/空组），
+             下一帧按真实网格重建——修复「选中早于合并 → 演示永远写不进真实网格」竞态 */
+          p.__demo = null;
         }
         /* 资产↔配置对账（审计 P2-16）：未被任何部件消费的网格分组会被静默丢弃，
            资产重导出/改名后展品会"凭空少一块"。当前静态校验为 0 命中，此告警防未来回归。 */
@@ -1225,7 +1228,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       /* 往复演示（v8-engine 试点）：部件内每个 mesh 沿各自缸轴往复；
          相位按 mesh 在曲轴轴向的投影分桶为交叉曲柄相位 [0,90,270,180]，
          同销连杆共享相位 —— 机械关系成立（90° V8 四销曲轴） */
-      if(!D.strokes){
+      if(!D.strokes || !D.strokes.length){
         D.strokes = [];
         const bb = _bb.setFromObject(p.group);
         const bc = bb.getCenter(new THREE.Vector3());
@@ -1236,7 +1239,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           const mc = mb.getCenter(new THREE.Vector3());
           const proj = mc.clone().sub(bc).dot(crankAxis);
           const bank = mc.x < (d.stroke.splitX ?? bc.x) ? 0 : 1;
-          const axis = new THREE.Vector3(...(bank === 0 ? d.stroke.axisL : d.stroke.axisR)).normalize();
+          const axis = new THREE.Vector3(...(bank === 0 ? (d.stroke.axisL || [0, 1, 0]) : (d.stroke.axisR || [0, 1, 0]))).normalize();
           D.strokes.push({ o, base: o.position.clone(), axis, proj, mc: mc.clone() });
         });
         const projs = D.strokes.map(s => s.proj);

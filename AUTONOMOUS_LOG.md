@@ -1857,3 +1857,33 @@ Smithsonian 剩余候选（Wright Flyer 双版本 / Apollo 11 舱门+指令舱�
 - 几何守卫：对置双球在张角 θ 下互撞 → validateParams 钳制 ballR ≤ 0.85·arm·sinθ（默认 55→38，极端 15° 触底 18），errors 注明。
 - 验证：Forge 页 6 生成器 ✓ 深链生成-booted ✓ 头/套筒同速旋转（Δ4.71=4.71）✓ 复位 0 ✓ 爆炸-装配 0 误差 ✓ 0 控制台错误 ✓ 截图目检（双球分离、蝶阀独立）✓。
 - 锻造所生成器：5 → 6。本会话自创线两件（Wankel + Governor）+ 引擎 eccOrbit 能力沉淀。
+
+### 2026-11-03 续轮 3 · Braun SK 55 接入（120 台 42 品牌）+ join-materials 基建
+- **新工具 tools/join-materials.mjs**：GLB 按世界坐标剥副本（--strip-min-x/max-x，自建父链世界矩阵）+ 按材质合并海量小网格（--join-mat，joinPrimitives + 继承源节点世界矩阵）。三个坑沉淀：①CJS 互操作下 Accessor.getMin/Max 内部缓存失效——用 getArray() 手动求 min/max；②join 新节点挂场景根会丢父链缩放（SK55 根组 0.01，合并件大 100 倍）——必须 setMatrix 继承源节点世界矩阵；③世界坐标阈值 ≠ accessor 坐标阈值（SK55 原生 ~10cm，副本 split 在世界 x=0.05 而非 accessor ±20）。
+- **SK55 管线**：610 网格 52MB → 剥 +x 副本 305 节点 → 网孔 Plastic_4×191 + Plastic_6×62 合并为 2 网格 → 512 重采样 + webp→draco → **735KB / 54 网格**（draw call 610→54）。副本直方图双峰证据、名字段位（Object_1-272 vs 47x-611）与阈值迭代全程留档。
+- **配置**：7 部件（壳体/唱盘/唱臂/旋钮刻度区/穿孔格栅/机芯底盘/支脚）全量显式映射 54 名 + unmappedTo shell 兜底；转盘 33⅓ rpm 演示；BRAUN 品牌档案登记（kind=author，Rams/Gugelot 考据带 sources，verified-3rd）；带括号运行时名（Glass_(1)_0 等，空格→_ 括号保留）实测后修正 41 键。
+- **验证**：映射 7/7 部件带网格（7/4/5/28/2/1/7=54）、0 幽灵 0 空；转盘演示 Δ3.139 rad/0.9s = 33⅓ rpm ✓；组装/爆炸截图目检过（白盒+木侧板+网孔阵成立）；lint 全绿（inventory/graph/timeline/index 四处计数同步 120）；build 2.97s ✓；thumbs 双布光 ✓。
+- 并行会话持续加设备（117→120 台），计数文件四处同步机制正常工作。
+
+## 2026-11-03 · radial-engine 置换：分离活塞版 + 引擎 radial stroke 相位模式
+
+### 置换
+- **模型**：basharnazzal 3 部件版（活塞未分件）→ senguptaarmaan「Final Full Radial Engine Assembly」（CC-BY 4.0，Fusion 360 装配体 51 网格/14 语义材质）；draco 18.03→1.55MB（无贴图跳过 webp）；原件入 originals。
+- **映射**：mapByPosition 位置聚类——环心 yz≈(145,0)，活塞组件=45≤d≤82 且 x>-13.2（8 组）、气缸=d>82（9 缸位）、曲轴=d<45、桨毂 x>55、安装座 x<-40；excludeMeshes 排除作者木展示底板（Object_3）；postLoad 整体 ×0.42 压暗（银铝白漆过曝，casio/kitchen-blender 模式）；frontAxis '-x'→'+x'（桨面朝观众）。
+- 部件 3→6（+crankshaft/pistons/mount）；8 组活塞连杆独立分件（第 9 缸活塞与主连杆并 入曲轴组——放宽阈值会混入连杆类网格，实测后回退，desc 如实标注）。
+- **引擎扩展（V4.1）**：stroke 新增 `phaseMode:'radial'`——活塞轴=环心→活塞中心的径向（⊥曲轴），相位=绕曲轴方位角排序后均布（phaseN=9）；纯新增字段，旧演示零影响。配套修复两处既有缺陷：①通用 stroke 初始化 spread `axisL/axisR` 无缺省（radial 演示未定义 → 每帧 TypeError，加 `|| [0,1,0]` 回退）；②演示初始化与 GLB 异步合并竞态（选中早于合并时 D.strokes 缓存空组/旧网格永不重建——合并处 `p.__demo=null` 作废 + `!D.strokes.length` 空组允许重建）。
+
+### 验证
+- stroke 实测（无头采样 mesh 本地坐标 8 帧）：8 组活塞 **8 条相位分化正弦轨迹**（40° 均布清晰）✓；v8-engine 回归 9 活塞全动 0 错误 ✓；lint 五处一致 ✓；thumbs ✓；build 3.79s ✓；首屏目检（曝光/朝向/6 部件）✓。
+- smoke：负载 13.3 "Target closed" 已知抖动类（第 3 种症状）——radial 切片 smoke 与 JWST 一样挂账待负载回落。
+
+### 下一步
+Smithsonian Wright Flyer / Apollo 舱门递进；二线候选池滚动（缝纫机/海鸥 1963/Agfa Movex/针发左轮/瓦特蒸汽机/Polyphon 45D）。
+
+## 2026-11-03（续 5）· 混合路径第二件：落地摆钟收官（达 121 台 42 品牌）
+
+- PH 三候选结构审定：落地钟（4 原语：Body×2/HourHand/MinuteHand 语义名）完胜、电水壶（2 原语）与摄像机（2 原语）留池。落地钟与馆内怀表/闹钟/挂钟/陀飞轮组成钟表族谱收官件。
+- 混合配置：真实钟壳+时针+分针（节点名直映，Body 双同名 primitive 同归钟壳）+ 3 组示意内构件（摆锤/双驱动重锤/机芯轮系+擒纵叉），X-Ray 透视摆与锤。
+- **真实物理演示三连**：摆锤 wobbleF=π（周期恰 2s——9 采样实测一整周期 ±0.055rad）；分针 1 圈/小时、时针 1 圈/12 小时真实速率旋转（肉眼近乎静止即机械钟的庄严——desc 如实点题）。单摆公式/擒纵/60:1 减速口径写入部件文案。
+- 验证：映射 case:2/pendulum:3/weights:4/movement:5/hand:1/hand:1 ✓ 0 控制台错误 ✓ 复位 0 误差 ✓ 摆动周期实测 ✓ lint 五处一致（121 台）✓ thumbs 夜+日 ✓ build ✓ preview EXIT 0 ✓。
+- 本会话混合路径至此 2 件（微波炉/落地钟）+ 生成器 2 件（Wankel/Governor）+ 官方 NASA 4 件 = 8 台新增（含并行会话增量馆 104→121）。

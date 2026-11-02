@@ -2,7 +2,7 @@
 
 > 生成时间：2026-11-03 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**119 台设备** · 906 个部件 · 119 套 GLB · 41 个品牌
+> 当前：**121 台设备** · 922 个部件 · 121 套 GLB · 42 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（39 台）
+### GENERIC（40 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -131,16 +131,17 @@
 | triple-engine | 直列三缸摩托车发动机 | 发动机 | 10 | 社区 | triple-engine.glb | 618 KB |
 | gramophone | 手摇留声机 | 影音 | 4 | 社区 | gramophone.glb | 924 KB |
 | grand-piano | 三角钢琴（活动击弦机） | 乐器 | 7 | 社区 | grand-piano.glb | 105 KB |
-| radial-engine | 星型活塞发动机 | 机械 | 3 | 社区 | radial-engine.glb | 5.0 MB |
+| radial-engine | 星型活塞发动机 | 机械 | 6 | 社区 | radial-engine.glb | 1.5 MB |
 | vintage-binocular | 军用双筒望远镜 | 科学仪器 | 8 | 社区 | vintage-binocular.glb | 1.3 MB |
 | manual-gearbox | 前驱变速驱动桥总成 | 机械 | 8 | 社区 | manual-gearbox.glb | 1.3 MB |
 | wankel-engine | 汪克尔转子发动机 | 机械 | 5 | 社区 | wankel-engine.glb | 2.8 MB |
 | fresnel-lens | 一等菲涅尔透镜 | 光学 | 8 | 社区 | fresnel-lens.glb | 909 KB |
 | refractor-telescope | 折射式望远镜 | 光学 | 6 | 社区 | refractor-telescope.glb | 351 KB |
 | fire-hydrant | 欧式消防栓 | 市政机构 | 5 | 社区 | fire-hydrant.glb | 428 KB |
-| seadogs-compass | 航海干式罗盘 | 航海仪器 | 3 | 社区 | seadogs-compass.glb | 548 KB |
+| seadogs-compass | 航海干式罗盘 | 航海仪器 | 3 | 社区 | seadogs-compass.glb | 1.6 MB |
 | vintage-stapler | 经典订书机 | 文具 | 3 | 社区 | vintage-stapler.glb | 401 KB |
 | vintage-microwave | 复古微波炉 | 厨电 | 6 | 社区 | vintage-microwave.glb | 900 KB |
+| grandfather-clock | 落地摆钟 | 钟表 | 6 | 社区 | grandfather-clock.glb | 1.3 MB |
 
 ### KALASHNIKOV（1 台）
 
@@ -344,4 +345,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | jwst | 詹姆斯·韦伯空间望远镜 | 航天 | 10 | 官方 | jwst.glb | 3.3 MB |
+
+### BRAUN（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| braun-sk55 | Braun SK 55 收音唱机 | 影音 | 7 | 社区 | braun-sk55.glb | 735 KB |
 
