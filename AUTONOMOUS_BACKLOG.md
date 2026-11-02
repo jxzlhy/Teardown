@@ -19,6 +19,7 @@
 | P2 | 详情卡部件特写小图（按部件取景） | 详情页完成度 | 中，需扩缩略图管线 | 缩略图脚本 + 截图 | **已完成**（引擎 capturePartThumb 运行时离屏捕获，全量 90 台生效，零管线成本） |
 | ~~P1~~ | DeviceViewer 间歇性 "Maximum recursive updates"——**已定性（2026-11-01）**：18 次压力转换 + 5 次原条件复刻均 0 复现；原错误发生于并行会话编辑 engine.js/DeviceViewer 的中途（mtime 16:23），Vite 服务半更新模块图的瞬时态。warnHandler 诊断法已入记忆库；若再现用 `__vue_app__.config.warnHandler` 抓 trace | 随机体验杀手 | 代码落定后不可复现 | `__vue_app__.config.warnHandler` 抓 trace（见记忆 graph-view-coordinate-system） | **已定性关闭（瞬时态伪影）** |
 | P2 | 真实 iOS Safari / Android Chrome 回归（含横屏） | 移动端真实体验 | 需真机/远程设备 | 真机录屏/截图 | 待办（环境缺失；浏览器模拟已覆盖三视口+横屏，性能观察见 AUTONOMOUS_METRICS） |
+| P1 | smoke 全绿收官（2026-11-03 续轮 4）：等待已全面放宽（booted 180s / demoActive 30s / 演示采样 2.2s / tour 卡 20s），历史 90s 线对大资产+swiftshader 实测不够（action4 fresh 63s / jet-engine 121s @load5-13）；套件在 load 5-17 多轮死于 4-16 项（frame detached/Target closed/demoActive 超时），单页 fresh boot 稳定——**纯环境瓶颈**（并行会话压机），需 load<2 窗口连跑两次 | 发布门槛 | 低 | load<2 时 exit=0 ×2 | **进行中（基建全部就绪，等窗口）** |
 | P2 | 系统高负载下 smoke 偶发失败（两类：① loadDevice TypeError 'group' 已加固栈打印；② 2026-11-01 新增——load≈8 时各处 waitForFunction 计时等待偶发超时，jet-engine demo 等待已加固 8s→15s，action4 boot 90s 也偶发）。根因：筛查/缩略图批次遗留无头 Chrome 进程堆积（pkill swiftshader/smoke 实例后恢复 31/31） | 套件稳定性 | 低频（高负载才触发） | 负载<2 时连跑两次 | **缓解已落地**（运行 smoke 前清残留无头 Chrome；负载>5 时结果不作数，重跑为准） |
 | P2 | ~~git 初始化与首次提交~~ → 已完成：Gitee teardown-lab 远程（main，vendor/originals 1.2GB 仅本地备份，.gitignore 注明） | 回滚与协作基础 | 低 | push 成功 6d4a18a/2989033 | **已完成** |
 | P3 | three.js 单独 manualChunks，进一步降低设备页首包 | 发版后缓存复用 | 低，总量不变 | 构建体积对比 | 已完成（three 771KB 独立 chunk） |
@@ -26,7 +27,7 @@
 | P2 | 设备配置 chunk 加载失败态（发版后旧 chunk 404 / 弱网） | 可恢复性 | 低 | 请求拦截 abort + 浏览器 | 已完成（错误面板 + 重试/返回） |
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
-| P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）+ 同日 Sketchfab/PH 4 台（curta-type2/wankel-engine/vintage-binocular/manual-gearbox）达 110 台；2026-11-03 批次 +5（fresnel-lens/refractor-telescope/fire-hydrant/seadogs-compass/vintage-stapler）达 **115 台 39 品牌**；NASA 渠道可扩量（并行会话另有 chandra/spitzer 筹备中）；下一批已查证候选：~~Braun SK55~~ **已接入（2026-11-03 续轮 3，join-materials 基建首发，610→54 网格 735KB）**；PH 落地钟复核、Nixie 已判死/ PH 落地钟复核（Nixie 已判死：三套变体叠原点+乱码名，见 LOG 当日条目） | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
+| P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）+ 同日 Sketchfab/PH 4 台（curta-type2/wankel-engine/vintage-binocular/manual-gearbox）达 110 台；2026-11-03 批次 +5（fresnel-lens/refractor-telescope/fire-hydrant/seadogs-compass/vintage-stapler）达 **115 台 39 品牌**；NASA 渠道可扩量（并行会话另有 chandra/spitzer 筹备中）；2026-11-03 已接 **Braun SK55**（610→54 网格 735KB）与 **armillary-sphere 浑天仪**（7 网格 5.78MB，六环异轴联动）；Pascaline 暂缓（双份重叠+跨父链缩放，join 后世界矩阵不齐，需 bake-transform，证据链见 LOG）；Nixie 已判死；其余候选：PH 落地钟复核/ PH 落地钟复核（Nixie 已判死：三套变体叠原点+乱码名，见 LOG 当日条目） | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P2 | 本会话模型搜罗/自创批次（2026-11-02/03）：官方 NASA 4 台（ingenuity-helicopter/parker-solar-probe/spitzer-space-telescope/chandra-x-ray-observatory，3D Resources 直链 GLB 渠道，6 探 4 中，Dawn/Stardust 网格合并过粗诚实落选）+ 自创 Wankel 生成器（forge 第 5 生成器 + 引擎 eccOrbit 能力）+ 混合路径首件 vintage-microwave（PH 外壳+示意内构件）；mousetrap 机构烘焙单网格落选、spinning_wheel 留待大工程 | 内容扩充 | 逐台查证完成 | lint/inventory/thumbs/build/preview/截图 全链路 | 已完成（各自提交） |
 | P3 | 新渠道候选（未验证）：Smithsonian Open Access 3D（3d.si.edu，CC0 馆藏扫描，航天飞机/阿波罗指令舱级标的）——门户为 JS 壳，api.si.edu 需 api.data.gov 密钥，3d-api.si.edu 内部端点待逆向；时间盒探测未突破，下轮可作专项调研 | 内容扩充 | API 密钥/逆向成本 | curl 实测 | 待办（调研） |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | **已核关闭（2026-11-01）**：inspect-glb 94 网格全 Object_N 无语义名；爆炸态选中特写实证 flippers 部件含两个网格（红 rubber 板体 + 白 plastic 板体）成对存在，与 desc「这两个部件」一致——源模型无缺失，无需补映射 |
@@ -73,15 +74,33 @@
 
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
 |---|---|---|---|---|---|
-| P1 | **Smithsonian 免 key 通道接入**：S3 bucket（104k key 全量目录已在 `vendor/assets/originals/_si-research/si_titles.tsv`）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`。**JWST 已接入（第 118 台，1600 网格→10 部件，brand NASA/ESA/CSA 新档）**；剩余：1903 Wright Flyer（3 命名网格+40 条官方注释，58MB 高模+258KB LOD 双版本）→ Apollo 11 舱门 CAD+指令舱递进展项 | 全馆级馆藏补充（CC0 无署名负担） | 中：SI 扫描多为单焊接网格需逐个验分组；NASA 模型天然多节点 | inspect-glb + add-device SOP | **JWST 已完成**；剩余待办 |
-| P2 | JWST 切片 smoke 补跑（负载回落 <5 时）——lint/build/thumbs/截图已全绿 | 回归完整性 | 低 | npm run smoke | 待补 |
+| P1 | **Smithsonian 免 key 通道接入**：S3 bucket（104k key 全量目录已在 `vendor/assets/originals/_si-research/si_titles.tsv`）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`。**JWST ✓ → 1903 Wright Flyer ✓ → Apollo 11 舱门 CAD ✓（125）→ Apollo CM 座舱 ✓（126）→ Apollo CM 外壳 ✓（第 127 台：shell+top 双分包，烧蚀热盾叙事）**——"外壳→座舱→舱门"Apollo 递进三联展线成型 | 全馆级馆藏补充（CC0 无署名负担） | 中：SI 扫描多为单焊接网格需逐个验分组 | inspect-glb + add-device SOP | **五台已完成**；二线池滚动 |
+| P2 | 资源压力随机丢件复验（CM interior seats 4/4 + CM exterior nose 2/2，空闲窗口 IAB 探针）+ smoke 全量×2 收官 | 排障闭环 | 低 | 探针脚本在手（cmi-robust/apollo-pid） | 挂账 |
+| P2 | **gltf-transform merge 孤儿节点缺陷**：merge 多个单 node GLB 时输出 scenes[0].nodes=[0] 仅首件挂场景（nodes 1-3 孤儿，GLTFLoader 不实例化）——修复脚本 /tmp/dji-fetch/fix-scene.mjs（重写 scenes.nodes + BIN 重组；待收编 tools/ 加测试） | 资产管线 | 低 | CM interior 修复后 3/4 网格装载实测 | 已定性（脚本收编挂账） |
+| P2 | **资源压力下 GLTFLoader 大网格随机静默丢失**：25k-150k 面网格在内存/调度压力下实例化间歇失败（两轮各丢一件不同 mesh；无错误无 catch）——文件结构与路由规则不受影响，4/4 验证等空闲窗口 | 排障定性 | 低 | IAB 长驻进程探针（无头新实例易冻结） | 已定性入 LOG |
+| P2 | **SI 预编码 draco 兼容性坑**：SI 的 `*_draco.glb`（S3 直链）使 three 0.164 DRACOLoader worker 挂死（PARSING 永挂；gltf-transform node 侧解码正常、重编码无效）——**SI 资产一律 decode 后跳过 draco**（去 draco 版 4.54MB 装载即通） | 资产管线 | 低 | 已实测（radial 对照同实例 OK） | 已定性入 LOG |
+| P2 | JWST/radial/Wright-Flyer 三切片 smoke 补跑——**2026-11-03 深夜定性：环境阻塞**。两次实测（负载 4.8 窗口）：①smoke Vite 启动 30s WS 超时（与并行会话 8 个 vite 实例竞争）；②无头探针 Target closed + 装载冻结 INIT——`memory_pressure` 实证 pages free≈30MB（用户 Chrome+WebKit+并行 vite 吃满 32GB），新无头标签 OOM。**静态链路已全绿**（cfg import/GLB fetch 200/模块转换毫秒级/lint 五处一致/build）；视觉证据以低负载时段截图为准 | 回归完整性 | 低 | `npm run smoke`（待整机空闲） | 挂账（环境阻塞，非代码缺陷） |
 | P1 | ~~radial-engine 分离活塞置换切片~~ **已完成（2026-11-03）**：senguptaarmaan Fusion 装配体（51 网格 CC-BY）置换 basharnazzal 3 部件版，draco 1.55MB；部件 3→6（+曲轴/活塞/安装座），8 组活塞连杆独立分件；**引擎新增 stroke `phaseMode:'radial'`**（方位角均布相位）+ 修复 axisL/axisR 无缺省抛错、演示初始化与 GLB 合并竞态两处既有缺陷；8 组活塞 8 条相位分化轨迹实测 ✓ v8 回归 ✓ | 星型发动机 signature 演示补全 | 已回归（lint/build/thumbs/截图/相位实测/v8 canary） | stroke 相位采样 + v8 canary ✓ | **已完成**（smoke 挂账等负载） |
 | P2 | smoke 补跑（radial + JWST 两切片，负载 <5 时） | 回归完整性 | 低 | npm run smoke | 待补 |
 | P2 | ~~Curta 双版本裁决~~ **已关闭（2026-11-03 自动解决）**：并行会话下载 curta-calculator.glb 后未接入即自行清理（孤儿件消失，registry/inventory 无痕迹）；curta-type2 独占计算器类目 | 类目纯净 | 低 | ls + grep registry 实证 | **已关闭** |
-| P3 | 二线候选滚动池（社区报告已验 uid）：CMBC Singer 15 手摇缝纫机 315k / Sea-Gull 1963 计时码表 176k（ST19 柱轮叙事）/ Agfa Movex 88 发条摄影机 312k（拍摄侧空白）/ Lefaucheux 针发左轮 13k / 瓦特蒸汽机教学模型 63k（波兰国家级数字化，带动画）/ Polyphon 45D 盘式八音盒 10.9k | 内容扩充 | 低 | convert-asset SOP | 待办 |
+| P3 | 二线候选滚动池（社区报告已验 uid）：~~CMBC Singer 15~~（**落选**：6 份重叠几何建模缺陷）~~Sea-Gull 1963~~（**已接入第 128 台**：6 部件材质映射 142/142 全量路由）/ Agfa Movex 88 发条摄影机 312k（拍摄侧空白）/ Lefaucheux 针发左轮 13k / 瓦特蒸汽机教学模型 63k（波兰国家级数字化，带动画）/ Polyphon 45D 盘式八音盒 10.9k | 内容扩充 | 低 | convert-asset SOP | **1 接入 1 落选**；余 4 候选滚动 |
+| P3 | seagull-1963 thumbs 补渲染（8301 实例环境冻结挂账；IAB 首屏+142/142 路由已替代验证） | 缩略图完整性 | 低 | npm run thumbs -- --only seagull-1963 | 挂账窗口 |
 | P3 | 品牌档案补齐：CURTA 品牌新档（curta-type2 接入产生）；39→40 品牌 | 档案完整 | 低 | lint brand-check | 待办（并行会话可能已动） |
 
 ### 2026-11-02 批次技术备忘（避免重复踩坑）
 - Sketchfab 下载：`/i/archives/latest?model=<uid>&archiveType=glb&textureMaxResolution=0`（参数名 model/archiveType；预签名 ~2 分钟即取即下；匿名 401；IAB 登录态 User-419afc4fcb）。
 - 节点分支变换不一致的 GLB（同一模型各分支 scale 量级不同）→ `gltf-transform flatten` 预处理根治；排查时 getWorldPosition 报的是枢轴位置，顶点级判断要用 Box3.setFromObject。
 - 爆炸 ex 语义：[x右, y上, z朝观众] 相机基向量世界单位直移；同心部件手动发散；小件密集设备 ex 用 2-4 量级。
+
+## V5.0 创作工作室（2026-11-03 立项，总任务书第七章）
+
+| 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
+|---|---|---|---|---|---|
+| P2 | ~~V5.0.0 基础架构 + V5.0.1 模型导入/体检~~ | 创作支柱首切片：/studio 懒加载 20KB chunk，导入守卫六类错误分类 + 结构报告 + 10 条本地规则诊断 + 层级/视口联动 | 低（纯新增模块） | tools/studio-verify.mjs 11/11 + 截图 + build/lint | **已完成**（2026-11-03；smoke 全量挂账=OOM 环境阻塞，与并行会话三切片合并待补） |
+| P2 | V5.0.2 Model Workshop：选择/变换/材质调整/组件分组/撤销重做 | 编辑能力 | 中：命令体系设计决定撤销栈质量 | 编辑操作 e2e + 截图 | **首切片已完成**（2026-11-03：网格级变换/材质+撤销重做+导入态快照复位+GLB 导出+__STUDIO 钩子；21/21 e2e；组件分组已收尾） |
+| P2 | 本地作品库（IndexedDB 保存/读取/删除/元数据 + 浏览器数据清理警示 + 备份导出） | 作品持久化 | 低 | 清空存储从零复现 + 导入导出往返 | **基础切片已完成**（2026-11-03：CRUD+备份 JSON 往返+非法拒收+UUID 主键；27/27 e2e；恢复输入遮蔽主输入的 querySelector 坑已修） |
+| P3 | 诊断增强：空网格/重复网格/异常法线的**修复副本**路径（总任务书 7.6 修复建议→副本→对比） | 从诊断到修复闭环 | 中：不可覆盖原始数据 | 修复前后 diff 断言 | **首切片已完成**（2026-11-03：missing-normals/empty-mesh 两类确定性修复以可撤销命令组落地+前后严重度对比+8 类需人工如实给理由；本地工作流原始文件不可覆盖=等效满足副本约束；37 项 e2e 36 绿） |
+| P3 | 图片参考入口（V5.0.3）：参考图上传/比例/透明度/与视口并排——明确不承诺内结构推断 | 双入口之一 | 低 | 上传 + 并排截图 | **已完成**（2026-11-03：视口叠层对照+四滑杆+拒收+清除；31 项 e2e 中 29 项本轮绿，?cap/懒加载两项环境阻塞挂账——前两轮完整跑均绿） |
+| P3 | studio-verify 并入 smoke 套件（待并行批次消化后统一端口口径） | 回归门禁完整性 | 低 | npm run smoke 计数 | 待办 |
+| P2 | 文字程序化建模（V5.0.4）：描述→结构化参数→程序化几何 | 双入口第二入口 | 中：解析覆盖面与诚实口径的平衡 | 解析单测 + 生成→管线 e2e | **首切片已完成**（2026-11-03：确定性关键词模板解析非 AI 如实标注；tools/textgen-unit.mjs 16/16 单测全绿（抓修子句顺序/覆盖/自然语序三缺陷）；未识别如实列出+无结构拒析；浏览器集成断言 OOM 挂账——集成路径与已验证模式同一） |
+| P2 | 组件分组/零件分组（V5.0.2 收尾，任务书 7.4） | 工作台清单收官项 | 中：结构操作的可逆性 | 结构操作单测 + e2e | **已完成**（2026-11-03：组合/解散双向命令组+世界变换保持+撤销精确还原原父兄弟序；tools/groupops-unit.mjs 19/19；浏览器 UI 断言挂账 OOM） |
