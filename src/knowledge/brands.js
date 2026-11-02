@@ -117,6 +117,9 @@ const brands = [
   { id: 'CURTA', kind: 'author', founded: '1947',
     note: 'Curta 手摇机械计算器由奥地利工程师 Curt Herzstark 在集中营监禁期间完成设计，战后由列支敦士登 Contina 公司自 1947 年起量产，人称「胡椒磨计算器」。',
     sources: [{ label: 'Wikipedia — Curta', url: 'https://en.wikipedia.org/wiki/Curta' }], confidence: 'verified-3rd' },
+  { id: 'NASA/CXC', kind: 'agency', founded: '1999',
+    note: 'Chandra X-ray Center（CXC）由史密森尼天体物理天文台（SAO）运营，负责 NASA 钱德拉X射线天文台的科学运行——1999 年发射至今。',
+    sources: [{ label: 'Chandra X-ray Center', url: 'https://cxc.harvard.edu/' }], confidence: 'verified-3rd' },
 ];
 
 export default brands;

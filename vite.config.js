@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { installDomShim } from './tools/lib-node-shim.mjs';
+import { blockedForRelease, blockReasonText } from './tools/lib-license.mjs';
 
 /* 轻量设备清单（virtual:device-manifest）：
    大厅卡片只需要元数据（名称/品牌/分类/部件数/glb 路径），不应为此
@@ -13,6 +14,10 @@ import { installDomShim } from './tools/lib-node-shim.mjs';
 const MANIFEST_ID = 'virtual:device-manifest';
 const LOADERS_ID = 'virtual:device-loaders';
 function deviceManifest(){
+  /* 可发布构建（审计 P1-8 / ROADMAP 1-B）：排除"仅本机演示"与限制再分发的资产，
+     大厅/星图/深链一律看不到这些台，dist 里也不留 GLB 与缩略图。 */
+  const RELEASE = process.env.GEWU_RELEASE === '1';
+  const blocked = new Map();
   let cached = null, cachedMtime = 0;
   const srcDir = path.resolve('src/devices');
   function maxMtime(){
@@ -36,14 +41,19 @@ function deviceManifest(){
       const mod = await import(pathToFileURL(path.join(srcDir, f)).href + '?v=' + mtime);
       if(mod.default && mod.default.id) fileById[mod.default.id] = f;
     }
-    const manifest = registry.devices.map(d => ({
+    const listed = RELEASE ? registry.devices.filter(d => {
+      const reason = blockedForRelease(d);
+      if (reason) blocked.set(d.id, { reason, glb: d.glb || null, credit: d.modelCredit || d.source || null });
+      return !reason;
+    }) : registry.devices.filter(d => !d.unlisted);
+    const manifest = listed.map(d => ({
       id: d.id, name: d.name, en: d.en, brand: d.brand || 'OTHER',
       category: d.category, tagline: d.tagline, accent: d.accent,
       era: d.era ?? null,
       glb: d.glb || null, modelCredit: d.modelCredit || null,
       parts: d.parts.length,
     }));
-    const loaders = registry.devices
+    const loaders = listed
       .filter(d => fileById[d.id])
       .map(d => `  ${JSON.stringify(d.id)}: () => import(${JSON.stringify('/src/devices/' + fileById[d.id])}),`)
       .join('\n');
@@ -77,6 +87,34 @@ function deviceManifest(){
         const mod = server.moduleGraph.getModuleById('\0' + id);
         if(mod) server.moduleGraph.invalidateModule(mod);
       }
+    },
+    /* 台数由 registry 决定，构建期注入 meta，杜绝 index.html 与馆内口径漂移（审计 P1-2） */
+    async transformIndexHtml(html){
+      const { manifest } = await ensure();
+      return html.replace(/(\d+)\s*台设备/g, manifest.length + ' 台设备');
+    },
+    /* 可发布构建：public 目录是整体拷贝的，构建结束后剔除被排除展品的 GLB 与缩略图 */
+    closeBundle(){
+      if(!RELEASE || blocked.size === 0) return;
+      const dist = path.resolve('dist');
+      const removed = [];
+      for(const [id, info] of blocked){
+        const names = new Set([info.glb ? path.basename(info.glb) : null, id + '.glb'].filter(Boolean));
+        for(const n of names){
+          const f = path.join(dist, 'assets', n);
+          if(fs.existsSync(f)){ fs.rmSync(f); removed.push(path.relative(dist, f)); }
+        }
+        for(const f of [path.join(dist, 'thumbs', id + '.webp'), path.join(dist, 'thumbs', id + '.day.webp')]){
+          if(fs.existsSync(f)){ fs.rmSync(f); removed.push(path.relative(dist, f)); }
+        }
+      }
+      fs.writeFileSync(path.join(dist, 'RELEASE-EXCLUDED.json'), JSON.stringify({
+        generated: new Date().toISOString().slice(0, 10),
+        note: '本构建为可公开发布口径：以下展品因来源/许可限制被排除',
+        excluded: [...blocked].map(([id, i]) => ({ id, reason: i.reason, why: blockReasonText(i.reason, { modelCredit: i.credit }) })),
+        removedFiles: removed,
+      }, null, 2));
+      console.log(`✓ release 构建：排除 ${blocked.size} 台（许可/来源受限），删除 ${removed.length} 个产物文件 → dist/RELEASE-EXCLUDED.json`);
     },
   };
 }
@@ -113,6 +151,7 @@ const cleanDistJunk = () => {
         for(const f of fs.readdirSync(dir)){
           const p = path.join(dir, f);
           const st = fs.lstatSync(p);
+          if(st.isSymbolicLink()) continue;
           if(st.isDirectory()){
             if(f === '.mimosa'){ fs.rmSync(p, { recursive: true, force: true }); continue; }
             walk(p);
@@ -121,7 +160,10 @@ const cleanDistJunk = () => {
           }
         }
       };
+      /* 防路径穿越：outDir 异常时绝不越出项目根执行删除（Mimosa high 修复） */
+      const root = path.resolve('.');
       const dist = path.resolve(outDir);
+      if(dist === root || !dist.startsWith(root + path.sep)) return;
       if(fs.existsSync(dist)) walk(dist);
     },
   };

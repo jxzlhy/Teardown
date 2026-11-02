@@ -117,6 +117,8 @@ import refractorTelescope from './refractor-telescope.js';
 import fireHydrant from './fire-hydrant.js';
 import seadogsCompass from './seadogs-compass.js';
 import vintageStapler from './vintage-stapler.js';
+import spitzerSpaceTelescope from './spitzer-space-telescope.js';
+import chandraXRayObservatory from './chandra-x-ray-observatory.js';
 
 export const devices = [
   /* DJI */
@@ -187,7 +189,7 @@ export const devices = [
   /* CURTA */
   curtaType2,
   /* NASA/JPL */
-  ingenuityHelicopter, parkerSolarProbe,
+  ingenuityHelicopter, parkerSolarProbe, spitzerSpaceTelescope, chandraXRayObservatory,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

@@ -96,3 +96,41 @@
 - 构建：build 2.58s；v4-preview-verify EXIT 0（6 资产全 200、0 控制台错误）。
 - 许可：两台均为 NASA 3D Resources 公有领域，modelSource 直链资产页，lint 署名校验通过。
 - 环境：smoke 因系统负载 6.6–10.4 四轮单点抖动（协议不作数），以产物级回归替代。
+
+## 2026-11-02 · 全维度审计 + Phase 0 止血基线
+
+| 指标 | 修复前 | 修复后 | 测量方式 |
+|---|---|---|---|
+| 在馆口径（五处一致） | 117 / 110 / 104 / 104 / 110 互相矛盾 | **115 台 · 880 部件 · 39 品牌** 五处全等 | `tools/lint-consistency.mjs`（新建） |
+| GLB 总量 | 226.3MB / 117 文件 | **184.7MB** / 115 在馆 | 同一解析脚本复测（`/tmp/glb-audit2.mjs`） |
+| ≥4096 纹理设备 | 14 台 | **0 台** | GLB JSON chunk + WebP/PNG/JPEG 头解析 |
+| 最大单台纹理显存 | v6-engine 3259MB | **815MB（-75%）** | RGBA8+MIP(×1.34) 估算 |
+| 全馆纹理显存合计 | 14.6GB | **8.34GB（-43%）** | 同上 |
+| >6MB 单台 | 10 台 | **4 台** | 同上 |
+| DRACO / webp 覆盖 | 117/117 · 有纹理者 97/97 webp | 不变（无回退） | 同上 |
+| combustion-engine 悬停 p95 | 88.5ms（>50ms 帧 27 · 长任务 24） | **18.0ms（0 · 0）** | `/tmp/hover-bench.mjs` 前后同条件（1440×900 · 真 GPU · 40 次 hover） |
+| v8-engine 悬停 p95 | 28.3ms（>50ms 帧 1） | **17.9ms（0）** | 同上 |
+| 拾取 BVH 覆盖 | 仅测量工具启用 | **装载后全量（smoke 断言）** | `npm run smoke` |
+| 单台设备页实测 | action4 6.01MB/94req/heap 36.9MB；v6-engine 24.4MB/128req/heap 115.2MB | 未复测（Phase 3 一并） | puppeteer + performance API |
+| 构建 | 2.74s · three 806KB(gz 209) · DeviceViewer 218.5KB(gz 80) · index 108.6KB(gz 42.5) | 2.64s · 同量级（无退化） | `npm run build` |
+| lint:devices | 0 错 11 警 | 0 错 11 警 + **五处一致** + **TODO 硬闸** | `npm run lint:devices` |
+| 冒烟断言 | 32 项 | **33 项**（+拾取 BVH 全量覆盖） | `npm run smoke` |
+| 日厅对比度（未整改，记账） | 109 节点 / 81 class < AA，最差 1.16:1 | 待 Phase 2-A | 运行时 WCAG 相对亮度扫描 |
+| 移动端触控（未整改，记账） | <44px 目标 128/299；导视按钮越界 48px | 待 Phase 2-D | 390×844 实测 |
+
+## 2026-11-03 · 新模型批次 5 台（fresnel/telescope/hydrant/compass/stapler）
+
+| 指标 | 数值 | 测量方式 |
+|---|---|---|
+| GLB 体积 | fresnel-lens 909KB · refractor-telescope 351KB · fire-hydrant 428KB（剔 aged 变体后） · seadogs-compass 548KB · vintage-stapler 401KB | optimize-glb（webp85→draco） |
+| 源→成品压缩率 | 7.55MB→909KB / 3.24MB→351KB / 5.26MB→428KB / 2.57MB→548KB / 2.21MB→401KB（11-24%） | tools/optimize-glb.mjs |
+| 缩略图（夜+日变体） | 20-26KB + 22-31KB/台（预算 ≤60KB 达标） | `npm run thumbs -- --only <5 台>` |
+| 映射对账 | 5 台部件网格数 ≥1、0 幽灵、0 空部件、0 页面错误 | tools/verify-newdev-20261102.mjs |
+| 视觉验证 | 组装+爆炸双态 10 张目检全过（settle 2.6s 后拍摄） | tools/shots-newdev-20261102.mjs |
+| 馆级门 | lint 0 错 0 警 · 五处一致 115 台 · build 2.82s · smoke 全过 | npm run lint:devices / gen:inventory / build / smoke |
+| 在馆口径 | 115 台 · 880 部件 · 39 品牌（另有 2 台筹备中未入馆） | gen:inventory |
+
+## 2026-11-03 · 大天文台批次
+- 设备规模：110 → **117 台 / 890 部件 / 40 品牌**（含并行会话同窗新增）。
+- 新资产：spitzer-space-telescope.glb 242KB（原 245KB，无贴图材质件）、chandra-x-ray-observatory.glb 232KB（原 975KB，24%）；原件入 vendor/assets/originals/nasa-2026-11-02/。
+- 验证：build 4.42s / preview EXIT 0 / 映射 43/43+6/6 / thumbs 夜+日 20KB 级。

@@ -1670,3 +1670,111 @@ CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数�
 - 验证：lint:devices ✓（110 台/品牌档案 39/39） / gen:inventory 110 台·855 部件 ✓ / thumbs 2 台夜+日变体（17-23KB）✓ / build 2.58s ✓ / v4-preview-verify EXIT 0（6 资产 200、0 控制台错误）✓ / 产物级 PSP hull 8.5025 复核 ✓ / 双台 ×（夜厅/爆炸）截图目检 ✓（docs/design/screenshots/nasa-*.png）。
 - 已知限制：smoke 套件在系统负载 6.6–10.4（用户抖音 App 后台渲染）下 4 轮出现 4 种不同单点抖动（m4 hullRadius 读早 / frame detached / dev server 拒连），按 BACKLOG「负载>5 不作数」协议记为环境阻塞，以产物级回归替代；负载回落后建议复跑全量 smoke。
 - 下一轮优先：①NASA 渠道扩量探测（更多 slug 直链 GLB）；②微波炉混合路径（真实外壳+程序化磁控管/变压器示意件）；③V4.0 MI 机构关系下一切片。
+
+## 2026-11-02 · 全网搜罗批次一：4 台新设备（本会话；与另一会话并行共写仓库）
+
+### 调研（三路子代理 + 主会话补查）
+- 社区路（报告存 /tmp/research-community.md）：Sketchfab API 36 组关键词 126 命中过滤 + Poly Haven 521 models 全量 + 15 资产 .gltf 节点级验证；Top 发现 Curta Type II（作者自带拆解动画）。
+- 博物馆路（报告存 /tmp/research-museum.md）：**Smithsonian 免 key 通道实证**——S3 bucket `smithsonian-open-access.s3.us-west-2.amazonaws.com/3d/{uuid}/`（104k key 可列）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`；Curta 在 SI 全目录不存在（反证 Sketchfab 版正解）；JWST（1600 命名网格）/1903 Wright Flyer/Apollo 11 舱门 CAD 为下批候选，样本已存 `vendor/assets/originals/_si-research/`（si_titles.tsv 全量目录在手）。
+- 官方路子代理因并发超限挂死（无产出）；DJI 2025 后新品官网无 3D viewer 为既有结论，挂账。
+- 主会话补查 radial 分离活塞（backlog P0 外部依赖）：4 个 CC-BY CAD 装配体候选（simakovs05 5缸 81k / jxstnxlll 7缸 84k / senguptaarmaan Fusion360 227k / ygorprangel Inventor 75k）。
+
+### 下载通道（实测）
+- Sketchfab：IAB 登录态（User-419afc4fcb 有效）+ 页内 `fetch('/i/archives/latest?model=<uid>&archiveType=glb&textureMaxResolution=0')` → 200 S3 预签名直链 → node https 落盘。**参数名是 model/archiveType（非 uid/type）**；预签名有效期约 2 分钟必须即取即下（gearbox 首次 403 即过期实证）；匿名 curl 401。已回写 convert-asset/references/sources.md。
+- Poly Haven：CC0 匿名直下；注意贴图真实路径在 `Models/jpg/`（gltf 清单内 textures/ 相对路径 404）。
+
+### 接入 4 台（lint 时点 110 台 / 855 部件 / 39 品牌）
+- **curta-type2**（halilkantarci，CC-BY 4.0，231 网格全语义名 → 8 部件，10MB@1K+q78）：mappingPrefix 插入序首命中——长前缀排前（screw3 先于 screw）；木盒/机身/置数鼓/滑杆组/结果轮组/摇柄/玻璃分件，自带拆解动画未消费。
+- **vintage-binocular**（Poly Haven CC0，8 节点直映射 → 8 部件，1.4MB）：双端保罗棱镜独立建模，光路叙事 tour（物镜→棱镜→目镜）。
+- **manual-gearbox**（avredu，CC-BY，92 网格×40 语义材质 → 8 部件，1.35MB）：实际内容为**前驱变速驱动桥总成**（含车轮/麦弗逊悬架/半轴 CV 节）——逐部件隔离截图 + 材质色解码（Gear_1..5/Clutch_Shaft/Reverse_*/rubber/Material_14 黄弹簧）后由 6 组改判 8 组。
+- **wankel-engine**（museoETSII 马德里理工 ETSII 实验室，CC-BY，7 网格同名 → 5 部件，5.8MB）：摄影扫描剖切教具；底部熔毁破损为源模型自带（Sketchfab 官方预览图核实）；frontAxis '+z' 剖开面朝观众；**质量 C**。
+
+### 踩坑与修复
+- **节点分支变换不一致资产**：齿轮分支节点链 9530 系坐标×0.0079 微缩放；attach 烘焙后 getWorldPosition 报 [21.8,-3.5,-75.3]（枢轴位置非顶点位置，误导排查）；Box3 顶点级实测证明渲染位置一直正确。`gltf-transform flatten` 根治（gearbox/wankel 重打包部署）。
+- **爆炸偏移语义**（engine.js captureExplodeBasis）：ex=[x右,y上,z朝观众] 相机基向量、世界单位直移、axis 布局不缩放；同心部件（望远镜 8 件共中心）必须手动发散方向；小件密集资产（变速箱）ex 需 2-4 量级。
+- Curta 配置首次 Write 输出损坏（乱码重复行）被"未读先写"校验拦截，重读脚手架后干净重写。
+
+### 验证
+- lint:devices 全绿 ✓；gen:inventory 110 台·855 部件 ✓；thumbs 4/4 含日厅变体 ✓；build ✓ 2.68s；四台首屏+爆炸态无头截图目检 ✓（/tmp/dji-fetch/calib-*.png、ex-*.png、iso-*.png）。
+- smoke：系统负载 11.3 未跑（规约 >5 不作数，对方会话同样因负载 6.6-10.4 跳过）——负载回落补跑。
+- **并行会话**：08:42-08:44 对方落盘 fire-hydrant/fresnel-lens/refractor-telescope/seadogs-compass/vintage-stapler 5 配置 + curta-calculator.glb（与本会话 curta-type2 构成 Curta 双版本，待裁决）；registry 双方共存无互覆（115 文件）；npm run add 的插入序保证了合并干净。
+
+### 下一步
+Smithsonian JWST/Wright Flyer/Apollo 舱门接入（样本在手）；radial 分离活塞置换切片；Curta 双版本裁决；二线候选（缝纫机/海鸥 1963/Agfa Movex 88/针发左轮/瓦特蒸汽机/Polyphon 45D）入 backlog 滚动池。
+
+---
+
+## 2026-11-02（深夜）· 全维度项目审计 + Phase 0 止血（审计驱动轮）
+
+> 指令归档：`docs/audit/MASTER_PROJECT_AUDIT.md`（用户下达的 MASTER PROJECT AUDIT 原文）。
+> 五件套：`PROJECT_AUDIT_REPORT.md` / `PROJECT_ISSUES.md` / `PROJECT_ROADMAP.md` / `PROJECT_AUDIT_SCORE.md` / `PROJECT_OPTIMIZATION_LOG.md`（同目录）。
+
+### 审计方法
+五路并行子代理（架构/UI/性能/安全/竞品）+ 主代理浏览器实测与独立取证。**子代理结论一律复核**：撤销 5 条误报（countach 许可、jet-engine 许可、"每帧射线"、"日厅 nc-badge 1.65:1"、"20 台纹理未 webp"），P1-7 依全馆静态对账降级 P2-16。独立取证脚本：117 个 GLB 结构解析（纹理真实分辨率/三角/DRACO/webp）、WCAG 运行时对比度扫描、hover 帧耗时基准、字段覆盖率统计。
+
+### 评分
+**75/100**（十维加权）。最低维＝SEO/无障碍 52；性能 70（JS 侧近乎满分、资产侧失控）。
+
+### Phase 0 四切片（全部已验证）
+1. **0-A 拾取 BVH（P0-2 关闭）**：`ensureBVH` 拆同步/增量两态，`finalize` 后分帧建（每帧 ≤6ms），`disposeDevice` 加 `bvhJob` 令牌打断在途任务；smoke 新增「拾取 BVH 全量覆盖」断言。combustion-engine hover **p95 88.5→18.0ms、>50ms 帧 27→0、长任务 24→0**；v8 p95 28.3→17.9ms。
+2. **0-B 纹理上限（P0-1 关闭）**：14 台 ≥4096 走 resize(2048)→webp→draco 重导出，**安装前强制"三角/图元/网格名三项全等"闸门（14/14 过）**；GLB 总量 226.3→**184.7MB**，纹理显存合计 14.6→**8.34GB**，最大单台 3259→**815MB**，≥4096 **14→0 台**；`optimize-glb.mjs` 加 `--max-texture`（默认 2048）+ **Draco 输入拒绝执行 exit 2**（防体积反弹）。14 台缩略图重渲 14/14 成功。
+3. **0-C 占位展品（P1-1 关闭）**：spitzer/chandra 标 `unlisted`（manifest 与三份生成物剔除、loaders 保留供深链）；`lint-mapping` 新增"已入馆含 TODO ⇒ error"，**反向测试实证触发**；回落深链加明确 toast（延后 6.4s 避开 bootTimeline 覆盖）。
+4. **0-D 数字一致（P1-2 关闭）**：重跑三生成物 + 新建 `tools/lint-consistency.mjs`（registry/inventory/graph/timeline/index.html 五处台数全等，不等 exit 1）+ `vite.config.js` `transformIndexHtml` 构建期注入台数。全站统一 **115 台 · 880 部件 · 39 品牌**。
+
+### 验证
+`npm run build` ✓ 2.64s ｜ `npm run lint:devices` ✓ 0 错 + 五处一致 ｜ `npm run smoke` ✓ 全绿（含新断言）｜ 浏览器实测：大厅 115/880、无占位展品、graph 头栏同步、ak-47/phone4apro/v6-engine 特写目视可接受、0 控制台错误。
+
+### 关键新发现（未整改，已入清单）
+- **P1-3 日厅对比度**：运行时扫描 109 节点 / **81 个 class** 低于 AA，最差 **1.16:1**（`.card-brand` 品牌·年代行）；夜厅 23 个 class。根因是"逐选择器补皮"（165 条 day 覆盖）而非语义层换色。
+- **P1-4 首屏无发现路径**：1440×900 首屏仅 6 个可交互元素，搜索不在首屏，第一张卡片在 **y=1366**（`.hub` 为 position:fixed 自管滚动容器）。
+- **P1-9 移动端导视**：`我的探索 · 足迹N` 变长即把双厅按钮挤出视口（实测右边界 438 > 390）；触控 <44px 目标 **128/299**。
+- **P1-8 许可**：3 台 CC-BY-NC + 1 台 Sketchfab Free Standard + 1 台 GPL-3.0 随 dist 分发；35/117 无 `modelCredit`（多数在 `source:` 有出处）；lint 署名规则是自证循环。
+- **P2-13 宽度跑赢深度**：mech 3/115 · assembleStep 2/115 · realSizeMM 1/115 · demos 20 · quality 19（tour/xray/specs 均 115+ 健康）。
+- **P2-4 仓库**：345 项未提交、`.gitignore` 未覆盖 `.agents/.claude/.zcode/skills`；40 个 verify 脚本启动块重复；`legacy.html`/`rotate_m4.tmp.mjs` 无引用。
+
+### 下一项（按 ROADMAP）
+Phase 2-A 日厅令牌反转 + 2-B 对比度 CI（P1-3）；随后 2-D 移动端导视与热区（P1-9/P2-10）。P1-8 许可复核需外部条件，先做 lint 独立判定与"可发布构建"排除项。
+
+### 续（同日夜·第 4–6 轮，审计驱动整改）
+- **第 4 轮 Phase 2-A/2-B（P1-3 关闭）**：日厅对比度改**令牌层**（`--txt-3/--txt-dim` #6f6553→#5f5646、`--acc` #0f766e→#0d6b62）+ 12 处 rgba 字面量归 token + 展品 accent 改"混墨/混亮"保色相抬亮度；新建 `tools/contrast-verify.mjs`（canvas fillStyle 解 CSS Color 4 + 祖先链 source-over 合成 + 跳过不可见元素），11 组「页面×厅别」AA 不达标节点 **→ 0**。⚠️ 过程纠错：初版扫描器把 `color(srgb …)` 按 0–255 解析、把半透明背景当实色，导致两轮误报，已修正后重测。
+- **第 5 轮 Phase 2-D（P1-9/P2-10 关闭）**：导视条 ≤860px 改单行横滚 + mask 渐隐，双厅按钮 `position:sticky; right:0` 钉住（实测右边界 438→367）；足迹计数改 `.el-badge`；`@media (pointer: coarse)` 下 24 类控件 `::after` 扩命中盒 + 表单 `min-height:44px` + `env(safe-area-inset-*)`。390×844 七页 386 目标不达标 **0**；range 滑杆 16px/44px A/B 行为一致（未破坏拖动）。
+- **第 6 轮 Phase 1-A/1-B（P1-8 部分关闭）**：`lint-mapping` 署名判定**去循环化**（以 `modelSource` 域名 + `distribution` 独立判定），首轮命中 33 台 → 补 `distribution: 'local-demo-only'` 34 台后 0 错；新建 `tools/lib-license.mjs` 作风险分级唯一源；`vite.config.js` 支持 `GEWU_RELEASE=1`（manifest+loaders 同步过滤、`closeBundle` 剔除 GLB/缩略图、产出 `dist/RELEASE-EXCLUDED.json`）；新增 `npm run build:release`。实测排除 40 台（33 官方 AR + 5 许可受限 + 2 筹备中）、删 78 文件、dist 274→179MB、release 产物 0 个 4xx / 0 控制台错误、大厅与 meta 同为 77 台。
+- **复评 75 → 78**（依据见 `docs/audit/PROJECT_AUDIT_SCORE.md` §六）。新增 5 道常驻防线（一致性 lint / TODO 硬闸 / 来源硬闸 / 对比度 CI / BVH 断言 / 纹理上限）防回退。
+- **未提交提示**：本会话改动横跨 34 份设备配置 + engine.js + style.css + vite.config.js + 5 个工具 + 14 台 GLB 与 28 张缩略图，`git status` 411 项；按 ROADMAP 5-E 应分主题提交（资产类与代码类分开），**提交需用户授权**。
+- **下一项**：Phase 3 生命周期（P1-5/P1-6，前置 5-C 调试面收敛）或 Phase 1-C（og:image / robots / manifest / CSP）。
+
+### V4.1 首切片 · 照明审计与 lightBoost 治理机制
+
+- tools/v4-light-audit.mjs：8 代表设备 × 双厅亮度审计（全幅 + 模型区中心 40% 双口径：mean/clip%/crush%），零依赖（设备页内 canvas 统计，engine.snapshot）。工件 docs/ui-ux/v4-light-audit.json。
+- 结论：0 过曝（clip 全 0%）；夜厅全幅偏暗为"深夜展馆"设计选择，模型区口径下全部可读（36.7-182）。唯一超标 s22-ultra（36.7/36% crush）= 黑色玻璃材质物理属性。
+- 引擎新增 device.lightBoost（applyHallFrame 乘径 + finalize 补挂），s22-ultra 试配 1.3 → 模型区 +2（36.7→38.6）：线性补光在 ACES 下收益受限，判 Non-defect（零件可辨），机制留作治理工具；更深治理（rim 光塑形）列滚动。
+- V4.0 收尾清点档：docs/roadmap/GEWU_V4_MI_EXECUTION_STATUS.md（六系统清点 + 试点链路 + 真实性红线 + 产物回归 EXIT 0）。
+- 验证：build ✓ smoke 全过 ✓ s22 双厅实测 ✓。
+
+### 2026-11-03 · 新模型批次：全网搜罗 6 台（5 入馆 + 1 撤重）达 115 台 39 品牌
+- **调研**：Poly Haven 521 模型全量普查 + Sketchfab 公共搜索 API 34 主题扫描；PH 三件贴图走 files API `gltf.1k.gltf.include` 独立 URL（jpg 存 Models/jpg/ 而非 gltf 目录，include 字典才是权威下载表）。候选摸底 18+11 件，淘汰主因：单网格（television/boombox/microwave/kettle/mousetrap/lightbulb 等全系 1 node）、叠壳扫描（Singer 6 层同位）、类别饱和（Rolleiflex 相机已有 14 台）。
+- **并行会话协同**：同期会话已接入 curta-type2/wankel-engine/vintage-binocular/manual-gearbox（且其 curta-type2 与本会话下载的 halilkantarci rotary-calculator 为同一 UID）→ 本会话即时撤销 curta-calculator（删配置/GLB/registry 行/originals 备份），避免同模型双份；registry.js 双方追加共存，`node --check` 通过。
+- **入馆 5 台**：`fresnel-lens`（一等菲涅尔透镜，darryldmps CC-BY，13 网格材质名 1:1 语义，909KB）、`refractor-telescope`（折射望远镜，esveadenart CC-BY，44 网格全量显式映射+unmappedTo 兜底，351KB）、`fire-hydrant`（Poly Haven CC0，5 网格语义命名，428KB）、`seadogs-compass`（CC0，3 件，548KB）、`vintage-stapler`（CC0，4 件，401KB）。全部带 tour/xrayShellIds/era/署名；fresnel 三件转台 spin 演示、compass 磁针 wobble 演示。
+- **新工具**：`tools/strip-nodes.mjs`（GLB 按名剔除节点+prune，GLTFT_NM env 指向 npx 缓存的 @gltf-transform；CJS 互操作下 getParent 缺失→扫描 children 反查父节点）——消防栓做旧变体（*_aged 5 节点）构建期剔除，避免隐藏网格带偏 hull/展台。
+- **踩坑沉淀**：①引擎 mapByPosition 存在时**完全取代** mapping 表且返回 null 会把网格丢进未注册组凭空消失（望远镜 41/44 件消失根因，verify 脚本 + __MAPPTS 实测坐标定位）；②gltf-transform 保存会改名部分节点（cap_02/03→Cylinder025/026），映射必须以页面 __RAW.names 实测为准（历史坑再现）；③GLB 真实件 base 被强制 [0,0,0]，源模型"击发中"姿态的钉排悬空 → postLoad 双改 `base.y + group.position.y`（base 是每帧 position 插值原点，action5pro 先例）；④开场演出 55% 爆炸入场未 settle 时截图会误判部件悬空，settle ≥2.6s。
+- **lint 工具修正**：tour 对象条目 `{id,note}` 解包后再校验（清掉 11 条历史假警告）。
+- **验证**：`node tools/verify-newdev-20261102.mjs` 5 台部件网格数/幽灵/空部件全 ✓ + 0 页面错误；组装/爆炸双态截图目检 10 张全过；lint:devices 0 错 0 警；gen:inventory 115 台 880 部件五处数字一致；build 2.82s；thumbs 5 台双布光 20-31KB；smoke 全过。
+- 已知限制：fresnel 的 beam 网格为作者自带光锥示意（已在部件描述注明）；望远镜 mount/tube 边界件（Cube002 等）归 mount 为近似聚类；fire-hydrant cap-b/c（Cylinder025/026）与源 cap_02/03 对应关系按坐标推定（截图复核实物方向正确）。
+- 下一批候选（已查证可下载）：Nixie 辉光钟（panmax L158，1162 网格需按位置聚类）、Braun SK55 唱机（L26，610 网格）、船钟/落地钟 PH 版、Sketchfab 蒸汽机车舱（此前落选复核）。
+
+### V4.1 续 · rim 光塑形实验（s22-ultra）
+
+- lightBoost 扩展覆盖 rim1/rim2（applyHallFrame + finalize 补挂同步）；s22-ultra 1.3→1.4。
+- 实测：模型区 mean 39.1 / crush 35.47%（数值边际），但 rim 的收益在轮廓不在均值——目检 S-Pen 边缘高光与机身侧棱可读性提升，0 过曝。判：保留（1.4+rim），黑玻璃设备亮度为物理属性，不再追数值。
+- 照明治理循环闭环：审计工具 → 基线健康 → 唯一超标件 → 机制（lightBoost+rim）→ 试配 → 判定。机制沉淀，后续设备按需复用。
+
+## 2026-11-03 · 模型搜罗轮续：「大天文台」批次接入（达 117 台 40 品牌）
+
+- NASA 3D Resources 渠道扩量探测：再中 Spitzer + Chandra 官方 GLB（fermi/compton/voyager/curiosity/iss 等常见 slug 无直链 GLB，仅部分型号有）。
+- 新增 src/devices/spitzer-space-telescope.js：官方 GLB 242KB（无贴图材质 43 个全语义名，节点名全 Fake）→ **materialMapping 材质名精确聚类**（43/43 实测全中）5 部件（口径镜面/低温镜筒/隔热箔/主体桁架/太阳能板翼）；立式构图。
+- 新增 src/devices/chandra-x-ray-observatory.js：官方 GLB 232KB，6 primitive → 5 部件（HRMA 镜组件/仪器舱/主体平台/前段隔热筒/太阳能双翼），frontAxis '+x' 首用；**AO_HRMA 材质 col 0.8 无贴图过曝**——首轮 >0.9 条件跳过，改无条件 ×0.5 后泛光根除（postLoad 白箔压暗第 3 例）。
+- brands.js 补 NASA/CXC 档案（SAO 运营 CXC，cxc.harvard.edu，verified-3rd）。
+- 并行会话同窗新增 curta 等设备致在馆口径 110→117：按 gen:inventory/gen:graph/gen:timeline 三生成器同步 + index.html 117 台，lint 五处数字一致 ✓。
+- 验证：lint:devices ✓ / inventory 117 台·890 部件·40 品牌 ✓ / thumbs 2 台夜+日 ✓ / build 4.42s ✓ / preview EXIT 0 ✓ / 双台映射计数（43/43、6/6）+ 装配/爆炸截图目检 ✓（docs/design/screenshots/nasa-{spitzer,chandra}-*.png）。
+- 工具沉淀：tools/tmp-glb-dump.mjs 离线 GLB JSON chunk 解析（node 名+平移+每 primitive 材质+accessor bbox）替代页内动态 import 探针（CDP 高负载下超时）——已验证后清理。
+- 至此「大天文台」主题三件聚齐：哈勃（可见光/已有）+ 斯皮策（红外）+ 钱德拉（X 射线）。

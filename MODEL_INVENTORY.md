@@ -1,8 +1,8 @@
 # 已有模型清单（防重复登记表 · 自动生成）
 
-> 生成时间：2026-11-02 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
+> 生成时间：2026-11-03 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**110 台设备** · 855 个部件 · 110 套 GLB · 39 个品牌
+> 当前：**117 台设备** · 890 个部件 · 117 套 GLB · 40 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -28,8 +28,8 @@
 | action5pro | DJI Osmo Action 5 Pro | 相机 | 14 | 官方 | action5pro.glb | 1.2 MB |
 | action4 | DJI Osmo Action 4 | 相机 | 14 | 官方 | action4.glb | 364 KB |
 | pocket3 | DJI Osmo Pocket 3 | 相机 | 7 | 官方 | pocket3.glb | 962 KB |
-| mini4pro | DJI Mini 4 Pro | 无人机 | 6 | 官方 | mini4pro.glb | 3.0 MB |
-| avata2 | DJI Avata 2 | 无人机 | 4 | 官方 | avata2.glb | 2.3 MB |
+| mini4pro | DJI Mini 4 Pro | 无人机 | 6 | 官方 | mini4pro.glb | 1.6 MB |
+| avata2 | DJI Avata 2 | 无人机 | 4 | 官方 | avata2.glb | 1.0 MB |
 | mavic3pro | DJI Mavic 3 Pro | 无人机 | 7 | 官方 | mavic3pro.glb | 1.9 MB |
 
 ### SAMSUNG（6 台）
@@ -47,8 +47,8 @@
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| phone3 | Nothing Phone (3) | 手机 | 12 | 官方 | phone3.glb | 789 KB |
-| phone4apro | Nothing Phone (4a) Pro | 手机 | 6 | 官方 | phone4apro.glb | 7.8 MB |
+| phone3 | Nothing Phone (3) | 手机 | 12 | 官方 | phone3.glb | 706 KB |
+| phone4apro | Nothing Phone (4a) Pro | 手机 | 6 | 官方 | phone4apro.glb | 3.8 MB |
 | phone3alite | Nothing Phone (3a) Lite | 手机 | 7 | 官方 | phone3alite.glb | 1.1 MB |
 
 ### APPLE（22 台）
@@ -74,23 +74,23 @@
 | iphone-18-pro-max | Apple iPhone 18 Pro Max | 手机 | 10 | 官方 | iphone-18-pro-max.glb | 500 KB |
 | iphone-18-pro-max-burgundy | Apple iPhone 18 Pro Max 酒红 | 手机 | 10 | 官方 | iphone-18-pro-max-burgundy.glb | 531 KB |
 | iphone-duo-fold | Apple iPhone Duo 折叠屏 | 手机 | 9 | 官方 | iphone-duo-fold.glb | 586 KB |
-| iphone-12-teardown | Apple iPhone 12 全拆解 | 手机 | 23 | 社区 | iphone-12-teardown.glb | 6.4 MB |
-| iphone-13 | Apple iPhone 13 | 手机 | 12 | 社区 | iphone-13.glb | 261 KB |
+| iphone-12-teardown | Apple iPhone 12 全拆解 | 手机 | 23 | 社区 | iphone-12-teardown.glb | 4.6 MB |
+| iphone-13 | Apple iPhone 13 | 手机 | 12 | 社区 | iphone-13.glb | 174 KB |
 | iphone-16 | Apple iPhone 16 | 手机 | 12 | 社区 | iphone-16.glb | 279 KB |
 
 ### NIKON（2 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| nikon-d6 | Nikon D6 | 相机 | 9 | 社区 | nikon-d6.glb | 3.3 MB |
-| nikon-z6 | Nikon Z6 | 相机 | 5 | 社区 | nikon-z6.glb | 3.9 MB |
+| nikon-d6 | Nikon D6 | 相机 | 9 | 社区 | nikon-d6.glb | 1.9 MB |
+| nikon-z6 | Nikon Z6 | 相机 | 5 | 社区 | nikon-z6.glb | 2.7 MB |
 
 ### PORSCHE（2 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | porsche-911-carrera-4s | Porsche 911 Carrera 4S | 汽车 | 7 | 社区 | porsche-911-carrera-4s.glb | 4.3 MB |
-| porsche-911-930 | Porsche 911 Turbo（930） | 汽车 | 9 | 社区 | porsche-911-930.glb | 9.1 MB |
+| porsche-911-930 | Porsche 911 Turbo（930） | 汽车 | 9 | 社区 | porsche-911-930.glb | 5.8 MB |
 
 ### LAMBORGHINI（1 台）
 
@@ -98,11 +98,11 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（33 台）
+### GENERIC（38 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| v6-engine | V 型发动机（教学） | 机械 | 6 | 社区 | v6-engine.glb | 13.7 MB |
+| v6-engine | V 型发动机（教学） | 机械 | 6 | 社区 | v6-engine.glb | 9.5 MB |
 | v8-engine | V8 发动机（拆解态） | 机械 | 8 | 社区 | v8-engine.glb | 5.8 MB |
 | combustion-engine | 直列内燃机（教学） | 机械 | 7 | 社区 | combustion-engine.glb | 6.7 MB |
 | jet-engine | 涡轮喷气发动机 | 机械 | 4 | 社区 | jet-engine.glb | 4.4 MB |
@@ -134,19 +134,24 @@
 | radial-engine | 星型活塞发动机 | 机械 | 3 | 社区 | radial-engine.glb | 5.0 MB |
 | vintage-binocular | 军用双筒望远镜 | 科学仪器 | 8 | 社区 | vintage-binocular.glb | 1.3 MB |
 | manual-gearbox | 前驱变速驱动桥总成 | 机械 | 8 | 社区 | manual-gearbox.glb | 1.3 MB |
-| wankel-engine | 汪克尔转子发动机 | 机械 | 5 | 社区 | wankel-engine.glb | 5.5 MB |
+| wankel-engine | 汪克尔转子发动机 | 机械 | 5 | 社区 | wankel-engine.glb | 2.8 MB |
+| fresnel-lens | 一等菲涅尔透镜 | 光学 | 8 | 社区 | fresnel-lens.glb | 909 KB |
+| refractor-telescope | 折射式望远镜 | 光学 | 6 | 社区 | refractor-telescope.glb | 351 KB |
+| fire-hydrant | 欧式消防栓 | 市政机构 | 5 | 社区 | fire-hydrant.glb | 428 KB |
+| seadogs-compass | 航海干式罗盘 | 航海仪器 | 3 | 社区 | seadogs-compass.glb | 548 KB |
+| vintage-stapler | 经典订书机 | 文具 | 3 | 社区 | vintage-stapler.glb | 401 KB |
 
 ### KALASHNIKOV（1 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| ak-47 | AK-47 全拆解 | 枪械 | 17 | 社区 | ak-47.glb | 13.0 MB |
+| ak-47 | AK-47 全拆解 | 枪械 | 17 | 社区 | ak-47.glb | 3.8 MB |
 
 ### WALTHER（1 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| walther-p99 | Walther P99 全机构拆解 | 枪械 | 15 | 社区 | walther-p99.glb | 6.2 MB |
+| walther-p99 | Walther P99 全机构拆解 | 枪械 | 15 | 社区 | walther-p99.glb | 1.9 MB |
 
 ### COLT（1 台）
 
@@ -158,7 +163,7 @@
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| gl-06-launcher | B&T GL-06 | 枪械 | 8 | 社区 | gl-06-launcher.glb | 9.4 MB |
+| gl-06-launcher | B&T GL-06 | 枪械 | 8 | 社区 | gl-06-launcher.glb | 2.8 MB |
 
 ### NASA/ESA（1 台）
 
@@ -166,13 +171,14 @@
 |---|---|---|---|---|---|---|
 | hubble-telescope | 哈勃空间望远镜 | 航天 | 8 | 官方 | hubble-telescope.glb | 4.0 MB |
 
-### NASA/JPL（3 台）
+### NASA/JPL（4 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | perseverance-rover | 毅力号火星车 | 航天 | 12 | 官方 | perseverance-rover.glb | 2.8 MB |
 | ingenuity-helicopter | 机智号火星直升机 | 航天 | 5 | 官方 | ingenuity-helicopter.glb | 738 KB |
 | parker-solar-probe | 帕克太阳探测器 | 航天 | 6 | 官方 | parker-solar-probe.glb | 247 KB |
+| spitzer-space-telescope | 斯皮策空间望远镜 | 航天 | 5 | 官方 | spitzer-space-telescope.glb | 242 KB |
 
 ### NINTENDO（3 台）
 
@@ -326,12 +332,9 @@
 |---|---|---|---|---|---|---|
 | curta-type2 | Curta Type II 机械计算器 | 复古计算机 | 8 | 社区 | curta-type2.glb | 9.5 MB |
 
-## ⚠️ 孤儿 GLB（public/assets 有文件但 registry 未注册，共 6 个）
+### NASA/CXC（1 台）
 
-- curta-calculator.glb（5.7 MB）
-- fire-hydrant.glb（901 KB）
-- fresnel-lens.glb（909 KB）
-- refractor-telescope.glb（351 KB）
-- seadogs-compass.glb（548 KB）
-- vintage-stapler.glb（401 KB）
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| chandra-x-ray-observatory | 钱德拉X射线天文台 | 航天 | 5 | 官方 | chandra-x-ray-observatory.glb | 232 KB |
 
