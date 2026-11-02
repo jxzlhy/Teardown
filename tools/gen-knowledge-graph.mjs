@@ -15,7 +15,8 @@ import { installDomShim } from './lib-node-shim.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 installDomShim();
 
-const { devices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const { devices: allDevices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const devices = allDevices.filter(d => !d.unlisted);   /* 脚手架半成品不进星图 */
 const { technologies, techForPart } = await import(pathToFileURL(path.join(ROOT, 'src/knowledge/index.js')).href);
 const { isCommunityModel } = await import(pathToFileURL(path.join(ROOT, 'src/lib/model-class.js')).href);
 

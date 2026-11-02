@@ -27,6 +27,8 @@ export default {
   id: 'mini4pro',
   era: 2023,   /* 2023-09-25 发布 */
   brand: 'DJI',
+  source: 'DJI 官网产品页 3D/GLB 资产（CDN 直下）· 仅本机演示不再分发',
+  distribution: 'local-demo-only',
   name: 'DJI Mini 4 Pro',
   en: 'WM240',
   category: '无人机',

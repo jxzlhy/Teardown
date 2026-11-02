@@ -104,6 +104,7 @@
 - `AUTONOMOUS_BACKLOG.md`：待办池，包含优先级、价值、风险、验证方式、状态；按真实代码现状更新。
 - `AUTONOMOUS_LOG.md`：每个迭代记录日期、问题、改动文件、验证命令及结果、已知限制、下一项选择；只写可核实事实。
 - `AUTONOMOUS_METRICS.md`：基线与变化记录（构建结果、首屏包大小、GLB 体积、帧率、关键视口截图/回归结果等；可测量才记录数值）。
+- `docs/audit/`（2026-11-02 全维度审计五件套）：`MASTER_PROJECT_AUDIT.md` 指令原文、`PROJECT_AUDIT_REPORT.md` 审计结论、`PROJECT_ISSUES.md` 问题清单（P0–IDEA，带 `file:line` 证据与已撤销误报）、`PROJECT_ROADMAP.md` Phase 0–7 整改路线、`PROJECT_AUDIT_SCORE.md` 十维评分、`PROJECT_OPTIMIZATION_LOG.md` 整改台账。**审计驱动的整改以 `PROJECT_ISSUES.md` 编号为准**，完成一项即在台账追加记录并同步 `AUTONOMOUS_LOG.md`；不要重复排查"已撤销的误报"清单中的条目。
 
 首次运行先检查这些文件是否已有内容，保留有效历史，不要覆盖已有记录。
 

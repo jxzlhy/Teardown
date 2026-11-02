@@ -27,6 +27,7 @@ export default makeDevice({
   ],
   accent: '#e9edf2',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 7.2,
   glb: '/assets/airpods-5.glb',
   /* 策展导览：双耳塞→双驱动器→仓体→仓电池→仓盖 */

@@ -119,6 +119,8 @@ import seadogsCompass from './seadogs-compass.js';
 import vintageStapler from './vintage-stapler.js';
 import spitzerSpaceTelescope from './spitzer-space-telescope.js';
 import chandraXRayObservatory from './chandra-x-ray-observatory.js';
+import jwst from './jwst.js';
+import vintageMicrowave from './vintage-microwave.js';
 
 export const devices = [
   /* DJI */
@@ -143,7 +145,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano, radialEngine, vintageBinocular, manualGearbox, wankelEngine, fresnelLens, refractorTelescope, fireHydrant, seadogsCompass, vintageStapler,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano, radialEngine, vintageBinocular, manualGearbox, wankelEngine, fresnelLens, refractorTelescope, fireHydrant, seadogsCompass, vintageStapler, vintageMicrowave,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */
@@ -190,6 +192,8 @@ export const devices = [
   curtaType2,
   /* NASA/JPL */
   ingenuityHelicopter, parkerSolarProbe, spitzerSpaceTelescope, chandraXRayObservatory,
+  /* NASA */
+  jwst,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

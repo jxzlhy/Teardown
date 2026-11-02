@@ -31,6 +31,7 @@ export default makeDevice({
   ],
   accent: '#9db8d2',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 14.0,
   glb: '/assets/iphone-17.glb',
   /* 策展导览：屏→框→板→影像→电池→底部→后玻璃 */

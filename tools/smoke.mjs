@@ -54,7 +54,8 @@ try{
   browser = await puppeteer.launch({
     executablePath: CHROME, headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader',
-           '--use-angle=swiftshader', '--hide-scrollbars', '--force-color-profile=srgb'],
+           '--use-angle=swiftshader', '--hide-scrollbars', '--force-color-profile=srgb',
+           '--js-flags=--max-old-space-size=3072'],
   });
   const page = await browser.newPage();
   const errors = [];
@@ -206,12 +207,13 @@ try{
 
   /* 探索系统（Phase 7）：收藏持久化（localStorage）+ 足迹 */
   await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });   // 重型 3D 页后强刷释放 WebGL 上下文
   await page.evaluate(() => localStorage.removeItem('dtm.favorites'));
-  await page.waitForSelector('.card', { timeout: 60000 });
+  await page.waitForSelector('.card', { timeout: 90000 });
   await page.evaluate(() => document.querySelector('.card .fav-star').click());
   await sleep(400);
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.card', { timeout: 60000 });
+  await page.waitForSelector('.card', { timeout: 90000 });
   await sleep(400);
   const starOn = await page.evaluate(() => document.querySelectorAll('.fav-star.on').length);
   check('探索系统：收藏刷新后持久', starOn === 1, String(starOn));
@@ -327,6 +329,30 @@ try{
   await sleep(800);
   const m4hull = await page.evaluate(() => window.__ENGINE.getState().hullRadius);
   check('m4 取景尺度护栏（hullRadius ∈ [2, 30]）', m4hull > 2 && m4hull < 30, `hullRadius=${m4hull}`);
+
+  /* 拾取加速护栏（审计 P0-2）：装载后 BVH 必须覆盖全部可拾取网格，
+     否则高面数展品的悬停/点击会退回全三角形求交（combustion-engine 实测 p95 88ms） */
+  let bvhOk = true;
+  try{
+    await page.waitForFunction(() => {
+      const s = window.__ENGINE.getState();
+      return s.pickMeshes.length > 0 && s.pickMeshes.every(m => m.geometry && m.geometry.boundsTree);
+    }, { timeout: 20000, polling: 200 });
+  }catch{
+    bvhOk = false;
+  }
+  if(bvhOk) check('拾取 BVH 全量覆盖', true);
+  else{
+    const miss = await page.evaluate(() => {
+      const s = window.__ENGINE.getState();
+      return s.pickMeshes.filter(m => !(m.geometry && m.geometry.boundsTree)).length + '/' + s.pickMeshes.length;
+    });
+    check('拾取 BVH 全量覆盖', false, `未建 ${miss}`);
+  }
+
+  /* 资产↔配置对账护栏（审计 P2-16）：未接入任何部件的网格会被静默丢弃 */
+  const loadWarn = await page.evaluate(() => window.__LOAD_WARN || []);
+  check('无未接入网格（mapping 对账）', loadWarn.length === 0, loadWarn.slice(0, 1).join(''));
 
   /* 还原路径（用户实测 bug）：点零件聚焦后，空白点击 = 退出聚焦 → 相机回全景 */
   await page.evaluate(() => { window.__ENGINE.selectPart('battery'); window.__ENGINE.flyToPart('battery'); });

@@ -21,6 +21,7 @@ export default makeDevice({
   ],
   accent: '#c9c9c9',
   source: 'Nothing 官网产品页模型',
+  distribution: 'local-demo-only',
   targetWidth: 14.6,   /* 高 164.1mm 为最大维 */
   glb: '/assets/phone3alite.glb',
   tour: ['screen','frame','midframe','internals','camera','buttons','glyph'],

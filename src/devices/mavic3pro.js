@@ -38,6 +38,8 @@ export default {
   id: 'mavic3pro',
   era: 2023,
   brand: 'DJI',
+  source: 'DJI 官网产品页 3D/GLB 资产（CDN 直下）· 仅本机演示不再分发',
+  distribution: 'local-demo-only',
   name: 'DJI Mavic 3 Pro',
   en: 'WM260',
   category: '无人机',

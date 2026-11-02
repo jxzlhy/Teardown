@@ -30,6 +30,7 @@ export default makeDevice({
   ],
   accent: '#5b8dd9',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 13.5,
   camDist: 1.3,
   glb: '/assets/imac.glb',

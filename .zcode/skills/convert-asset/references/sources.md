@@ -29,7 +29,12 @@ nothing.tech 产品页内嵌 cdn.sanity.io 的 hash 直链 GLB。特征：无 Dr
 ## 社区模型（Sketchfab 等）
 
 - Switch OLED：SceneView 仓库 CC-BY 4.0 GLB（原作者 rtql8d，已在 `modelCredit` 署名）。
-- **Sketchfab 下载必须登录**；无免登录宽松许可的已知设备：Switch 2（后经用户手动下载 NAIT Studio CC-BY 解决）、DualSense、Quest 3、Steam Deck（只有 Valve 官方 CC BY-NC-SA STL，无贴图，弃用）。
+- **Sketchfab 下载通道（2026-11-02 实测仍有效）**：IAB 内 Sketchfab 登录态（User-419afc4fcb）+
+  页内 `fetch('/i/archives/latest?model=<uid>&archiveType=glb&textureMaxResolution=0', {credentials:'include'})`
+  → 200 返回 `{url: <S3 预签名直链>}` → node 侧 `https.get` 落盘 originals。
+  注意：参数名是 `model`/`archiveType`（不是 uid/type）；`textureMaxResolution` 必填，0=原始纹理，
+  2048/1024 仅当该分辨率压缩档存在时可用（不存在报 400，可作回退序列 0→1024）；
+  匿名 curl 直接 401，必须在登录态页面上下文内取直链；长 URL 必须程序化传递，手工复制会损坏。
 
 ## CAD 仓库
 

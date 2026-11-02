@@ -36,6 +36,7 @@ export default makeDevice({
   ],
   accent: '#dfe6ec',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 6.5,
   glb: '/assets/airtag.glb',
   /* 策展导览：抛光壳→钢背→纽扣电池→扬声器 */

@@ -37,6 +37,12 @@ export default makeDevice({
   demos: [
     { partId: 'hub', label: '螺旋桨轴旋转 · 星型发动机输出端', spinPivot: 'center', spin: 'auto' },
   ],
+  /* V4.0 MI①：3 大件展示模型——旋转输出与缸排固定关系；内部活塞/连杆/曲柄未单独建模，不虚构。 */
+  mech: { driver: 'hub', edges: [
+    { id: 'rv-hub-crankcase', type: 'revolute', from: 'crankcase', to: 'hub', kinematic: 'approx',
+      note: '螺旋桨轴/轮毂绕曲轴箱轴线旋转（星型 9 缸的曲柄-连杆-活塞机构未单独建模，旋转为输出端示意）' },
+    { id: 'fx-crankcase-cyl', type: 'fixed', from: 'crankcase', to: 'cylinders', note: '九个气缸星型排布固定于曲轴箱' },
+  ] },
   parts: [
     { id:'crankcase', zh:'曲轴箱', en:'CRANKCASE', real:true,
       ex:[0,-.2,-1.6], lo:[0,1.2,0], tag:'主连杆 · 曲轴轴承座',

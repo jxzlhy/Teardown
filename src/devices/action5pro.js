@@ -58,6 +58,8 @@ export default {
   id: 'action5pro',
   era: 2024,
   brand: 'DJI',
+  source: 'DJI 官网产品页 3D/GLB 资产（CDN 直下）· 仅本机演示不再分发',
+  distribution: 'local-demo-only',
   name: 'DJI Osmo Action 5 Pro',
   en: 'AC204',
   category: '相机',

@@ -29,6 +29,7 @@ export default makeDevice({
   ],
   accent: '#cfd8e0',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 12.0,
   glb: '/assets/iphone-air.glb',
   /* 策展导览：屏→主板（高原内）→影像→脊柱电池→相机高原→底部→钛铝后壳 */

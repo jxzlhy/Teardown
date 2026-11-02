@@ -32,6 +32,7 @@ export default makeDevice({
   ],
   accent: '#7d9bc4',
   source: 'Samsung 官网产品页 AR 模型',
+  distribution: 'local-demo-only',
   targetWidth: 13.4,   /* 展开宽 143.1mm 为最大维 */
   glb: '/assets/zfold7.glb',
   /* 策展导览：外屏→铰链（折叠机核心）→内屏→两半机身→电子件 */

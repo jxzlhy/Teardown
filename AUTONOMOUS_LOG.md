@@ -1810,3 +1810,32 @@ Phase 2-A 日厅令牌反转 + 2-B 对比度 CI（P1-3）；随后 2-D 移动端
 - ForgeView GEN_META 补 wankel 条目；深链 /forge?gen=wankel&preset=&seed=&auto=1 实测生成-跳转-booted 全通；GLB 导出 541KB（命名规约✓）复检可重导入（84 节点/73 网格）✓；3 种子构建稳定性 ✓；lint ✓ build 3.54s ✓。
 - 环境：并行会话同窗活跃（lockstitch 生成器中途语法态/HMR 重载致探针 frame detach 多次）——验证脚本一律改轮询重开页容错；在馆口径 117→118 台由 gen:inventory 自动同步。
 - 落选记录：NASA Dawn（tex_01 大网格吞并主体+双翼，部件无法诚实分离）、Stardust（tex_01/02/03 为贴图分区非功能件）——不入馆。
+
+## 2026-11-03 · Smithsonian 首台：JWST（第 118 台 · 本会话）
+
+### 接入
+- **jwst**（NASA 工程模型数字化，公有领域；文件经 Smithsonian 免 key S3 通道取得，modelSource 用官方页 science.nasa.gov/3d-resources/james-webb-space-telescope/ 过 lint NASA 直链规则）：1600 网格/521 部件族/46 材质无贴图 → **10 部件**（主镜 18 分段/副镜三脚撑/米字撑架/背板环/仪器塔与电子舱/遮阳板结构/总线/太阳翼/高增益天线/线缆束与卡扣 239 段）。draco 后 3.44MB（原 4.71MB；**无贴图资产 webp 会膨胀 4 倍**——此类资产跳过 webp 直接 draco）。
+- 映射：mapByPosition 名字规则路由（族前缀 regex，521 族不适合 mappingPrefix 表）；离线零依赖族聚类+空间 bbox 分析辅助定位部件语义（mirror 18 段 Y-Z 环 / 遮阳板 -X 展开 / mboom ±7）。
+- 品牌档案：新增 **NASA/ESA/CSA**（三方联合，双来源 verified-3rd）；device brand 由 NASA 改 NASA/ESA/CSA。
+- 首屏目检 ✓（金色 18 分段主镜清晰、遮阳板展开全景、modelStatus OFFICIAL）；爆炸态 10 标签分离可读 ✓。
+- 遮阳板 Kapton 膜层未单独建模（仅支撑/桁架/张紧结构）——部件 desc 如实标注"薄膜层未单独建模"。
+
+### 验证
+- lint:devices 0 错（NASA 直链规则 + 五处数字一致 118 台）✓；gen:inventory 118·900 部件·41 品牌 ✓；gen:graph 1306 连边 ✓；gen:timeline ✓；thumbs jwst ✓；build 3.61s ✓。
+- smoke：负载 16（与并行会话重活叠加）出现 "detached Frame" 已知抖动类——JWST 切片 smoke 待负载回落补跑（本会话 4 台设备已被 115 台态 smoke 覆盖）。
+
+### 下一轮
+Smithsonian 剩余候选（Wright Flyer 双版本 / Apollo 11 舱门+指令舱递进）；radial 分离活塞置换切片；Curta 双版本裁决。
+
+### V4.1 · smoke 抖动根因定案（负载曲线证据）
+
+- 连续 5 次 smoke 三种失败签名（Target closed / getState undefined / frame detached / 60s 超时）+ 系统负载曲线 24.2→16→14→10.5→6.4 与通过/失败严格相关——定案为**环境负载**（本轮反复启停的无头 Chrome 堆积 + 3 个常驻 vite dev server + 上一条超时 smoke 进程未被清理继续孵化实例），非代码回归。
+- 处置：精确清理孤儿 smoke 进程（kill 79228）与实例；负载降至 6.4 后单跑全过。教训入记忆库：smoke 失败先查 load 曲线再查代码；超时命令的子进程要显式清理；pkill "Google Chrome" 会误杀用户浏览器（改用 swiftshader 精确匹配）。
+- 本轮修复同步验证：fps-probe 画质档显示修复（getState 暴露 quality，L2 可见）/ forge 设备 nav 按钮隐藏（0 个）、真实设备保留（2 个）/ build ✓。
+
+## 2026-11-03（续 2）· 混合路径首件：复古微波炉（真实外壳 + 示意内构件）收官（达 119 台）
+
+- 落选件救活：Poly Haven vintage_microwave（仅 2 primitive 直拆无解）走 Game Boy 混合先例——真实外壳（壳体+门玻璃，materialMapping 按材质名分流：双 primitive 同名无 _N 后缀，mesh 名映射失效）+ 4 组程序化示意内构件（磁控管+波导 / 高压变压器 E-I 铁芯 / 高压电容+二极管 / 转盘电机+玻璃托盘），页面口径如实标注。
+- 摆位三坑沉淀：①GLB 归一化后坐标系以 bbox 为准但 **bbox 会被电源线等游离件撑大**（壳体实际窄于 bbox，磁控管鳍片曾穿壁）；②`spin:'auto'` 绕部件组原点转——旋转件必须把 `pos` 设在旋转轴心（托盘心），mesh 用局部坐标；③X-Ray 切换走 `__ENGINE.setMode('xray')`（state 上无此 API）。
+- 转盘演示用真实速率 ~5rpm（spin auto 推导薄轴=y）不降频；断电致命电容等安全口径写入部件 desc。
+- 验证：映射 shell:1/door-glass:1 + 内构件 9/5/2/3 mesh ✓ 0 控制台错误 ✓ 复位 0 误差 ✓ X-Ray/爆炸截图目检 ✓ thumbs 夜+日 ✓ build ✓ preview EXIT 0 ✓。

@@ -121,10 +121,34 @@
             </div>
           </div>
         </div>
+        <!-- V4.0 MI⑥ 工作台：相连关系（§6.3 零件定位与追踪——同一稳定 ID 引用） -->
+        <div class="part-mech" v-if="partMechEdges.length">
+          <div class="hud-eyebrow">相连关系 · LINKS</div>
+          <button v-for="e in partMechEdges" :key="e.id" class="pm-link" :title="e.note"
+            @click="focusMechEdge(e)">
+            <i class="pm-t">{{ MECH_TYPE_LABEL[e.type] }}</i>
+            <b>{{ partName(e.from === selectedPart.id ? e.to : e.from) }}</b>
+            <span class="pm-k" :data-k="e.kinematic || 'static'">{{ e.kinematic === 'exact' ? '▸' : e.kinematic === 'approx' ? '⇢' : '─' }}</span>
+          </button>
+        </div>
         <div class="spec-list">
           <div v-for="([k, v], i) in selectedPart.specs" :key="i" class="spec">
             <span class="k">{{ k }}</span><span class="v">{{ v }}</span>
           </div>
+        </div>
+        <!-- V4.0 MI②：运动状态（仅机构 driver 且演示可精确计算时显示——任务书"可准确计算才显示"红线） -->
+        <div class="motion-box" v-if="motionActive">
+          <div class="hud-eyebrow">运动状态 · KINEMATICS</div>
+          <div class="motion-angle"><span class="k">曲轴转角</span><span class="v mono">{{ crankDeg }}°</span></div>
+          <div class="motion-phases">
+            <span v-for="e in driverPhaseEdges" :key="e.id" class="phase-chip"
+              :class="{ near: isPhaseNear(e.phase) }">缸{{ e.id.replace('sc-cyl','') }} · {{ e.phase }}°</span>
+          </div>
+          <div class="motion-speed" role="group" aria-label="演示速度">
+            <button v-for="s in [0.5, 1, 2]" :key="s" :class="{ on: demoSpeed === s }"
+              @click="applyDemoSpeed(s)">{{ s }}×</button>
+          </div>
+          <p class="mech-note">活塞相位 = sin(θ + φ缸)（解析精确）；转角由演示统一时钟驱动。</p>
         </div>
         <div class="ctx-actions">
           <button class="hud-glow-btn primary" @click="engine && engine.flyToPart(selectedPart.id)">聚焦 <kbd>F</kbd></button>
@@ -221,8 +245,8 @@
       </div>
       <div class="tb-sep tb-sep-nav"></div>
       <div class="dock-group dock-nav">
-        <button class="hud-icon nav" @click="goDevice(prevDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span class="tip">{{ prevDevice.name }}</span></button>
-        <button class="hud-icon nav" @click="goDevice(nextDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg><span class="tip">{{ nextDevice.name }}</span></button>
+        <button v-if="prevDevice" class="hud-icon nav" @click="goDevice(prevDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span class="tip">{{ prevDevice.name }}</span></button>
+        <button v-if="nextDevice" class="hud-icon nav" @click="goDevice(nextDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg><span class="tip">{{ nextDevice.name }}</span></button>
       </div>
     </div>
 
@@ -286,6 +310,36 @@
           <span><i class="hud-dot" :class="statusTone"></i>{{ ui.modelStatus }}</span>
           <span>RENDER · {{ qualityLabel }}</span>
           <span>LAYOUT · {{ ui.layout === 'radial' ? 'RADIAL' : 'AXIS' }}</span>
+        </div>
+        <!-- V4.0 MECHANICAL INTELLIGENCE：机构关系（Mechanism Graph）——仅当 device.mech 存在且校验通过 -->
+        <div class="mech-box" v-if="mechValid">
+          <div class="hud-eyebrow">机构关系 · MECHANISM</div>
+          <div v-for="grp in mechGroups" :key="grp.type" class="mech-group">
+            <div class="mech-glabel"><i>{{ MECH_TYPE_LABEL[grp.type] }}</i><small>{{ grp.edges.length }}</small></div>
+            <button v-for="e in grp.edges" :key="e.id" class="mech-edge"
+              @click="focusMechEdge(e)" :title="e.note">
+              <b>{{ partName(e.from) }}</b>
+              <span class="mech-arrow" :data-k="e.kinematic || 'static'">──{{ e.kinematic === 'exact' ? '▸' : e.kinematic === 'approx' ? '⇢' : '─' }}──</span>
+              <b>{{ partName(e.to) }}</b>
+            </button>
+          </div>
+          <p class="mech-note">关系类型：▸ 精确运动学 · ⇢ 运动学近似 · ─ 装配约束。点击关系可选中对应零件。</p>
+        </div>
+        <!-- V4.0 MI⑤ 模型质量诊断：五类检查四级分级（§8）；只诊断不自动修复 -->
+        <div class="qa-box" v-if="qaReport">
+          <div class="hud-eyebrow">模型诊断 · QA</div>
+          <div class="qa-counts">
+            <span :class="{ bad: qaReport.counts.ERROR }">E {{ qaReport.counts.ERROR }}</span>
+            <span :class="{ warn: qaReport.counts.WARNING }">W {{ qaReport.counts.WARNING }}</span>
+            <span>I {{ qaReport.counts.INFO }}</span>
+            <small>{{ qaFaces }}</small>
+          </div>
+          <div v-for="(f, i) in qaReport.findings.slice(0, 6)" :key="i" class="qa-item">
+            <i class="qa-lv" :data-lv="f.level">{{ f.level[0] }}</i>
+            <span><b>{{ f.cat }}</b> · {{ f.obj }} — {{ f.text }}</span>
+          </div>
+          <p v-if="!qaReport.findings.length" class="mech-note">五类检查全部通过（结构/坐标/几何/运动/展示）。</p>
+          <p v-if="qaReport.findings.length > 6" class="mech-note">另有 {{ qaReport.findings.length - 6 }} 条未展开。</p>
         </div>
         <!-- 我的评分（V2 第七章）：总体常显 + 展开式六维细分 + 个人备注，纯本地 -->
         <div class="rate-box">
@@ -355,7 +409,7 @@
     </div>
 
     <!-- 开场提示 toast（也被临时消息复用） -->
-    <div v-if="!thumbMode" id="toast" :class="{ show: toastShow }" :style="{ bottom: floatY(floatSlots.toast) }">{{ toastMsg }}</div>
+    <div v-if="!thumbMode" id="toast" role="status" aria-live="polite" :class="{ show: toastShow }" :style="{ bottom: floatY(floatSlots.toast) }">{{ toastMsg }}</div>
 
     <!-- 沉浸模式下的浮动恢复按钮 -->
     <button v-if="!thumbMode" id="immersiveExit" class="hud-glow-btn" @click="toggleImmersive">退出沉浸 · H</button>
@@ -422,6 +476,8 @@ import { markExplored, isFavorite, toggleFavorite as toggleFavStore, getFavMetaO
 /* 元数据来自构建期清单，完整配置按 id 动态加载：进任意设备只解析这一台 */
 import manifest from 'virtual:device-manifest';
 import { loaders } from 'virtual:device-loaders';
+import { isForgeId, getForgeDevice } from '../forge/registry.js';
+import { validateMech } from '../forge/mech.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -553,8 +609,12 @@ function onMobileMq(e){ isMobile.value = e.matches; }
 const metaById = Object.fromEntries(manifest.map(d => [d.id, d]));
 const FALLBACK_ID = metaById.action4 ? 'action4' : manifest[0].id;
 const config = ref(null);
-const requestedId = computed(() => metaById[route.params.id] ? route.params.id : FALLBACK_ID);
-const meta = computed(() => metaById[requestedId.value] || manifest[0]);
+/* V3.0 MECHANICAL FORGE：forge- 前缀 = 程序化生成物，不进 manifest，按注册表分流（registry 确定性重建） */
+const forgeRequested = computed(() => isForgeId(route.params.id) && !!getForgeDevice(route.params.id));
+const requestedId = computed(() => (forgeRequested.value ? route.params.id : (metaById[route.params.id] ? route.params.id : FALLBACK_ID)));
+const meta = computed(() => forgeRequested.value
+  ? { id: requestedId.value, ...((config.value && config.value.id === requestedId.value) ? config.value : {}), forge: true }
+  : (metaById[requestedId.value] || manifest[0]));
 
 /* 缩略图模式（?thumb=1，离线渲染脚本用）：隐藏全部 UI、关闭自适应降档保证出图一致 */
 const thumbMode = route.query.thumb === '1';
@@ -565,12 +625,18 @@ const device = computed(() => {
   return { ...meta.value, parts: [], specs: [], description: '', source: null };
 });
 const deviceIndex = computed(() => manifest.findIndex(d => d.id === device.value.id));
-const prevDevice = computed(() => manifest[(deviceIndex.value - 1 + manifest.length) % manifest.length]);
-const nextDevice = computed(() => manifest[(deviceIndex.value + 1) % manifest.length]);
+/* V4.1：forge 生成物不在 manifest——上一台/下一台隐藏（原回绕到任意展品的行为是怪癖） */
+const prevDevice = computed(() => forgeRequested.value ? null : manifest[(deviceIndex.value - 1 + manifest.length) % manifest.length]);
+const nextDevice = computed(() => forgeRequested.value ? null : manifest[(deviceIndex.value + 1) % manifest.length]);
 function goDevice(d){ if(d && d.id !== device.value.id) router.push({ path: '/device/' + d.id, query: {} }); }
 
 let loadSeq = 0;
 async function loadConfig(id){
+  if(isForgeId(id)){
+    const dev = getForgeDevice(id);
+    if(!dev) throw new Error(`未找到生成物：${id}（可在 /forge 重新生成）`);
+    return dev;
+  }
   const load = loaders[id];
   if(!load) throw new Error(`未找到设备配置：${id}`);
   const mod = await load();
@@ -578,6 +644,88 @@ async function loadConfig(id){
 }
 
 const selectedPart = computed(() => device.value.parts.find(p => p.id === ui.value.selected) || null);
+/* ===== V4.0 MECHANICAL INTELLIGENCE：机构关系面板（任务书 §4/§9） =====
+   仅消费已校验的 device.mech；校验失败不渲染并一次性告警——绝不虚构关系。 */
+const MECH_TYPE_LABEL = { fixed: '固定连接', revolute: '转动副', prismatic: '移动副', slider_crank: '曲柄滑块', gear_mesh: '齿轮啮合', belt_drive: '带传动', shaft_coupling: '轴系耦合', bearing_support: '轴承支撑', linkage: '连杆机构', visual_only: '视觉组织' };
+const mechValid = ref(false);
+const mechGroups = ref([]);
+watch(() => device.value && device.value.mech, (mech) => {
+  mechValid.value = false; mechGroups.value = [];
+  if (!mech || !Array.isArray(mech.edges)) return;
+  const { ok, errors } = validateMech(device.value);
+  if (!ok) { console.warn('[mech] 关系数据校验失败，面板隐藏：', errors.join('；')); return; }
+  const byType = new Map();
+  for (const e of mech.edges) {
+    if (!byType.has(e.type)) byType.set(e.type, []);
+    byType.get(e.type).push(e);
+  }
+  mechGroups.value = [...byType.entries()].map(([type, edges]) => ({ type, edges }));
+  mechValid.value = true;
+}, { immediate: true });
+function partName(id) {
+  const p = device.value.parts.find(x => x.id === id);
+  return p ? (p.zh || p.name || id) : id;
+}
+function focusMechEdge(e) {
+  if(!engine) return;
+  /* 从选中件的相连关系点击时聚焦对端；总览面板点击则选 from 端 */
+  const target = (selectedPart.value && e.to === selectedPart.value.id) ? e.from
+    : (e.from === selectedPart.value?.id ? e.to : e.from);
+  engine.selectPart(target);
+  engine.flyToPart(target);
+}
+/* ===== V4.0 MI②：运动状态（driver 选中时显示曲轴转角/缸相位/速度控制） =====
+   转角来自引擎统一演示时钟驱动的实际 rotation.z——可精确计算才显示（任务书红线）。 */
+const demoSpeed = ref(1);
+const crankDeg = ref(0);
+const driverId = computed(() => (mechValid.value && device.value.mech.driver) || null);
+const motionActive = computed(() => !!(driverId.value && selectedPart.value && selectedPart.value.id === driverId.value));
+const driverPhaseEdges = computed(() => mechValid.value
+  ? device.value.mech.edges.filter(e => e.type === 'slider_crank' && typeof e.phase === 'number') : []);
+/* MI⑥：选中零件的相连关系（§6.3——引用同一稳定 ID，点击聚焦相连件） */
+const partMechEdges = computed(() => (mechValid.value && selectedPart.value)
+  ? device.value.mech.edges.filter(e => e.from === selectedPart.value.id || e.to === selectedPart.value.id)
+  : []);
+function isPhaseNear(phaseDeg) {
+  const rad = phaseDeg * Math.PI / 180;
+  return Math.sin(crankDeg.value * Math.PI / 180 + rad) > 0.985;
+}
+function applyDemoSpeed(s) {
+  if (!engine) return;
+  demoSpeed.value = engine.setDemoSpeed(s);
+}
+let motionTimer = null;
+function pollCrank() {
+  if (!engine || !driverId.value) return;
+  const r = engine.getPartRotation(driverId.value);
+  if (r) crankDeg.value = Math.round(((r.z % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) * 180 / Math.PI);
+  const sp = engine.getState && engine.getState().demoSpeed;
+  if (sp && sp !== demoSpeed.value) demoSpeed.value = sp;   /* 外部 API 变速时同步按钮态 */
+}
+watch([motionActive, () => device.value && device.value.id], ([on]) => {
+  clearInterval(motionTimer); motionTimer = null;
+  if (on && engine) {
+    demoSpeed.value = (engine.getState && engine.getState().demoSpeed) || 1;
+    pollCrank();
+    motionTimer = setInterval(pollCrank, 120);
+  }
+}, { immediate: true });
+onBeforeUnmount(() => clearInterval(motionTimer));
+
+/* ===== V4.0 MI⑤：模型诊断（总览弹层打开时惰性运行一次/台） ===== */
+const qaReport = ref(null);
+const qaFaces = ref('');
+watch([infoOpen, () => device.value && device.value.id], ([open]) => {
+  if (!open) return;
+  qaReport.value = null;
+  nextTick(() => {
+    if (!engine || !engine.runQA) return;
+    try {
+      qaReport.value = engine.runQA();
+      qaFaces.value = qaReport.value.faces ? 'FACES ~' + qaReport.value.faces : '';
+    } catch { qaReport.value = null; }
+  });
+}, { immediate: true });
 /* 部件详情卡「原理」区：命中知识库词条展开，未命中不渲染（不占位） */
 const partTech = computed(() => techForPart(selectedPart.value && selectedPart.value.id));
 const techOpen = ref(true);
@@ -1016,6 +1164,12 @@ onMounted(async () => {
 
   const q = applyQueryState();
   const mountedId = requestedId.value;
+  /* 未收录 id（含筹备中 unlisted 展品）会回落到默认台——必须说明，不能静默换台。
+     延后到开场演出的提示之后，否则会被 bootTimeline 的 showToast 覆盖。 */
+  if(!thumbMode && !forgeRequested.value && !metaById[route.params.id] && route.params.id){
+    const notice = `「${route.params.id}」未在本次展出，已带回 ${metaById[mountedId]?.name || mountedId}`;
+    setTimeout(() => { if(engine) showToast(notice, 4200); }, 6400);
+  }
   const seq = ++loadSeq;
   loadFailed.value = false;
   try{
@@ -1084,5 +1238,8 @@ onBeforeUnmount(() => {
   clearTimeout(urlTimer); clearTimeout(toastTimer); clearTimeout(lpTimer);
   engine && engine.dispose();
   engine = null;
+  /* 调试钩子随页面存活：不删会让整棵已 dispose 的场景被 window 强引用（审计 P1-5）。
+     工具脚本一律"进设备页后重新取钩子"，删除不影响它们。 */
+  if(window.__ENGINE && window.__ENGINE.getState) delete window.__ENGINE;
 });
 </script>

@@ -30,7 +30,7 @@ const { devices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/regi
 let ids = devices.map(d => d.id);
 if(only) ids = ids.filter(i => only.includes(i));
 fs.mkdirSync(THUMB_DIR, { recursive: true });
-if(!argAll && !only) ids = ids.filter(i => !fs.existsSync(path.join(THUMB_DIR, i + '.webp')));
+if(!argAll && !only) ids = ids.filter(i => !fs.existsSync(path.join(THUMB_DIR, i + '.webp')) || !fs.existsSync(path.join(THUMB_DIR, i + '-day.webp')));
 if(!ids.length){ console.log('没有需要渲染的缩略图（全部已存在，--all 强制重渲）'); process.exit(0); }
 console.log(`待渲染 ${ids.length} 台：` + ids.join(', '));
 
@@ -80,13 +80,29 @@ for(const id of ids){
         && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
     }, { timeout: 90000, polling: 200 }, id);
     const status = await page.evaluate(() => window.__ENGINE.getState().modelStatus);
+    /* V4.0 Slice 1：双厅缩略图——同页先出日厅变体（setHallMode 渐变后取景），再回夜厅出标准图。
+       日变体缺失时大厅自动回退夜图（GalleryHub thumbSrc）。 */
+    let dayKB = null;
+    const needDay = argAll || !fs.existsSync(path.join(THUMB_DIR, id + '-day.webp'));
+    if(needDay){
+      await page.evaluate(() => window.__ENGINE.setHallMode('day'));
+      await new Promise(r => setTimeout(r, 1500));   // 双厅渐变（0.6s）+ 阴影稳定
+      await page.evaluate(() => window.__ENGINE.thumbView());
+      await new Promise(r => setTimeout(r, 400));
+      const dayUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
+      const dayBuf = Buffer.from(dayUrl.split(',')[1], 'base64');
+      fs.writeFileSync(path.join(THUMB_DIR, id + '-day.webp'), dayBuf);
+      dayKB = (dayBuf.length / 1024).toFixed(0);
+    }
+    await page.evaluate(() => window.__ENGINE.setHallMode('night'));
+    await new Promise(r => setTimeout(r, 900));
     await page.evaluate(() => window.__ENGINE.thumbView());
     await new Promise(r => setTimeout(r, 400));   // 等 controls.update / 缓动收敛
     const dataUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
     const buf = Buffer.from(dataUrl.split(',')[1], 'base64');
     fs.writeFileSync(path.join(THUMB_DIR, id + '.webp'), buf);
     ok++;
-    console.log(`✓ ${id} · ${(buf.length/1024).toFixed(0)}KB · ${status} · ${((Date.now()-t0)/1000).toFixed(1)}s`);
+    console.log(`✓ ${id} · ${(buf.length/1024).toFixed(0)}KB${dayKB ? ' · day ' + dayKB + 'KB' : ''} · ${status} · ${((Date.now()-t0)/1000).toFixed(1)}s`);
   }catch(err){
     fail++;
     console.log(`✗ ${id} · ${String(err && err.message || err).slice(0, 160)}`);

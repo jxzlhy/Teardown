@@ -28,6 +28,7 @@ export default makeDevice({
   ],
   accent: '#7d848d',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 11.5,
   thumbDir: [0.8, 0.05, 1.35],   /* 正面平视：双耳罩侧面轮廓 + 头带 */
   camDist: 1.05,

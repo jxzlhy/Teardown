@@ -14,7 +14,8 @@ import { isCommunityModel } from '../src/lib/model-class.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 installDomShim();
 
-const { devices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const { devices: allDevices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const devices = allDevices.filter(d => !d.unlisted);   /* 脚手架半成品不入清单 */
 
 /* ---- 扫描 public/assets 实际文件 ---- */
 const glbDir = path.join(ROOT, 'public/assets');
@@ -44,7 +45,10 @@ for(const d of devices){
     source: d.glb ? (isCommunityModel(d) ? '社区' : '官方') : '程序化',
   });
 }
-const orphans = glbFiles.filter(f => !referenced.has(f));
+const pendingIds = new Set(allDevices.filter(d => d.unlisted).map(d => d.id));
+const pendingGlb = new Set(allDevices.filter(d => d.unlisted && d.glb).map(d => path.basename(d.glb)));
+const orphans = glbFiles.filter(f => !referenced.has(f) && !pendingGlb.has(f) && !pendingIds.has(path.basename(f, '.glb')));
+const pending = glbFiles.filter(f => pendingGlb.has(f) || pendingIds.has(path.basename(f, '.glb')));
 
 /* ---- 生成 Markdown ---- */
 const now = new Date();
@@ -91,6 +95,12 @@ if(orphans.length){
   for(const f of orphans) md += `- ${f}（${fmtSize(fileSize(path.join(glbDir, f)))}）\n`;
   md += '\n';
 }
+if(pending.length){
+  md += `## 筹备中展品资产（已入库但未入馆，共 ${pending.length} 个）\n\n`;
+  md += `> 配置标了 \`unlisted: true\`（脚手架半成品/待补真实几何），不进大厅与星图，深链仍可预览。\n\n`;
+  for(const f of pending) md += `- ${f}（${fmtSize(fileSize(path.join(glbDir, f)))}）\n`;
+  md += '\n';
+}
 const missing = [];
 for(const g of rows) for(const it of g.items) if(it.missing) missing.push(it);
 if(missing.length){
@@ -102,4 +112,5 @@ if(missing.length){
 fs.writeFileSync(path.join(ROOT, 'MODEL_INVENTORY.md'), md);
 console.log(`✓ MODEL_INVENTORY.md 已生成：${devices.length} 台 · ${totalParts} 部件 · ${officialCount} GLB · ${rows.length} 品牌`);
 if(orphans.length) console.log(`⚠ 孤儿 GLB ${orphans.length} 个：` + orphans.join(', '));
+if(pending.length) console.log(`· 筹备中未入馆 GLB ${pending.length} 个：` + pending.join(', '));
 if(missing.length) console.log(`⚠ 缺失 GLB ${missing.length} 个：` + missing.map(m => m.id).join(', '));

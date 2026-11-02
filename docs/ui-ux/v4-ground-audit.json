@@ -1,0 +1,837 @@
+{
+ "ts": "2026-11-01T22:42:48.006Z",
+ "rows": [
+  {
+   "id": "action5pro",
+   "min": -2.12,
+   "gap": 1.78,
+   "h": 4.7,
+   "robust": -2.041,
+   "rgap": 1.859
+  },
+  {
+   "id": "action4",
+   "min": -2.235,
+   "gap": 1.665,
+   "h": 4.54,
+   "robust": -1.886,
+   "rgap": 2.014
+  },
+  {
+   "id": "pocket3",
+   "min": -3.043,
+   "gap": 0.857,
+   "h": 5.8,
+   "robust": -2.901,
+   "rgap": 0.999
+  },
+  {
+   "id": "mini4pro",
+   "min": -1.854,
+   "gap": 2.046,
+   "h": 3.76,
+   "robust": -0.716,
+   "rgap": 3.184
+  },
+  {
+   "id": "avata2",
+   "min": -1.087,
+   "gap": 2.813,
+   "h": 3.22,
+   "robust": -0.867,
+   "rgap": 3.033
+  },
+  {
+   "id": "mavic3pro",
+   "min": -4.118,
+   "gap": -0.218,
+   "h": 6.68,
+   "robust": -2.751,
+   "rgap": 1.149
+  },
+  {
+   "id": "s25-ultra",
+   "min": -7.788,
+   "gap": -3.888,
+   "h": 14.93,
+   "robust": -7.21,
+   "rgap": -3.31
+  },
+  {
+   "id": "s25-plus",
+   "min": -7.415,
+   "gap": -3.515,
+   "h": 14.6,
+   "robust": -6.832,
+   "rgap": -2.932
+  },
+  {
+   "id": "s25",
+   "min": -6.663,
+   "gap": -2.763,
+   "h": 13.38,
+   "robust": -6.285,
+   "rgap": -2.385
+  },
+  {
+   "id": "zfold7",
+   "min": -6.791,
+   "gap": -2.891,
+   "h": 13.4,
+   "robust": -6.62,
+   "rgap": -2.72
+  },
+  {
+   "id": "zflip7",
+   "min": -7.935,
+   "gap": -4.035,
+   "h": 14.75,
+   "robust": -6.816,
+   "rgap": -2.916
+  },
+  {
+   "id": "galaxy-s22-ultra",
+   "min": -13.147,
+   "gap": -9.247,
+   "h": 20.26,
+   "robust": -6.788,
+   "rgap": -2.888
+  },
+  {
+   "id": "phone3",
+   "min": -7.114,
+   "gap": -3.214,
+   "h": 14.4,
+   "robust": -7.024,
+   "rgap": -3.124
+  },
+  {
+   "id": "phone4apro",
+   "min": -7.437,
+   "gap": -3.537,
+   "h": 14.6,
+   "robust": -7.429,
+   "rgap": -3.529
+  },
+  {
+   "id": "phone3alite",
+   "min": -7.39,
+   "gap": -3.49,
+   "h": 14.6,
+   "robust": -7.324,
+   "rgap": -3.424
+  },
+  {
+   "id": "vision-pro",
+   "min": -3.854,
+   "gap": 0.046,
+   "h": 7.95,
+   "robust": -2.729,
+   "rgap": 1.171
+  },
+  {
+   "id": "mac-studio",
+   "min": -2.934,
+   "gap": 0.966,
+   "h": 6.04,
+   "robust": -1.798,
+   "rgap": 2.102
+  },
+  {
+   "id": "mac-mini",
+   "min": -2.599,
+   "gap": 1.301,
+   "h": 4.96,
+   "robust": -0.983,
+   "rgap": 2.917
+  },
+  {
+   "id": "macbook-pro",
+   "min": -6.582,
+   "gap": -2.682,
+   "h": 13,
+   "robust": -0.969,
+   "rgap": 2.931
+  },
+  {
+   "id": "imac",
+   "min": -5.549,
+   "gap": -1.649,
+   "h": 11.34,
+   "robust": -2.938,
+   "rgap": 0.962
+  },
+  {
+   "id": "ipad-pro",
+   "min": -5.648,
+   "gap": -1.748,
+   "h": 11.45,
+   "robust": -2.374,
+   "rgap": 1.526
+  },
+  {
+   "id": "airpods-max",
+   "min": -5.874,
+   "gap": -1.974,
+   "h": 11.5,
+   "robust": -5.56,
+   "rgap": -1.66
+  },
+  {
+   "id": "airpods-pro",
+   "min": -3.307,
+   "gap": 0.593,
+   "h": 6.46,
+   "robust": -3.007,
+   "rgap": 0.893
+  },
+  {
+   "id": "watch-ultra",
+   "min": -4.229,
+   "gap": -0.329,
+   "h": 8.71,
+   "robust": -1.082,
+   "rgap": 2.818
+  },
+  {
+   "id": "iphone-air",
+   "min": -3.325,
+   "gap": 0.575,
+   "h": 6.3,
+   "robust": -2.7,
+   "rgap": 1.2
+  },
+  {
+   "id": "iphone-17",
+   "min": -7.29,
+   "gap": -3.39,
+   "h": 14.17,
+   "robust": -6.752,
+   "rgap": -2.852
+  },
+  {
+   "id": "macbook-air",
+   "min": -6.575,
+   "gap": -2.675,
+   "h": 13,
+   "robust": -1.489,
+   "rgap": 2.411
+  },
+  {
+   "id": "ipad-air",
+   "min": -4.786,
+   "gap": -0.886,
+   "h": 9.04,
+   "robust": -3.978,
+   "rgap": -0.078
+  },
+  {
+   "id": "airpods-5",
+   "min": -2.657,
+   "gap": 1.243,
+   "h": 5.46,
+   "robust": -2.354,
+   "rgap": 1.546
+  },
+  {
+   "id": "studio-display",
+   "min": -5.125,
+   "gap": -1.225,
+   "h": 10.29,
+   "robust": -2.692,
+   "rgap": 1.208
+  },
+  {
+   "id": "airtag",
+   "min": -3.325,
+   "gap": 0.575,
+   "h": 6.5,
+   "robust": -3.285,
+   "rgap": 0.615
+  },
+  {
+   "id": "iphone-18-pro-max",
+   "min": -7.67,
+   "gap": -3.77,
+   "h": 15.03,
+   "robust": -7.035,
+   "rgap": -3.135
+  },
+  {
+   "id": "iphone-18-pro-max-burgundy",
+   "min": -7.682,
+   "gap": -3.782,
+   "h": 14.97,
+   "robust": -7.109,
+   "rgap": -3.209
+  },
+  {
+   "id": "iphone-duo-fold",
+   "min": -4.59,
+   "gap": -0.69,
+   "h": 9.48,
+   "robust": -4.574,
+   "rgap": -0.674
+  },
+  {
+   "id": "iphone-12-teardown",
+   "min": -6.755,
+   "gap": -2.855,
+   "h": 13.5,
+   "robust": -6.436,
+   "rgap": -2.536
+  },
+  {
+   "id": "iphone-13",
+   "min": -6.606,
+   "gap": -2.706,
+   "h": 13.5,
+   "robust": -5.277,
+   "rgap": -1.377
+  },
+  {
+   "id": "iphone-16",
+   "min": -7.298,
+   "gap": -3.398,
+   "h": 14.02,
+   "robust": -6.714,
+   "rgap": -2.814
+  },
+  {
+   "id": "nikon-d6",
+   "min": -3.163,
+   "gap": 0.737,
+   "h": 6.11,
+   "robust": -2.495,
+   "rgap": 1.405
+  },
+  {
+   "id": "nikon-z6",
+   "min": -2.371,
+   "gap": 1.529,
+   "h": 4.87,
+   "robust": -1.81,
+   "rgap": 2.09
+  },
+  {
+   "id": "porsche-911-carrera-4s",
+   "min": -1.574,
+   "gap": 2.326,
+   "h": 3.42,
+   "robust": -1.38,
+   "rgap": 2.52
+  },
+  {
+   "id": "countach-lpi800-4",
+   "min": -1.673,
+   "gap": 2.227,
+   "h": 3.24,
+   "robust": -1.502,
+   "rgap": 2.398
+  },
+  {
+   "id": "porsche-911-930",
+   "min": -2.755,
+   "gap": 1.145,
+   "h": 5.23,
+   "robust": -2.243,
+   "rgap": 1.657
+  },
+  {
+   "id": "v6-engine",
+   "min": -1.246,
+   "gap": 2.654,
+   "h": 2.67,
+   "robust": -0.593,
+   "rgap": 3.307
+  },
+  {
+   "id": "v8-engine",
+   "min": -4.897,
+   "gap": -0.997,
+   "h": 10,
+   "robust": -1.65,
+   "rgap": 2.25
+  },
+  {
+   "id": "combustion-engine",
+   "min": -5.109,
+   "gap": -1.209,
+   "h": 10,
+   "robust": -3.521,
+   "rgap": 0.379
+  },
+  {
+   "id": "jet-engine",
+   "min": -3.222,
+   "gap": 0.678,
+   "h": 6.43,
+   "robust": -3.222,
+   "rgap": 0.678
+  },
+  {
+   "id": "hydraulic-jack",
+   "min": -3.404,
+   "gap": 0.496,
+   "h": 7,
+   "robust": -2.982,
+   "rgap": 0.918
+  },
+  {
+   "id": "ak-47",
+   "min": -1.417,
+   "gap": 2.483,
+   "h": 3.05,
+   "robust": 0.245,
+   "rgap": 4.145
+  },
+  {
+   "id": "walther-p99",
+   "min": -2.578,
+   "gap": 1.322,
+   "h": 4.95,
+   "robust": 0.097,
+   "rgap": 3.997
+  },
+  {
+   "id": "m4-carbine",
+   "min": 7.26,
+   "gap": 11.16,
+   "h": 8.46,
+   "robust": 7.819,
+   "rgap": 11.719
+  },
+  {
+   "id": "gl-06-launcher",
+   "min": -2.251,
+   "gap": 1.649,
+   "h": 4.71,
+   "robust": -1.706,
+   "rgap": 2.194
+  },
+  {
+   "id": "hubble-telescope",
+   "min": -6.074,
+   "gap": -2.174,
+   "h": 12.39,
+   "robust": 1.071,
+   "rgap": 4.971
+  },
+  {
+   "id": "perseverance-rover",
+   "min": -3.795,
+   "gap": 0.105,
+   "h": 7.42,
+   "robust": -1.062,
+   "rgap": 2.838
+  },
+  {
+   "id": "inside-drone",
+   "min": -1.92,
+   "gap": 1.98,
+   "h": 3.6,
+   "robust": -0.998,
+   "rgap": 2.902
+  },
+  {
+   "id": "switch-oled",
+   "min": -3.378,
+   "gap": 0.522,
+   "h": 6.93,
+   "robust": -2.575,
+   "rgap": 1.325
+  },
+  {
+   "id": "switch-2",
+   "min": -0.41,
+   "gap": 3.49,
+   "h": 1.29,
+   "robust": -0.049,
+   "rgap": 3.851
+  },
+  {
+   "id": "flipper-zero",
+   "min": -5.589,
+   "gap": -1.689,
+   "h": 11,
+   "robust": -3.879,
+   "rgap": 0.021
+  },
+  {
+   "id": "framework-laptop13",
+   "min": -0.501,
+   "gap": 3.399,
+   "h": 2.83,
+   "robust": -0.004,
+   "rgap": 3.896
+  },
+  {
+   "id": "modular-smartphone",
+   "min": -6.408,
+   "gap": -2.508,
+   "h": 13,
+   "robust": -6.142,
+   "rgap": -2.242
+  },
+  {
+   "id": "swiss-escapement",
+   "min": -1.349,
+   "gap": 2.551,
+   "h": 2.93,
+   "robust": -1.335,
+   "rgap": 2.565
+  },
+  {
+   "id": "orrery",
+   "min": -2.515,
+   "gap": 1.385,
+   "h": 4.85,
+   "robust": 0.553,
+   "rgap": 4.453
+  },
+  {
+   "id": "radio-transceiver",
+   "min": -3.984,
+   "gap": -0.084,
+   "h": 7.73,
+   "robust": -3.958,
+   "rgap": -0.058
+  },
+  {
+   "id": "drill-press",
+   "min": -5.417,
+   "gap": -1.517,
+   "h": 11,
+   "robust": -4.448,
+   "rgap": -0.548
+  },
+  {
+   "id": "vintage-microscope",
+   "min": -3.879,
+   "gap": 0.021,
+   "h": 8,
+   "robust": -3.363,
+   "rgap": 0.537
+  },
+  {
+   "id": "pocket-watch",
+   "min": -2.328,
+   "gap": 1.572,
+   "h": 4.5,
+   "robust": -2.233,
+   "rgap": 1.667
+  },
+  {
+   "id": "portable-cassette-player",
+   "min": -3.529,
+   "gap": 0.371,
+   "h": 6.81,
+   "robust": -3.289,
+   "rgap": 0.611
+  },
+  {
+   "id": "retro-multimeter",
+   "min": -3.427,
+   "gap": 0.473,
+   "h": 7,
+   "robust": -3.426,
+   "rgap": 0.474
+  },
+  {
+   "id": "hand-drill",
+   "min": -3.872,
+   "gap": 0.028,
+   "h": 8,
+   "robust": -2.94,
+   "rgap": 0.96
+  },
+  {
+   "id": "digital-watch",
+   "min": -0.202,
+   "gap": 3.698,
+   "h": 0.27,
+   "robust": -0.182,
+   "rgap": 3.718
+  },
+  {
+   "id": "alarm-clock",
+   "min": -3.631,
+   "gap": 0.269,
+   "h": 7,
+   "robust": -3.495,
+   "rgap": 0.405
+  },
+  {
+   "id": "cash-register",
+   "min": -4.915,
+   "gap": -1.015,
+   "h": 9.95,
+   "robust": -4.915,
+   "rgap": -1.015
+  },
+  {
+   "id": "retro-console",
+   "min": -1.41,
+   "gap": 2.49,
+   "h": 3.08,
+   "robust": -1.41,
+   "rgap": 2.49
+  },
+  {
+   "id": "hypoid-gear",
+   "min": -1.926,
+   "gap": 1.974,
+   "h": 3.74,
+   "robust": -1.926,
+   "rgap": 1.974
+  },
+  {
+   "id": "computer-parts",
+   "min": -6.137,
+   "gap": -2.237,
+   "h": 12,
+   "robust": -2.965,
+   "rgap": 0.935
+  },
+  {
+   "id": "filmstrip-projector",
+   "min": -2.812,
+   "gap": 1.088,
+   "h": 5.73,
+   "robust": -2.809,
+   "rgap": 1.091
+  },
+  {
+   "id": "wall-clock",
+   "min": -4.864,
+   "gap": -0.964,
+   "h": 10,
+   "robust": -4.589,
+   "rgap": -0.689
+  },
+  {
+   "id": "planetary-gearbox",
+   "min": -2.76,
+   "gap": 1.14,
+   "h": 5.42,
+   "robust": -1.949,
+   "rgap": 1.951
+  },
+  {
+   "id": "kitchen-blender",
+   "min": -6.137,
+   "gap": -2.237,
+   "h": 12,
+   "robust": -5.12,
+   "rgap": -1.22
+  },
+  {
+   "id": "pinball-machine",
+   "min": -6.947,
+   "gap": -3.047,
+   "h": 14,
+   "robust": -0.192,
+   "rgap": 3.708
+  },
+  {
+   "id": "triple-engine",
+   "min": -4.535,
+   "gap": -0.635,
+   "h": 9.32,
+   "robust": -3.172,
+   "rgap": 0.728
+  },
+  {
+   "id": "gramophone",
+   "min": -5.076,
+   "gap": -1.176,
+   "h": 10,
+   "robust": -4.903,
+   "rgap": -1.003
+  },
+  {
+   "id": "grand-piano",
+   "min": -1.801,
+   "gap": 2.099,
+   "h": 3.35,
+   "robust": -1.801,
+   "rgap": 2.099
+  },
+  {
+   "id": "radial-engine",
+   "min": -3.434,
+   "gap": 0.466,
+   "h": 7.03,
+   "robust": -3.35,
+   "rgap": 0.55
+  },
+  {
+   "id": "santacruz-v10",
+   "min": -3.826,
+   "gap": 0.074,
+   "h": 7.86,
+   "robust": -1.972,
+   "rgap": 1.928
+  },
+  {
+   "id": "royal-typewriter",
+   "min": -2.792,
+   "gap": 1.108,
+   "h": 5.38,
+   "robust": -2.543,
+   "rgap": 1.357
+  },
+  {
+   "id": "eumig-projector",
+   "min": -3.389,
+   "gap": 0.511,
+   "h": 6.56,
+   "robust": -2.928,
+   "rgap": 0.972
+  },
+  {
+   "id": "vcr-hanseatic",
+   "min": -1.335,
+   "gap": 2.565,
+   "h": 2.86,
+   "robust": -0.845,
+   "rgap": 3.055
+  },
+  {
+   "id": "tr-808",
+   "min": -1.344,
+   "gap": 2.556,
+   "h": 2.91,
+   "robust": -1.247,
+   "rgap": 2.653
+  },
+  {
+   "id": "cherry-mx-switch",
+   "min": -2.689,
+   "gap": 1.211,
+   "h": 5.2,
+   "robust": -2.648,
+   "rgap": 1.252
+  },
+  {
+   "id": "polaroid-coolcam",
+   "min": -5.118,
+   "gap": -1.218,
+   "h": 10,
+   "robust": -4.04,
+   "rgap": -0.14
+  },
+  {
+   "id": "casio-vl-tone",
+   "min": -0.956,
+   "gap": 2.944,
+   "h": 2.08,
+   "robust": -0.362,
+   "rgap": 3.538
+  },
+  {
+   "id": "marshall-jcm800",
+   "min": -3.752,
+   "gap": 0.148,
+   "h": 7.74,
+   "robust": 1.169,
+   "rgap": 5.069
+  },
+  {
+   "id": "sony-tc510",
+   "min": -4.312,
+   "gap": -0.412,
+   "h": 8.47,
+   "robust": -4.239,
+   "rgap": -0.339
+  },
+  {
+   "id": "angle-grinder",
+   "min": -1.212,
+   "gap": 2.688,
+   "h": 2.18,
+   "robust": -1.064,
+   "rgap": 2.836
+  },
+  {
+   "id": "smeg-toaster",
+   "min": -2.534,
+   "gap": 1.366,
+   "h": 5.21,
+   "robust": -1.951,
+   "rgap": 1.949
+  },
+  {
+   "id": "tourbillon-movement",
+   "min": -1.491,
+   "gap": 2.409,
+   "h": 3.23,
+   "robust": -1.491,
+   "rgap": 2.409
+  },
+  {
+   "id": "gameboy",
+   "min": -5.572,
+   "gap": -1.672,
+   "h": 11,
+   "robust": -5.57,
+   "rgap": -1.67
+  },
+  {
+   "id": "door-lock-mechanism",
+   "min": -2.874,
+   "gap": 1.026,
+   "h": 5.49,
+   "robust": -2.503,
+   "rgap": 1.397
+  },
+  {
+   "id": "retro-fan",
+   "min": -4.713,
+   "gap": -0.813,
+   "h": 9.55,
+   "robust": -4.711,
+   "rgap": -0.811
+  },
+  {
+   "id": "fender-stratocaster",
+   "min": -5.368,
+   "gap": -1.468,
+   "h": 11,
+   "robust": -2.597,
+   "rgap": 1.303
+  },
+  {
+   "id": "commodore-64",
+   "min": -1.992,
+   "gap": 1.908,
+   "h": 3.86,
+   "robust": -1.991,
+   "rgap": 1.909
+  },
+  {
+   "id": "admiral-7t10",
+   "min": -2.204,
+   "gap": 1.696,
+   "h": 4.14,
+   "robust": -2.204,
+   "rgap": 1.696
+  },
+  {
+   "id": "we500-rotary-phone",
+   "min": -1.856,
+   "gap": 2.044,
+   "h": 3.82,
+   "robust": -1.851,
+   "rgap": 2.049
+  },
+  {
+   "id": "regency-tr1",
+   "min": -4.365,
+   "gap": -0.465,
+   "h": 9,
+   "robust": -4.365,
+   "rgap": -0.465
+  }
+ ]
+}

@@ -27,6 +27,7 @@ export default makeDevice({
   ],
   accent: '#c8ccd2',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 12.5,
   camDist: 1.25,
   glb: '/assets/mac-studio.glb',

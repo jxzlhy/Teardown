@@ -27,6 +27,7 @@ export default makeDevice({
   ],
   accent: '#e8a33d',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 9.0,
   glb: '/assets/watch-ultra.glb',
   /* 策展导览：屏→壳→表冠→动作键→扬声器→传感器→天线带→电池→马达→表带 */

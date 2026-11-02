@@ -20,6 +20,7 @@ export default makeDevice({
   ],
   accent: '#d9d9d9',
   source: 'Nothing 官网产品页模型',
+  distribution: 'local-demo-only',
   targetWidth: 14.6,   /* 高 163.7mm 为最大维 */
   glb: '/assets/phone4apro.glb',
   tour: ['screen','midframe','camera-island','glyph','usb','buttons'],

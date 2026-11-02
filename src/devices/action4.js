@@ -388,6 +388,8 @@ export default {
   id: 'action4',
   era: 2023,   /* 2023 年 8 月 2 日发布（Osmo Action 系列词条） */
   brand: 'DJI',
+  source: 'DJI 官网产品页 3D/GLB 资产（CDN 直下）· 仅本机演示不再分发',
+  distribution: 'local-demo-only',
   name: 'DJI Osmo Action 4',
   en: 'AC203',
   category: '相机',

@@ -26,7 +26,7 @@
 | P2 | 设备配置 chunk 加载失败态（发版后旧 chunk 404 / 弱网） | 可恢复性 | 低 | 请求拦截 abort + 浏览器 | 已完成（错误面板 + 重试/返回） |
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
-| P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）达 **110 台 39 品牌**；NASA 渠道可扩量（更多 slug 待探）；PH 单网格件（microwave/spinning_wheel/mousetrap/compass）走「真实外壳+程序化示意内构件」混合路径候选 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
+| P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）+ 同日 Sketchfab/PH 4 台（curta-type2/wankel-engine/vintage-binocular/manual-gearbox）达 110 台；2026-11-03 批次 +5（fresnel-lens/refractor-telescope/fire-hydrant/seadogs-compass/vintage-stapler）达 **115 台 39 品牌**；NASA 渠道可扩量（并行会话另有 chandra/spitzer 筹备中）；下一批已查证候选：Nixie 辉光钟（panmax L158，1162 网格需位置聚类）/ Braun SK55（L26，610 网格）/ PH 落地钟复核 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | **已核关闭（2026-11-01）**：inspect-glb 94 网格全 Object_N 无语义名；爆炸态选中特写实证 flippers 部件含两个网格（红 rubber 板体 + 白 plastic 板体）成对存在，与 desc「这两个部件」一致——源模型无缺失，无需补映射 |
 | P0 | 以下为 2026-10-31《MUSEUM-ROADMAP》研究产出的规划项（详见 docs/MUSEUM-ROADMAP.md 第八部分，验收口径以该文为准） | 记录 | — | — | 已固化 |
 | P1 | Phase 2：three-mesh-bvh 引入（MIT，兼容 0.164）+ 两点测量工具态最小原型（单设备试点，区分原始/展示尺寸） | 补齐实验室基础件 | 中：BVH 构建耗时需 <100ms/设备，超时降级普通 raycast | build + smoke + 无头取点断言 + 移动端工具栏不遮画布 | **已完成**（pocket3 123 几何 ≈20-29ms；smoke 17/17 含 2 项新断言；mobile 触屏通过；pocket3 realSizeMM 标定，其余设备显示"未标定"） |
@@ -50,6 +50,15 @@
 | P2 | 设备页「内部」视角预设（联动 X-Ray 的组合机位） | 视角预设已上线，组合位是自然延伸；需逐台验证取景 |
 | P0 | （外部依赖）径向发动机 stroke 演示启用——模型活塞未单独建模，如获得分离活塞版资源可启用 phaseN=9 均布相位 | stroke.phaseN 已就绪 |
 
+## V4.1 新增（2026-11-03）
+
+| 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
+|---|---|---|---|---|---|
+| P2 | 引擎 demos `slide` 原语（刚性平移+李萨如闭环）+ Forge 锁式线迹生成器（11 部件 5 路联动 1:2 频率比） | 自行创造分支落地；缝纫原理教学件 | 低（纯新增字段，既有演示零影响） | tools/forge-ls-verify.mjs（ratio=2.00/复位/参数重生）+ 截图目检 | **已完成**（2026-11-03；深链竞态顺带修复） |
+| P3 | forge 生成器 mech 面板与运动演示的联动核验（V4 MI①② 与 demos 的一致性抽查） | MI 数据可信度 | 低 | 逐生成器抽查 mech 边 vs 实际演示 | 待办 |
+| P3 | 高负载防护：verify/smoke 脚本采样间隔与重试策略统一（rAF 节流假象） | 套件稳定性 | 低 | 负载>9 复跑对比 | 待办 |
+| P2 | forge 锁式线迹轮次的干净 smoke 补跑（2026-11-03 负载 15-24 期间无头 Chrome 反复 Target closed，23-24 项通过后崩，环境级非回归；5 台批次 smoke 33/33 已过） | 发布门槛完整性 | 低 | 负载<5 时 `npm run smoke` 全绿 | **待补跑（阻塞于并行会话负载）** |
+
 ## V3 新增（2026-11-02）
 
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
@@ -57,3 +66,19 @@
 | P1 | 模型接地专项：tools/ground-audit.mjs 无头扫描 104 台 hull bbox min.y 与台面 -3.9 间距 → 分级（<0.05 合格/0.05-0.4 微调/需 baseRotation 评估）→ 引擎接地偏移机制（逐台字段，默认 0） | §9.1 悬空是底座专项显性缺陷 | 中：逐台确认不可一刀切；爆炸/取景/特写需回归 | 审计表 + 抽样双厅截图 + smoke | 待办（下一切片） |
 | P2 | 缩略图日厅变体：render-thumbs/previewScene 增加日厅布光参数集，产出 day 变体，大厅按 data-hall 切换（缓存双份） | F2 日厅卡片拼贴感根除 | 中：104×2 存储与管线时长 | 缩略图抽查 + 大厅日厅截图 | 待办 |
 | P3 | tools/day-contrast-verify.mjs 按 V3 token 更新或退役 | 工具与代码一致 | 低 | 运行 | 待办 |
+
+## 2026-11-02 全网搜罗批次（2026-11-03 记）
+
+| 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
+|---|---|---|---|---|---|
+| P1 | **Smithsonian 免 key 通道接入**：S3 bucket（104k key 全量目录已在 `vendor/assets/originals/_si-research/si_titles.tsv`）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`。**JWST 已接入（第 118 台，1600 网格→10 部件，brand NASA/ESA/CSA 新档）**；剩余：1903 Wright Flyer（3 命名网格+40 条官方注释，58MB 高模+258KB LOD 双版本）→ Apollo 11 舱门 CAD+指令舱递进展项 | 全馆级馆藏补充（CC0 无署名负担） | 中：SI 扫描多为单焊接网格需逐个验分组；NASA 模型天然多节点 | inspect-glb + add-device SOP | **JWST 已完成**；剩余待办 |
+| P2 | JWST 切片 smoke 补跑（负载回落 <5 时）——lint/build/thumbs/截图已全绿 | 回归完整性 | 低 | npm run smoke | 待补 |
+| P1 | **radial-engine 分离活塞置换切片**（原 P0 外部依赖正式转正）：4 个 CC-BY CAD 候选已验——simakovs05 5 缸 81k / jxstnxlll 7 缸 84k / senguptaarmaan Fusion360 227k / ygorprangel 75k；下载 inspect 后择优置换，启用 stroke.phaseN 演示（phaseN 按缸数配置） | 星型发动机 signature 演示补全 | 中：置换既有在库设备需全量回归（映射/tour/xray/demos） | stroke 演示截图 + smoke | 待办 |
+| P2 | **Curta 双版本裁决**：本会话 curta-type2（halilkantarci 231 网格带拆解动画）vs 并行会话 curta-calculator（来源待查）——二选一或区分 Type I/II 共存 | 类目纯净 | 低 | inspect 对比 + 页面目检 | 待办（依赖并行会话落地） |
+| P3 | 二线候选滚动池（社区报告已验 uid）：CMBC Singer 15 手摇缝纫机 315k / Sea-Gull 1963 计时码表 176k（ST19 柱轮叙事）/ Agfa Movex 88 发条摄影机 312k（拍摄侧空白）/ Lefaucheux 针发左轮 13k / 瓦特蒸汽机教学模型 63k（波兰国家级数字化，带动画）/ Polyphon 45D 盘式八音盒 10.9k | 内容扩充 | 低 | convert-asset SOP | 待办 |
+| P3 | 品牌档案补齐：CURTA 品牌新档（curta-type2 接入产生）；39→40 品牌 | 档案完整 | 低 | lint brand-check | 待办（并行会话可能已动） |
+
+### 2026-11-02 批次技术备忘（避免重复踩坑）
+- Sketchfab 下载：`/i/archives/latest?model=<uid>&archiveType=glb&textureMaxResolution=0`（参数名 model/archiveType；预签名 ~2 分钟即取即下；匿名 401；IAB 登录态 User-419afc4fcb）。
+- 节点分支变换不一致的 GLB（同一模型各分支 scale 量级不同）→ `gltf-transform flatten` 预处理根治；排查时 getWorldPosition 报的是枢轴位置，顶点级判断要用 Box3.setFromObject。
+- 爆炸 ex 语义：[x右, y上, z朝观众] 相机基向量世界单位直移；同心部件手动发散；小件密集设备 ex 用 2-4 量级。

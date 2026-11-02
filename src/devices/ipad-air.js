@@ -27,6 +27,7 @@ export default makeDevice({
   ],
   accent: '#7fa8d9',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 11.5,
   camDist: 1.15,
   glb: '/assets/ipad-air.glb',

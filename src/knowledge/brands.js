@@ -120,6 +120,12 @@ const brands = [
   { id: 'NASA/CXC', kind: 'agency', founded: '1999',
     note: 'Chandra X-ray Center（CXC）由史密森尼天体物理天文台（SAO）运营，负责 NASA 钱德拉X射线天文台的科学运行——1999 年发射至今。',
     sources: [{ label: 'Chandra X-ray Center', url: 'https://cxc.harvard.edu/' }], confidence: 'verified-3rd' },
+  { id: 'NASA/ESA/CSA', kind: 'agency', founded: '1958 / 1975 / 1989',
+    note: '詹姆斯·韦伯空间望远镜为 NASA、ESA 与加拿大航天局（CSA）三方联合项目：NASA 出望远镜与发射，ESA 出 NIRSpec 与阿丽亚娜 5 发射服务，CSA 出精细导星传感器——各国分享观测时间。',
+    sources: [
+      { label: 'NASA — JWST international collaboration', url: 'https://science.nasa.gov/mission/webb/about-international-collaboration/' },
+      { label: 'ESA — Webb overview', url: 'https://www.esa.int/Science_Exploration/Space_Science/Webb' },
+    ], confidence: 'verified-3rd' },
 ];
 
 export default brands;

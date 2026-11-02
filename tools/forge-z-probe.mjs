@@ -1,0 +1,24 @@
+/* 定位 ringdrive deselect/explode 窗口的 PAGEERROR 堆栈 */
+import puppeteer from 'puppeteer-core';
+import { existsSync } from 'node:fs';
+const c = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+const browser = await puppeteer.launch({ executablePath: c.find(existsSync), headless: 'new', args: ['--enable-unsafe-swiftshader','--no-sandbox'] });
+const page = await browser.newPage();
+page.setDefaultTimeout(20000);
+page.on('pageerror', e => console.log('STACK:', String(e.stack || e.message).split('\n').slice(0, 4).join(' | ').slice(0, 400)));
+await page.setViewport({ width: 1280, height: 800 });
+await page.goto('http://127.0.0.1:8137/#/forge?gen=ringdrive&seed=zprobe&auto=1', { waitUntil: 'domcontentloaded', timeout: 20000 });
+await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && s.parts && s.parts.length; }, { timeout: 20000, polling: 300 });
+console.log('booted');
+await new Promise(r => setTimeout(r, 1500));
+await page.evaluate(() => window.__ENGINE.selectPart('coreRotor'));
+console.log('selected');
+await new Promise(r => setTimeout(r, 1500));
+await page.evaluate(() => { window.__ENGINE.deselect(); });
+console.log('deselected — watch errors 2s');
+await new Promise(r => setTimeout(r, 2000));
+await page.evaluate(() => { window.__ENGINE.setExplode(1); });
+console.log('explode — watch errors 2s');
+await new Promise(r => setTimeout(r, 2000));
+await browser.close().catch(() => {});
+console.log('done');

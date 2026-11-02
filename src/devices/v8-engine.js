@@ -42,6 +42,19 @@ export default makeDevice({
     { partId: 'pistons', label: '活塞往复 · 90° V8 点火相位',
       stroke: { axisL: [-0.7, 0.7, 0], axisR: [0.7, 0.7, 0], crankAxis: [0, 0, 1], splitX: 0.2, amp: 0.3, f: 1.05 } },
   ],
+  /* V4.0 MI① Mechanism Graph：手写关系（全部引用上表真实部件 ID；本模型无缸体/油底壳部件，不虚构） */
+  mech: { driver: 'crank', edges: [
+    { id: 'sc-crank-pistons', type: 'slider_crank', from: 'crank', to: 'pistons', kinematic: 'approx',
+      note: '八组曲柄滑块：交叉平面四销（相位 0°/90°/270°/180°），活塞沿缸轴往复——连杆摆动以平动近似' },
+    { id: 'bd-front-crank', type: 'bearing_support', from: 'front-drive', to: 'crank', kinematic: 'exact',
+      note: '曲轴前轴颈支承于前端附件轮系中心的轴承' },
+    { id: 'belt-crank-front', type: 'belt_drive', from: 'crank', to: 'front-drive', kinematic: 'approx',
+      note: '曲轴皮带轮经附件带驱动轮系（速比未标定，不作数值声明）' },
+    { id: 'fx-intake-l', type: 'fixed', from: 'intake', to: 'head-l', note: '进气歧管法兰固定于左列缸盖内侧' },
+    { id: 'fx-intake-r', type: 'fixed', from: 'intake', to: 'head-r', note: '进气歧管法兰固定于右列缸盖内侧' },
+    { id: 'fx-exh-l', type: 'fixed', from: 'exhaust-l', to: 'head-l', note: '左排气歧管固定于左缸盖外侧' },
+    { id: 'fx-exh-r', type: 'fixed', from: 'exhaust-r', to: 'head-r', note: '右排气歧管固定于右缸盖外侧' },
+  ] },
   mapByPosition(name, p, rel){
     if(rel.z < 0.35 && rel.y > 0.4) return 'front-drive';
     if(rel.y > 0.72) return rel.x > 0.5 ? 'head-r' : 'head-l';

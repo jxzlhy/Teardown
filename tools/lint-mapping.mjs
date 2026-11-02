@@ -22,7 +22,7 @@ const fail = (msg) => { console.log('  ✗ ' + msg); badCount++; };
 const warn = (msg) => { console.log('  ⚠ ' + msg); warnCount++; };
 
 for(const d of devices){
-  console.log(`${d.id} · ${d.name}`);
+  console.log(`${d.id} · ${d.name}${d.unlisted ? '（筹备中 · 未入馆）' : ''}`);
   const ids = new Set(d.parts.map(p => p.id));
   const dup = d.parts.map(p => p.id).filter((x, i, a) => a.indexOf(x) !== i);
   if(dup.length) fail('parts id 重复: ' + [...new Set(dup)].join(', '));
@@ -38,11 +38,22 @@ for(const d of devices){
   for(const v of (d.realPartIds || [])){
     if(!ids.has(v)) fail(`realPartIds → 未知部件 "${v}"`);
   }
+
+  /* 馆内展品不得带脚手架占位文案（unlisted 的筹备中设备例外）——AGENTS §1 真实性约束 */
+  if(!d.unlisted){
+    const todoFields = [];
+    if(/TODO/.test(d.tagline || '')) todoFields.push('tagline');
+    if(/TODO/.test(d.description || '')) todoFields.push('description');
+    for(const p of d.parts) if(/TODO/.test(p.desc || '')) todoFields.push(`parts[${p.id}].desc`);
+    if(todoFields.length) fail(`已入馆展品仍含 TODO 占位文案：${[...new Set(todoFields)].slice(0, 5).join(', ')}`);
+  }
   for(const v of (d.xrayShellIds || [])){
     if(!ids.has(v)) fail(`xrayShellIds → 未知部件 "${v}"`);
   }
   for(const v of (d.tour || [])){
-    if(!ids.has(v)) warn(`tour → 未知部件 "${v}"（导览会静默跳过）`);
+    /* tour 兼容两种形态：字符串 id / 对象 { id, note }（引擎 Phase 6 起） */
+    const tid = (typeof v === 'object' && v !== null) ? v.id : v;
+    if(!ids.has(tid)) warn(`tour → 未知部件 "${tid}"（导览会静默跳过）`);
   }
   if(d.assembleStep !== undefined){
     if(!Array.isArray(d.assembleStep) || !d.assembleStep.length){
@@ -98,19 +109,26 @@ for(const d of devices){
     }
   }
 
-  /* 社区模型署名必须落实到作者与许可证；Sketchfab 来源必须给出模型主页链接 */
+  /* 来源判定必须独立于自述文本（审计 P1-8）：
+     旧逻辑用 modelCredit 里是否出现 "Sketchfab/社区" 来决定要不要署名 —— 自证循环，
+     完全不写 credit 的第三方模型可以静默通过。现以 modelSource 域名 + 显式 distribution 标记判定。 */
   const credit = d.modelCredit || '';
-  const isCommunity = /社区|Sketchfab|Poly Haven/i.test(credit) || /社区/i.test(d.source || '');
-  if(isCommunity){
-    if(!credit) fail('社区模型缺少 modelCredit');
-    else if(/by community/i.test(credit)) fail('modelCredit 仍是泛化署名 "by community"（必须写明作者与许可证）');
-    if(/Sketchfab/i.test(credit) && !/^https:\/\/(sketchfab\.com|www\.sketchfab\.com)\//.test(d.modelSource || ''))
-      fail('Sketchfab 模型缺少 modelSource（sketchfab.com 模型主页链接）');
-    if(/NASA/i.test(credit) && !/^https:\/\/(science\.nasa\.gov|www\.nasa\.gov)\//.test(d.modelSource || ''))
-      fail('NASA 模型缺少 modelSource（science.nasa.gov 资源页链接）');
-    if(/Poly Haven/i.test(credit) && !/^https:\/\/polyhaven\.com\//.test(d.modelSource || ''))
-      fail('Poly Haven 模型缺少 modelSource（polyhaven.com 资产页链接）');
-    if(d.modelSource && !/^https:\/\//.test(d.modelSource)) fail('modelSource 必须是 https:// 链接');
+  const srcHost = (() => { try { return new URL(d.modelSource).host.replace(/^www\./, ''); } catch { return null; } })();
+  const DIST = ['local-demo-only'];                       // 官方 AR 等"仅本机演示、不再分发"标记
+  if(/by community/i.test(credit)) fail('modelCredit 是泛化署名 "by community"（必须写明作者与许可证）');
+  if(d.modelSource && !/^https:\/\//.test(d.modelSource)) fail('modelSource 必须是 https:// 链接');
+  if(d.distribution && !DIST.includes(d.distribution))
+    fail(`distribution "${d.distribution}" 非法（可用值：${DIST.join(' | ')}）`);
+  if(d.glb){
+    if(srcHost && ['sketchfab.com', 'polyhaven.com', 'thangs.com', 'cults3d.com'].includes(srcHost)){
+      if(!credit) fail(`${srcHost} 来源模型缺少 modelCredit（作者 + 许可证）`);
+      if(!/CC-BY|CC0|Public Domain|公有领域|Free Standard|GPL|许可证|license/i.test(credit) && !/NASA/i.test(credit))
+        fail(`${srcHost} 来源 modelCredit 未写明许可证（例：CC-BY 4.0 / CC0 / NASA 公有领域）`);
+    } else if(/NASA/i.test(credit) && srcHost !== 'science.nasa.gov' && srcHost !== 'nasa.gov'){
+      fail('NASA 模型缺少 science.nasa.gov / nasa.gov 的 modelSource 直链');
+    } else if(!credit && !d.distribution){
+      fail('有 GLB 资产但既无 modelCredit，也未标 distribution: "local-demo-only"（官方 AR 转制等不再分发资产必须显式标记）');
+    }
   }
 
   if(!badCount && !warnCount) console.log('  ✓ 通过');
@@ -120,7 +138,10 @@ console.log('');
 if(badCount || warnCount){
   console.log(`结果：${badCount} 个错误，${warnCount} 个警告（共 ${devices.length} 台）`);
   const withEra = devices.filter(d => d.era != null).length;
+  const listed = devices.filter(d => !d.unlisted);
   console.log(`  · era 覆盖 ${withEra}/${devices.length} 台（数字档案字段，逐台查证后补齐）`);
+  if(listed.length !== devices.length)
+    console.log(`  · 在馆 ${listed.length} 台 · 筹备中未入馆 ${devices.length - listed.length} 台（${devices.filter(d => d.unlisted).map(d => d.id).join(', ')}）`);
   process.exit(badCount ? 1 : 0);
 }
 {

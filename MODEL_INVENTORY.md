@@ -2,7 +2,7 @@
 
 > 生成时间：2026-11-03 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**117 台设备** · 890 个部件 · 117 套 GLB · 40 个品牌
+> 当前：**119 台设备** · 906 个部件 · 119 套 GLB · 41 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（38 台）
+### GENERIC（39 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -140,6 +140,7 @@
 | fire-hydrant | 欧式消防栓 | 市政机构 | 5 | 社区 | fire-hydrant.glb | 428 KB |
 | seadogs-compass | 航海干式罗盘 | 航海仪器 | 3 | 社区 | seadogs-compass.glb | 548 KB |
 | vintage-stapler | 经典订书机 | 文具 | 3 | 社区 | vintage-stapler.glb | 401 KB |
+| vintage-microwave | 复古微波炉 | 厨电 | 6 | 社区 | vintage-microwave.glb | 900 KB |
 
 ### KALASHNIKOV（1 台）
 
@@ -337,4 +338,10 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | chandra-x-ray-observatory | 钱德拉X射线天文台 | 航天 | 5 | 官方 | chandra-x-ray-observatory.glb | 232 KB |
+
+### NASA/ESA/CSA（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| jwst | 詹姆斯·韦伯空间望远镜 | 航天 | 10 | 官方 | jwst.glb | 3.3 MB |
 

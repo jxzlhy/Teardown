@@ -17,7 +17,7 @@ for(const id of ['action4','v8-engine','grand-piano']){
       let frames = 0; const t0 = performance.now();
       await new Promise(res => { const loop = () => { frames++; if(performance.now() - t0 < 3000) requestAnimationFrame(loop); else res(); }; requestAnimationFrame(loop); });
       const s = window.__ENGINE.getState();
-      return { fps: +(frames / 3).toFixed(1), quality: s.quality, parts: s.partsCount };
+      return { fps: +(frames / 3).toFixed(1), quality: s.quality, parts: (s.parts && s.parts.length) || s.partsCount || 0 };
     });
     console.log(`${id}: ${m.fps} fps · 画质档 L${m.quality} · ${m.parts} 部件（软件渲染参考值）`);
   }catch(e){ console.log(`${id}: ERR ${e.message.slice(0,50)}`); }

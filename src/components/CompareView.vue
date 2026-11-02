@@ -100,8 +100,10 @@ const rows = computed(() => {
 .cmp-dev{ display:flex; flex-direction:column; gap:6px; min-width:150px; color:var(--txt-1); text-decoration:none; }
 .cmp-dev img{ width:100%; aspect-ratio:19/12; object-fit:cover; border-radius:7px; background:#060b12; }
 .cmp-dev b{ font-family:var(--name); font-size:14px; font-weight:800; letter-spacing:.03em; }
-.cmp-era{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--acc-dim); font-style:normal; }
-.cmp-dev:focus-visible, .cmp-table td.diff{ outline:none; }
+.cmp-era{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--acc); font-style:normal; }
+/* td.diff 的内阴影标记不是焦点环，不需要 outline:none；
+   设备链接的焦点环交给全局基线（审计 P2-7：此处曾一并杀掉焦点可见性） */
+.cmp-table td.diff{ outline:none; }
 td.diff{ box-shadow:inset 3px 0 0 color-mix(in srgb, var(--acc) 55%, transparent); }
 .cmp-empty{ color:var(--txt-3); text-align:center; padding:30px !important; }
 @media (max-width:700px){

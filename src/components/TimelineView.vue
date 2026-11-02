@@ -57,7 +57,7 @@ onMounted(async () => {
 .tl-bandhead{ display:flex; align-items:baseline; gap:14px; margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid rgba(69,224,255,.14); }
 .tl-bandhead h3{ margin:0; font-family:var(--name); font-size:24px; font-weight:900; letter-spacing:.12em; color:var(--acc); }
 .tl-range{ font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--txt-dim); }
-.tl-count{ font-family:var(--mono); font-size:9px; letter-spacing:.2em; color:rgba(125,143,163,.55); margin-left:auto; }
+.tl-count{ font-family:var(--mono); font-size:9px; letter-spacing:.2em; color:var(--txt-3); margin-left:auto; }
 /* 时序脊柱：连续轴线 + 菱形节点，年份右对齐在轴左侧 */
 .tl-items{ position:relative; display:flex; flex-direction:column; }
 .tl-items::before{
@@ -75,12 +75,12 @@ onMounted(async () => {
   transform:translate(-50%,-50%) rotate(45deg);
   background:#0a121c; border:1.5px solid rgba(120,150,180,.45); transition:border-color var(--dur-1), background var(--dur-1);
 }
-.tl-item .tl-year{ grid-row:1 / span 2; align-self:center; text-align:right; font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; color:var(--acc-dim); }
+.tl-item .tl-year{ grid-row:1 / span 2; align-self:center; text-align:right; font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; color:var(--acc); }
 .tl-item .tl-label{ font-size:13px; color:var(--txt-1); font-family:var(--sans); line-height:1.5; }
-.tl-item .tl-sub{ grid-column:2; font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--txt-dim); margin-top:2px; }
+.tl-item .tl-sub{ grid-column:2; font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--txt); margin-top:2px; }
 .tl-item.tech::before{ border-color:color-mix(in srgb, var(--tech) 60%, transparent); }
 .tl-item.tech .tl-year{ color:var(--tech); }
-.tl-item.tech .tl-sub{ color:color-mix(in srgb, var(--tech) 70%, transparent); }
+.tl-item.tech .tl-sub{ color:var(--tech); }
 .tl-item.link{ cursor:pointer; text-decoration:none; transition:background var(--dur-1); }
 .tl-item.link:hover{ background:var(--acc-08); }
 .tl-item.link:hover::before{ border-color:var(--acc); background:var(--acc-16); }

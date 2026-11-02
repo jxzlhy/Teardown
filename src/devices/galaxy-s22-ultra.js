@@ -32,6 +32,7 @@ export default makeDevice({
     ['防抖','OIS + 超级稳定'],['重量','228 g'],
   ],
   accent: '#7a6ff0',
+  lightBoost: 1.4,   /* V4.1 照明治理：黑色机身夜厅可读性（审计 36.7/36% crush）→ key+hemi+rim ×1.4（rim 轮廓塑形） */
   source: '社区模型（Sketchfab）',
   modelCredit: 'Samsung Galaxy S22 Ultra by DatSketch (Sketchfab, CC-BY-NC 4.0)',
   modelSource: 'https://sketchfab.com/3d-models/samsung-galaxy-s22-ultra-a95eec5181a24bcd8a8452df50b29f3a',

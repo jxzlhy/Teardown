@@ -14,13 +14,24 @@ await page.waitForFunction(() => {
 }, { timeout: 90000, polling: 300 });
 await new Promise(r => setTimeout(r, 1200));
 
-/* crank：选中后应绕 Z 旋转 */
+/* crank：选中后应绕 Z 旋转。仪表化说明：该设备 spinPivot:'center'（旋转在 pivot 子对象），
+   getPartRotation 读 group 恒 0 —— 故用曲轴 mesh 世界位移判定实际运动（对 pivot/直旋均成立） */
 await page.evaluate(() => window.__ENGINE.selectPart('crank'));
 await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 6000, polling: 100 });
-const r1 = await page.evaluate(() => window.__ENGINE.getPartRotation('crank').z);
+const c1 = await page.evaluate(() => {
+  const T = window.__THREE, v = new T.Vector3();
+  let m = null; window.__ENGINE.getScene().traverse(o => { if (!m && o.isMesh && o.userData && o.userData.partId === 'crank') m = o; });
+  return m.getWorldPosition(v).toArray().map(x => +x.toFixed(3)).join(',');
+});
 await new Promise(r => setTimeout(r, 900));
-const r2 = await page.evaluate(() => window.__ENGINE.getPartRotation('crank').z);
-console.log('crank Δz =', (r2 - r1).toFixed(3), '(应 > 1.0)');
+const c2 = await page.evaluate(() => {
+  const T = window.__THREE, v = new T.Vector3();
+  let m = null; window.__ENGINE.getScene().traverse(o => { if (!m && o.isMesh && o.userData && o.userData.partId === 'crank') m = o; });
+  return m.getWorldPosition(v).toArray().map(x => +x.toFixed(3)).join(',');
+});
+const d1 = c1.split(','), d2 = c2.split(',');
+const dist = Math.hypot(d2[0] - d1[0], d2[1] - d1[1], d2[2] - d1[2]);
+console.log('crank mesh 世界位移 =', dist.toFixed(3), '(应 > 0.1，pivot 旋转可视位移)');
 await new Promise(r => setTimeout(r, 400));
 await page.screenshot({ path: `${OUT}v8-crank-demo.png` });
 

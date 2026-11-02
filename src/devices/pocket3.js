@@ -63,6 +63,8 @@ export default {
   id: 'pocket3',
   era: 2023,   /* 官方公告 2023-10-25（dji.com media-center） */
   brand: 'DJI',
+  source: 'DJI 官网产品页 3D/GLB 资产（CDN 直下）· 仅本机演示不再分发',
+  distribution: 'local-demo-only',
   name: 'DJI Osmo Pocket 3',
   en: 'OP3',
   category: '相机',

@@ -40,6 +40,15 @@ export default makeDevice({
   demos: [
     { partId: 'fan-section', label: '进气风扇段旋转 · 布雷顿循环吸气', spin: [3.4, 0, 0] },
   ],
+  /* V4.0 MI①：本模型为 4 大段剖开展示件——机匣连接链 fixed + 风扇段整段旋转示意（revolute approx）；
+     无独立转子/静子部件，不虚构。 */
+  mech: { driver: 'fan-section', edges: [
+    { id: 'fx-fan-core', type: 'fixed', from: 'fan-section', to: 'core', note: '风扇段机匣与核心机机匣法兰连接' },
+    { id: 'fx-core-ab', type: 'fixed', from: 'core', to: 'afterburner', note: '核心机后机匣与加力燃烧室连接' },
+    { id: 'fx-ab-noz', type: 'fixed', from: 'afterburner', to: 'nozzle', note: '加力段与尾喷管连接' },
+    { id: 'rv-fan-rotor', type: 'revolute', from: 'fan-section', to: 'core', kinematic: 'approx',
+      note: '风扇段内转子绕轴线旋转（演示为整段旋转示意——本模型未单独建转子件）' },
+  ] },
   /* X-Ray 外壳：模型仅 4 大段网格、无独立外壳件，按「最外层 1-2 件」口径选两端
      （进气风扇段/尾喷管）作半透明目标，核心机与加力段保持实心；
      避免 realPartIds 兜底把全部 4 段雾化 */

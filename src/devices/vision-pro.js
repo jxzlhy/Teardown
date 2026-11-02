@@ -38,6 +38,7 @@ export default makeDevice({
   ],
   accent: '#9fb8d8',
   source: 'Apple 官网 AR 模型（USDZ 转制）',
+  distribution: 'local-demo-only',
   targetWidth: 13.5,
   camDist: 1.15,
   glb: '/assets/vision-pro.glb',

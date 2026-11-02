@@ -11,7 +11,8 @@
         <router-link v-else to="/">常设展</router-link>
         <router-link to="/graph">知识星图</router-link>
         <router-link to="/timeline">技术编年</router-link>
-        <button class="explore-link" @click="drawerOpen = true">我的探索{{ favs.length ? ` · ★${favs.length}` : '' }}{{ Object.keys(explored).length ? ` · 足迹${Object.keys(explored).length}` : '' }}</button>
+        <router-link to="/forge">锻造所</router-link>
+        <button class="explore-link" @click="drawerOpen = true">我的探索<template v-if="favs.length || Object.keys(explored).length"><span class="el-badge" v-if="favs.length">★{{ favs.length }}</span><span class="el-badge" v-if="Object.keys(explored).length">迹{{ Object.keys(explored).length }}</span></template></button>
         <button class="hall-link" @click="toggleLobbyHall" :aria-label="lobbyHall === 'day' ? '切换夜厅' : '切换日厅'">
           <svg v-if="lobbyHall === 'day'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.9 1.9M17.1 17.1L19 19M19 5l-1.9 1.9M6.9 17.1L5 19"/></svg>
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z"/></svg>
@@ -20,6 +21,8 @@
       </nav>
     </header>
 
+    <a class="skip-link" href="#main">跳到馆藏列表</a>
+    <main id="main">
     <!-- 门厅：收藏馆模式换厅（V2） -->
     <section class="hub-hero">
       <div class="hub-hero-copy">
@@ -45,18 +48,18 @@
           @click="goHero(heroDevice)"
           @pointerenter="stopHero" @pointerleave="startHero">
           <img :key="heroDevice.id" class="st-img z" :class="{ swapping: stageSwap }"
-            :src="assetUrl(`/thumbs/${heroDevice.id}.webp`)" :alt="heroDevice.name">
+            :src="thumbSrc(heroDevice.id)" :alt="heroDevice.name">
           <div class="hud-scan"></div>
           <div class="st-shade"></div>
           <span class="st-no">{{ String(heroDevice.idx + 1).padStart(3, '0') }}</span>
           <div class="st-dots"><i v-for="(d, i) in heroList" :key="d.id" :class="{ cur: i === heroIdx }"></i></div>
-          <figcaption class="st-meta">
+          <div class="st-meta">
             <div>
               <span class="st-brand">{{ heroDevice.brand }} · {{ heroDevice.era || 'FOCUS' }}</span>
               <span class="st-name">{{ heroDevice.name }}</span>
             </div>
             <span class="st-go">开始拆解 →</span>
-          </figcaption>
+          </div>
         </div>
         <div class="hub-stage-tag" v-if="heroDevice">FOCUS · 焦点展台 · 每 6 秒换台 · hover 暂停</div>
       </div>
@@ -158,8 +161,8 @@
         :style="{ '--acc': d.accent, '--d': (0.05 + (i % 12) * 0.05) + 's' }"
         @pointerenter="onCardEnter(d)">
         <span class="card-thumbwrap">
-          <img v-if="!thumbFailed(d.id)" class="card-thumb" :src="assetUrl(`/thumbs/${d.id}.webp`)"
-            :alt="d.name" loading="lazy" @error="onThumbError(d.id)">
+          <img v-if="!thumbFailed(d.id)" class="card-thumb" :src="thumbSrc(d.id)"
+            :alt="d.name" loading="lazy" @error="onThumbError(d.id + (lobbyHall === 'day' ? ':day' : ''))">
           <span v-else class="card-fallback"><b>{{ String(d.idx + 1).padStart(2,'0') }}</b><i>{{ d.en }}</i></span>
           <span class="card-idx">NO.{{ String(d.idx + 1).padStart(3,'0') }}</span>
         </span>
@@ -196,6 +199,7 @@
       </div>
       <div v-else-if="!filtered.length" class="hub-empty" key="__empty">没有匹配的设备 — 换个筛选条件试试</div>
     </TransitionGroup>
+    </main>
 
     <div class="hub-foot">
       <span>ENGINE · THREE.JS + VUE 3</span>
@@ -419,8 +423,18 @@ function onCardEnter(d){ if(d.glb) prefetchGlb(d.glb); }
 
 /* 缩略图 404 时回退纯排版卡片 */
 const thumbErr = ref(new Set());
-function onThumbError(id){ const s = new Set(thumbErr.value); s.add(id); thumbErr.value = s; }
-function thumbFailed(id){ return thumbErr.value.has(id); }
+function onThumbError(key){ const s = new Set(thumbErr.value); s.add(key); thumbErr.value = s; }
+function thumbFailed(id){
+  if (lobbyHall.value === 'day') {
+    if (thumbErr.value.has(id + ':day')) return thumbErr.value.has(id);   /* 日变体缺失 → 回退夜图（不空卡） */
+    return false;
+  }
+  return thumbErr.value.has(id);
+}
+/* V4.0 Slice 1：双厅缩略图——日厅用 -day 变体（render-thumbs 双布光产出），缺失回退夜图 */
+function thumbSrc(id){
+  return assetUrl(`/thumbs/${id}${lobbyHall.value === 'day' && !thumbFailed(id) ? '-day' : ''}.webp`);
+}
 
 const filterGroups = computed(() => [
   { key:'cat', label:'类型', options: categories, get value(){ return catSel.value; }, set(v){ catSel.value = v; } },

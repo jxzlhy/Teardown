@@ -15,7 +15,8 @@ import { installDomShim } from './lib-node-shim.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 installDomShim();
 
-const { devices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const { devices: allDevices } = await import(pathToFileURL(path.join(ROOT, 'src/devices/registry.js')).href);
+const devices = allDevices.filter(d => !d.unlisted);   /* 脚手架半成品不进编年 */
 const { technologies } = await import(pathToFileURL(path.join(ROOT, 'src/knowledge/index.js')).href);
 
 const events = [];

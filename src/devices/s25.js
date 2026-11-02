@@ -33,6 +33,7 @@ export default makeDevice({
   ],
   accent: '#9fc5e8',
   source: 'Samsung 官网产品页 AR 模型',
+  distribution: 'local-demo-only',
   targetWidth: 13.2,
   glb: '/assets/s25.glb',
   /* 策展导览：与 s25-ultra 同构（屏→框→板→影像→电池→底部→后盖） */

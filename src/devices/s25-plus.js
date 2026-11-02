@@ -32,6 +32,7 @@ export default makeDevice({
   ],
   accent: '#5a7fb5',
   source: 'Samsung 官网产品页 AR 模型',
+  distribution: 'local-demo-only',
   targetWidth: 14.2,
   glb: '/assets/s25-plus.glb',
   /* 策展导览：与 s25-ultra 同构 */

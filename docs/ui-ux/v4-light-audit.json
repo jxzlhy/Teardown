@@ -1,0 +1,229 @@
+{
+ "ts": "2026-11-02T00:58:17.186Z",
+ "rows": [
+  {
+   "id": "action4",
+   "hall": "night",
+   "full": {
+    "mean": 17.1,
+    "clipPct": 0,
+    "crushPct": 64.71
+   },
+   "model": {
+    "mean": 46.5,
+    "clipPct": 0,
+    "crushPct": 14.83
+   }
+  },
+  {
+   "id": "action4",
+   "hall": "day",
+   "full": {
+    "mean": 191.1,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 104.9,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "galaxy-s22-ultra",
+   "hall": "night",
+   "full": {
+    "mean": 24.2,
+    "clipPct": 0,
+    "crushPct": 64.98
+   },
+   "model": {
+    "mean": 36.7,
+    "clipPct": 0,
+    "crushPct": 36.19
+   }
+  },
+  {
+   "id": "galaxy-s22-ultra",
+   "hall": "day",
+   "full": {
+    "mean": 190.3,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 141.9,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "iphone-12-teardown",
+   "hall": "night",
+   "full": {
+    "mean": 53.8,
+    "clipPct": 0,
+    "crushPct": 27.99
+   },
+   "model": {
+    "mean": 126,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "iphone-12-teardown",
+   "hall": "day",
+   "full": {
+    "mean": 202.1,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 182.4,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "v8-engine",
+   "hall": "night",
+   "full": {
+    "mean": 35.6,
+    "clipPct": 0,
+    "crushPct": 38.71
+   },
+   "model": {
+    "mean": 105.9,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "v8-engine",
+   "hall": "day",
+   "full": {
+    "mean": 200.8,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 177.9,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "jet-engine",
+   "hall": "night",
+   "full": {
+    "mean": 33.3,
+    "clipPct": 0,
+    "crushPct": 42.11
+   },
+   "model": {
+    "mean": 92.5,
+    "clipPct": 0,
+    "crushPct": 1.37
+   }
+  },
+  {
+   "id": "jet-engine",
+   "hall": "day",
+   "full": {
+    "mean": 193.7,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 122.2,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "grand-piano",
+   "hall": "night",
+   "full": {
+    "mean": 20.7,
+    "clipPct": 0,
+    "crushPct": 71.63
+   },
+   "model": {
+    "mean": 72.9,
+    "clipPct": 0,
+    "crushPct": 14.88
+   }
+  },
+  {
+   "id": "grand-piano",
+   "hall": "day",
+   "full": {
+    "mean": 206.6,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 197.9,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "airtag",
+   "hall": "night",
+   "full": {
+    "mean": 24.7,
+    "clipPct": 0,
+    "crushPct": 47.94
+   },
+   "model": {
+    "mean": 68.5,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "airtag",
+   "hall": "day",
+   "full": {
+    "mean": 199.2,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 146.5,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  },
+  {
+   "id": "orrery",
+   "hall": "night",
+   "full": {
+    "mean": 21.8,
+    "clipPct": 0,
+    "crushPct": 52.98
+   },
+   "model": {
+    "mean": 65,
+    "clipPct": 0,
+    "crushPct": 5.3
+   }
+  },
+  {
+   "id": "orrery",
+   "hall": "day",
+   "full": {
+    "mean": 196.8,
+    "clipPct": 0,
+    "crushPct": 0
+   },
+   "model": {
+    "mean": 152,
+    "clipPct": 0,
+    "crushPct": 0
+   }
+  }
+ ]
+}

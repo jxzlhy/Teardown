@@ -32,6 +32,7 @@ export default makeDevice({
   ],
   accent: '#7fb8d8',
   source: 'Apple 官网 AR 模型（USDZ/GLB 资产）',
+  distribution: 'local-demo-only',
   targetWidth: 12.5,
   camDist: 1.1,
   normalize: 'full',
