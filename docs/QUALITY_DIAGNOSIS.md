@@ -1,6 +1,6 @@
 # QUALITY DIAGNOSIS · 模型质量诊断报告
 
-> 生成：2026/11/3 01:40:58 · 工具：`tools/quality-diagnose.mjs`（运行 `node tools/quality-diagnose.mjs` 重新生成，勿手改本报告数据表）。
+> 生成：2026/11/3 01:43:32 · 工具：`tools/quality-diagnose.mjs`（运行 `node tools/quality-diagnose.mjs` 重新生成，勿手改本报告数据表）。
 > 依据：V2 权威任务书第八章。诊断只报告事实，不自动修改模型（8.1：用户低分 ≠ 直接改模型）。
 > 追溯（8.4）：原始模型 `vendor/assets/originals/` · 修改记录 `AUTONOMOUS_LOG.md` + git log · 回滚 `git checkout <commit> -- <file>`。
 
@@ -106,7 +106,7 @@
 | fresnel-lens | ⚪ 待核 | 909 KB | ✓ | ✓ | ✓ |  | 7 | ✓ | 8 | ✓ |
 | refractor-telescope | ⚪ 待核 | 350.8 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
 | fire-hydrant | ⚪ 待核 | 428.1 KB | ✓ | ✓ | ✓ |  | 5 | ✓ | 5 | ✓ |
-| seadogs-compass | ⚪ 待核 | 548.1 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
+| seadogs-compass | ⚪ 待核 | 1601.3 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
 | vintage-stapler | ⚪ 待核 | 401.3 KB | ✓ | ✓ | ✓ |  | 3 | ✓ | 3 | ✓ |
 | vintage-microwave | ⚪ 待核 | 900 KB | ✓ | ✓ | ✓ |  | 6 | ✓ | 6 | ✓ |
 | santacruz-v10 | ⚪ 待核 | 4594.2 KB | ✓ | ✓ | ✓ |  | 17 | ✓ | 17 | ✓ |
