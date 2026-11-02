@@ -28,6 +28,7 @@
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
 | P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）+ 同日 Sketchfab/PH 4 台（curta-type2/wankel-engine/vintage-binocular/manual-gearbox）达 110 台；2026-11-03 批次 +5（fresnel-lens/refractor-telescope/fire-hydrant/seadogs-compass/vintage-stapler）达 **115 台 39 品牌**；NASA 渠道可扩量（并行会话另有 chandra/spitzer 筹备中）；下一批已查证候选：Nixie 辉光钟（panmax L158，1162 网格需位置聚类）/ Braun SK55（L26，610 网格）/ PH 落地钟复核 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P2 | 本会话模型搜罗/自创批次（2026-11-02/03）：官方 NASA 4 台（ingenuity-helicopter/parker-solar-probe/spitzer-space-telescope/chandra-x-ray-observatory，3D Resources 直链 GLB 渠道，6 探 4 中，Dawn/Stardust 网格合并过粗诚实落选）+ 自创 Wankel 生成器（forge 第 5 生成器 + 引擎 eccOrbit 能力）+ 混合路径首件 vintage-microwave（PH 外壳+示意内构件）；mousetrap 机构烘焙单网格落选、spinning_wheel 留待大工程 | 内容扩充 | 逐台查证完成 | lint/inventory/thumbs/build/preview/截图 全链路 | 已完成（各自提交） |
+| P3 | 新渠道候选（未验证）：Smithsonian Open Access 3D（3d.si.edu，CC0 馆藏扫描，航天飞机/阿波罗指令舱级标的）——门户为 JS 壳，api.si.edu 需 api.data.gov 密钥，3d-api.si.edu 内部端点待逆向；时间盒探测未突破，下轮可作专项调研 | 内容扩充 | API 密钥/逆向成本 | curl 实测 | 待办（调研） |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | **已核关闭（2026-11-01）**：inspect-glb 94 网格全 Object_N 无语义名；爆炸态选中特写实证 flippers 部件含两个网格（红 rubber 板体 + 白 plastic 板体）成对存在，与 desc「这两个部件」一致——源模型无缺失，无需补映射 |
 | P0 | 以下为 2026-10-31《MUSEUM-ROADMAP》研究产出的规划项（详见 docs/MUSEUM-ROADMAP.md 第八部分，验收口径以该文为准） | 记录 | — | — | 已固化 |
 | P1 | Phase 2：three-mesh-bvh 引入（MIT，兼容 0.164）+ 两点测量工具态最小原型（单设备试点，区分原始/展示尺寸） | 补齐实验室基础件 | 中：BVH 构建耗时需 <100ms/设备，超时降级普通 raycast | build + smoke + 无头取点断言 + 移动端工具栏不遮画布 | **已完成**（pocket3 123 几何 ≈20-29ms；smoke 17/17 含 2 项新断言；mobile 触屏通过；pocket3 realSizeMM 标定，其余设备显示"未标定"） |
@@ -58,7 +59,7 @@
 | P2 | 引擎 demos `slide` 原语（刚性平移+李萨如闭环）+ Forge 锁式线迹生成器（11 部件 5 路联动 1:2 频率比） | 自行创造分支落地；缝纫原理教学件 | 低（纯新增字段，既有演示零影响） | tools/forge-ls-verify.mjs（ratio=2.00/复位/参数重生）+ 截图目检 | **已完成**（2026-11-03；深链竞态顺带修复） |
 | P3 | forge 生成器 mech 面板与运动演示的联动核验（V4 MI①② 与 demos 的一致性抽查） | MI 数据可信度 | 低 | 逐生成器抽查 mech 边 vs 实际演示 | 待办 |
 | P3 | 高负载防护：verify/smoke 脚本采样间隔与重试策略统一（rAF 节流假象） | 套件稳定性 | 低 | 负载>9 复跑对比 | 待办 |
-| P2 | forge 锁式线迹轮次的干净 smoke 补跑（2026-11-03 负载 15-24 期间无头 Chrome 反复 Target closed，23-24 项通过后崩，环境级非回归；5 台批次 smoke 33/33 已过） | 发布门槛完整性 | 低 | 负载<5 时 `npm run smoke` 全绿 | **待补跑（阻塞于并行会话负载）** |
+| P2 | forge 锁式线迹轮次的干净 smoke 补跑 | 发布门槛完整性 | 低 | `npm run smoke` 全绿 | **已完成**（2026-11-03 晚 load≈11 时 34/34 全过 exit=0） |
 
 ## V3 新增（2026-11-02）
 
@@ -75,7 +76,7 @@
 | P1 | **Smithsonian 免 key 通道接入**：S3 bucket（104k key 全量目录已在 `vendor/assets/originals/_si-research/si_titles.tsv`）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`。**JWST 已接入（第 118 台，1600 网格→10 部件，brand NASA/ESA/CSA 新档）**；剩余：1903 Wright Flyer（3 命名网格+40 条官方注释，58MB 高模+258KB LOD 双版本）→ Apollo 11 舱门 CAD+指令舱递进展项 | 全馆级馆藏补充（CC0 无署名负担） | 中：SI 扫描多为单焊接网格需逐个验分组；NASA 模型天然多节点 | inspect-glb + add-device SOP | **JWST 已完成**；剩余待办 |
 | P2 | JWST 切片 smoke 补跑（负载回落 <5 时）——lint/build/thumbs/截图已全绿 | 回归完整性 | 低 | npm run smoke | 待补 |
 | P1 | **radial-engine 分离活塞置换切片**（原 P0 外部依赖正式转正）：4 个 CC-BY CAD 候选已验——simakovs05 5 缸 81k / jxstnxlll 7 缸 84k / senguptaarmaan Fusion360 227k / ygorprangel 75k；下载 inspect 后择优置换，启用 stroke.phaseN 演示（phaseN 按缸数配置） | 星型发动机 signature 演示补全 | 中：置换既有在库设备需全量回归（映射/tour/xray/demos） | stroke 演示截图 + smoke | 待办 |
-| P2 | **Curta 双版本裁决**：本会话 curta-type2（halilkantarci 231 网格带拆解动画）vs 并行会话 curta-calculator（来源待查）——二选一或区分 Type I/II 共存 | 类目纯净 | 低 | inspect 对比 + 页面目检 | 待办（依赖并行会话落地） |
+| P2 | ~~Curta 双版本裁决~~ **已关闭（2026-11-03 自动解决）**：并行会话下载 curta-calculator.glb 后未接入即自行清理（孤儿件消失，registry/inventory 无痕迹）；curta-type2 独占计算器类目 | 类目纯净 | 低 | ls + grep registry 实证 | **已关闭** |
 | P3 | 二线候选滚动池（社区报告已验 uid）：CMBC Singer 15 手摇缝纫机 315k / Sea-Gull 1963 计时码表 176k（ST19 柱轮叙事）/ Agfa Movex 88 发条摄影机 312k（拍摄侧空白）/ Lefaucheux 针发左轮 13k / 瓦特蒸汽机教学模型 63k（波兰国家级数字化，带动画）/ Polyphon 45D 盘式八音盒 10.9k | 内容扩充 | 低 | convert-asset SOP | 待办 |
 | P3 | 品牌档案补齐：CURTA 品牌新档（curta-type2 接入产生）；39→40 品牌 | 档案完整 | 低 | lint brand-check | 待办（并行会话可能已动） |
 
