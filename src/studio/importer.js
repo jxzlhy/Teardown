@@ -146,6 +146,7 @@ export function surveyScene(scene) {
       id: nodes.length, name: obj.name || '', depth, isMesh,
       type: obj.type, path,
       childCount: obj.children.length,
+      isStudioGroup: !!(obj.userData && obj.userData.__studioGroup),
     };
     nodes.push(row);
     nodesByPath.set(path, obj);

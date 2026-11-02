@@ -11,6 +11,7 @@ import { exportGlb, downloadBlob } from './exporter.js';
 import * as library from './library.js';
 import { planRepairs, buildRepairCommands, REPAIR_LABELS } from './repair.js';
 import { generateFromText } from './textgen.js';
+import { createGroupCommands, ungroupCommands, filterAncestors } from './groupops.js';
 
 export { ERR, DEFAULT_CAP_MB };
 
@@ -134,6 +135,31 @@ export function createStudio({ canvas, onState }) {
 
     /* —— 诊断→修复（V5.0.5 部分）：可确定性修复的规则 → 单条可撤销命令组 —— */
     planRepairs: () => (diag ? planRepairs(diag) : { fixable: [], manual: [] }),
+
+    /* —— 组件分组（V5.0.2 收尾）：组合/解散，命令栈可撤销 —— */
+    groupSelected: (paths, name) => {
+      if (!report || !workshop || !paths || !paths.length) return { ok: false, reason: '未就绪' };
+      const meshes = paths.map((p) => report.nodesByPath.get(p)).filter((o) => o && o.isMesh);
+      const built = createGroupCommands(report.root, meshes, name);
+      if (!built) return { ok: false, reason: '无可入组的网格' };
+      workshop.applyCommands(built.cmds, `组合为组件「${built.group.name}」`);
+      built.cmds.forEach((c) => c.redo());
+      resurvey();
+      emit({ report: report ? { ...report } : null });
+      return { ok: true, groupName: built.group.name, count: built.count };
+    },
+    ungroupAt: (path) => {
+      if (!report || !workshop || !path) return { ok: false, reason: '未就绪' };
+      const obj = report.nodesByPath.get(path);
+      if (!obj || !obj.userData || !obj.userData.__studioGroup) return { ok: false, reason: '所选不是可解散的组件' };
+      const built = ungroupCommands(obj);
+      if (!built) return { ok: false, reason: '组件不可解散' };
+      workshop.applyCommands(built.cmds, `解散组件「${obj.name}」`);
+      built.cmds.forEach((c) => c.redo());
+      resurvey();
+      emit({ report: report ? { ...report } : null });
+      return { ok: true, count: built.count };
+    },
 
     /* —— 文字程序化建模（V5.0.4）：关键词模板解析（非 AI），产物走导入同一下游 —— */
     generateFromText: (text) => {

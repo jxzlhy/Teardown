@@ -300,6 +300,40 @@ try {
   check('文字生成：UI 载入（概览/层级树/程序化标注）', genRes.uiStats && genRes.uiTree === 10 && genRes.uiFile, 'tree=' + genRes.uiTree);
   check('文字生成：产物保存→载入库往返', genRes.roundtrip === true);
 
+  /* 4g. 组件分组（V5.0.2 收尾）：勾 2 网格组合 → 树现组件行 → 组结构可导出 → 撤销/重做 → 解散 */
+  const grpRes = await p2.evaluate(async () => {
+    const S = window.__STUDIO;
+    const out = {};
+    const meshRows = [...document.querySelectorAll('.st-node.mesh')];
+    out.meshRows = meshRows.length;
+    const sat = meshRows.filter((r) => /satellite/.test(r.textContent)).slice(0, 2);
+    for (const r of sat) r.querySelector('input[type=checkbox]').click();
+    [...document.querySelectorAll('.st-treebar button')].find((b) => /组合/.test(b.textContent)).click();
+    await new Promise((r2) => setTimeout(r2, 500));
+    out.groupRow = [...document.querySelectorAll('.st-node.grp')].length;
+    const exp = await S.exportGlb('grouped.glb');
+    out.exportBytes = exp.bytes;
+    S.undo();
+    await new Promise((r2) => setTimeout(r2, 400));
+    out.afterUndo = [...document.querySelectorAll('.st-node.grp')].length;
+    S.redo();
+    await new Promise((r2) => setTimeout(r2, 400));
+    out.afterRedo = [...document.querySelectorAll('.st-node.grp')].length;
+    const grpRow = [...document.querySelectorAll('.st-node.grp')][0];
+    if (grpRow) {
+      grpRow.querySelector('input[type=checkbox]').click();
+      [...document.querySelectorAll('.st-treebar button')].find((b) => /解散/.test(b.textContent)).click();
+      await new Promise((r2) => setTimeout(r2, 400));
+    }
+    out.afterUngroup = [...document.querySelectorAll('.st-node.grp')].length;
+    return out;
+  });
+  check('分组：生成场景 10 网格可勾选', grpRes.meshRows === 10, 'rows=' + grpRes.meshRows);
+  check('分组：组合后树现组件行', grpRes.groupRow === 1, 'grp=' + grpRes.groupRow);
+  check('分组：组结构可导出 GLB', grpRes.exportBytes > 1000, grpRes.exportBytes + 'B');
+  check('分组：撤销组消失/重做组回来', grpRes.afterUndo === 0 && grpRes.afterRedo === 1, JSON.stringify({ undo: grpRes.afterUndo, redo: grpRes.afterRedo }));
+  check('分组：解散后组件行清零', grpRes.afterUngroup === 0, 'grp=' + grpRes.afterUngroup);
+
 
   /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错） */
   await p2.evaluate(() => {

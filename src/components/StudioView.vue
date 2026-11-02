@@ -99,18 +99,29 @@
           <!-- 03 层级 -->
           <div v-if="st.report" class="st-panel">
             <div class="st-eyebrow">03 · 层级树</div>
+            <div class="st-treebar">
+              <input v-model="groupName" placeholder="组件名" maxlength="60" aria-label="组件名" />
+              <button :disabled="checked.length < 2 || treeBusy" @click="doGroup"
+                :aria-label="'组合选中的 ' + checked.length + ' 个网格为组件'">▣ 组合（{{ checked.length }}）</button>
+              <button :disabled="!ungroupTarget || treeBusy" @click="doUngroup" aria-label="解散选中的组件">解散</button>
+            </div>
             <div class="st-tree" role="listbox" aria-label="节点层级">
               <button v-for="n in shownNodes" :key="n.id" role="option" :aria-selected="st.selectedPath === n.path"
-                class="st-node" :class="{ mesh: n.isMesh, on: st.selectedPath === n.path }"
+                class="st-node" :class="{ mesh: n.isMesh, grp: n.isStudioGroup, on: st.selectedPath === n.path }"
                 :style="{ paddingLeft: 8 + n.depth * 13 + 'px' }"
                 @click="pick(n)">
-                <i>{{ n.isMesh ? '◈' : '▸' }}</i>{{ n.name || '(' + n.type + ')' }}
+                <label v-if="n.isMesh || n.isStudioGroup" class="st-check" @click.stop>
+                  <input type="checkbox" :checked="checked.includes(n.path)" :aria-label="'选中 ' + (n.name || n.type)"
+                    @change="toggleCheck(n.path)" />
+                </label>
+                <i>{{ n.isStudioGroup ? '▣' : (n.isMesh ? '◈' : '▸') }}</i>{{ n.name || '(' + n.type + ')' }}
               </button>
             </div>
+            <p v-if="treeMsg" class="st-note" :class="{ 'st-miss': treeErr }">{{ treeMsg }}</p>
             <p v-if="st.report.nodes.length > shownNodes.length" class="st-note">
               大型场景：仅显示前 {{ shownNodes.length }} / {{ st.report.nodes.length }} 个节点（交互性能保护）
             </p>
-            <p v-else class="st-note">点击网格行或视口中的模型可互相联动高亮</p>
+            <p v-else class="st-note">勾选 ≥2 个网格可组合为组件（世界变换保持，可撤销）；勾选 1 个组件行可解散</p>
           </div>
 
           <!-- 04 诊断 -->
@@ -345,6 +356,43 @@ function doRepairAll() {
     : '没有可应用的修复';
 }
 
+/* —— 组件分组（V5.0.2 收尾） —— */
+const checked = ref([]);               // 勾选的 path 列表（网格 + 组件行）
+const groupName = ref('');
+const treeMsg = ref('');
+const treeErr = ref(false);
+const treeBusy = ref(false);
+function toggleCheck(path) {
+  const i = checked.value.indexOf(path);
+  if (i >= 0) checked.value.splice(i, 1); else checked.value.push(path);
+}
+const ungroupTarget = computed(() => {
+  if (checked.value.length !== 1 || !st.report) return null;
+  const row = st.report.nodes.find((n) => n.path === checked.value[0]);
+  return row && row.isStudioGroup ? row : null;
+});
+function doGroup() {
+  if (checked.value.length < 2) return;
+  treeBusy.value = true; treeMsg.value = ''; treeErr.value = false;
+  try {
+    const r = studio.value.groupSelected([...checked.value], groupName.value || undefined);
+    if (!r.ok) { treeErr.value = true; treeMsg.value = r.reason; return; }
+    checked.value = [];
+    groupName.value = '';
+    treeMsg.value = `已组合 ${r.count} 个网格为「${r.groupName}」（撤销可还原）`;
+  } finally { treeBusy.value = false; }
+}
+function doUngroup() {
+  if (!ungroupTarget.value) return;
+  treeBusy.value = true; treeMsg.value = ''; treeErr.value = false;
+  try {
+    const r = studio.value.ungroupAt(ungroupTarget.value.path);
+    if (!r.ok) { treeErr.value = true; treeMsg.value = r.reason; return; }
+    checked.value = [];
+    treeMsg.value = `已解散组件（${r.count} 个子节点回到上层，撤销可还原）`;
+  } finally { treeBusy.value = false; }
+}
+
 /* —— 文字生成（V5.0.4） —— */
 const genText = ref('');
 const genMsg = ref('');
@@ -553,8 +601,24 @@ function toggleSpin() {
 }
 .st-node i{ font-style:normal; margin-right:6px; color:var(--txt-3); font-size:9px; }
 .st-node.mesh{ color:var(--txt-1); }
+.st-node.grp{ color:var(--acc); }
 .st-node:hover{ background:var(--acc-bg); color:var(--acc); }
 .st-node.on{ background:var(--acc-bg); color:var(--acc); box-shadow:inset 2px 0 0 var(--acc); }
+
+/* —— 组件分组（V5.0.2 收尾） —— */
+.st-treebar{ display:flex; gap:6px; margin-bottom:8px; }
+.st-treebar input{
+  flex:1; min-width:0; padding:6px 9px; font-size:11.5px;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:7px; color:var(--txt-1);
+}
+.st-treebar button{
+  cursor:pointer; padding:0 11px; border-radius:7px; font-size:11px; white-space:nowrap;
+  background:var(--wash-1); border:1px solid var(--hairline); color:var(--txt-2);
+}
+.st-treebar button:hover:not(:disabled){ color:var(--acc); border-color:var(--acc); }
+.st-treebar button:disabled{ opacity:.45; cursor:not-allowed; }
+.st-check{ display:inline-flex; align-items:center; margin-right:5px; cursor:pointer; }
+.st-check input{ width:12px; height:12px; accent-color:var(--acc); cursor:pointer; margin:0; }
 
 .st-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 .st-chip{
