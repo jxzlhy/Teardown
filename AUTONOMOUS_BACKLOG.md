@@ -26,7 +26,7 @@
 | P2 | 设备配置 chunk 加载失败态（发版后旧 chunk 404 / 弱网） | 可恢复性 | 低 | 请求拦截 abort + 浏览器 | 已完成（错误面板 + 重试/返回） |
 | P2 | `prefers-reduced-motion` 降级（开场/缓动/自转/CSS 动画） | 无障碍与晕动症友好 | 低 | Chrome 媒体特性模拟 + 断言 | 已完成（7/7） |
 | P3 | 子路径部署实测（`assetUrl` 已接入 GLB/缩略图/Draco） | 部署灵活性 | 低 | `vite build --base=/x/` + 静态服务 | 已完成（7/7；顺带修好插件写死 dist/） |
-| P2 | 新设备研究接入：已接 8 台（blender/grinder/pinball/triple-engine/gramophone/smeg/tourbillon-movement/grand-piano/gameboy，达 96 台 31 品牌）；GAP 四缺口全部收官：陀飞轮 ✅ 钢琴 ✅ Game Boy ✅（混合路径：真实外壳+明标注示意内构件，baseRotation 引擎能力）/ 手风琴 ❌ 拆解无解；新设备需新一轮外部调研 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
+| P2 | 新设备研究接入：2026-11-02 官方 NASA 双件（ingenuity-helicopter/parker-solar-probe，3D Resources 直链 GLB 渠道）达 **110 台 39 品牌**；NASA 渠道可扩量（更多 slug 待探）；PH 单网格件（microwave/spinning_wheel/mousetrap/compass）走「真实外壳+程序化示意内构件」混合路径候选 | 内容扩充 | 需逐台查证来源/许可 | convert-asset + add-device SOP + inspect 判定 | 持续滚动 |
 | P3 | pinball 弹射板疑似缺右只（Object_32/33 仅左），逐网格核对补映射 | 拆解准确性 | 低 | 页面 __RAW.rel + 截图 | **已核关闭（2026-11-01）**：inspect-glb 94 网格全 Object_N 无语义名；爆炸态选中特写实证 flippers 部件含两个网格（红 rubber 板体 + 白 plastic 板体）成对存在，与 desc「这两个部件」一致——源模型无缺失，无需补映射 |
 | P0 | 以下为 2026-10-31《MUSEUM-ROADMAP》研究产出的规划项（详见 docs/MUSEUM-ROADMAP.md 第八部分，验收口径以该文为准） | 记录 | — | — | 已固化 |
 | P1 | Phase 2：three-mesh-bvh 引入（MIT，兼容 0.164）+ 两点测量工具态最小原型（单设备试点，区分原始/展示尺寸） | 补齐实验室基础件 | 中：BVH 构建耗时需 <100ms/设备，超时降级普通 raycast | build + smoke + 无头取点断言 + 移动端工具栏不遮画布 | **已完成**（pocket3 123 几何 ≈20-29ms；smoke 17/17 含 2 项新断言；mobile 触屏通过；pocket3 realSizeMM 标定，其余设备显示"未标定"） |
@@ -49,3 +49,11 @@
 | P3 | GraphView 3D 模式再评估（维持暂缓结论，除非有深度感知需求） | MUSEUM-ROADMAP 结论 |
 | P2 | 设备页「内部」视角预设（联动 X-Ray 的组合机位） | 视角预设已上线，组合位是自然延伸；需逐台验证取景 |
 | P0 | （外部依赖）径向发动机 stroke 演示启用——模型活塞未单独建模，如获得分离活塞版资源可启用 phaseN=9 均布相位 | stroke.phaseN 已就绪 |
+
+## V3 新增（2026-11-02）
+
+| 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
+|---|---|---|---|---|---|
+| P1 | 模型接地专项：tools/ground-audit.mjs 无头扫描 104 台 hull bbox min.y 与台面 -3.9 间距 → 分级（<0.05 合格/0.05-0.4 微调/需 baseRotation 评估）→ 引擎接地偏移机制（逐台字段，默认 0） | §9.1 悬空是底座专项显性缺陷 | 中：逐台确认不可一刀切；爆炸/取景/特写需回归 | 审计表 + 抽样双厅截图 + smoke | 待办（下一切片） |
+| P2 | 缩略图日厅变体：render-thumbs/previewScene 增加日厅布光参数集，产出 day 变体，大厅按 data-hall 切换（缓存双份） | F2 日厅卡片拼贴感根除 | 中：104×2 存储与管线时长 | 缩略图抽查 + 大厅日厅截图 | 待办 |
+| P3 | tools/day-contrast-verify.mjs 按 V3 token 更新或退役 | 工具与代码一致 | 低 | 运行 | 待办 |

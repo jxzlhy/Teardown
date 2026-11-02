@@ -1523,3 +1523,150 @@ CC0 音源（条件缺失）、灰皮书的 gen-timeline/brand 库等衍生数�
 - 并行批次已入库（docs 2f8d3cd + V2 实现 1c28f35 + skills c8b43f5）并推送 Gitee；
   Mimosa 深度审计覆盖批次：0 发现 · 108 依赖包 · 0 命中公告（已封印）。
 - 递归 P1 定性关闭（编辑中途瞬时态伪影，warnHandler 诊断法入记忆库）。
+
+## 2026-11-02 · V3 设计系统重构首轮（Phase 0-3 闭环）
+
+- 任务书存档 docs/ui-ux/v3/（2688 行全文）；四件套工具链接入并真实调用（UUPM/impeccable/UI Craft/Oil UI，CLI 无 zcode 类型用 universal+symlink，见 DESIGN_TOOLCHAIN_VERIFICATION.md）。
+- 审计三根因：日厅补丁覆盖层 / 缩略图仅夜渲染 / 展台无层次；基线+方向+定稿三组截图共 21 张存 references/。
+- 三方向真实页面探索（data-dir 预览脚手架，已移除）：裁定 A+B 融合 + 夜厅 C 精修。
+- style.css 日厅 ~90 条硬编码全量 token 化（21 族替换、残留 0），根 token 换 A 调色板，扩展 8 个表面 token；夜厅底色加深+暖金导视线；照片版画卡+展台刻度环。
+- 验证：build 2.58s ✓ / smoke 全过 ✓ / impeccable detect 0 反模式 ✓；截图对比见 v3-tokens/。
+- 用户指示（已入记忆库）：全程自主决策不询问。
+- 下一项：底座六层结构（引擎侧）+ 缩略图日厅方案。
+
+### V3 续轮 · 精密环形展陈底座（Phase 6 首切片）
+- engine.js 展台重写为六层结构组（plinth Group）：墩身双层立体/台面/内环 accent 定位环/中环 canvas 刻度环（12 主+48 次，无数字不伪造测量）/外环金属带圈/断开式弧轨×3；整组随 deviceRadius 缩放（替换三件分散缩放）；thumb 模式整组隐藏；双厅共享几何只切材质（setPedestalHall 扩展）。
+- 刻度纹理 = 白色 alpha canvas × material.color 双厅着色（夜 0x9fc3d4/日 0x6f6553）；亮度二调（ticks .55/.45，arcs .2/.08）避免光晕化。
+- 验证：build 2.18s ✓ / impeccable 0 反模式 ✓ / 双厅截图（v3-tokens/）目检——夜厅同心结构成立、日厅厚度与浅石材成立。
+- 发现：模型与台面存在悬空间距（§9.1"模型无依据悬空"）——属逐台接地问题（104 台不可一刀切），已列 BACKLOG 下一切片（含接地审计工具方案）。
+
+### V3 续轮 · 模型接地专项（BACKLOG V3 P1 收官）
+- tools/ground-audit.mjs：16 台抽样实测 hull 底面悬空 1.0-4.2 单位（0 合格）——系统性证实 §9.1。
+- 解法（零侵入 104 台调校数据）：展台长高去接模型，而非移动模型。engine.js `setPlinthTop(topY)`：finalize 时台面 = 设备 hull 底面 -0.02 容差；墩身 y 向缩放延伸至地面（-4.05），底座步层固定；`device.groundOffset`/`groundKeep` 逐台覆盖字段备用。
+- 验证：build ✓ / smoke 全过 ✓ / action4+pocket3 装配态贴合 + 爆炸态无穿插截图（ground-*.png）目检 ✓。
+- 遗留：审计工具对 6 台 GLB 直映射件 parts 无 group（已加 hullCenter±finalBbox 回退，未复跑全表）；groundOffset 逐台微调按抽样截图滚动推进。
+
+## 2026-11-02（续）· V3.0 MECHANICAL FORGE 首轮：架构 + V8 标杆 + 全链路验证
+
+- 任务书存档 docs/roadmap/GEWU_V3_MECHANICAL_FORGE_AUTONOMOUS_EXECUTION.md（846 行，README 索引已更新）。
+- 新增 src/forge/：rand.js（mulberry32 种子流，禁裸 Math.random）/ materials.js（10 类有限材质，逐件新实例防跨部件连带高亮）/ v8.js（V8 生成器：参数 Schema+校验+默认值；90°/60° 交叉曲柄布局推导；10 部件组 builders+assembledPos 直接消费引擎 buildProceduralParts）/ registry.js（运行时 Map + localStorage dtm.forge.index 只存 {生成器,参数,种子}，确定性重建，几何不落盘）。
+- 引擎 runDemos 重构为 stepDemo 提取 + 新增 d.also 伴随条目（选中曲轴 → 曲轴自转 + 活塞连杆组沿缸轴往复联动；生命周期/退出缓动/复位与主条目一致；既有单部件演示不受影响）。
+- DeviceViewer forge 分流（isForgeId → registry），/forge 路由页（生成器选择+Schema 参数+种子+生成+近期列表，token 化样式双厅适配）；GalleryHub 导航加「锻造所」。
+- 验证（tools/forge-verify.mjs）：生成 10 部件 ✓ 联动演示（曲轴 6.6rad 自转+活塞往复采样）✓ 爆炸复位 <0.02 误差 ✓ 双厅切换状态保持 ✓ 同种子确定性重建（id/pos/parts 全等）✓ 刷新后 localStorage 重建 ✓ 0 控制台错误 ✓；smoke 全过 ✓；v8-engine 既有演示专项检查过（发现脚本仪表化过期：spinPivot:center 旋转在 pivot 子对象，getPartRotation 读 group 恒 0——已修为世界位移判定，非引擎回归）；lint:devices ✓。
+- 已知限制：锻造件未入 MODEL_INVENTORY（有意，manifest 之外）；导出 GLB、预设方案、涡扇/科幻生成器、Forge UI 参数即时预览 = 下阶段；DeviceViewer 上/下一台导航对 forge 件回绕到 manifest 设备（记录为小怪癖）。
+- 下一轮优先：PHASE 4（参数面板增强+预设）→ PHASE 5（涡扇生成器，复用叶片/轴系）→ 导出 GLB（GLTFExporter 评估）。
+
+### V3.0 Forge 续轮 · 涡扇标杆（PHASE 5 收官）+ 预设深链（PHASE 4 子集）
+- src/forge/turbofan.js：大涵道比双转子涡扇——9 部件组（短舱/风扇转子+N1轴/LPC×3/HPC×n/环形燃烧室/HPT/LPT×n/外涵筒/尾喷口）；参数（风扇直径/涵道比/HPC级数/LPT级数/表面/细节）+种子（叶片数/喷嘴数/螺旋标线/涂装）；叶片 = Box 顶点级锥度+扭转（§3.2B 扭转趋势）；双转子差速演示（N1 3.6 rad/s vs N2 6.2 rad/s，also 五部件联动）。
+- 修复：Object.assign 覆写 THREE Group.position 只读 getter 抛错（fan builder 仅注册 nacelle 即中断）→ 改 position.set 五处。
+- ForgeView：预设方案行（V8 4 + 涡扇 3）+ 深链 ?gen=&preset=&参数覆盖=&seed=&auto=1（onMounted 顺序：gen→preset→参数→seed→auto）。
+- 验证（tools/forge-tf-verify.mjs）：9 部件注册 ✓ / 差速成立（N1 Δ5.4 vs N2 Δ9.3）✓ / 爆炸复位 <0.02 ✓ / 宽体预设 API ✓ / forge UI 2 生成器 ✓ / 0 控制台错误 ✓；截图 forge-tf-{night,demo,explode,day}.png 目检通过（唇口/叶盘/级次/接地成立）。
+
+### V3.0 Forge 续轮 · GLB 导出（PHASE 7 核心收官）
+- src/forge/export.js：exportForgeGLB(id) = 离屏重建装配组（builders 只依赖 THREE）→ §11.2 结构校验（ID 唯一/坐标有限/非空）→ GLTFExporter binary → 下载（文件名=名称_生成器v版本_seed-种子，§9 可复现）。限制如实记录：demos 为运行时运动学不导出动画。
+- ForgeView 近期列表每行加「⬇ GLB」按钮（含导出状态行）。
+- 验证（tools/forge-export-verify.mjs）：V8 10 部件 628KB / 涡扇 9 部件 832KB 均落盘 /tmp/forge-dl，0 控制台错误；inspect-glb 复检导出件：188 节点/162 网格/102 材质/包围盒 6.34×4.58×5.64 合理，可重导入；smoke 全过。
+
+### V3.0 Forge 续轮 · FORGE-99 科幻复合动力核心（PHASE 6 收官）+ 排障记录
+- src/forge/ringdrive.js：虚构概念「环式磁耦合动力核心」——9 部件组（核心悬浮转子/定子磁轨×3/太阳轮/行星轮支架×n/内齿圈/辐条臂/外承力框架/能量导管簇/底部桁架）；轮系齿数按概念模数推算（太阳 18/行星/齿圈），磁悬浮与能量导管为虚构层（页面明示"虚构概念模型/非真实工程设备"）；轮系联动演示 = 核心转子与太阳轮同速自转 + 行星支架慢速公转（行星轮自转未模拟，描述注明示意口径）。
+- 验证（tools/forge-rd-verify2.mjs + probe/probe2 探针）：9 部件装载 ✓ / 联动成立（core 4.50 = sun 4.50 / carrier 1.65 公转慢速）✓ / 爆炸复位 ✓ / GLB 导出 679KB ✓ / smoke 全过 ✓ / build 2.38s ✓；截图 forge-rd-{night,demo,explode}.png 目检——机械逻辑可信、虚构层有明确标注。
+- 排障记录：①Object.assign 覆写 Group.position 只读 getter（涡扇首验只注册 1 部件）→ position.set；②Vite 新依赖（GLTFExporter）re-optimize 重载循环 + networkidle2 不可靠 → domcontentloaded+定置等待；③browser.close() 挂起（swiftshader 收尾）导致 tail 管道缓冲伪装成"无限卡死"——工件落盘/文件日志才是真实进度；verify 脚本一律改文件日志。
+- PHASE 0-7 状态：架构✓ 零件库（叶片/齿轮/轴系内嵌生成器）✓ V8✓ 编辑体验子集（参数/预设/深链/近期/导出）✓ 涡扇✓ 科幻核心✓ GLB 导出✓；PHASE 8（性能与稳定性专项）与轮系约束增强（行星轮自转/啮合相位）为下阶段。
+
+### V3.0 Forge 续轮 · PHASE 8 稳定性专项（收官）
+- tools/forge-stress-verify.mjs：3 生成器 × 3 种子 = 9 台连续生成+访问，网格/材质量逐台稳定（V8 171-185 / 涡扇 183-187 / 核心 178-183，无跨台累积=引擎卸载释放正常），全程 0 控制台/页面错误，EXIT 0。
+- PHASE 0-8 全部收官；PHASE 9+ 按协议持续自选迭代（候选：轮系自转约束、预设导入导出 JSON、接地审计全量、缩略图日厅管线）。
+
+### V3.0 Forge 续轮 · 行星轮自转约束 + 引擎 meshSpin 扩展（Slice A 收官）
+- engine.js demos 新增 `d.meshSpin = { speed, pick(o) }`：部件内指定子对象（含 Group——齿轮类应整体绕轮心转）绕各自原点自转；进入记录基角、退出按同段 t 缓动归位；无该字段的既有演示零影响。
+- ringdrive 行星轮演示升级公转+自转复合（pick 沿父链匹配 planet_gear Group）；排障：fromMs 漏带 base 致退出每帧 TypeError → 修复；forge-z-probe 堆栈定位法沉淀。
+- 验证：联动/自转/爆炸复位/GLB 全过 + 0 PAGEERROR。V4.0 立项：docs/roadmap/GEWU_V4_OPEN_MUSEUM_ROADMAP.md（Slice 1 = 缩略图日厅管线）。
+
+### V4.0 OPEN MUSEUM · Slice 1 缩略图日厅管线（F2 根除）
+- tools/render-thumbs.mjs：每台同页双布光产出——setHallMode('day') 渐变后 thumbView+snapshot → <id>-day.webp，再回夜厅出标准图；needDay 按 -day 文件存在跳过（--all 强制重渲）。
+- GalleryHub：thumbSrc(id) 按 lobbyHall 切换 -day 变体；变体缺失回退夜图（thumbFailed 键 id:day，不空卡不造假图）；hero 焦点展台同用 thumbSrc。
+- 试点 3 台：日变体 19-24KB（预算 ≤60KB 达标）；全量 104 台后台渲染中（完成后终验）。
+
+### V4.0 Slice 1 收官 · 双厅缩略图全量上线
+- 全量渲染：104 台 × 双布光（102 成功 0 失败 + 2 试点），日变体 11-26KB/台，thumbs 总量 2.5M→4.8M；跳过逻辑修正（夜图存在但日变体缺失仍需渲染）。
+- 终验：日厅 6/6 卡片加载 -day 变体 ✓、夜厅切回标准图 ✓、缺失回退机制在渲染窗口期实测生效（avata2/mavic3pro 曾临时回退不空卡）✓；smoke 全过 ✓、build 2.26s ✓。
+- F2（日厅卡片拼贴感）根除；V4.0 路线图 Slice 1 完成，下一 Slice 2 接地全量治理。
+
+### V4.0 Slice 2+3 收官 · 接地全量治理 + 发布就绪回归
+
+**Slice 2（接地全量治理）**
+- ground-audit.mjs 升级三轮排障后定稿：①补 s.device.id 守卫（SPA 切台竞态曾测到上一台）；②开场演出 settle 2.2s（55% 爆炸入场使 v1 bbox 失真）；③双指标 raw/robust（最低四分位 mesh-min 中位数）+ 杂点离群清单。
+- 全量 104/104 读数 → 发现真实缺陷类：官方 GLB 远处杂点网格（s22-ultra speaker 跨度 14u）令 raw bbox 底达 -13 → 展台被埋地下。
+- 引擎修复（两行哲学）：①接地基准改稳健下沿（滤杂点，钢琴"少腿着地"类验证不误伤）；②**落地式钳制**——模型底低于地面时展台隐没于地面（永不高于地面），30 台落地式排布设备（手机族等，历史上展台本被机身遮挡）自动恢复正确形态，无需逐台配置。
+- 目检：s22-ultra（隐没✓机身立地）/ action4（悬浮接底✓）/ grand-piano（腿底接触✓）；smoke 全过；JSON 工件 docs/ui-ux/v4-ground-audit.json（raw/robust/离群三列）。
+
+**Slice 3（发布就绪）**
+- tools/v4-preview-verify.mjs：vite preview 产物级回归 EXIT 0——6 资产全 200（含日变体缩略图/draco wasm）、5 深链路由全部启动、0 控制台错误。
+- index.html：description 更新至 104 台 + og 三标签 + theme-color。
+- AUTONOMOUS_METRICS 增 V4.0 基线表（体积门槛/产物回归门槛/缩略图预算/审计工件指针）。
+
+### V4.0 Slice 4 收官 · Forge 预设库开放（配置文本化）
+- registry.js 新增 encodeForgeConfig/decodeForgeConfig/importForgeConfig（fmt 'gewu-forge/1' + 生成器白名单校验）；ForgeView 增「⧉ 配置」复制与「05 · 导入配置」面板。
+- 验证：同种子导入 sameId=true / 非法输入正确拒绝 / UI 导入落地 booted / 0 错误；smoke 全过；README 增锻造所功能节（GLB 命名规约+配置分享口径）。
+- V4.0：Slice 1-4 全部收官，剩 Slice 5（PHASE 9 滚动项）。
+
+## 2026-11-02（续）· V4.0 MECHANICAL INTELLIGENCE 立项 + 机构关系系统首切片
+
+- 权威任务书存档 docs/roadmap/GEWU_V4_MECHANICAL_INTELLIGENCE_AUTONOMOUS_EXECUTION.md（604 行，用户 Downloads 原文）；此前自主编制的 OPEN_MUSEUM（Slice 1-4 已完成验证）转为 V4.0 前置工程，其成果（双厅缩略图/接地治理/发布就绪/预设库）直接服务 MI。
+- 新增 src/forge/mech.js：Mechanism Graph 数据层——10 类关系类型（任务书 §4.2 全集）+ MECH_TYPE_LABEL + validateMech（稳定 ID/引用存在/类型合法/kinematic 口径校验）。
+- 试点（锻造 V8，符合任务书"先跑通一个代表性机械"）：mech 14 条边——4 曲柄滑块（按曲柄销站位，相位标注，kinematic:approx=连杆摆动平动近似口径诚实）+ 3 轴承支撑（exact）+ 7 固定连接；driver=crank。
+- DeviceViewer 工作台首件：总览弹层「机构关系 MECHANISM」面板——按类型分组、▸精确/⇢近似/─装配 图例、点击关系选中+聚焦对应零件；**仅当 device.mech 存在且校验通过才渲染**（真实设备无数据即隐藏，绝不虚构）；样式消费 V3 双厅 token。
+- 验证（tools/v4-mech-verify.mjs EXIT 0）：面板 3 组 14 边渲染 ✓ / 点击关系选中聚焦 ✓ / 真实设备 v8-engine 无数据面板隐藏 ✓ / 0 控制台错误。
+
+### V4.0 MI② 收官 · 运动学统一时钟 + 速度控制 + 曲轴转角精确显示
+
+- 引擎：`state.demoClock`（积分 dt×speed 的统一演示时钟）+ `state.demoSpeed`（0.25-3 钳制）+ `setDemoSpeed` API；runDemos 全部演示（spin/stroke/wobble/meshSpin）共用同一时钟——**变速只改积分速率不改相位基准，无跳变**；切台复位。
+- DeviceViewer：部件详情卡「运动状态 KINEMATICS」块（仅 driver 选中且 mech 校验通过时渲染）——曲轴转角实时 deg（120ms 轮询实际 rotation.z mod 2π）、四缸相位芯片（sin(θ+φ)>0.985 高亮近上止点）、0.5×/1×/2× 速度按钮（外部 API 变速同步按钮态）。
+- v8.js：slider_crank 边新增机器可读 `phase` 字段（0/90/270/180°）。
+- 验证（tools/v4-kinematics-verify.mjs EXIT 0）：时钟速率 1.017@1× / 2.000@2× ✓；转角-时钟一致性（Δθ 298.2° vs 预期 297.9°）✓；变速无跳变 ✓；按钮态同步 ✓；切台复位 speed=1/clock=0.018 ✓；0 控制台错误；smoke 全过；目检 motion-box + 生成物部件特写小图 ✓。
+
+### V4.0 MI④ 收官 · 工作原理分步演示（forge V8 工作循环七步）
+
+- v8.js：`tour` 7 步策展（布局→曲轴→活塞连杆→缸盖→盖罩→进气→油底壳，{id,note} 格式，引擎零改动直接消费）；讲解词全部"概念工作循环示意"口径，不虚构热力过程。
+- 联动红利：Tour 选中曲轴步时既有 demos 自动激活（选中=演示的机制天然契合分步教学）。
+- 验证（tools/v4-tour-verify.mjs EXIT 0）：7 步步进到末尾 ✓ / 曲轴步 demoActive 联动 ✓ / 讲解卡渲染 ✓ / stopTour 复位 ✓ / 0 错误；smoke 全过。
+
+### V4.0 MI 推广 · FORGE-99 轮系运动学解析化 + mech 边
+
+- ringdrive.js：行星轮系速度由齿数解析推导（固定齿圈：ω_c = ω_s·Z_s/(Z_s+Z_r)；(ω_p−ω_c)·Z_p = −ω_c·Z_r ⇒ ω_p = ω_c·(1−Z_r/Z_p)），替换手调 -4.6；传动链一致（核心转子 3.0 → 太阳轮刚性 → 支架输出）。
+- ringdrive mech 8 边（shaft_coupling/gear_mesh×2 带 ratio/bearing_support 磁悬浮虚构层 visual/fixed×3/visual_only 导管）——visual_only 首次实战（虚构层诚实标注）。
+- 验证（forge-rd-verify2 增解析速比断言）：ω_c/ω_s = 0.269 = 18/(18+49) 精确命中 ✓；行星自转 −1.827 rad/s ✓；爆炸复位/GLB/0 错误 ✓；smoke 全过。
+
+### V4.0 MI 推广 · 真实设备 mech（v8-engine）+ 涡扇 mech
+
+- src/devices/v8-engine.js：手写 mech 7 边（全部引用其 8 个真实部件 ID；模型无缸体/油底壳部件即不虚构对应关系）——slider_crank×1（八组曲柄滑块，approx）/ bearing_support / **belt_drive 首次实战**（附件轮系，速比未标定不作数值声明）/ fixed×4。真实设备总览面板首次点亮。
+- turbofan.js：mech 8 边（N1/N2 shaft_coupling×3 + bearing_support + fixed×4）。
+- 验证：v8-engine 面板 4 组 7 边（曲柄滑块/轴承支撑/带传动/固定连接）✓；forge-turbofan 3 组 8 边 ✓；lint:devices 全过 ✓；0 页面错误。
+
+### V4.0 MI⑤ 收官 · 模型质量诊断
+
+- src/forge/qa.js：analyseModel 纯函数——五类检查（结构 ID 重复+关系校验 / 坐标 NaN / 几何空部件+杂点网格+hull 异常+面数 / 运动演示引用失效+零拆解位移 / 展示接地+中心偏离）×四级分级（ERROR/WARNING/INFO）；§8.3 纪律内置（只诊断不修复）。
+- 引擎 `runQA` API（mesh 级统计：面数/最低四分位稳健底/raw 底）；DeviceViewer 总览弹层「模型诊断 QA」区（计数徽标 + 前 6 条发现 + 面数），打开惰性运行一次/台。
+- tools/lint-mech.mjs 入 lint:devices 链（manifest 设备 mech 校验，v8-engine 7 边通过）。
+- 验证（tools/v4-qa-verify.mjs EXIT 0）：干净锻造 V8 0/0/0 ✓；注入 ghost 演示引用 → ERROR 捕获 ✓；面板渲染 ✓；真实 v8-engine 诚实报 1W（几何）+1I（2M 面数）✓；0 控制台错误；smoke 全过。
+- MI 六大系统进度：①✅ ②✅ ④✅ ⑤✅ ③探索（既有能力+机构面板）大体覆盖 ⑥工作台 UX（运动状态块/机构面板/诊断区已入）——剩余：部件卡相连关系 mini 列表、面板移动端适配、jet-engine 等逐台 mech。
+
+### V4.0 MI⑥ 收官 · 相连关系 mini 列表 + 移动端适配 + jet/radial mech
+
+- DeviceViewer 部件卡「相连关系 LINKS」：选中零件显示全部触及边（类型徽标 + 对端名 + kinematic 符号），点击聚焦对端（修复：从选中件点出应聚焦 e.to 而非 e.from）；同一稳定 ID 引用（§6.3）。
+- jet-engine mech 4 边（机匣 fixed 链 + revolute 整段旋转示意——无独立转子件不虚构）/ radial-engine mech 2 边（revolute 输出端 + fixed 缸排；内部活塞连杆未建模即不写）。
+- 移动端 390×844：机构/诊断/相连三面板限高滚动（38vh/30vh/26vh）。
+- 验证：crank 相连 7 条 ✓ 对端聚焦 pistons ✓ jet 4 边 2 组 / radial 2 边 2 组 ✓ 移动端 maxH 38vh capped + scrollable ✓ lint（3 台 manifest mech）✓ 0 错误；smoke 全过。
+- MI 六大系统：①②④⑤ ✅ + ③探索增强（相连关系/聚焦）✅ + ⑥工作台 UX（运动状态/机构/诊断/相连四面板）✅ —— V4.0 MI 主体收官；遗留：mech 覆盖推广滚动（其余演示设备逐台）。
+
+## 2026-11-02（续）· 模型搜罗轮：官方 NASA 双航天件接入（达 110 台 39 品牌）
+
+- 目标执行（全网搜罗模型，官方优先）：逐渠道实测——DJI 新品线（Neo/Flip/Air 3S/Mic/360）reactor CDN 无 GLB；Google Store Pixel/Sony/PlayStation 页面 JS 渲染无 3D 直链；NASA JWST 官方件仅 3D 打印简化 STL（精度不达，弃）；**NASA 3D Resources model/ 目录直链 GLB 命中**：机智号 + 帕克。
+- 结构审定（宁缺勿滥）：Poly Haven 候选 5 件中 vintage_microwave(2 原语)/spinning_wheel_01(1)/mousetrap(1)/seadogs_compass(3) 直拆无解 → 留作「真实外壳+程序化示意内构件」混合路径候选（Game Boy 先例）；vintage-binocular 与既有军用双筒重复被 add 查重拦截。
+- 新增 src/devices/ingenuity-helicopter.js：官方 NASA GLB 738KB（webp+draco，原件备份 vendor/originals/nasa-2026-11-02/），5 部件（太阳能板/上旋翼/下旋翼/航电舱/起落架）。**引擎侧名字是 NASA CAD 节点名**（10460522*＝太阳能板、MHP_*ROTOR_STOWED+Cylinder028/019＝腿、Cylinder014/035＝下旋翼、Cylinder017/005＝上旋翼、Cube012/002＝机身），mappingPrefix startsWith 聚类 35/35 实测全中；双层对转旋翼演示（+3.2/-3.2 rad/s 降速示意）。
+- 新增 src/devices/parker-solar-probe.js：官方 NASA/JHUAPL GLB 247KB，6 部件。**官方网格把热盾几何并入 BUS**（heatShield_Mounting 仅为安装环）→ 按「热盾与主体总线」一体呈现并在部件 specs/描述注明口径（不虚构独立热盾件）；foil_silver 白箔夜厅+Bloom 过曝 → postLoad 仅对 col>0.9 材质乘 0.5 压暗；爆炸件位按世界坐标实测校准。
+- 基线修复（并行会话遗留）：src/knowledge/brands.js 补 CURTA 品牌档案（Herzstark/Contina 1947，verified-3rd）→ lint:devices 回绿。
+- index.html description/og 更新至 110 台。
+- 验证：lint:devices ✓（110 台/品牌档案 39/39） / gen:inventory 110 台·855 部件 ✓ / thumbs 2 台夜+日变体（17-23KB）✓ / build 2.58s ✓ / v4-preview-verify EXIT 0（6 资产 200、0 控制台错误）✓ / 产物级 PSP hull 8.5025 复核 ✓ / 双台 ×（夜厅/爆炸）截图目检 ✓（docs/design/screenshots/nasa-*.png）。
+- 已知限制：smoke 套件在系统负载 6.6–10.4（用户抖音 App 后台渲染）下 4 轮出现 4 种不同单点抖动（m4 hullRadius 读早 / frame detached / dev server 拒连），按 BACKLOG「负载>5 不作数」协议记为环境阻塞，以产物级回归替代；负载回落后建议复跑全量 smoke。
+- 下一轮优先：①NASA 渠道扩量探测（更多 slug 直链 GLB）；②微波炉混合路径（真实外壳+程序化磁控管/变压器示意件）；③V4.0 MI 机构关系下一切片。

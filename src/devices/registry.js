@@ -106,6 +106,17 @@ import admiral7t10 from './admiral-7t10.js';
 import we500RotaryPhone from './we500-rotary-phone.js';
 import regencyTr1 from './regency-tr1.js';
 import radialEngine from './radial-engine.js';
+import curtaType2 from './curta-type2.js';
+import vintageBinocular from './vintage-binocular.js';
+import manualGearbox from './manual-gearbox.js';
+import wankelEngine from './wankel-engine.js';
+import ingenuityHelicopter from './ingenuity-helicopter.js';
+import parkerSolarProbe from './parker-solar-probe.js';
+import fresnelLens from './fresnel-lens.js';
+import refractorTelescope from './refractor-telescope.js';
+import fireHydrant from './fire-hydrant.js';
+import seadogsCompass from './seadogs-compass.js';
+import vintageStapler from './vintage-stapler.js';
 
 export const devices = [
   /* DJI */
@@ -130,7 +141,7 @@ export const devices = [
   /* 其他 */
   switchOled, switch2, flipperZero, frameworkLaptop13, modularSmartphone,
   /* GENERIC */
-  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano, radialEngine,
+  swissEscapement, orrery, radioTransceiver, drillPress, vintageMicroscope, pocketWatch, portableCassettePlayer, retroMultimeter, handDrill, digitalWatch, alarmClock, cashRegister, retroConsole, hypoidGear, computerParts, filmstripProjector, wallClock, planetaryGearbox, kitchenBlender, pinballMachine, tripleEngine, gramophone, grandPiano, radialEngine, vintageBinocular, manualGearbox, wankelEngine, fresnelLens, refractorTelescope, fireHydrant, seadogsCompass, vintageStapler,
   /* SANTA CRUZ */
   santacruzV10,
   /* ROYAL */
@@ -173,6 +184,10 @@ export const devices = [
   we500RotaryPhone,
   /* REGENCY */
   regencyTr1,
+  /* CURTA */
+  curtaType2,
+  /* NASA/JPL */
+  ingenuityHelicopter, parkerSolarProbe,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

@@ -1,8 +1,8 @@
 # 已有模型清单（防重复登记表 · 自动生成）
 
-> 生成时间：2026-11-01 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
+> 生成时间：2026-11-02 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**104 台设备** · 815 个部件 · 104 套 GLB · 38 个品牌
+> 当前：**110 台设备** · 855 个部件 · 110 套 GLB · 39 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -98,7 +98,7 @@
 |---|---|---|---|---|---|---|
 | countach-lpi800-4 | Lamborghini Countach LPI 800-4 | 汽车 | 6 | 社区 | countach-lpi800-4.glb | 1.9 MB |
 
-### GENERIC（30 台）
+### GENERIC（33 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
@@ -132,6 +132,9 @@
 | gramophone | 手摇留声机 | 影音 | 4 | 社区 | gramophone.glb | 924 KB |
 | grand-piano | 三角钢琴（活动击弦机） | 乐器 | 7 | 社区 | grand-piano.glb | 105 KB |
 | radial-engine | 星型活塞发动机 | 机械 | 3 | 社区 | radial-engine.glb | 5.0 MB |
+| vintage-binocular | 军用双筒望远镜 | 科学仪器 | 8 | 社区 | vintage-binocular.glb | 1.3 MB |
+| manual-gearbox | 前驱变速驱动桥总成 | 机械 | 8 | 社区 | manual-gearbox.glb | 1.3 MB |
+| wankel-engine | 汪克尔转子发动机 | 机械 | 5 | 社区 | wankel-engine.glb | 5.5 MB |
 
 ### KALASHNIKOV（1 台）
 
@@ -163,11 +166,13 @@
 |---|---|---|---|---|---|---|
 | hubble-telescope | 哈勃空间望远镜 | 航天 | 8 | 官方 | hubble-telescope.glb | 4.0 MB |
 
-### NASA/JPL（1 台）
+### NASA/JPL（3 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | perseverance-rover | 毅力号火星车 | 航天 | 12 | 官方 | perseverance-rover.glb | 2.8 MB |
+| ingenuity-helicopter | 机智号火星直升机 | 航天 | 5 | 官方 | ingenuity-helicopter.glb | 738 KB |
+| parker-solar-probe | 帕克太阳探测器 | 航天 | 6 | 官方 | parker-solar-probe.glb | 247 KB |
 
 ### NINTENDO（3 台）
 
@@ -314,4 +319,19 @@
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
 | regency-tr1 | Regency TR-1 晶体管收音机 | 影音 | 2 | 社区 | regency-tr1.glb | 504 KB |
+
+### CURTA（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| curta-type2 | Curta Type II 机械计算器 | 复古计算机 | 8 | 社区 | curta-type2.glb | 9.5 MB |
+
+## ⚠️ 孤儿 GLB（public/assets 有文件但 registry 未注册，共 6 个）
+
+- curta-calculator.glb（5.7 MB）
+- fire-hydrant.glb（901 KB）
+- fresnel-lens.glb（909 KB）
+- refractor-telescope.glb（351 KB）
+- seadogs-compass.glb（548 KB）
+- vintage-stapler.glb（401 KB）
 

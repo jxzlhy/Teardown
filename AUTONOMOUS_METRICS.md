@@ -77,3 +77,22 @@
 | impeccable | 0 新增反模式 | 仅既有 --ease-spring advisory |
 | 双厅资产 | 日厅背景懒生成 + 星点显隐 | 0 额外纹理下载 |
 | 字体资产 | 思源黑体 196 片 / 5.6MB | @fontsource/noto-sans-sc 900 |
+
+## 2026-11-02 · V4.0 基线（发布就绪口径）
+
+| 指标 | 值 | 门槛/备注 |
+|---|---|---|
+| 构建体积（gzip） | index 42.4KB / DeviceViewer 74.9KB / three 198.8KB / GalleryHub 7.3KB | 不回退；新增 chunk 需评估 |
+| 产物回归 | vite preview EXIT 0：资产全 200 + 5 深链启动 + 0 控制台错误 | tools/v4-preview-verify.mjs，发版前必跑 |
+| 缩略图资产 | 208 张（104×2）· 4.8MB · 日变体 11-26KB/台 | 单张 ≤60KB 预算 |
+| 接地治理 | 全量审计 104/104 读数（v1）；0 下沉 | docs/ui-ux/v4-ground-audit.json；v2 settle 修正后复核 |
+| Forge 导出 | V8 628KB / 涡扇 832KB / 核心 679KB | inspect-glb 复检通过 |
+| 冒烟断言 | 32 项全过（含 forge 分流回归） | npm run smoke |
+
+## 2026-11-02 · NASA 双官方件接入基线
+- 设备规模：104 → **110 台 / 855 部件 / 39 品牌**（MODEL_INVENTORY 自动生成）。
+- 新资产：ingenuity-helicopter.glb 738KB（原 1.93MB，38%）、parker-solar-probe.glb 247KB（原 433KB，57%）；原件备份 vendor/assets/originals/nasa-2026-11-02/。
+- 缩略图：夜 17-18KB + 日变体 17-23KB（预算 ≤60KB 达标）。
+- 构建：build 2.58s；v4-preview-verify EXIT 0（6 资产全 200、0 控制台错误）。
+- 许可：两台均为 NASA 3D Resources 公有领域，modelSource 直链资产页，lint 署名校验通过。
+- 环境：smoke 因系统负载 6.6–10.4 四轮单点抖动（协议不作数），以产物级回归替代。
