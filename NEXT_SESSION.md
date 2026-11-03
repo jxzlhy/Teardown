@@ -11,7 +11,7 @@
 
 ## 下一次最先执行（按序）
 
-0. **R9 延伸（2026-11-03 续轮 4 新增）**：a) R9 语言向其他页面延伸（用户指令尾句「可延伸到其他页面，乃至整个项目」）——候选：大厅卡片 hover 层级 / 星图·编年·对比页头与档案瓦片化，动工前按 REFERENCE_STUDY 语法做页面级小审计；b) R6 部件分组节头（设备数据 group 字段，逐台滚动）；c) hud-verify `--device action4` 旗舰断言 + smoke 全量复跑（负载 <5 窗口，含历史挂账 radial/JWST/Wright/V5.0-studio）。
+0. **R9 延伸（2026-11-03 续轮 4 新增，4b 已完成首轮延伸）**：a) ~~日厅大厅审计~~ **已完成（4b）**——V3 遗产质量确认无重构需求；实证 thumb 管线 plinth 本就隐藏（大厅无旧底座包袱）；移动端导航渐隐带修复+render-thumbs 重试护栏已入库（45fa721）。b) R9 语言向研究翼延伸（星图/编年/对比页头与档案瓦片化，REFERENCE_STUDY 语法页面级小审计先行）；c) R6 部件分组节头（设备数据 group 字段，逐台滚动）；d) hud-verify `--device action4` 旗舰断言 + smoke 全量复跑（负载 <5 窗口，含历史挂账 radial/JWST/Wright/V5.0-studio）。
 1. ~~V4.0 MI 全系统 + 收尾清点 + V4.1 照明治理循环 + 性能/兼容回归~~ **收官**（执行状态档 GEWU_V4_MI_EXECUTION_STATUS.md / v4-light-audit / v4-viewport-sweep EXIT 0 / fps-probe quality 修复 / forge nav 修正；**smoke 负载抖动已定案=环境负载非回归**——负载曲线 24→6.4 与通过/失败严格相关，load<8 单跑全过，规程入记忆库）。
 2. **V5.0 创作工作室续（2026-11-03 七切片已交付）**：`/studio`（src/studio/ 九模块 + StudioView.vue 十面板）——V5.0.0 基础架构 + V5.0.1 导入/体检 + V5.0.2 Workshop 编辑器+**组件分组** + V5.0.8 本地作品库 + V5.0.3 参考图对照层 + V5.0.5 修复闭环 + V5.0.4 文字程序化建模；Node 单测双套件 16/16+19/19 全绿；studio-verify 48 项（浏览器段 OOM 持续崩页，静默窗口待跑全量）；下一候选 = gizmo / studio-verify 并入 smoke / 评分→诊断联动，见 AUTONOMOUS_BACKLOG「V5.0 创作工作室」节与 docs/architecture/STUDIO_ARCHITECTURE.md。
 3. **V4.1 续（按价值自选）**：a) 模型切换/运动/拆解/复位体验打磨（切台时序/动画手感）；b) 零件导航/弹出层滚动优化；c) 真机性能回归（headless 已覆盖，真机 Safari/Chrome 待设备）。
