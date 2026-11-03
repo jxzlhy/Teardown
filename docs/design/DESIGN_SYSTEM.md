@@ -154,3 +154,18 @@
 - 动效铁律：`docs/MOTION_GUIDELINES.md`；3D 呈现：`docs/3D_EXPERIENCE_GUIDELINES.md`
 - Skill 组合与冲突裁决：`docs/DESIGN_SKILLS.md`
 - 审计问题→修复映射：`docs/design/UI_UX_AUDIT.md`
+- 参考站调研与采纳裁定：`docs/design/REFERENCE_STUDY_2026-11-03.md`
+
+## 13. 展陈空间组件模式（2026-11-03 增补，来源：参考站调研 R1–R5）
+
+工作空间（设备页）新增/升级组件的固定版式，全部双厅 token 化：
+
+| 模式 | 版式要点 | token/实现 |
+| --- | --- | --- |
+| 雷达刻度盘底座 | 盘面只允许 hairline 线元素（同心环虚实交替 + 放射刻度 + 外缘渐变弧光），无面无数字；夜厅青光、日厅纸面浅刻线；亮度集中在模型脚下边缘渐隐 | 引擎 `engine.js` plinth 纹理；`setPedestalHall` 双厅材质 |
+| 顶栏规格 chip | 数值（mono 13px）/ 单位+标签（9px 弱化）上下两行；分隔线并排 ≤3 枚；≤1080px 隐藏 | `#topbar .tb-spec` |
+| 部件索引行 | 两位序号 + CN 名（主）+ EN 全名（下行 9px mono 弱化）；激活态左侧 accent 竖条 + 序号变 accent；头部计数放大 mono | `#rail .prow`、`.rail-count` |
+| 档案面板（UNIT DOSSIER） | 巨型型号字（EN，name 层 26px）→ CN 全名 → 简介 → **2 列规格瓦片**（数值 mono 15px + 标签 9.5px）→ 状态行 → 真实性/署名卡；eyebrow ≤1 个 | `#infoPop`；`.spec-tile` |
+| 拆解进度读数 | dock 拆解组尾部 mono 百分比（0–100%），随 explodePct 实时刷新 | `#exReadout` |
+
+红线沿用 §9/§10：规格瓦片数值一律来自设备配置真实数据，缺失字段留空不造；进度读数是拆解度真实百分比。

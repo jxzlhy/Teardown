@@ -172,3 +172,62 @@
 | 演示 | 转盘 Δ3.139 rad/0.9s = 33⅓ rpm（真实速率） | 页面采样 |
 | 门槛 | lint 全绿（计数四处同步 120）· build 2.97s · thumbs 双布光 ✓ | npm run |
 | 馆口径 | 120 台 · 916 部件 · 42 品牌 | gen:inventory |
+
+## 2026-11-03 续轮 4 · 浑天仪 + Pascaline 裁决
+
+| 指标 | 数值 | 测量方式 |
+|---|---|---|
+| armillary-sphere | 7 网格（六环+中心）· 66.4 万 tri 雕花 · 57.3MB→5.78MB（512 重采样+webp→draco） | optimize-glb |
+| 联动演示 | 六环异轴缓转（spin+also×4，各环独立速率/轴向） | 页面 selectPart 采样 |
+| 映射 | 6/6 部件全带网格、0 幽灵 0 空、0 页面错误 | 页面探针 |
+| join-materials 增强 | --join-name 按名分组合并（组内按材质+语义子分桶）；Pascaline 试跑 346→38 网格 | tools/join-materials.mjs |
+| Pascaline | 暂缓：双份重叠+跨父链缩放，JOINED 世界矩阵不齐（中心溢出 bbox），需 bake-transform；原始件已备份 | LOG 证据链 |
+| 馆口径 | 124 台 · 937 部件 · 43 品牌（五处一致） | gen:inventory |
+| smoke 基建 | 设备页 booted 等待 90s→180s（实测大资产+swiftshader boot 60-120s）；演示采样窗 0.9s→2.2s；tour 卡 8s→20s | tools/smoke.mjs |
+| 遗留 | smoke 连跑受机器负载（并行会话压机 10-24）与浏览器多页劣化影响，待 load<2 窗口全绿收官 | 本轮多轮记录 |
+
+## 2026-11-03 深夜续 · Apollo 11 舱门 CAD（第 125 台 · 本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 资产 | apollo-hatch.glb 4.54MB（**去 draco**——SI 预编码 draco 使 three DRACOLoader worker 挂死 PARSING，重编码无效，实测定性）；原 1.47MB 预 draco | S3 直链 + 排障实录 |
+| 映射 | 3 组件 1:1:1 材质映射（.056 五金/.057 门板/.058 框板），逐组件隔离截图校准语义 | apollo-pid 探针 + iso-*.png |
+| 馆口径 | 125 台 · 940 部件 · 43 品牌（五处一致） | gen:inventory |
+| 验证 | lint/build 2.67s/thumbs/首屏 OFFICIAL+隔离三图 ✓；smoke 半程（资源压力 rAF 停摆挂账） | 独立 8222 实例 |
+
+## 2026-11-03 深夜续 2 · Apollo CM 座舱（第 126 台 · 本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 资产 | apollo-cm-interior.glb 4.43MB（4 分包 merge：hull+panel+seats+graffiti；panel draco 先 decode） | S3 直链 + merge |
+| 管线修复 | merge CLI 孤儿节点缺陷 → 自写 GLB JSON chunk 修补（scenes.nodes 全挂） | fix-scene.mjs |
+| 映射 | 4 部件位置特征路由（graffiti z<-20 / seats y<170 / panel z<20 / hull 其余）；IAB 实测 3/4 网格路由正确（seats 被资源压力随机丢，规则数据可信） | cmi-robust + IAB 探针 |
+| 馆口径 | 126 台 · 940 部件 · 43 品牌（五处一致） | gen:inventory |
+| 验证 | lint/build 4.67s/thumbs/graph/timeline ✓；IAB OFFICIAL+3/4 ✓；seats 4/4 与 smoke 挂账空闲窗口 | IAB 长驻进程 |
+
+## 2026-11-03 深夜续 3 · Apollo CM 外壳（第 127 台 · 本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 资产 | apollo-cm-exterior.glb 3.48MB（shell 90k+top 160k 双分包 merge+fix-scene） | S3 直链 |
+| 映射 | 2 组件 y 阈值路由（nose y>220 / main-shell 其余） | GLB JSON 中心实测 |
+| 馆口径 | 127 台 · 946 部件 · 43 品牌（五处一致） | gen:inventory |
+| 验证 | lint/build 4.12s/thumbs/graph/timeline ✓；IAB 目检 OFFICIAL+主壳体烧蚀肌理首屏 ✓；nose 随机丢件挂账复验 | IAB 长驻进程 |
+| 本会话累计 | 106 → 127 台：+8 接入（3 社区+5 官方 Smithsonian/NASA）+1 置换（radial 分离活塞）+3 引擎缺陷修复 +2 资产管线坑定性 | 三本账 |
+
+## 2026-11-03 深夜续 4 · 海鸥 1963（第 128 台）+ Singer 落选（本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 资产 | seagull-1963.glb 3.51MB（原 34.25MB；resize2048→webp q82→draco，10% 保留比） | 压缩管线 |
+| 映射 | 6 部件材质语义映射，**142/142 全量路由零丢失**（movement 92 / crown 25 / case 14 / dial 7 / crystal 3 / strap 1） | IAB 探针 |
+| 品牌档案 | SEA-GULL（1955 天津手表厂，双来源 verified-3rd） | brands.js |
+| 落选 | Singer 15（CMBC）：6 份重叠几何（65532v=ushort 上限×6）建模缺陷 | inspect 定性 |
+| 馆口径 | 128 台 · 952 部件 · 44 品牌（五处一致） | gen:inventory |
+| 验证 | lint/graph/timeline/build 3.23s ✓；IAB OFFICIAL 徽章+era 规格条+首屏 ✓；thumbs/smoke 挂账窗口 | IAB 长驻进程 |
+| 直链时效 | 取链与下载必须同动作序列（隔轮 400 过期实证） | 流程备忘 |
+
+## 2026-11-03 续会话轮 4 · R9 设备页升级（本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 构建 | 4.4s ✓；DeviceViewer chunk 226,671B（本轮新增顶栏 chip/档案瓦片/读数样式后） | vite build |
+| 设备页 e2e | hud-verify 12/12 ALL PASS（新工具，参数化设备+独立实例重试护栏） | tools/hud-verify.mjs |
+| 全站冒烟 | smoke 26/28 绿（2 失败定性环境：tour 墙钟抖动 + 并行 OOM 截断，设备页链路全绿） | tools/smoke.mjs |
+| 截图证据 | 5 张日夜×桌面/移动（1440×900 / 390×844） | docs/design/screenshots/2026-11-03-hud-rev/ |
+| lint | lint:devices ✓ 128 台五处一致 | tools/lint-*.mjs |

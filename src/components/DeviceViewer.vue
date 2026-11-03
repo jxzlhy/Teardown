@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer" :class="{ immersive: immersiveMode, thumb: thumbMode, 'rail-open': railOpen, 'mp': isMobile, 'has-sheet': !!selectedPart && isMobile, 'clip-on': ui.viewMode === 'clip', 'has-vstrip': viewStripOpen }" :style="{ '--sheet-h': sheetH + 'px' }">
+  <div class="viewer" :class="{ immersive: immersiveMode, thumb: thumbMode, 'rail-open': railOpen, 'mp': isMobile, 'has-sheet': !!selectedPart && isMobile, 'clip-on': ui.viewMode === 'clip', 'has-vstrip': viewStripOpen, 'ctx-open': !!selectedPart }" :style="{ '--sheet-h': sheetH + 'px' }">
     <canvas id="scene" ref="canvasRef" @pointerdown="viewPreset = null"></canvas>
     <div id="labels" ref="labelsRef"></div>
     <div id="fx-scan"></div>
@@ -20,6 +20,12 @@
         <span class="tb-model">{{ device.en }}</span>
         <h1>{{ device.name }}</h1>
       </div>
+      <!-- 关键规格 chip（R2 参考调研）：数值大 / 标签小，档案数据前置到顶栏；≤1080px 隐藏 -->
+      <div class="tb-specs" v-if="specChips.length">
+        <span class="tb-spec" v-for="([k, v], i) in specChips" :key="i">
+          <b>{{ v }}</b><i>{{ k }}</i>
+        </span>
+      </div>
       <span class="tb-status" :title="ui.modelStatus">
         <i class="hud-dot" :class="statusTone"></i><em>{{ statusShort }}</em>
       </span>
@@ -33,7 +39,7 @@
     <aside v-if="!thumbMode" id="rail" class="hud-panel" :class="{ open: railOpen }">
       <div class="rail-head">
         <button class="rail-toggle" @click="toggleRail" :aria-expanded="railOpen ? 'true' : 'false'" title="展开 / 收起部件导航（紧凑 ↔ 展开）">
-          <span class="hud-eyebrow">部件清单 · {{ device.parts.length }}</span>
+          <span class="hud-eyebrow">部件清单 <b class="rail-count">{{ device.parts.length }}</b></span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
         </button>
         <button class="rail-mode" @click="toggleRailMode" :title="railMode === 'list' ? '切换宫格导航' : '切换清单导航'" :aria-label="railMode === 'list' ? '切换宫格导航' : '切换清单导航'">
@@ -51,8 +57,11 @@
           @pointerenter="engine && engine.setHover(p.id)"
           @pointerleave="engine && engine.setHover(null)">
           <span class="idx">{{ String(i+1).padStart(2,'0') }}</span>
-          <span class="pname">{{ p.zh }}</span>
-          <span class="pen">{{ p.en.split(' ')[0] }}</span>
+          <!-- 两行行结构（R3 参考调研）：CN 名主行 + EN 全名副行 -->
+          <span class="pcol">
+            <span class="pname">{{ p.zh }}</span>
+            <span class="pen">{{ p.en }}</span>
+          </span>
         </button>
       </div>
       <div class="rail-grid" v-else>
@@ -173,6 +182,8 @@
             @pointerdown="scrubbing = true" @pointerup="scrubbing = false"
             @input="onSliderInput" ref="sliderRef" aria-label="拆解度">
         </div>
+        <!-- 拆解进度读数（R5 参考调研）：滑杆隐含值的显性化，mono 百分比（ui.explode 已是 0–100） -->
+        <span id="exReadout" v-if="!ui.step" aria-hidden="true">{{ Math.round(explodePct) }}<i>%</i></span>
         <div id="exWrap" class="step-ctl" v-else>
           <button class="step-btn" @click="engine && engine.stepPrev()" :disabled="ui.step.i <= 0" aria-label="上一步">‹</button>
           <span class="step-count">装配 {{ ui.step.i }}/{{ ui.step.n }}</span>
@@ -297,8 +308,10 @@
     <!-- ⓘ 设备总览弹卡 -->
     <Transition name="fade">
       <div v-if="infoOpen && !thumbMode" id="infoPop" class="hud-panel hud-corner">
-        <div class="hud-eyebrow">{{ device.en }} · OVERVIEW</div>
-        <h3>{{ device.category }} · {{ device.name }}</h3>
+        <div class="hud-eyebrow">{{ device.category }} · UNIT DOSSIER</div>
+        <!-- 档案版式（R4 参考调研）：EN 型号大字为视觉锚点，CN 名与品类作次级 -->
+        <div class="dp-model">{{ device.en }}</div>
+        <h3>{{ device.name }}</h3>
         <div class="ctx-desc">{{ device.description }}</div>
         <div class="spec-list">
           <div v-if="device.era != null && !(device.specs || []).some(([k]) => k === '发布')" class="spec"><span class="k">发布</span><span class="v">{{ device.era }}</span></div>
@@ -879,6 +892,8 @@ watch([() => tour.value && tour.value.i, () => tour.value && tour.value.note], (
 });
 onBeforeUnmount(() => { if('speechSynthesis' in window) speechSynthesis.cancel(); });
 const explodePct = computed(() => ui.value.explode);
+/* 顶栏关键规格 chip（R2）：取档案规格前 3 条前置展示（缺失字段留空不造） */
+const specChips = computed(() => (device.value.specs || []).slice(0, 3));
 const qualityLabel = computed(() => ['LOW', 'MED', 'HIGH'][ui.value.quality ?? 2] || 'HIGH');
 const sliderValue = computed(() => Math.round((scrubbing.value ? manualSlider : ui.value.explode) * 10));
 const labelsName = computed(() => ({ auto: '自动', all: '全部', off: '关闭' })[ui.value.labelsMode] || '自动');

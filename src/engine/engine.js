@@ -211,14 +211,15 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     scene.add(particles);
   }
 
-  /* ---------- 精密环形展陈底座（V3 §09 六层结构，A+B 融合方向） ----------
+  /* ---------- 精密环形展陈底座（V3 §09 六层结构 · 2026-11-03 雷达刻度盘升级） ----------
      顶面与设备地面接触面齐平（y=-3.9），设备位置不变；整组随 deviceRadius 缩放。
-     层次：①承载墩身（双层立体：墩体+下基座）②台面 ③内环 accent 定位环
-          ④中环刻度环（canvas 径向刻度纹理，12 主 + 48 次，无数字——不伪造测量）
-          ⑤外环金属带圈 ⑥断开式弧轨 ×3（B 语汇：工程结构感）。
-     坐标语义沿用网格/轴线（setGridVisible）与 gizmo，与刻度环视觉分离。
+     层次：①承载墩身（双层立体：墩体+下基座）②台面 ③台缘 accent 定位环
+          ④雷达刻度盘面（单张 canvas：外缘实线环 + 虚线同心环 ×2 + 三级放射刻度 + 30° 分段弧块，
+            全部 hairline 线元素、无数字——不伪造测量；参考调研 REFERENCE_STUDY_2026-11-03 R1）
+          ⑤外缘渐变弧光 ×2（顶点色沿弧长黑→accent→黑 + Additive：黑即不可见，纯氛围非数据）。
+     坐标语义沿用网格/轴线（setGridVisible）与 gizmo，与盘面刻度视觉分离。
      不参与拾取（raycaster 只查 pickMeshes）；thumb 模式整组隐藏；双厅共享几何，setPedestalHall 只切材质。 */
-  let plinth, plinthRing, plinthCap, plinthTicks, plinthBase, plinthBand, plinthArcs;
+  let plinth, plinthRing, plinthCap, plinthFace, plinthBase, plinthRim;
   let setPlinthTop = () => {};   // 装载后由 finalize 按设备 hull 底面调用（创建块内赋值）
   const PED_BASE_R = 4.2;
   {
@@ -245,46 +246,79 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     plinthRing.rotation.x = -Math.PI / 2;
     plinthRing.position.y = -3.9;
 
-    /* 中环刻度环：白色 alpha 纹理 × material.color 着色（双厅各给色调），12 主刻度 + 48 次刻度 */
-    const tickTex = (() => {
+    /* ④ 雷达刻度盘面：RingGeometry 平面 UV 按 r/outer 映射，画布半径据此精确换算（R()）。
+       双厅复用同一张白色线稿纹理，setPedestalHall 只调 material.color/opacity。 */
+    const FACE_R_IN = PED_BASE_R + 0.46, FACE_R_OUT = PED_BASE_R + 1.5;
+    const faceTex = (() => {
       const S = 1024, c = document.createElement('canvas'); c.width = c.height = S;
       const g = c.getContext('2d'); g.translate(S/2, S/2);
-      const R_IN = S*0.40, R_OUT = S*0.49;
-      for(let i=0;i<60;i++){
-        const major = i%5===0;
-        const a = i/60*Math.PI*2;
-        const r2 = R_IN + (R_OUT-R_IN)*(major ? 0.42 : 0.62);
-        g.strokeStyle = major ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.4)';
-        g.lineWidth = major ? 4 : 2;
+      const u = S / 2;
+      const R = (world) => (world / FACE_R_OUT) * u;
+      const ring = (r, w, a, dash) => {
+        g.beginPath(); g.arc(0, 0, R(r), 0, Math.PI * 2);
+        g.lineWidth = w; g.strokeStyle = `rgba(255,255,255,${a})`;
+        g.setLineDash(dash || []); g.stroke(); g.setLineDash([]);
+      };
+      ring(FACE_R_OUT - 0.02, 3, .8);                  // 外缘实线
+      ring(PED_BASE_R + 1.08, 1.5, .42, [10, 8]);      // 中环虚线
+      ring(PED_BASE_R + 0.66, 1, .26, [3, 7]);         // 内环细虚线
+      ring(PED_BASE_R + 0.5, 1, .2);                   // 内侧收边
+      /* 三级放射刻度：2° 短刻 / 10° 中刻 / 30° 长刻，收在刻度带内 */
+      const tIn = R(PED_BASE_R + 1.14), tOut = R(FACE_R_OUT - 0.07);
+      for(let d = 0; d < 360; d += 2){
+        const m30 = d % 30 === 0, m10 = d % 10 === 0;
+        const a = d * Math.PI / 180;
+        const r2 = tIn + (tOut - tIn) * (m30 ? 1 : m10 ? .58 : .3);
+        g.lineWidth = m30 ? 3 : m10 ? 2 : 1;
+        g.strokeStyle = m30 ? 'rgba(255,255,255,.9)' : m10 ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)';
         g.beginPath();
-        g.moveTo(Math.cos(a)*R_IN, Math.sin(a)*R_IN);
-        g.lineTo(Math.cos(a)*r2, Math.sin(a)*r2);
+        g.moveTo(Math.cos(a) * tIn, Math.sin(a) * tIn);
+        g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
         g.stroke();
       }
-      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4; return tex;
+      /* 30° 分段弧块：刻度带内侧短弧（工程分段语汇，非数据） */
+      g.lineWidth = 5; g.strokeStyle = 'rgba(255,255,255,.35)';
+      for(let d = 0; d < 360; d += 30){
+        g.beginPath();
+        g.arc(0, 0, R(PED_BASE_R + 1.03), d * Math.PI / 180, (d + 11) * Math.PI / 180);
+        g.stroke();
+      }
+      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; return tex;
     })();
-    plinthTicks = new THREE.Mesh(
-      new THREE.RingGeometry(PED_BASE_R + 0.42, PED_BASE_R + 0.96, 96),
-      new THREE.MeshBasicMaterial({ map:tickTex, color:0x9fc3d4, transparent:true, opacity:.8, depthWrite:false }));
-    plinthTicks.rotation.x = -Math.PI/2;
-    plinthTicks.position.y = -3.878;
-    plinthTicks.renderOrder = 2;
+    plinthFace = new THREE.Mesh(
+      new THREE.RingGeometry(FACE_R_IN, FACE_R_OUT, 128, 1),
+      new THREE.MeshBasicMaterial({ map:faceTex, color:0x9fc3d4, transparent:true, opacity:.85, depthWrite:false }));
+    plinthFace.rotation.x = -Math.PI/2;
+    plinthFace.position.y = -3.878;
+    plinthFace.renderOrder = 2;
 
-    const bandMat = new THREE.MeshStandardMaterial({ color:0x111c27, metalness:.7, roughness:.35, side:THREE.DoubleSide });
-    plinthBand = new THREE.Mesh(new THREE.RingGeometry(PED_BASE_R + 1.06, PED_BASE_R + 1.34, 96), bandMat);
-    plinthBand.rotation.x = -Math.PI/2;
-    plinthBand.position.y = -3.885;
+    /* ⑤ 外缘渐变弧光 ×2：RingGeometry 扇段 + 顶点色正弦渐变（Additive 下黑=不可见）。
+       细线克制口径：0.044 世界单位宽，亮度由 setPedestalHall 按厅收敛。 */
+    plinthRim = new THREE.Group();
+    const rimR = FACE_R_OUT + 0.1;
+    const ACC = new THREE.Color(0x45e0ff);
+    const mkArc = (lenDeg, rot, alpha) => {
+      const geo = new THREE.RingGeometry(rimR - 0.022, rimR + 0.022, 96, 1, 0, lenDeg * Math.PI / 180);
+      const pos = geo.attributes.position;
+      const colors = new Float32Array(pos.count * 3);
+      for(let i = 0; i < pos.count; i++){
+        const ang = Math.atan2(pos.getY(i), pos.getX(i));
+        const t = (ang < 0 ? ang + Math.PI * 2 : ang) / (lenDeg * Math.PI / 180);
+        const k = Math.sin(Math.min(Math.max(t, 0), 1) * Math.PI) * alpha;
+        colors[i*3] = ACC.r * k; colors[i*3+1] = ACC.g * k; colors[i*3+2] = ACC.b * k;
+      }
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+        vertexColors:true, transparent:true, opacity:.6, blending:THREE.AdditiveBlending,
+        depthWrite:false, side:THREE.DoubleSide }));
+      m.rotation.x = -Math.PI / 2;
+      m.rotation.z = rot;          // Euler XYZ：先盘面内旋转，再放平
+      m.position.y = -3.87;
+      return m;
+    };
+    plinthRim.add(mkArc(96, Math.PI * 0.08, 1), mkArc(58, Math.PI * 0.72, .62));
 
-    plinthArcs = new THREE.Group();
-    const arcMat = new THREE.MeshStandardMaterial({ color:0x0e2833, emissive:0x45e0ff, emissiveIntensity:0.28, metalness:.5, roughness:.4 });
-    for(let i=0;i<3;i++){
-      const arc = new THREE.Mesh(new THREE.TorusGeometry(PED_BASE_R + 1.44, 0.028, 8, 72, Math.PI*88/180), arcMat);
-      arc.rotation.x = -Math.PI/2; arc.rotation.z = i * Math.PI*2/3;
-      arc.position.y = -3.872;
-      plinthArcs.add(arc);
-    }
-
-    plinth.add(body, plinthCap, plinthBase, plinthRing, plinthTicks, plinthBand, plinthArcs);
+    plinth.add(body, plinthCap, plinthBase, plinthRing, plinthFace, plinthRim);
     scene.add(plinth);
     if(hooks.adaptive === false) plinth.visible = false;   // thumb 模式（旧缩略图一致性）
 
@@ -298,9 +332,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       body.position.y = -3.9 - 0.25 + dy / 2;
       plinthCap.position.y = -3.895 + dy;
       plinthRing.position.y = -3.9 + dy;
-      plinthTicks.position.y = -3.878 + dy;
-      plinthBand.position.y = -3.885 + dy;
-      plinthArcs.children.forEach(a => { a.position.y = -3.872 + dy; });
+      plinthFace.position.y = -3.878 + dy;
+      plinthRim.children.forEach(a => { a.position.y = -3.87 + dy; });
       plinthBase.position.y = PLINTH_FLOOR - 0.11;
     };
   }
@@ -311,11 +344,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     plinthCap.material.color.setHex(day ? 0xf0f4f8 : 0x13202e);
     plinthBase.material.color.setHex(day ? 0xcfd8de : 0x080e15);
     plinthRing.material.emissiveIntensity = day ? 0.28 : 0.5;
-    plinthTicks.material.color.setHex(day ? 0x6f6553 : 0x9fc3d4);
-    plinthTicks.material.opacity = day ? .45 : .55;
-    plinthBand.material.color.setHex(day ? 0xd7dde2 : 0x111c27);
-    plinthBand.material.roughness = day ? .6 : .35;
-    plinthArcs.children.forEach(a => { a.material.emissiveIntensity = day ? .08 : .2; });
+    /* 盘面：夜厅冷青刻线；日厅暖石墨浅刻线（纸面画廊口径，参考 VNT-16 白模厅的克制） */
+    plinthFace.material.color.setHex(day ? 0x6f6553 : 0x9fc3d4);
+    plinthFace.material.opacity = day ? .5 : .7;
+    /* 弧光：日厅收敛为点缀（Additive 在纸面上会发灰，压低即隐） */
+    plinthRim.children.forEach(a => { a.material.opacity = day ? .1 : .6; });
   }
 
   /* 坐标辅助：网格显隐（V2）——网格与轴线一起，地面光晕与接触阴影保留 */

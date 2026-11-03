@@ -56,9 +56,15 @@
 - 页脚：引擎/版权/署名三行 mono；数量口径全部来自 `virtual:device-manifest`。
 
 ### 2.2 工作空间（DeviceViewer）
-- 布局骨架：顶栏（身份+状态+总览）/ 左 rail（部件清单，可折叠为圆点列）/ 底 dock（动作组）/ 右 ctxCard（选中部件详情）/ 浮层（clipStrip/tourBar/tourNote）。
+- 布局骨架：顶栏（身份+规格 chip+状态+总览）/ 左 rail（部件清单，可折叠为圆点列）/ 底 dock（动作组）/ 右 ctxCard（选中部件详情）/ 右上 infoPop（设备档案，按需唤出）/ 浮层（clipStrip/tourBar/tourNote）。
 - 视觉权重：3D 主体 > 顶栏 > dock 主键（拆解）> dock 图标组 > rail > ctxCard；任意时刻一个焦点。
 - dock 分组语义：拆解主键 ‖ 视图四模式+测量+装配 ‖ 标签/自转/截图/导览/沉浸/帮助 ‖ 切台；组间距用 `.tb-sep`，「视图」组加微标（阶段 E）。
+- 顶栏规格 chip（R9）：数值/标签两行 mono，`device.specs` 前 3 条，≤1080px 隐藏；只做档案数据前置，不放状态类信息。
+- 部件索引行（R9）：两位序号 + CN 名主行 + EN 全名副行（mono 大写、单行截断）；激活态沿袭左侧 accent 竖条。
+- 档案面板（R9）：EN 型号大字锚点（`.dp-model`）→ CN 名 → 简介 → 2 列规格瓦片（DOM 仍为 `.spec>.k+.v`）；规格只来自设备配置，缺失字段不渲染。
+- 拆解进度读数（R9）：`#exReadout` mono 百分比随 explode 实时刷新（0–100% 口径），≤700px 隐藏。
+- 坐标辅助互斥（R9 修复）：详情卡打开时 `#coordAid` 淡出（`.viewer.ctx-open`），罗盘/网格钮永不压在部件卡或 sheet 上。
+- 3D 底座（R9）：雷达刻度盘 hairline 语汇（详见 DESIGN_SYSTEM §13）——盘面只允许线元素与无数字刻度；夜厅冷青、日厅暖石墨浅刻线；弧光细线克制。
 - 沉浸模式：全部面板淡出，仅留右上退出键；thumb 模式全部隐藏（渲染管线专用）。
 
 ### 2.3 次级页（graph/timeline/compare）

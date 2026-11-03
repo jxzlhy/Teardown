@@ -515,6 +515,12 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 .tb-status .hud-dot{ width:5px; height:5px; }
 #topbar .hud-icon{ width:34px; height:34px; }
+/* 顶栏规格 chip（R2 参考调研）：数值大/标签小两行，档案数据前置；≤1080px 让位 */
+.tb-specs{ display:flex; align-items:center; gap:18px; margin-right:4px; }
+.tb-spec{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-width:0; }
+.tb-spec b{ font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--txt-1); letter-spacing:.02em; white-space:nowrap; }
+.tb-spec i{ font-style:normal; font-family:var(--mono); font-size:8.5px; letter-spacing:.22em; color:var(--txt-3); white-space:nowrap; }
+@media (max-width: 1080px){ .tb-specs{ display:none; } }
 
 /* ---------- 左侧部件 rail（可折叠） ---------- */
 #rail{
@@ -577,11 +583,14 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   border-left:2px solid transparent; transition:background .15s, border-color .15s;
 }
 .prow:hover, .prow.hot{ background:var(--acc-08); }
-.prow .idx{ font-family:var(--mono); font-size:10px; color:var(--txt-3); width:18px; }
-.prow .pname{ font-size:12.5px; letter-spacing:.04em; flex:1; color:var(--txt-2); }
-.prow .pen{ font-family:var(--mono); font-size:8px; letter-spacing:.14em; color:var(--txt-3); text-transform:uppercase; }
+.prow .idx{ font-family:var(--mono); font-size:10px; color:var(--txt-3); width:18px; flex:none; }
+/* 两行行结构（R3 参考调研）：CN 名主行 + EN 全名副行 */
+.prow .pcol{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.prow .pname{ font-size:12.5px; letter-spacing:.04em; color:var(--txt-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prow .pen{ font-family:var(--mono); font-size:8px; letter-spacing:.12em; color:var(--txt-3); text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .prow.active{ background:var(--acc-08); border-left-color:var(--acc); }
 .prow.active .idx, .prow.active .pname{ color:var(--acc); }
+.rail-count{ font-size:13px; font-weight:500; letter-spacing:.08em; color:var(--txt-1); opacity:.9; margin-left:4px; }
 
 /* rail 折叠态：序号圆点列（hover 弹出名称） */
 #railDots{
@@ -723,6 +732,13 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   outline:none; cursor:pointer;
 }
 #exSlider{ width:130px; }
+/* 拆解进度读数（R5）：滑杆隐含值显性化，等宽数字防跳动 */
+#exReadout{
+  flex:none; margin-left:2px; min-width:38px; text-align:right;
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--txt-2);
+  font-variant-numeric:tabular-nums; user-select:none;
+}
+#exReadout i{ font-style:normal; font-size:8.5px; color:var(--txt-3); margin-left:1px; }
 #exSlider::-webkit-slider-thumb, #clipStrip input::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%;
   background:var(--bg-1); border:2px solid var(--acc); box-shadow:0 0 8px var(--acc-16); cursor:grab;
@@ -792,7 +808,24 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   width:342px; max-height:calc(100vh - 200px); overflow-y:auto; overflow-x:hidden; padding:18px;
   scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent;
 }
-#infoPop h3{ margin-top:10px; font-family:var(--name); font-size:19px; font-weight:800; letter-spacing:.05em; color:var(--txt-1); }
+/* 档案版式（R4 参考调研）：EN 型号大字锚点 → CN 名 → 简介 → 规格瓦片 */
+.dp-model{
+  margin-top:10px; font-family:var(--name); font-size:26px; font-weight:900;
+  letter-spacing:.02em; color:var(--txt-1); line-height:1.15; word-break:break-word;
+}
+#infoPop h3{ margin-top:4px; font-family:var(--sans); font-size:13px; font-weight:600; letter-spacing:.1em; color:var(--txt-2); }
+/* 规格瓦片：2 列网格，数值在上/标签在下（DOM 保持 .spec>.k+.v，视觉序用 flex order——smoke 断言依赖 DOM 序） */
+#infoPop .spec-list{
+  margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  border-top:none;
+}
+#infoPop .spec{
+  flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:3px;
+  padding:9px 11px; border:1px solid rgba(120,150,180,.14); border-radius:8px;
+  background:rgba(120,150,180,.05); border-bottom:1px solid rgba(120,150,180,.14);
+}
+#infoPop .spec .k{ order:2; font-family:var(--mono); font-size:9px; letter-spacing:.18em; }
+#infoPop .spec .v{ order:1; font-size:12.5px; font-weight:600; letter-spacing:.02em; line-height:1.4; word-break:break-word; }
 .info-status{
   display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px;
   font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--txt-3);
@@ -955,6 +988,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   }
   #dock::-webkit-scrollbar{ display:none; }
   #exWrap{ display:none; }
+  #exReadout{ display:none; }
   #exWrap.step-ctl{ display:flex; }   /* 步进器保留：移动端唯一装配入口 */
   .step-count{ min-width:64px; font-size:10px; }
   .dock-explode{ padding:7px 11px; }
@@ -1078,7 +1112,10 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 /* ---------- 坐标辅助装置（V2 重设计）：方位陀螺 gizmo + 网格开关 ---------- */#coordAid{
   position:absolute; right:24px; bottom:86px; z-index:5;
   display:flex; flex-direction:column; align-items:center; gap:8px;
+  transition:opacity .3s ease;
 }
+/* 详情卡打开时罗盘/网格钮淡出：坐标辅助从不压在部件卡上（DOM 序曾使按钮浮于卡面） */
+.viewer.ctx-open #coordAid{ opacity:0; pointer-events:none; }
 #gizmo{ width:64px; height:64px; cursor:pointer; border-radius:50%; transition:transform var(--dur-1) var(--ease-out); }
 #gizmo:hover{ transform:scale(1.08); }
 #gridToggle{ width:32px; height:32px; border-radius:8px; }
@@ -1326,6 +1363,17 @@ html[data-hall="day"] .prow{ border-left-color:transparent; }
 html[data-hall="day"] .prow.active{ border-left-color:var(--acc); }
 html[data-hall="day"] .dock-glabel{ color:var(--txt-dim); }
 html[data-hall="day"] .dock-explode{ color:var(--acc); border-color:var(--acc); background:color-mix(in srgb, var(--acc) 6%, transparent); }
+/* 日厅 · 2026-11-03 设备页三区升级件（顶栏 chip / rail 计数 / 档案瓦片 / 进度读数） */
+html[data-hall="day"] .tb-spec b{ color:var(--txt-1); }
+html[data-hall="day"] .tb-spec i{ color:var(--txt-dim); }
+html[data-hall="day"] .rail-count{ color:var(--txt-1); }
+html[data-hall="day"] .dp-model{ color:var(--txt-1); }
+html[data-hall="day"] #infoPop h3{ color:var(--txt-2); }
+html[data-hall="day"] #infoPop .spec{ border-color:var(--hairline); background:var(--wash-1); }
+html[data-hall="day"] #infoPop .spec .v{ color:var(--txt-1); }
+html[data-hall="day"] #infoPop .spec .k{ color:var(--txt-3); }
+html[data-hall="day"] #exReadout{ color:var(--txt-2); }
+html[data-hall="day"] #exReadout i{ color:var(--txt-dim); }
 /* hud.css 内联暗色 */
 html[data-hall="day"] .hud-panel{ --glass:var(--panel-bg); }
 html[data-hall="day"] .hud-glow-btn{ color:var(--txt); border-color:var(--hairline-strong); background:var(--wash-1); }

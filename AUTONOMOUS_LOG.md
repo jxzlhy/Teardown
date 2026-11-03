@@ -2121,3 +2121,44 @@ CM exterior 外壳包（d8c6457e：shell+top 两件）做"外壳↔座舱"对台
 - 全套 48 项本轮跑到 **42/48 绿**：主流程（导入/编辑器链/作品库/参考图/修复闭环）全绿；文字生成 API 级 5 项全绿。
 - 失败 6 项全部为环境冻结类：文字生成 UI 点击流（p2 页 10s 等待窗口撞冻结；API 同码路径已绿）+ 连锁的分组 UI 4 项（依赖 UI 生成后场景状态）+ ?cap/大厅两项（三次重试均崩）。
 - 定性：产品代码缺陷为零证据——同一断言集在负载<5 窗口曾全量绿（27/27、29/31 轮）；UI 流改用 page.type 真实键序列以替代原生 setter 的加固列入下一静默窗口首批事项。
+
+- smoke 挂账（协同让行）：连续 4 轮 180s 超时期间系统 load 恒 12-22（并行会话 hud-verify/studio-verify 重验证在跑）；本会话 mech 改动已通过 lint + 双设备面板直验 + 0 pageerror 独立验证，smoke 待并行会话验证窗口结束、load<8 时补跑（同 NEXT_SESSION 既有挂账口径合并执行）。
+
+### smoke 挂账根因再定位（jet-engine PARSING 滞留）
+
+- 单设备隔离诊断（独立 8315 端口）：jet-engine 装载 booted 后 PARSING 状态滞留 65-80s 才转 COMMUNITY——GLB 解析耗时挤占 smoke 180s 窗口（前面步骤已消耗大半），超时非环境负载单一因素。
+- 关联：并行会话近期更新过 jet-engine 资产（更大模型）。处置：不改 smoke.mjs（并行会话领域，其 37 项 e2e 亦在同域）；挂账说明更新为「jet-engine 解析时长 + 负载竞争双重因素，待并行会话窗口一并调窗」。
+- 本会话改动（orrery/hubble mech）与该失败无关联（orrery/hubble 步骤在失败点之后，从未执行到）。
+
+- 更正：jet-engine.glb 现 4.63MB（v8 引擎 2M 级的 2 倍+），解析时长与体积相符；建议（记入待办池候补，不改代码）：smoke 的 jet 步骤 modelStatus 等待窗口可放宽至 240s 或改等 booted+parts（PARSING 期间 booted 已 true、parts 已就位——现判定条件过早要求最终状态）。
+
+## 2026-11-03 续会话轮 4 · 参考站驱动设备页升级：三区信息架构 + 雷达刻度盘底座（本会话）
+
+### 背景
+用户搜罗 8 个同类工程档案级拆解站（Mavic 3 Pro/VNT-16/Action 4/Quad 4S/行星发动机双主题/Bentley W12/VX-12T），点名底座不好看、浅色展示 UI 待升级，要求按设计规范与 Skill 对设备详情页大刀阔斧重构。Skill 链路：frontend-design + impeccable（context/craft-floor/detect 全跑）+ DESIGN_SYSTEM/UI_UX_REFACTOR_SPEC。
+
+### 交付
+- **调研沉淀** `docs/design/REFERENCE_STUDY_2026-11-03.md`：八站共同语法提炼（三区一底/雷达盘/双语命名/状态语言/真实性声明卡/双主题）+ R1–R10 采纳裁定（采纳 R1–R5；缓采 R6 分组需数据结构升级；不采 R7 双入口/R8 白模换材质/R10 常驻键位）。
+- **DESIGN_SYSTEM §13**：雷达刻度盘/顶栏规格 chip/部件索引行/档案面板/拆解进度读数五种版式入册；UI_GUIDELINES §2.2 同步工作空间骨架描述。
+- **S2 底座重建（engine.js）**：六层骨架保持，刻度环/金属带/断弧合并为单张 1024 canvas「雷达刻度盘」纹理（外缘实线+双虚线同心环+2°/10°/30° 三级放射刻度+30° 分段弧块；RingGeometry 平面 UV 按 r/outer 精确换算；无数字不伪造测量）+ 外缘顶点色渐变弧光 ×2（Additive 黑即不可见，夜 .6/日 .1 收敛）；日厅暖石墨浅刻线（VNT-16 白模厅口径）。接地随动/径向缩放/thumb 隐藏/不参与拾取全部保持。
+- **S3 设备页三区（DeviceViewer.vue + style.css）**：①顶栏规格 chip ×3（device.specs 前 3，数值/标签两行，≤1080px 隐藏）；②rail 两行行结构（CN 主行+EN 全名副行）+ .rail-count 计数提级；③infoPop 档案版式（EN 型号大字 .dp-model 26px/900 → CN 名 → 简介 → 2 列规格瓦片；DOM .spec>.k+.v 不变保 smoke 锚点）；④#exReadout mono 拆解度百分比（ui.explode 本身 0–100）；⑤修复 #coordAid 压 #ctxCard 真实叠层缺陷（详情卡打开即淡出，桌面移动统一）。
+- **验证工具** `tools/hud-verify.mjs`（新）：每段独立 browser 实例+崩溃换新重试护栏+protocolTimeout 600s+负载窗口轮询；参数化设备（默认 iphone-13 轻载正常尺度；action4 预留旗舰断言）。
+
+### 验证
+- **hud-verify 12/12 ALL PASS**（含 5 张日夜×桌面/移动截图目检：顶栏三级 chip/两行 rail/档案瓦片/读数/盘面刻线/日厅纸面全部成立）。
+- **smoke 26/28 绿**：设备页全链路绿；2 失败均定性环境非回归（导览词=高负载下 auto tour 墙钟推进快过读取，pocket3 tour[0] 数据实证未动；detached frame=并行 OOM 截断，截断项已被 hud-verify 等价覆盖）。
+- **build 4.4s ✓**（DeviceViewer chunk 226,671B）；**lint:devices ✓**（128 台五处一致）；**impeccable detect** 仅 1 条既有 token advisory。
+- 过程修复：读数公式 ×100 错位（ui.explode 已是百分比）、m4-carbine 188× 缩放补偿设备不适合 flyToPart 视觉验收（改 iphone-13）、rail 眉题折行、弧光过厚过亮（0.09→0.044 宽、夜 .92→.6）。
+
+### 环境口径（如实）
+与并行会话共享整机：验证期间其无头测试持续（Chrome 60-83、负载 7-20），本会话渲染进程被杀 5 次（frame detached / 180s 超时 / CDP protocolTimeout 打穿），最终以「负载窗口轮询 + 每段独立浏览器重试 + 轻载设备」跑通全绿。孤儿测试 Chrome 按 swiftshader flag 精确清理（未动并行会话进程）。
+
+### 下一步
+R6 部件分组节头（需设备数据 group 字段，单独立项）；R8 日厅白模材质研究（真实模型材质呈现边界，不承诺）；action4 旗舰断言 + smoke 全量挂账低负载复跑。
+
+### V4.1 · mech 滚动第二批（钟表/工具族 3 台）
+
+- wall-clock：mech 3 边——**60:1 + 12:1 两级 gear_mesh（kinematic:exact，速率真实可算）**，钟表传动链首次以精确速比入档。
+- gramophone：mech 4 边——储能→稳速→输出链（棘轮上弦 approx / 唱盘轴承 exact / 齿轮组减速 approx；发条与调速摆细部未建模即示意口径）。
+- angle-grinder：mech 4 边——动力传递链（锥齿轮 approx / 主轴轴承 exact / 防护罩与开关 fixed）。
+- 验证：lint 全过 ✓ 三面板直验（3/4/4 边）✓ 0 pageerror ✓。mech 覆盖达 **11 台**；碰撞排查：并行会话 WIP 在 engine.js/DeviceViewer.vue（80 行级 diff）——切台/拆解打磨切片本就需改这两文件，继续避让，mech 滚动为其安全替代路径。
