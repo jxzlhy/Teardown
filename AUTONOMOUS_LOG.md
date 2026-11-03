@@ -2188,3 +2188,100 @@ echo done
 __zcode_status=$?
 if [ "$__zcode_status" -eq 0 ]; then pwd -P > '/var/folders/dw/l50ynr19065331_yntcsn0dm0000gn/T/zcode-2cbf0168-59ae-43e6-a818-00853b369889-cwd'; fi
 exit "$__zcode_status"
+## 2026-11-04 续会话轮 4 · V5.0.4 增强——spec 结构化契约 + 深链（用户授权继续）
+
+### 交付
+- **textgen.js**：`specToJSON`/`specFromJSON`/`TEXTSPEC_FMT`——gewu-textspec/1 契约头、形状白名单（五形状）、数量钳制 1-24、材质值钳 0-1、非法输入拒收且原因可读；spec 是结构契约：同 spec 恒同结构（与文字入口同一确定性契约）。
+- **index.js**：`mountTextGen` 单一装配助手（文字入口与 spec 入口同一下游——report.textGenSpec 快照）；`exportTextSpec()`（当前场景非 textGen 产物时如实返回 null）；`generateFromSpec(jsonText)`。
+- **StudioView**：08 面板「⧉ 复制 spec / ⇥ 导入 spec」行（剪贴板不可用回退填入输入框；非 textGen 产物导出如实提示）；**深链**（forge 同模式，hash 路由查询串在 location.hash 内）：`#/studio?text=<描述>&auto=1` 预填自动生成、`#/studio?spec=<urlencoded JSON>` 直接重建。
+- **tools/textgen-spec-unit.mjs（新增）16 项 ALL PASS**：往返确定性/幂等/契约头/五类非法拒收（原因断言）/数值钳制/JSON 纯净/深链参数解析/两入口同 ID 序列。
+
+### 并行会话协作（同文件折叠提交，署名如上）
+并行会话对我 studio 模块做了整轮审计整改（RS-02/12/13/14/15：path 重映射/repairAll 单命令/输入上限/库连接治理+原子恢复+分块 b64/失败不毁现场），并同步更新了我的验证工具与 groupops 单测（21 项）——双单测回归全绿后按接力共进折叠入库（5375e6b，11 文件 +680/-175）。
+
+### 验证
+- Node 三套件 **53 项全绿**（textgen 16 + groupops 21 + spec 16）；build ✓ 3.5s。
+- studio-verify 4f 重构：API/UI 分离 + page.type 真实键序 + id 真实点击 + spec 断言 3 项（现 52 项）。
+- 浏览器套件仍挂账（load 18-19 持续）；Mimosa 深扫随提交触发。
+
+## 2026-11-04 深夜续 5 · 二线池第二台：瓦特蒸汽机教学模型（第 129 台 · 本会话）
+
+### 接入
+- **watt-steam-engine**（Wirtualne Muzea Małopolska 波兰国家级数字化，CC-BY；约 1835 Eugène Bourdon 制实物，带运转动画）：82.46MB → resize2048→webp q82→draco **4.08MB**。174 网格（107 Cylinder+26 Cube+语义族 noga/belka/ramka/top/inside/back/srodek_gwiazda）→ **4 部件 y 分层路由**（base y<0.6 / frame 0.6-1.05 / cylinder 1.05-1.25 / flywheel y≥1.25）。
+- 策展：瓦特三大改进叙事（分离冷凝器/行星齿轮/离心调速器——"自动控制"起点）+ Bourdon 教学模型史实。
+- **WIRTUALNE MUZEA 品牌档案**（kind=agency，双来源 verified-3rd）。
+- 落选×2 前置：Agfa Movex 88（6×65532v 重叠几何，pascaline/Singer 同款缺陷三连）、Lefaucheux 针发左轮（单网格 25.8k 全焊接）——原件均备份标 REJECTED。
+
+### 验证
+- lint 全绿（129 台+GLB 合规 129/0 违规）✓；gen:inventory 129·956·45 品牌 ✓；graph 1375 连边 ✓；timeline 100 事件 ✓；thumbs ✓；build 3.40s ✓。
+- **IAB 174/174 全量路由 4 部件**（base 14 / frame 12 / cylinder 36 / flywheel 112）零丢失 ✓；COMMUNITY 徽章 + era 规格条（1835 Bourdon/三大改进）✓；首屏目检：立式布局经典（横梁+连杆+大飞轮+汽缸）✓。
+
+### 二线池阶段性结论（4 候选消化完毕）
+- 接入 2：海鸥 1963（128）、瓦特蒸汽机（129）；落选 2：Agfa（重叠）、Lefaucheux（单网格）。
+- **规律沉淀**：社区小件"描述吹得好"≠"网格可拆"——落选三征（重叠 65532v / 单网格 / 匿名无语义）以 inspect 先行为准，下载前无法预判，属正常试错成本。
+- 二线池剩余：Polyphon 45D 盘式八音盒（10.9k，未下载）。
+
+## 2026-11-04 深夜续 6 · Polyphon 45D 落选——二线池正式收官（本会话）
+- **Polyphon 45D 落选**（arizinov，CC-BY）：inspect 定性**单网格 21.5k 全焊接**（nodes:3/meshes:1）——与 Lefaucheux 同款，无部件可分。原件备份标 REJECTED（polyphon45d_arizinov_REJECTED_singlemesh.glb）。
+- **二线池 6 候选全部消化**：2 接入（海鸥 1963、瓦特蒸汽机）+ 4 落选（Singer/Agfa 重叠缺陷、Lefaucheux/Polyphon 单网格）。
+- **规律定稿**：Sketchfab 小件落选三征（重叠 65532v×n / 单网格 / 匿名无语义）——"可下载"≠"可拆解"，inspect 先行是唯一可靠预判手段；后续候选调研须把"部件可分性"从证据等级 C 提升为硬性过滤条件（写入调研 SOP 口径）。
+
+## 2026-11-04 续会话轮 5 · V5.0.6 首切片——参数化机械模板（用户授权继续）
+
+### 交付
+- **src/studio/templates.js（新增）**：两个参数化模板——
+  - 齿轮对：极坐标梯形齿（每齿 4 点根-顶-顶-根）+轴孔挤出；**标准中心距 m·(zA+zB)/2 精确啮合**+从动轮半齿角错齿；参数钳制齿数 6-200/模数 0.5-8/齿宽 0.1-3。
+  - 曲柄滑块：θ=90° 静态装配快照；**标准位移公式 sx=r·cosθ+√(L²−(e−r·sinθ)²)**；存在性约束 L>r+e 不满足时 feasible=false 如实标记（快照为示意形态，UI 提示）；稳定 ID crank_disc/crank_pin/rod/slider/guide。
+  - detectTemplate：文字关键词检测（齿轮/啮合/曲柄/滑块/活塞 + 「20:30」「模数N」「连杆N」「偏置N」参数抽取）。
+- **textgen.js**：spec 契约扩展 `template` 字段——template-only spec 合法、kind 白名单（TEMPLATE_KINDS）、参数按钳制表补全/钳制；specToJSON 携带 template。
+- **index.js**：generateFromText 模板关键词优先分流（模板命中→参数化模板路径）；generateFromSpec template 分支；exportTextSpec 双形态（textGenSpec 结构 spec / textGenTemplate 模板 spec）；mountTextGen 扩签名（+template）。
+- **StudioView**：不可装配时 genMsg 如实提示装配条件。
+- **tools/templates-unit.mjs（新增）24 项 ALL PASS**：标准中心距/位移公式逐项数值断言（精度 1e-4~1e-6）、钳制边界、确定性、关键词检测、未知模板拒收、spec template 契约（含幂等）。
+
+### 验证
+- **Node 四套件 77 项全绿**（templates 24 + textgen 16 + spec 16 + groupops 21）；build ✓ 3.8s。
+- studio-verify 4f++ 增模板断言 3 项（UI 生成→2 部件树→spec 含 template→往返重建）现 55 项。
+- 浏览器套件仍挂账（load 14-20 持续，守望器在跑）。
+
+### 诚实口径
+- 齿形为简化梯形轮廓（非渐开线精确齿形），快照为静态装配（非运动学）——UI/提交信息如实标注「演示口径，不宣称可制造工程模型」；位移公式与中心距为标准公式精确实现。
+
+## 2026-11-04 · R9 挂账补跑收官 + 研究翼审计（本会话）
+
+### 补跑结果
+- **hud-verify `--device=action4` 旗舰断言 10/10 ALL PASS**（首轮因 CLI 语法 `--device action4` 空格分隔未命中解析器误跑 iphone-13——修正为等号形式）：AC203 档案大字 + 11 规格瓦片（10 规格+era 行）+ chip×3 全真实档案（传感器/像素/视频）+ rail 14 部件两行 + 拆解读数 + coordAid 互斥 + 日厅/移动全绿 + 控制台 clean。**R9 旗舰验证挂账正式关闭**。
+- 研究翼审计（星图/编年/对比三页截图留档 docs/design/screenshots/2026-11-04-research-audit/）：三页均为 PHASE_R4 合并后成熟态（星图页头+检索+图例+力导向图成立；编年四段分带+99 事件；对比 smoke 昨日已绿）——**R9 语法对数据密集页是过度设计，诚实结论=研究翼无需重构**，不为改而改。
+- R6 分组节头规模测算：部件数 max 23、其余集中低位（两行行结构+滚动列表在 23 部件下可用）——分组价值集中极少数设备，**数据背书缓采裁定，不立项**。
+
+### 环境口径
+smoke 全量两次尝试均被并行会话负载截断（大厅 4 项绿后 frame detached / 装载段 OOM）；1min 负载落到 4.33 窗口后第三次运行中。smoke.mjs 整段重试重构评估后**不做**——该文件是并行会话在改的共享文件（基线即 M），大 diff 有合并冲突风险；全量绿口径维持低负载窗口挂账。
+
+### 下一步
+smoke 全量结果回填；若绿则 R9 弧线完整收官，下一垂直切片按 backlog 择取（V4.1 切台体验打磨 / R6 已证伪不再列）。EOF
+git add AUTONOMOUS_LOG.md && git commit -m "docs：action4 旗舰断言 10/10 ALL PASS（CLI 语法坑修正后）+ 研究翼审计结论（成熟态无需重构）+ R6 分组数据证伪" -q && git log --oneline -1
+__zcode_status=$?
+if [ "$__zcode_status" -eq 0 ]; then pwd -P > '/var/folders/dw/l50ynr19065331_yntcsn0dm0000gn/T/zcode-053a5970-9a1e-4c9e-8074-039db3a25f2f-cwd'; fi
+
+## 2026-11-04 深夜续 7 · 随机丢件复验——模式修正为"特定大网格丢失"（本会话）
+
+- **轻量 IAB 复验**（单标签页，遵守"不影响其他进程"目标——不跑 smoke 不开无头）：
+  - apollo-cm-interior：3/4（graffiti/hull/panel ✓，**seats 59k 连续第二轮丢失**）
+  - apollo-cm-exterior：1/2（main-shell ✓，**nose/top 160k 连续第二轮丢失**）
+- **模式修正**：两台丢的都是各自 merge 文件中**顶点数最大的 primitive**（59k/160k）——从"资源压力随机丢件"修正为"**特定大网格确定性丢失**"（疑似装载内存预算阈值，待空闲机器区分"预算不足"与"真 loader 缺陷"）。
+- smoke 尝试一次（load 4.88 窗口）仍 180s 超时（内存 50MB+23 Chrome）——**按"不影响其他进程"目标主动停手**，不再重试冲击并行会话；维持挂账。
+- 待空闲机器：大网格丢失复测（区分预算/loader 缺陷）+ smoke×2 + thumbs 补渲染。
+exit "$__zcode_status"
+## 2026-11-04 续会话轮 6 · 浏览器套件 55/55 全绿里程碑 + smoke 挂账定性（用户授权继续）
+
+### 里程碑
+**tools/studio-verify.mjs 55/55 ALL PASS（负载 4.4）**——八切片浏览器套件首次全量通过：
+- 清账四项挂账：文字生成 UI 流（page.type 真实键序）✓、分组 UI 流 ✓、?cap 体积守卫 ✓、大厅懒加载边界 ✓。
+- 修复链：RS-15b 确认框无头自动接受（对话框挂起曾拖垮 CDP 通道=可复现根因，非随机 OOM）、protocolTimeout 600s、Vue 批处理等待环（组合/解散步）、分组前重建场景（模板步换场景顺序依赖）、树行断言改按网格行语义。
+- 断言值回归：分组探针实证 UI 流正确（fresh 页 grp=1），verify 失败纯时序。
+
+### smoke 挂账定性（更新）
+- 全量 smoke 设备页装载步 180s 超时；同窗并行会话正改 DeviceViewer/registry/devices（未提交中间态）+ load 11.7 回升——**结论不可判定，维持挂账**；大厅侧正常（129 张卡渲染）。
+- 我方 studio 为懒加载独立 chunk（大厅不预载断言本轮全绿），与设备页装载路径无交集。
+
+### 交付（d9a1848 + 本轮 studio-verify 加固）
+验证工具工程化：对话框处理/协议超时/真实交互路径/渲染时序环/顺序依赖隔离——高负载 OOM 环境下套件韧性达到「负载<9 单跑即绿」水位。
