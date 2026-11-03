@@ -56,60 +56,84 @@ await server.listen();
 console.log(`✓ dev server @ http://127.0.0.1:${PORT}`);
 
 const { default: puppeteer } = await import('puppeteer-core');
-const browser = await puppeteer.launch({
-  executablePath, headless: true,
-  args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader',
-         '--use-angle=swiftshader', '--hide-scrollbars', '--force-color-profile=srgb'],
-});
-const page = await browser.newPage();
-await page.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
-page.on('pageerror', e => console.log('  [pageerror]', String(e).slice(0, 200)));
+
+/* 每台设备可用独立 browser 实例：高负载（并行会话）下渲染进程可能被系统回收
+   （frame detached → page 报废），换新实例重试即可恢复（2026-11-03 hud-verify 同款护栏）。 */
+const launchPage = async () => {
+  const b = await puppeteer.launch({
+    executablePath, headless: true,
+    protocolTimeout: 600000,   // 页面 JS 冻结时默认 180s CDP 协议超时会误杀
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader',
+           '--use-angle=swiftshader', '--hide-scrollbars', '--force-color-profile=srgb'],
+  });
+  const p = await b.newPage();
+  await p.setViewport({ width: W, height: H, deviceScaleFactor: 1 });
+  p.on('pageerror', e => console.log('  [pageerror]', String(e).slice(0, 200)));
+  return { browser: b, page: p };
+};
+let { browser, page } = await launchPage();
+
+/* 单台渲染：boot 校验（防截到上一台）→ 日厅变体 → 夜厅标准图 */
+async function renderOne(page, id){
+  await page.goto(`http://127.0.0.1:${PORT}/#/device/${id}?thumb=1`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  /* hash 切换是页内导航：booted 不会复位，必须确认状态已切到目标设备，
+     否则批量渲染可能截到上一台的画面 */
+  await page.waitForFunction((want) => {
+    const e = window.__ENGINE;
+    if(!e) return false;
+    const s = e.getState();
+    return !!s.booted && s.device && s.device.id === want
+      && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
+  }, { timeout: 180000, polling: 200 }, id);
+  const status = await page.evaluate(() => window.__ENGINE.getState().modelStatus);
+  /* V4.0 Slice 1：双厅缩略图——同页先出日厅变体（setHallMode 渐变后取景），再回夜厅出标准图。
+     日变体缺失时大厅自动回退夜图（GalleryHub thumbSrc）。 */
+  let dayKB = null;
+  const needDay = argAll || !fs.existsSync(path.join(THUMB_DIR, id + '-day.webp'));
+  if(needDay){
+    await page.evaluate(() => window.__ENGINE.setHallMode('day'));
+    await new Promise(r => setTimeout(r, 1500));   // 双厅渐变（0.6s）+ 阴影稳定
+    await page.evaluate(() => window.__ENGINE.thumbView());
+    await new Promise(r => setTimeout(r, 400));
+    const dayUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
+    const dayBuf = Buffer.from(dayUrl.split(',')[1], 'base64');
+    fs.writeFileSync(path.join(THUMB_DIR, id + '-day.webp'), dayBuf);
+    dayKB = (dayBuf.length / 1024).toFixed(0);
+  }
+  await page.evaluate(() => window.__ENGINE.setHallMode('night'));
+  await new Promise(r => setTimeout(r, 900));
+  await page.evaluate(() => window.__ENGINE.thumbView());
+  await new Promise(r => setTimeout(r, 400));   // 等 controls.update / 缓动收敛
+  const dataUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
+  const buf = Buffer.from(dataUrl.split(',')[1], 'base64');
+  fs.writeFileSync(path.join(THUMB_DIR, id + '.webp'), buf);
+  return { status, dayKB, kb: (buf.length / 1024).toFixed(0) };
+}
 
 let ok = 0, fail = 0;
 for(const id of ids){
   const t0 = Date.now();
   try{
-    await page.goto(`http://127.0.0.1:${PORT}/#/device/${id}?thumb=1`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    /* hash 切换是页内导航：booted 不会复位，必须确认状态已切到目标设备，
-       否则批量渲染可能截到上一台的画面 */
-    await page.waitForFunction((want) => {
-      const e = window.__ENGINE;
-      if(!e) return false;
-      const s = e.getState();
-      return !!s.booted && s.device && s.device.id === want
-        && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
-    }, { timeout: 90000, polling: 200 }, id);
-    const status = await page.evaluate(() => window.__ENGINE.getState().modelStatus);
-    /* V4.0 Slice 1：双厅缩略图——同页先出日厅变体（setHallMode 渐变后取景），再回夜厅出标准图。
-       日变体缺失时大厅自动回退夜图（GalleryHub thumbSrc）。 */
-    let dayKB = null;
-    const needDay = argAll || !fs.existsSync(path.join(THUMB_DIR, id + '-day.webp'));
-    if(needDay){
-      await page.evaluate(() => window.__ENGINE.setHallMode('day'));
-      await new Promise(r => setTimeout(r, 1500));   // 双厅渐变（0.6s）+ 阴影稳定
-      await page.evaluate(() => window.__ENGINE.thumbView());
-      await new Promise(r => setTimeout(r, 400));
-      const dayUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
-      const dayBuf = Buffer.from(dayUrl.split(',')[1], 'base64');
-      fs.writeFileSync(path.join(THUMB_DIR, id + '-day.webp'), dayBuf);
-      dayKB = (dayBuf.length / 1024).toFixed(0);
-    }
-    await page.evaluate(() => window.__ENGINE.setHallMode('night'));
-    await new Promise(r => setTimeout(r, 900));
-    await page.evaluate(() => window.__ENGINE.thumbView());
-    await new Promise(r => setTimeout(r, 400));   // 等 controls.update / 缓动收敛
-    const dataUrl = await page.evaluate(() => window.__ENGINE.snapshot('image/webp', 0.87));
-    const buf = Buffer.from(dataUrl.split(',')[1], 'base64');
-    fs.writeFileSync(path.join(THUMB_DIR, id + '.webp'), buf);
+    const { status, dayKB, kb } = await renderOne(page, id);
     ok++;
-    console.log(`✓ ${id} · ${(buf.length/1024).toFixed(0)}KB${dayKB ? ' · day ' + dayKB + 'KB' : ''} · ${status} · ${((Date.now()-t0)/1000).toFixed(1)}s`);
+    console.log(`✓ ${id} · ${kb}KB${dayKB ? ' · day ' + dayKB + 'KB' : ''} · ${status} · ${((Date.now()-t0)/1000).toFixed(1)}s`);
   }catch(err){
-    fail++;
-    console.log(`✗ ${id} · ${String(err && err.message || err).slice(0, 160)}`);
+    const msg = String(err && err.message || err).slice(0, 120);
+    console.log(`  ↻ ${id} 失败（${msg}），换新浏览器实例重试…`);
+    try{ await browser.close(); }catch{}   // close 挂起为已知环境坑，不阻塞重试
+    try{
+      ({ browser, page } = await launchPage());
+      const { status, dayKB, kb } = await renderOne(page, id);
+      ok++;
+      console.log(`✓ ${id}（重试成功）· ${kb}KB${dayKB ? ' · day ' + dayKB + 'KB' : ''} · ${status} · ${((Date.now()-t0)/1000).toFixed(1)}s`);
+    }catch(err2){
+      fail++;
+      console.log(`✗ ${id} · ${String(err2 && err2.message || err2).slice(0, 160)}`);
+    }
   }
 }
 
-await browser.close();
+try{ await browser.close(); }catch{}
 await server.close();
 console.log(`\n完成：${ok} 成功 / ${fail} 失败 → public/thumbs/`);
 process.exit(fail ? 1 : 0);

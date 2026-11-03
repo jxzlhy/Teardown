@@ -1497,10 +1497,15 @@ html[data-hall="day"] .hub-stage::before{
   }
   .hub-links::-webkit-scrollbar{ display:none; }
   .hub-links a, .hub-links .explore-link, .hub-links .hall-link{ flex:none; padding:13px 0; }
-  /* 双厅切换是全局控制：横滚时钉在右端，不因文案变长而不可达（审计 P1-9） */
+  /* 双厅切换是全局控制：横滚时钉在右端，不因文案变长而不可达（审计 P1-9）。
+     渐变用 px 止点在左缘 padding 带内完成淡入（图标落点已是实底，不再压 underlying 链接字）；
+     夜厅 hub 底=#040810(--bg-1)、日厅=--bg-0，双厅各自对齐（R9 续轮修复） */
   .hub-links .hall-link{
-    position:sticky; right:0; margin-left:auto; padding-left:12px;
-    background:linear-gradient(90deg, transparent, var(--bg-1) 26%);
+    position:sticky; right:0; margin-left:auto; padding-left:34px;
+    background:linear-gradient(90deg, rgba(4,8,16,0), var(--bg-1) 30px);
+  }
+  html[data-hall="day"] .hub-links .hall-link{
+    background:linear-gradient(90deg, rgba(244,241,234,0), var(--bg-0) 30px);
   }
 }
 
@@ -1509,13 +1514,16 @@ html[data-hall="day"] .hub-stage::before{
   .fav-star, .rdot, .step-btn, .drawer-close, .chip, .hr-chip, .hud-icon,
   .tp-close, .gb-chip, .fp-seg button, .motion-speed button, .fav-cat, .hall-link,
   .explore-link, .hub-links a, .tb-icon, .gizmo-btn, .tb-back, .hud-chip, .hud-btn, .hud-glow-btn,
-  .pm-link, .mech-edge, .qa-row, .forge-back, .forge-go, .fp-seg{ position:relative; }
+  .pm-link, .mech-edge, .qa-row, .forge-back, .forge-go, .fp-seg,
+  .studio-back, .st-go, .st-retry, .st-chip, .st-node, .st-work, .st-apply, .st-danger{ position:relative; }
   .fav-star::after, .rdot::after, .step-btn::after, .drawer-close::after, .chip::after,
   .hr-chip::after, .hud-icon::after, .tp-close::after, .gb-chip::after, .fp-seg button::after,
   .motion-speed button::after, .fav-cat::after, .hall-link::after, .explore-link::after,
   .hub-links a::after, .tb-icon::after, .gizmo-btn::after, .tb-back::after, .hud-chip::after,
   .hud-btn::after, .hud-glow-btn::after, .pm-link::after, .mech-edge::after, .qa-row::after,
-  .forge-back::after, .forge-go::after{
+  .forge-back::after, .forge-go::after,
+  .studio-back::after, .st-go::after, .st-retry::after, .st-chip::after, .st-node::after,
+  .st-work::after, .st-apply::after, .st-danger::after{
     content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
     min-height:44px; height:max(100%, 44px);
   }
@@ -1523,6 +1531,17 @@ html[data-hall="day"] .hub-stage::before{
   #topbar{ padding-top:env(safe-area-inset-top); }
   #dock{ bottom:calc(10px + env(safe-area-inset-bottom)); }
   .hub-head{ padding-top:env(safe-area-inset-top); }
+  /* 层级树行内 checkbox：label 包住 input，扩 label 命中区即可整行可点（审计 RS-06） */
+  .st-check{ position:relative; }
+  .st-check::after{ content:""; position:absolute; inset:-11px -6px; }
+  .st-treebar button, .st-actions button, .st-workbtns button, .st-libfoot button,
+  .st-history button, .st-repairbar button{ position:relative; }
+  .st-treebar button::after, .st-actions button::after, .st-workbtns button::after,
+  .st-libfoot button::after, .st-history button::after, .st-repairbar button::after{
+    content:""; position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+    min-height:44px; height:max(100%, 44px);
+  }
+
   /* 表单控件：input 不支持 ::after，统一用 min-height 抬到触控下限
      （range 滑杆加高只放大命中盒，原生轨道仍垂直居中） */
   input:not([type=checkbox]):not([type=radio]):not([type=color]),
