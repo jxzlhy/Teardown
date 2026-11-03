@@ -14,7 +14,8 @@ src/studio/
 ├── workshop.js     命令化编辑层（变换/材质/组合命令，命令栈 50 + 重做 + 导入态快照复位）
 ├── groupops.js     组件分组（组合/解散双向命令，世界变换保持+精确逆恢复）
 ├── repair.js       修复计划器（确定性修复命令组 + 8 类需人工规则如实给理由）
-├── textgen.js      文字程序化建模（确定性关键词模板解析，非 AI；未识别如实列出）
+├── textgen.js      文字程序化建模（确定性关键词模板解析，非 AI；未识别如实列出；spec 契约 gewu-textspec/1）
+├── templates.js    参数化机械模板（齿轮对/曲柄滑块，标准公式+钳制表，V5.0.6）
 ├── exporter.js     GLB 导出（GLTFExporter 二进制 → Blob 下载）
 ├── library.js      IndexedDB 作品库（CRUD + 备份 JSON 往返）
 └── index.js        编排器：状态机 + __STUDIO 调试钩子（与 __ENGINE 同约定）
@@ -44,7 +45,7 @@ idle → parsing → ready ─┬→ (select) 编辑器草稿 → 应用 → 命
 
 ## e2e 门禁
 
-**Node 级**：`node tools/textgen-unit.mjs`（16 项）+ `node tools/groupops-unit.mjs`（19 项，组合/解散/精确逆恢复）——纯几何逻辑无浏览器依赖。
+**Node 级**：`tools/textgen-unit.mjs`（16）+ `tools/textgen-spec-unit.mjs`（16）+ `tools/groupops-unit.mjs`（21）+ `tools/templates-unit.mjs`（24）——共 77 项纯几何逻辑无浏览器依赖。
 **浏览器级**：`node tools/studio-verify.mjs`（独立端口 8251，不与并行会话的 8211/8137 冲突）。
 48 项断言：壳渲染/导入/层级联动/自动旋转/编辑器链（变换→撤销→重做→复位→材质→导出→撤销链排干→
 工具条同步）/作品库往返（保存→列表→载入→备份→删除→恢复→非法拒收→清理）/参考图四断言/
