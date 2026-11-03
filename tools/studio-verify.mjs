@@ -42,10 +42,13 @@ for (let i = 0; i < 120; i++) { try { if ((await fetch(BASE + '/')).ok) break; }
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: 'new',
+  protocolTimeout: 600000,   // 软渲染下输入事件可能排队极慢（并行会话 render-thumbs 同款护栏）
   args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--disable-gpu-sandbox', '--window-size=1440,900'],
 });
 const page = await browser.newPage();
 await page.setViewport({ width: 1440, height: 900 });
+/* RS-15b 替换确认框在无头下必须显式接受，否则对话框挂起会拖垮后续 CDP 调用 */
+page.on('dialog', (d) => d.accept().catch(() => {}));
 const consoleErrors = [];
 page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });
 page.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0, 160)));
@@ -257,6 +260,7 @@ try {
       p2 = await browser.newPage();
       p2.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });
       p2.on('pageerror', (e) => consoleErrors.push('pageerror: ' + String(e).slice(0, 160)));
+      p2.on('dialog', (d) => d.accept().catch(() => {}));   // RS-15b 确认框无头自动接受
       await p2.goto(`${BASE}/#/studio`, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await p2.waitForSelector('.studio-cv', { timeout: 25000 });
       p2Booted = true;
@@ -291,10 +295,10 @@ try {
   await p2.click('#studioGenBtn');
   await p2.waitForFunction(() => !!document.querySelector('.st-stats'), { timeout: 30000 });
   const genUi = await p2.evaluate(() => ({
-    tree: document.querySelectorAll('.st-node').length,
+    tree: document.querySelectorAll('.st-node.mesh').length,
     fileNote: document.body.textContent.includes('程序化生成'),
   }));
-  check('文字生成：UI 载入（概览/层级树/程序化标注）', genUi.tree === 10 && genUi.fileNote, 'tree=' + genUi.tree);
+  check('文字生成：UI 载入（概览/层级树/程序化标注）', genUi.tree === 10 && genUi.fileNote, 'mesh=' + genUi.tree);
 
   /* 4f+. spec 结构化契约（17.6）：导出→重建往返确定性 + 非法拒收 */
   const specRes = await p2.evaluate(() => {
@@ -342,16 +346,29 @@ try {
   check('模板：spec 导出含 template 字段', tplRes.specHasTemplate === true);
   check('模板：spec 往返重建 2 部件', tplRes.specRebuild === true);
 
-  /* 4g. 组件分组（V5.0.2 收尾）：勾 2 网格组合 → 树现组件行 → 组结构可导出 → 撤销/重做 → 解散 */
-  const grpRes = await p2.evaluate(async () => {
+  /* 4g. 组件分组（V5.0.2 收尾）：勾 2 网格组合 → 树现组件行 → 组结构可导出 → 撤销/重做 → 解散
+     先重建 10 部件文字场景——前面的模板/spec 步骤可能已把画布换成其它场景 */
+  const EX_DESC2 = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
+  const grpRes = await p2.evaluate(async (ex) => {
     const S = window.__STUDIO;
     const out = {};
+    S.generateFromText(ex);
+    /* Vue 渲染是异步批处理：生成后等 DOM 追上（同步读会拿到旧场景的行） */
+    for (let i = 0; i < 20 && document.querySelectorAll('.st-node.mesh').length !== 10; i++) {
+      await new Promise((r) => setTimeout(r, 300));
+    }
     const meshRows = [...document.querySelectorAll('.st-node.mesh')];
     out.meshRows = meshRows.length;
     const sat = meshRows.filter((r) => /satellite/.test(r.textContent)).slice(0, 2);
+    out.satFound = sat.length;
     for (const r of sat) r.querySelector('input[type=checkbox]').click();
-    document.getElementById('studioGroupBtn').click();
-    await new Promise((r2) => setTimeout(r2, 500));
+    await new Promise((r2) => setTimeout(r2, 300));   // Vue 批处理落定（探针实证必要）
+    const btn = document.getElementById('studioGroupBtn');
+    out.btnDisabled = btn.disabled;
+    if (!btn.disabled) btn.click();
+    for (let i = 0; i < 10 && !document.querySelectorAll('.st-node.grp').length; i++) {
+      await new Promise((r2) => setTimeout(r2, 300));
+    }
     out.groupRow = [...document.querySelectorAll('.st-node.grp')].length;
     const exp = await S.exportGlb('grouped.glb');
     out.exportBytes = exp.bytes;
@@ -364,17 +381,22 @@ try {
     const grpRow = [...document.querySelectorAll('.st-node.grp')][0];
     if (grpRow) {
       grpRow.querySelector('input[type=checkbox]').click();
-      document.getElementById('studioUngroupBtn').click();
-      await new Promise((r2) => setTimeout(r2, 400));
+      await new Promise((r2) => setTimeout(r2, 300));
+      const ub = document.getElementById('studioUngroupBtn');
+      out.ungroupDisabled = ub.disabled;
+      if (!ub.disabled) ub.click();
+      for (let i = 0; i < 10 && document.querySelectorAll('.st-node.grp').length; i++) {
+        await new Promise((r2) => setTimeout(r2, 300));
+      }
     }
     out.afterUngroup = [...document.querySelectorAll('.st-node.grp')].length;
     return out;
-  });
-  check('分组：生成场景 10 网格可勾选', grpRes.meshRows === 10, 'rows=' + grpRes.meshRows);
+  }, EX_DESC2);
+  check('分组：生成场景 10 网格可勾选', grpRes.meshRows === 10, `rows=${grpRes.meshRows} sat=${grpRes.satFound} btnDisabled=${grpRes.btnDisabled}`);
   check('分组：组合后树现组件行', grpRes.groupRow === 1, 'grp=' + grpRes.groupRow);
   check('分组：组结构可导出 GLB', grpRes.exportBytes > 1000, grpRes.exportBytes + 'B');
   check('分组：撤销组消失/重做组回来', grpRes.afterUndo === 0 && grpRes.afterRedo === 1, JSON.stringify({ undo: grpRes.afterUndo, redo: grpRes.afterRedo }));
-  check('分组：解散后组件行清零', grpRes.afterUngroup === 0, 'grp=' + grpRes.afterUngroup);
+  check('分组：解散后组件行清零', grpRes.afterUngroup === 0, `grp=${grpRes.afterUngroup} ubDisabled=${grpRes.ungroupDisabled}`);
 
   /* 4h. 产物入库往返（UI 生成场景 → 保存 → 载入） */
   const roundRes = await p2.evaluate(async () => {
