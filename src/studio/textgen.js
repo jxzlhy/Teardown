@@ -25,7 +25,9 @@ function parseNum(text) {
 
 /* —— 规格解析 —— */
 export function parseSpec(text) {
-  const clauses = String(text).split(/[，。；！？\n、]+/).map((s) => s.trim()).filter(Boolean);
+  /* 输入上限（审计 RS-13）：UI 侧 maxlength 之外，API 层再兜一道——
+     超长粘贴的解析是主线程同步循环，无上限可被恶意/误操作卡死页面 */
+  const clauses = String(text).slice(0, 4000).split(/[，。；！？\n、]+/).map((s) => s.trim()).filter(Boolean);
   const spec = { central: null, ring: null, plates: [], struts: null, mat: { metalness: 0.85, roughness: 0.35, dark: false, emissive: false }, unknown: [] };
   const knownWords = new Set();
 
@@ -184,4 +186,69 @@ export function generateFromText(text) {
   const { root, parts } = buildFromSpec(parsed.spec);
   return { ok: true, spec: parsed.spec, root, parts,
     summary: parts.map((p) => p.id).join(', ') };
+}
+
+/* —— spec 结构化导出/导入（总任务书 17.6：可扩展的模型描述格式）——
+   spec JSON 是 textgen 的第一公民产物：同 spec 恒同结构（确定性契约与文字入口一致）。
+   格式：{ fmt:"gewu-textspec/1", central?, ring?, plates?, struts?, mat } */
+export const TEXTSPEC_FMT = 'gewu-textspec/1';
+
+const SPEC_SHAPES = new Set(Object.keys(SHAPES));
+
+export function specToJSON(spec) {
+  if (!spec || (!spec.central && !spec.ring && !spec.plates.length && !spec.struts)) {
+    throw new Error('空 spec 不可导出');
+  }
+  /* 深拷贝 + 字段收敛：导出物即契约，不带运行时引用 */
+  return JSON.parse(JSON.stringify({
+    fmt: TEXTSPEC_FMT,
+    central: spec.central || undefined,
+    ring: spec.ring || undefined,
+    plates: spec.plates.length ? spec.plates : undefined,
+    struts: spec.struts || undefined,
+    mat: spec.mat,
+  }));
+}
+
+export function specFromJSON(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('spec 必须是 JSON 对象');
+  if (obj.fmt !== TEXTSPEC_FMT) {
+    throw new Error(`不是有效的格物馆文字结构 spec（fmt 应为 ${TEXTSPEC_FMT}，收到 ${JSON.stringify(obj.fmt ?? null)}）`);
+  }
+  const shapeOk = (s) => SPEC_SHAPES.has(s);
+  const clamp = (n, lo, hi, name) => {
+    const v = Number(n);
+    if (!Number.isFinite(v)) throw new Error(`spec.${name} 不是有限数值`);
+    return Math.min(hi, Math.max(lo, v));
+  };
+  const spec = { central: null, ring: null, plates: [], struts: null, unknown: [],
+    mat: { metalness: 0.85, roughness: 0.35, dark: false, emissive: false } };
+
+  if (obj.mat && typeof obj.mat === 'object') {
+    if (obj.mat.metalness !== undefined) spec.mat.metalness = clamp(obj.mat.metalness, 0, 1, 'mat.metalness');
+    if (obj.mat.roughness !== undefined) spec.mat.roughness = clamp(obj.mat.roughness, 0, 1, 'mat.roughness');
+    spec.mat.dark = !!obj.mat.dark;
+    spec.mat.emissive = !!obj.mat.emissive;
+  }
+  if (obj.central) {
+    if (!shapeOk(obj.central.shape)) throw new Error(`spec.central.shape 非法：${JSON.stringify(obj.central.shape)}（支持 ${[...SPEC_SHAPES].join('/')}）`);
+    spec.central = { shape: obj.central.shape, big: obj.central.big !== undefined ? clamp(obj.central.big, 0.3, 3, 'central.big') : 1 };
+  }
+  if (obj.ring) {
+    if (!shapeOk(obj.ring.shape)) throw new Error(`spec.ring.shape 非法：${JSON.stringify(obj.ring.shape)}`);
+    spec.ring = { shape: obj.ring.shape, count: clamp(obj.ring.count ?? 3, 1, 24, 'ring.count'), tilt: !!obj.ring.tilt };
+  }
+  if (Array.isArray(obj.plates)) {
+    for (const p of obj.plates) {
+      if (!shapeOk(p.shape)) throw new Error(`spec.plates[].shape 非法：${JSON.stringify(p.shape)}`);
+      spec.plates.push({ shape: p.shape, top: p.top !== false, count: 1 });
+    }
+  }
+  if (obj.struts) {
+    spec.struts = { count: clamp(obj.struts.count ?? 4, 1, 24, 'struts.count') };
+  }
+  if (!spec.central && !spec.ring && !spec.plates.length && !spec.struts) {
+    throw new Error('spec 未描述任何结构（central/ring/plates/struts 至少一项）');
+  }
+  return spec;
 }

@@ -26,6 +26,13 @@ const GLB_MAGIC = 0x46546c67; // 'glTF'
 
 let _draco = null;
 
+/* 卸载即终止（审计 RS-11）：DRACOLoader 每个实例自持一组 worker（默认 4 个），
+   模块级单例只解决「同页复用」，页面卸载时必须显式 terminate——
+   否则每次进出 /studio 都净留存一组 worker。与主引擎的 dispose 约定一致。 */
+export function disposeDraco() {
+  if (_draco) { _draco.dispose(); _draco = null; }
+}
+
 /* 把掉落的文件组转成统一输入：{ name, size, read():Promise<ArrayBuffer> } */
 function normalizeInput(files) {
   return [...files].map((f) => {
@@ -39,12 +46,21 @@ async function importFrom(inputs, capMB) {
   const blobMap = new Map();
   const blobUrls = [];
 
-  /* 体积守卫：读取前先拒，避免把超大文件拉进内存 */
+  /* 体积守卫（审计 RS-04）：逐文件上限 + **多文件合计上限**——
+     旧实现只比单文件，一次拖 10 个 200MB 可绕过；size 未知（?? 0）更是完全跳过守卫。 */
   const cap = capMB * 1024 * 1024;
+  const sizeUnknown = [];
+  let total = 0;
   for (const f of inputs) {
-    if (f.size > cap) {
-      throw Object.assign(new Error(`文件「${f.name}」${(f.size / 1048576).toFixed(1)}MB 超过当前上限 ${capMB}MB`), { code: ERR.SIZE });
+    const n = Number(f.size);
+    if (!Number.isFinite(n) || n <= 0) { sizeUnknown.push(f); continue; }
+    if (n > cap) {
+      throw Object.assign(new Error(`文件「${f.name}」${(n / 1048576).toFixed(1)}MB 超过当前上限 ${capMB}MB`), { code: ERR.SIZE });
     }
+    total += n;
+  }
+  if (total > cap) {
+    throw Object.assign(new Error(`本次导入合计 ${(total / 1048576).toFixed(1)}MB 超过上限 ${capMB}MB（请减少文件数量或调高 ?cap）`), { code: ERR.SIZE });
   }
 
   const roots = inputs.filter((f) => /\.(glb|gltf)$/i.test(f.name));
@@ -55,61 +71,86 @@ async function importFrom(inputs, capMB) {
 
   /* 资源表：.gltf 外部 bin/贴图按文件名匹配 blob URL；未命中记录为缺失 */
   const manager = new THREE.LoadingManager();
-  for (const f of inputs) {
-    const url = URL.createObjectURL(new Blob([await f.read()]));
-    blobMap.set(f.name, url);
-    blobUrls.push(url);
-  }
+  const BLOCKED = 'data:application/octet-stream,;blocked';   // 空字节，本地即失败，绝不联网
   manager.setURLModifier((url) => {
     const base = decodeURIComponent(url).split(/[\\/]/).pop();
     if (blobMap.has(base)) return blobMap.get(base);
-    if (!/^(data:|blob:)/.test(url)) missing.add(decodeURIComponent(url));
-    return url;
+    /* data:/blob: 是本地内嵌资源，必须原样放行——studio-verify 的 fixture 用
+       data:application/octet-stream;base64 内嵌 buffer，一并拦掉会把正常导入打死
+       （本轮踩过：改拦外链时误伤 data URI，4 项"修复：…"用例转红） */
+    if (/^(data:|blob:)/i.test(url)) return url;
+    /* 审计 RS-07：其余（http/https/协议相对/绝对路径）一律不得外发。旧实现原样返回，
+       含外部 uri 的 .gltf 会真的去下载远端资源（canary 实测发出 1 次外部请求），
+       与"文件不离开浏览器"的承诺冲突。返回空 data URL 让加载在本地失败，
+       并由 missing 集合把原因如实报成 ERR_RESOURCES。 */
+    missing.add(decodeURIComponent(url));
+    return BLOCKED;
   });
 
-  const loader = new GLTFLoader(manager);
-  /* 馆内 GLB 资产为 draco 压缩（webp→draco 管线）：解码器路径与主引擎同约定，
-     模块级单例复用 worker 池（每次 new 都会新建池，切文件必须复用） */
-  if (!_draco) {
-    _draco = new DRACOLoader();
-    _draco.setDecoderPath(import.meta.env.DEV
-      ? '/node_modules/three/examples/jsm/libs/draco/'
-      : assetUrl('/assets/draco/'));
-  }
-  loader.setDRACOLoader(_draco);
-  let data = await root.read().catch((e) => { throw Object.assign(new Error(`读取「${root.name}」失败：${e}`), { code: ERR.READ }); });
-
-  if (/\.gltf$/i.test(root.name)) {
-    const text = new TextDecoder().decode(data);
-    try { JSON.parse(text); } catch (e) {
-      throw Object.assign(new Error(`「${root.name}」不是合法 JSON：${String(e.message || e).slice(0, 120)}`), { code: ERR.PARSE });
-    }
-    data = text;
-  } else {
-    if (data.byteLength < 12 || new DataView(data).getUint32(0, true) !== GLB_MAGIC) {
-      throw Object.assign(new Error(`「${root.name}」不是合法 GLB（文件头不符，可能已损坏或被改名）`), { code: ERR.PARSE });
-    }
-  }
-
-  let gltf;
+  let report;
   try {
-    gltf = await new Promise((resolve, reject) => loader.parse(data, '', resolve, reject));
-  } catch (e) {
-    const msg = String(e && e.message || e);
-    /* 走到这里时格式/魔数/JSON 合法性已过：parse 拒绝即结构解析失败（ERR_PARSE），
-       仅当资源缺失证据存在时才归因为 ERR_RESOURCES */
-    if (missing.size) {
-      throw Object.assign(new Error(`解析失败，疑似缺少外部资源：${[...missing].slice(0, 3).join('、')}`), { code: ERR.RESOURCES, cause: msg.slice(0, 200) });
+    for (const f of inputs) {
+      const buf = await f.read();
+      /* size 未知的输入在读取后补判（含合计），避免绕过体积守卫 */
+      if (sizeUnknown.includes(f)) {
+        if (buf.byteLength > cap) {
+          throw Object.assign(new Error(`文件「${f.name}」实际 ${(buf.byteLength / 1048576).toFixed(1)}MB 超过上限 ${capMB}MB`), { code: ERR.SIZE });
+        }
+        total += buf.byteLength;
+        if (total > cap) {
+          throw Object.assign(new Error(`本次导入合计超过上限 ${capMB}MB（部分文件大小未知，读取后补判）`), { code: ERR.SIZE });
+        }
+      }
+      const url = URL.createObjectURL(new Blob([buf]));
+      blobMap.set(f.name, url);
+      blobUrls.push(url);   // 失败路径由 finally 统一 revoke（审计 RS-05）
     }
-    throw Object.assign(new Error(msg), { code: ERR.PARSE });
-  }
 
-  const report = buildReport(gltf, root, missing);
-  if (!report.meshes.length) {
-    throw Object.assign(new Error(`「${root.name}」解析成功，但场景中没有任何网格（可能是纯灯光/相机/空场景文件）`), { code: ERR.EMPTY });
+    const loader = new GLTFLoader(manager);
+    /* 馆内 GLB 资产为 draco 压缩（webp→draco 管线）：解码器路径与主引擎同约定，
+       模块级单例复用 worker 池（每次 new 都会新建池，切文件必须复用） */
+    if (!_draco) {
+      _draco = new DRACOLoader();
+      _draco.setDecoderPath(import.meta.env.DEV
+        ? '/node_modules/three/examples/jsm/libs/draco/'
+        : assetUrl('/assets/draco/'));
+    }
+    loader.setDRACOLoader(_draco);
+    let data = await root.read().catch((e) => { throw Object.assign(new Error(`读取「${root.name}」失败：${e}`), { code: ERR.READ }); });
+
+    if (/\.gltf$/i.test(root.name)) {
+      const text = new TextDecoder().decode(data);
+      try { JSON.parse(text); } catch (e) {
+        throw Object.assign(new Error(`「${root.name}」不是合法 JSON：${String(e.message || e).slice(0, 120)}`), { code: ERR.PARSE });
+      }
+      data = text;
+    } else {
+      if (data.byteLength < 12 || new DataView(data).getUint32(0, true) !== GLB_MAGIC) {
+        throw Object.assign(new Error(`「${root.name}」不是合法 GLB（文件头不符，可能已损坏或被改名）`), { code: ERR.PARSE });
+      }
+    }
+
+    let gltf;
+    try {
+      gltf = await new Promise((resolve, reject) => loader.parse(data, '', resolve, reject));
+    } catch (e) {
+      const msg = String(e && e.message || e);
+      /* 走到这里时格式/魔数/JSON 合法性已过：parse 拒绝即结构解析失败（ERR_PARSE），
+         仅当资源缺失证据存在时才归因为 ERR_RESOURCES */
+      if (missing.size) {
+        throw Object.assign(new Error(`解析失败，疑似缺少外部资源：${[...missing].slice(0, 3).join('、')}`), { code: ERR.RESOURCES, cause: msg.slice(0, 200) });
+      }
+      throw Object.assign(new Error(msg), { code: ERR.PARSE });
+    }
+
+    report = buildReport(gltf, root, missing);
+    if (!report.meshes.length) {
+      throw Object.assign(new Error(`「${root.name}」解析成功，但场景中没有任何网格（可能是纯灯光/相机/空场景文件）`), { code: ERR.EMPTY });
+    }
+    report.missingResources = [...missing].filter((u) => !blobMap.has(u.split(/[\\/]/).pop()));
+  } finally {
+    for (const u of blobUrls) URL.revokeObjectURL(u);
   }
-  report.missingResources = [...missing].filter((u) => !blobMap.has(u.split(/[\\/]/).pop()));
-  for (const u of blobUrls) URL.revokeObjectURL(u);
   return report;
 }
 

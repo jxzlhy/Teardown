@@ -90,5 +90,27 @@ check('单网格可成组', !!g2 && g2.count === 1);
 check('空/非网格选集拒绝', createGroupCommands(root, [], 'x') === null
   && createGroupCommands(root, [parentA], 'x') === null);
 
+/* 8. 同一父节点、乱序选择的兄弟序精确还原（审计 RS-03：旧实现按"选择顺序"插回，
+      先选 C 再选 A 会得到 A,B,D,C 这类错序；修复后必须严格按原序还原） */
+{
+  const r2 = new THREE.Group(); r2.name = 'R2';
+  const p2 = new THREE.Group(); p2.name = 'P2';
+  const a = mesh('a', [0, 0, 0]), bb = mesh('b', [0.1, 0, 0]),
+        c = mesh('c', [0.2, 0, 0]), dd = mesh('d', [0.3, 0, 0]);
+  p2.add(a, bb, c, dd); r2.add(p2);
+  const before = p2.children.map((x) => x.name).join(',');   // a,b,c,d
+
+  /* 乱序选择：先 c 再 a */
+  const built = createGroupCommands(r2, [c, a], '乱序组');
+  built.cmds.forEach((cmd) => cmd.redo());
+  built.cmds.forEach((cmd) => cmd.undo());
+
+  const after = p2.children.map((x) => x.name).join(',');
+  check('同父乱序选择撤销后兄弟序精确还原', after === before, `${before} → ${after}`);
+  check('同父乱序还原后父链与局部变换正确',
+    a.parent === p2 && c.parent === p2
+      && Math.abs(a.position.x - 0) < 1e-9 && Math.abs(c.position.x - 0.2) < 1e-9);
+}
+
 console.log(`\n${fail ? `FAIL(${fail})` : 'ALL PASS'} · ${pass} 过 / ${fail} 败`);
 process.exit(fail ? 1 : 0);

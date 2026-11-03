@@ -114,9 +114,22 @@ export function createWorkshop(report) {
   return {
     getTransform, setTransform, resetTransform,
     getMaterial, setMaterialProp,
-    /* 组合命令：一次提交多条原子操作，撤销/重做整体生效（修复批次用） */
+    /* 组合命令：一次提交多条原子操作，撤销/重做整体生效（修复批次用）。
+       执行先行（审计 RS-09）：旧实现「先入栈后由调用方执行」，子命令中途抛错会留下
+       半生效的幽灵历史记录；这里改为全部 redo 成功才入栈，中途失败按逆序回滚已执行
+       部分并返回 false——历史栈里永远不会出现只生效一半的命令。 */
     applyCommands(cmds, label) {
       if (!cmds || !cmds.length) return false;
+      const applied = [];
+      try {
+        for (const c of cmds) { c.redo(); applied.push(c); }
+      } catch (e) {
+        for (let i = applied.length - 1; i >= 0; i--) {
+          try { applied[i].undo(); } catch { /* 回滚自身异常不再覆盖原始错误 */ }
+        }
+        console.warn('[studio] 组合命令执行失败，已回滚：', e);
+        return false;
+      }
       push({
         label: label || '批量编辑',
         undo: () => { for (let i = cmds.length - 1; i >= 0; i--) cmds[i].undo(); },

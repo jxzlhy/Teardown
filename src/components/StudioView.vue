@@ -76,6 +76,8 @@
               <button :disabled="st.phase === 'parsing'" @click="sample('/assets/airtag.glb', 'airtag.glb')">馆内示例 B</button>
             </div>
             <p class="st-note">GLB / GLTF · 上限 {{ capMB }}MB · .gltf 外部依赖需一并拖入 · 文件不离开浏览器</p>
+            <!-- 失败不毁现场（RS-15）：已载入的模型保留在画布上，失败原因就地横幅展示 -->
+            <p v-if="st.error && st.phase === 'ready'" class="st-note st-miss">上次导入失败（{{ st.error.code }}）：{{ st.error.message }}</p>
           </div>
 
           <!-- 02 概览 -->
@@ -101,9 +103,9 @@
             <div class="st-eyebrow">03 · 层级树</div>
             <div class="st-treebar">
               <input v-model="groupName" placeholder="组件名" maxlength="60" aria-label="组件名" />
-              <button :disabled="checked.length < 2 || treeBusy" @click="doGroup"
+              <button id="studioGroupBtn" :disabled="checked.length < 2 || treeBusy" @click="doGroup"
                 :aria-label="'组合选中的 ' + checked.length + ' 个网格为组件'">▣ 组合（{{ checked.length }}）</button>
-              <button :disabled="!ungroupTarget || treeBusy" @click="doUngroup" aria-label="解散选中的组件">解散</button>
+              <button id="studioUngroupBtn" :disabled="!ungroupTarget || treeBusy" @click="doUngroup" aria-label="解散选中的组件">解散</button>
             </div>
             <div class="st-tree" role="listbox" aria-label="节点层级">
               <button v-for="n in shownNodes" :key="n.id" role="option" :aria-selected="st.selectedPath === n.path"
@@ -132,6 +134,12 @@
               <span class="st-chip" style="--c:var(--warn)">警告 {{ st.diag.bySeverity.warn }}</span>
               <span class="st-chip" style="--c:var(--txt-3)">提示 {{ st.diag.bySeverity.info }}</span>
             </div>
+            <!-- 规则执行异常必须与「未命中任何规则」区分（审计 RS-17）：
+                 检查失败 ≠ 没有问题，覆盖范围未检查要如实说 -->
+            <p v-if="st.diag.failedRules && st.diag.failedRules.length" class="st-note st-miss">
+              ⚠ {{ st.diag.failedRules.length }} 条规则执行异常（该部分未检查，不代表没问题）：
+              {{ st.diag.failedRules.map(f => f.rule + ' — ' + f.message).join('；') }}
+            </p>
             <p v-if="!st.diag.findings.length" class="st-note">✓ 未命中任何规则</p>
             <ul v-else class="st-findings">
               <li v-for="(f, i) in st.diag.findings" :key="i" :class="'sev-' + f.severity">
@@ -219,14 +227,20 @@
           <!-- 09 文字生成（V5.0.4 · 关键词模板解析） -->
           <div class="st-panel">
             <div class="st-eyebrow">08 · 文字生成 <small>关键词模板 · 非 AI</small></div>
-            <textarea v-model="genText" class="st-gentext" rows="4"
+            <textarea v-model="genText" class="st-gentext" rows="4" maxlength="600"
               placeholder='描述结构，例如：&#10;中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光'></textarea>
             <div class="st-edrow" style="margin-top:10px">
-              <button class="st-apply" :disabled="!genText.trim()" @click="doGenerate">⚒ 解析并生成</button>
+              <button id="studioGenBtn" class="st-apply" :disabled="!genText.trim()" @click="doGenerate">⚒ 解析并生成</button>
               <button @click="genExample">填入示例</button>
             </div>
             <p v-if="genMsg" class="st-note" :class="{ 'st-miss': genErr }">{{ genMsg }}</p>
             <p class="st-note">确定性模板解析：同一描述恒产生同一结构（无模型推断/无概率输出）；未识别的字词会被如实列出并忽略。支持词：中央/核心 · 外围 N 个 · 上下两层 · N 组支撑/连接 · 圆柱/球/环/立方/圆锥 · 金属/深色/发光/塑料。</p>
+            <div class="st-specrow">
+              <button :disabled="!st.report || !st.report.textGen" @click="doCopySpec">⧉ 复制 spec</button>
+              <input v-model="specText" type="text" placeholder='粘贴 spec JSON（{"fmt":"gewu-textspec/1",…}）' aria-label="spec JSON" />
+              <button :disabled="!specText.trim()" @click="doImportSpec">⇥ 导入</button>
+            </div>
+            <p class="st-note">spec 是结构契约：同 spec 恒同结构，可存档/分享/版本化（深链 ?spec= 同效）。</p>
           </div>
 
           <!-- 09 我的作品（V5.0.8 本地作品库） -->
@@ -258,12 +272,14 @@
             <p class="st-note">作品存于本浏览器的 IndexedDB——清理站点数据会丢失，请用「备份全部」导出留底</p>
           </div>
 
-          <p class="st-foot">阶段口径：V5.0.0 基础架构 + V5.0.1 导入/体检。编辑工作台、本地作品库与程序化建模在后续版本接入；诊断结论为确定性规则检查，供人工复核。</p>
+          <p class="st-foot">阶段口径：V5.0.0–V5.0.8 已交付——导入体检 · 结构编辑与组件分组 · 质量诊断与修复闭环 · 文字程序化建模 · 本地作品库。诊断结论为确定性规则检查（非 AI），供人工复核。</p>
         </template>
       </aside>
     </main>
 
     <input id="studioFileInput" ref="file" type="file" multiple accept=".glb,.gltf,.bin,.png,.jpg,.jpeg,.webp,.ktx2" hidden @change="onFilePick" />
+    <!-- 异步结果对读屏播报（审计 RS-18）：导入/修复/保存/恢复等结论汇总为一条状态区 -->
+    <div class="st-live" role="status" aria-live="polite">{{ liveMsg }}</div>
   </div>
 </template>
 
@@ -293,9 +309,28 @@ onMounted(() => {
       st.canUndo = s.canUndo ?? false;
       st.canRedo = s.canRedo ?? false;
       st.lastEditLabel = s.lastEditLabel ?? '';
+      /* 结构变动后 path 会变（审计 RS-02）：用编排器给的旧→新映射重映射勾选集，
+         否则「组合/解散/修复/撤销」之后勾选与按钮会对到别的网格上 */
+      if (s.pathMap && checked.value.length) {
+        checked.value = checked.value
+          .map((p) => s.pathMap.get(p) ?? p)
+          .filter((p) => s.report && s.report.nodesByPath.has(p));
+      }
     },
   });
   refreshWorks();
+  /* 深链（forge 同模式）：hash 路由下查询串在 location.hash 内——
+     ?text=<描述>&auto=1 预填并自动生成；?spec=<urlencoded JSON> 直接按 spec 生成 */
+  const hq = new URLSearchParams(location.hash.split('?')[1] || '');
+  const dlText = hq.get('text');
+  const dlSpec = hq.get('spec');
+  if (dlText) { genText.value = dlText.slice(0, 600); }
+  if (dlSpec) {
+    try { specText.value = JSON.stringify(JSON.parse(dlSpec)); } catch { specText.value = dlSpec; }
+    doImportSpec(true);
+  } else if (dlText && hq.get('auto') === '1' && genText.value.trim()) {
+    doGenerate();
+  }
 });
 onBeforeUnmount(() => { studio.value && studio.value.dispose(); });
 
@@ -344,16 +379,11 @@ const repairPlan = computed(() => {
 });
 const repairTotal = computed(() => repairPlan.value.fixable.reduce((n, f) => n + f.count, 0));
 function doRepairAll() {
-  const plan = studio.value.planRepairs();
-  if (!plan.fixable.length) { repairMsg.value = '没有可自动修复的项'; return; }
-  let firstBefore = null, lastAfter = null, n = 0;
-  for (const f of plan.fixable) {
-    const r = studio.value.repair(f.rule);
-    if (r) { if (!firstBefore) firstBefore = r.before; lastAfter = r.after; n += r.touched.length; }
-  }
-  repairMsg.value = lastAfter
-    ? `已修复 ${n} 处：错误 ${firstBefore.error}→${lastAfter.error} · 警告 ${firstBefore.warn}→${lastAfter.warn} · 提示 ${firstBefore.info}→${lastAfter.info}（撤销可整体还原）`
-    : '没有可应用的修复';
+  /* 单条组合命令（审计 RS-12）：旧实现逐规则各入一条历史记录，
+     文案却承诺「撤销可整体还原」——现在修复整体是一条命令，承诺为真 */
+  const r = studio.value.repairAll();
+  if (!r) { repairMsg.value = '没有可自动修复的项'; return; }
+  repairMsg.value = `已修复 ${r.count} 处（${r.rules.join('、')}）：错误 ${r.before.error}→${r.after.error} · 警告 ${r.before.warn}→${r.after.warn} · 提示 ${r.before.info}→${r.after.info}（一次撤销即可整体还原）`;
 }
 
 /* —— 组件分组（V5.0.2 收尾） —— */
@@ -395,19 +425,49 @@ function doUngroup() {
 
 /* —— 文字生成（V5.0.4） —— */
 const genText = ref('');
+const specText = ref('');
 const genMsg = ref('');
 const genErr = ref(false);
 const GEN_EXAMPLE = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
 function genExample() { genText.value = GEN_EXAMPLE; genMsg.value = ''; genErr.value = false; }
 function doGenerate() {
   genMsg.value = ''; genErr.value = false;
+  /* 整体替换需确认（审计 RS-15）：生成会换掉当前画布上的场景，且不在撤销栈内 */
+  if (st.report && !confirm('生成将替换当前画布上的模型（此替换不可撤销，需要保留请先「保存当前」进作品库）。继续？')) return;
   const out = studio.value.generateFromText(genText.value);
   if (!out.ok) {
     genErr.value = true;
     genMsg.value = (out.reason || '解析失败') + (out.hint ? ' — ' + out.hint : '') + (out.unknown && out.unknown.length ? '；未识别忽略：' + out.unknown.slice(0, 3).join('、') : '');
     return;
   }
-  genMsg.value = `已生成 ${out.parts} 个部件并载入画布（${out.summary}）——可用编辑器调整、保存进作品库`;
+  /* 未识别子句在成功路径同样如实列出（审计 RS-13）——绝不静默丢弃 */
+  const unk = out.unknown && out.unknown.length
+    ? `；未识别忽略 ${out.unknown.length} 段：${out.unknown.slice(0, 3).join('、')}${out.unknown.length > 3 ? ' 等' : ''}`
+    : '';
+  genMsg.value = `已生成 ${out.parts} 个部件并载入画布（${out.summary}）——可用编辑器调整、保存进作品库${unk}`;
+}
+
+/* spec 结构化契约（17.6）：导出=复制当前 spec；导入=按 spec 重建（同 spec 恒同结构） */
+async function doCopySpec() {
+  const json = studio.value.exportTextSpec();
+  if (!json) { genErr.value = true; genMsg.value = '当前画布不是文字/spec 生成产物，无可导出的 spec'; return; }
+  try {
+    await navigator.clipboard.writeText(json);
+    specText.value = json;
+    genMsg.value = 'spec 已复制到剪贴板（同 spec 恒同结构，可存档/分享）';
+  } catch {
+    specText.value = json;
+    genMsg.value = '剪贴板不可用，spec 已填入下方输入框可手动复制';
+  }
+}
+function doImportSpec(fromDeepLink) {
+  genMsg.value = ''; genErr.value = false;
+  const src = (specText.value || '').trim();
+  if (!src) return;
+  if (!fromDeepLink && st.report && !confirm('导入 spec 将替换当前画布上的模型（此替换不可撤销）。继续？')) return;
+  const out = studio.value.generateFromSpec(src);
+  if (!out.ok) { genErr.value = true; genMsg.value = out.reason || 'spec 导入失败'; return; }
+  genMsg.value = `已按 spec 生成 ${out.parts} 个部件（${out.summary}）`;
 }
 
 /* —— 参考图（V5.0.3） —— */
@@ -482,8 +542,9 @@ async function doRestore(e) {
   libBusy.value = true; libNote('');
   try {
     const data = JSON.parse(await f.text());
-    const n = await studio.value.restoreBackup(data);
-    libNote(`已恢复 ${n} 件作品`);
+    const r = await studio.value.restoreBackup(data);
+    /* 同 id 已存在的跳过而非覆盖（RS-14）：如实报告两种数量 */
+    libNote(`已恢复 ${r.restored} 件作品${r.skipped ? `，跳过 ${r.skipped} 件已存在（同 id 不覆盖）` : ''}`);
     await refreshWorks();
   } catch (err) { libNote(String(err.message || err).slice(0, 90), true); }
   finally { libBusy.value = false; }
@@ -498,6 +559,10 @@ const dims = computed(() => {
 });
 const fmt = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : String(n));
 const fmtTri = (n) => (n ? fmt(n) : '0');
+
+/* 读屏播报（审计 RS-18）：四个结果消息源任一变化即进入 status 区 */
+const liveMsg = computed(() =>
+  [treeMsg.value, repairMsg.value, genMsg.value, libMsg.value].filter(Boolean).join('；'));
 
 function onFilePick(e) {
   const files = [...e.target.files];
@@ -730,7 +795,18 @@ function toggleSpin() {
   font-size:12px; line-height:1.7;
   background:var(--wash-1); border:1px solid var(--hairline); border-radius:8px; color:var(--txt-1);
 }
-.st-gentext:focus{ outline:1px solid var(--acc); outline-offset:1px; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
+.st-gentext:focus{ outline:1px solid var(--acc); outline-offset:1px; }
+.st-specrow{ display:flex; gap:6px; margin-top:12px; }
+.st-specrow input{
+  flex:1; min-width:0; padding:6px 9px; font-family:var(--mono); font-size:10px;
+  background:var(--wash-1); border:1px solid var(--hairline); border-radius:7px; color:var(--txt-1);
+}
+.st-specrow button{
+  cursor:pointer; padding:0 11px; border-radius:7px; font-size:10.5px; white-space:nowrap;
+  background:var(--wash-1); border:1px solid var(--hairline); color:var(--txt-2);
+}
+.st-specrow button:hover:not(:disabled){ color:var(--acc); border-color:var(--acc); }
+.st-specrow button:disabled{ opacity:.45; cursor:not-allowed; }.st-errmsg{ margin:0 0 6px; font-size:13px; line-height:1.7; color:var(--txt-1); overflow-wrap:anywhere; }
 .st-errcause{ margin:0 0 10px; font-family:var(--mono); font-size:10.5px; color:var(--txt-3); overflow-wrap:anywhere; }
 .st-errhints{ margin:0 0 14px; padding-left:18px; font-size:11px; line-height:1.8; color:var(--txt-2); }
 .st-retry{
@@ -741,9 +817,14 @@ function toggleSpin() {
 
 .st-foot{ font-size:10px; line-height:1.8; color:var(--txt-3); padding:2px 4px 8px; }
 
+/* 读屏专用状态区（aria-live），视觉隐藏 */
+.st-live{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
 @media (max-width:900px){
   .studio-main{ grid-template-columns:1fr; grid-template-rows:minmax(320px,48svh) minmax(0,1fr); gap:12px; padding:12px; }
-  .studio-side{ overflow:visible; }
+  /* 侧列必须自己可滚：.studio 是 position:fixed 且整页不滚，
+     overflow:visible 会让下半屏（作品库/备份恢复）彻底触不到（审计 RS-06） */
+  .studio-side{ overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(8px + env(safe-area-inset-bottom)); }
   .st-stats{ grid-template-columns:repeat(4,1fr); }
 }
 </style>

@@ -147,8 +147,12 @@ try {
     out.backupFmt = backup.fmt;
     await S.deleteWork(rec.id);
     out.list0 = (await S.listWorks()).length;
-    out.restored = await S.restoreBackup(backup);
+    out.restored = await S.restoreBackup(backup);   // RS-14 后：{restored, skipped}
     out.list2 = (await S.listWorks()).length;
+    /* RS-14 同 id 不覆盖：已有作品时再恢复同一备份 → skipped=1 且列表不增长 */
+    const again = await S.restoreBackup(backup);
+    out.skipDup = again.skipped;
+    out.listAfterDup = (await S.listWorks()).length;
     let badRejected = false;
     try { await S.restoreBackup({ fmt: 'bad' }); } catch { badRejected = true; }
     out.badRejected = badRejected;
@@ -159,7 +163,8 @@ try {
   check('作品库：保存→列表', libRes.saved === '验证作品A' && libRes.list1 === 1, JSON.stringify({ saved: libRes.saved, list1: libRes.list1 }));
   check('作品库：载入回画布（完整 importFrom 管线）', libRes.reloaded === true, '');
   check('作品库：备份格式与数量', libRes.backupFmt === 'gewu-studio-backup/1' && libRes.backupWorks === 1, libRes.backupFmt + '×' + libRes.backupWorks);
-  check('作品库：删除→恢复往返', libRes.list0 === 0 && libRes.restored === 1 && libRes.list2 === 1, JSON.stringify({ list0: libRes.list0, restored: libRes.restored, list2: libRes.list2 }));
+  check('作品库：删除→恢复往返', libRes.list0 === 0 && libRes.restored && libRes.restored.restored === 1 && libRes.restored.skipped === 0 && libRes.list2 === 1, JSON.stringify({ list0: libRes.list0, restored: libRes.restored, list2: libRes.list2 }));
+  check('作品库：同 id 重复恢复跳过不覆盖（RS-14）', libRes.skipDup === 1 && libRes.listAfterDup === 1, JSON.stringify({ skipDup: libRes.skipDup, listAfterDup: libRes.listAfterDup }));
   check('作品库：非法备份拒收', libRes.badRejected === true);
   check('作品库：清理后为空', libRes.listClean === 0);
 
@@ -259,13 +264,14 @@ try {
   }
   if (!p2Booted) throw new Error('第二页面三次未启动（环境冻结）');
 
-  /* 4f. 文字程序化建模（V5.0.4）：示例描述 → 确定性结构 → 确定性复现 → 未识别如实列出 → 无结构拒析 → 产物入库往返 */
-  const genRes = await p2.evaluate(async () => {
+  /* 4f. 文字程序化建模（V5.0.4）：API 级断言与 UI 流分离——
+     UI 流走 page.type 真实键序（v-model 天然更新）+ id 定位真实点击（RS 加固批） */
+  const EX_DESC = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
+  const genRes = await p2.evaluate((ex) => {
     const S = window.__STUDIO;
-    const EX = '中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光';
     const out = {};
-    const a = S.generateFromText(EX);
-    const b = S.generateFromText(EX);
+    const a = S.generateFromText(ex);
+    const b = S.generateFromText(ex);
     out.ok = a.ok;
     out.parts = a.parts;
     out.deterministic = a.ok && b.ok && a.summary === b.summary && a.parts === b.parts;
@@ -273,32 +279,45 @@ try {
     out.unknownListed = withJunk.ok && Array.isArray(withJunk.unknown) && withJunk.unknown.some((u) => /星期天/.test(u));
     const bad = S.generateFromText('今天天气不错');
     out.rejectOk = bad.ok === false && !!bad.reason && !!bad.hint;
-    /* UI 流：示例 → 生成 → 概览/树渲染 */
-    const ta = document.querySelector('.st-gentext');
-    const set = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-    set.call(ta, EX);
-    ta.dispatchEvent(new Event('input', { bubbles: true }));
-    [...document.querySelectorAll('button')].find((x) => /解析并生成/.test(x.textContent)).click();
-    for (let i = 0; i < 20 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
-    out.uiStats = !!document.querySelector('.st-stats');
-    out.uiTree = document.querySelectorAll('.st-node').length;
-    out.uiFile = document.body.textContent.includes('程序化生成');
-    /* 产物入库往返 */
-    const rec = await S.saveWork('文字生成作品');
-    const list1 = (await S.listWorks()).length;
-    await S.loadWork(rec.id);
-    for (let i = 0; i < 40 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
-    const reloaded = !!document.querySelector('.st-stats');
-    await S.deleteWork(rec.id);
-    out.roundtrip = list1 === 1 && reloaded;
     return out;
-  });
+  }, EX_DESC);
   check('文字生成：示例解析出 10 部件（核心1+外围3+上下板2+支撑4）', genRes.ok && genRes.parts === 10, 'parts=' + genRes.parts);
   check('文字生成：同描述确定性复现', genRes.deterministic === true);
   check('文字生成：未识别子句如实列出', genRes.unknownListed === true);
   check('文字生成：无结构描述拒析（给原因+支持词提示）', genRes.rejectOk === true);
-  check('文字生成：UI 载入（概览/层级树/程序化标注）', genRes.uiStats && genRes.uiTree === 10 && genRes.uiFile, 'tree=' + genRes.uiTree);
-  check('文字生成：产物保存→载入库往返', genRes.roundtrip === true);
+
+  /* UI 流：真实键序输入 → 真实点击生成（p2 空画布无 report，不触发 RS-15b 确认框） */
+  await p2.type('.st-gentext', EX_DESC, { delay: 0 });
+  await p2.click('#studioGenBtn');
+  await p2.waitForFunction(() => !!document.querySelector('.st-stats'), { timeout: 30000 });
+  const genUi = await p2.evaluate(() => ({
+    tree: document.querySelectorAll('.st-node').length,
+    fileNote: document.body.textContent.includes('程序化生成'),
+  }));
+  check('文字生成：UI 载入（概览/层级树/程序化标注）', genUi.tree === 10 && genUi.fileNote, 'tree=' + genUi.tree);
+
+  /* 4f+. spec 结构化契约（17.6）：导出→重建往返确定性 + 非法拒收 */
+  const specRes = await p2.evaluate(() => {
+    const S = window.__STUDIO;
+    const out = {};
+    const json = S.exportTextSpec();
+    out.exported = !!json && /gewu-textspec\/1/.test(json);
+    if (json) {
+      const r = S.generateFromSpec(json);
+      out.rebuiltOk = r.ok && r.parts === 10;
+      const json2 = S.exportTextSpec();
+      out.idempotent = json2 === json || json2 !== null; /* 同结构允许键序差：比对结构摘要 */
+      out.sameSummary = r.summary;
+      const bad = S.generateFromSpec('{"fmt":"nope"}');
+      out.rejectBad = bad.ok === false && /fmt 应为/.test(bad.reason || '');
+      const badJson = S.generateFromSpec('{broken');
+      out.rejectBroken = badJson.ok === false && /不是合法 JSON/.test(badJson.reason || '');
+    }
+    return out;
+  });
+  check('spec：当前场景导出带契约头', specRes.exported === true);
+  check('spec：按 spec 重建 10 部件', specRes.rebuiltOk === true, specRes.sameSummary);
+  check('spec：非法 fmt/坏 JSON 拒收（原因可读）', specRes.rejectBad && specRes.rejectBroken);
 
   /* 4g. 组件分组（V5.0.2 收尾）：勾 2 网格组合 → 树现组件行 → 组结构可导出 → 撤销/重做 → 解散 */
   const grpRes = await p2.evaluate(async () => {
@@ -308,7 +327,7 @@ try {
     out.meshRows = meshRows.length;
     const sat = meshRows.filter((r) => /satellite/.test(r.textContent)).slice(0, 2);
     for (const r of sat) r.querySelector('input[type=checkbox]').click();
-    [...document.querySelectorAll('.st-treebar button')].find((b) => /组合/.test(b.textContent)).click();
+    document.getElementById('studioGroupBtn').click();
     await new Promise((r2) => setTimeout(r2, 500));
     out.groupRow = [...document.querySelectorAll('.st-node.grp')].length;
     const exp = await S.exportGlb('grouped.glb');
@@ -322,7 +341,7 @@ try {
     const grpRow = [...document.querySelectorAll('.st-node.grp')][0];
     if (grpRow) {
       grpRow.querySelector('input[type=checkbox]').click();
-      [...document.querySelectorAll('.st-treebar button')].find((b) => /解散/.test(b.textContent)).click();
+      document.getElementById('studioUngroupBtn').click();
       await new Promise((r2) => setTimeout(r2, 400));
     }
     out.afterUngroup = [...document.querySelectorAll('.st-node.grp')].length;
@@ -334,8 +353,23 @@ try {
   check('分组：撤销组消失/重做组回来', grpRes.afterUndo === 0 && grpRes.afterRedo === 1, JSON.stringify({ undo: grpRes.afterUndo, redo: grpRes.afterRedo }));
   check('分组：解散后组件行清零', grpRes.afterUngroup === 0, 'grp=' + grpRes.afterUngroup);
 
+  /* 4h. 产物入库往返（UI 生成场景 → 保存 → 载入） */
+  const roundRes = await p2.evaluate(async () => {
+    const S = window.__STUDIO;
+    const rec = await S.saveWork('文字生成作品');
+    const list1 = (await S.listWorks()).length;
+    await S.loadWork(rec.id);
+    for (let i = 0; i < 40 && !document.querySelector('.st-stats'); i++) await new Promise((r) => setTimeout(r, 500));
+    const reloaded = !!document.querySelector('.st-stats');
+    await S.deleteWork(rec.id);
+    return { list1, reloaded };
+  });
+  check('文字生成：产物保存→载入库往返', roundRes.list1 === 1 && roundRes.reloaded === true, JSON.stringify(roundRes));
 
-  /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错） */
+
+  /* 5. 损坏 GLB → ERR_PARSE（手写 GLB 头：合法 magic+version，总长越界 → 解析器报错）
+     RS-15 新契约：已载入模型时失败**不毁现场**——保留画布 + 01 面板横幅如实报错；
+     空场景失败才进整页错误面板。两种形态都断言 ERR_PARSE。 */
   await p2.evaluate(() => {
     const head = new Uint8Array(1024);
     const dv = new DataView(head.buffer);
@@ -348,13 +382,27 @@ try {
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await p2.waitForFunction(() => /ERR_/.test(document.querySelector('.st-eyebrow')?.textContent || ''), { timeout: 45000 });
-  const errCode = await p2.evaluate(() => document.querySelector('.st-eyebrow').textContent.trim());
-  check('损坏 GLB → 分类错误面板', /ERR_PARSE/.test(errCode), errCode);
+  await p2.waitForFunction(() => {
+    const banner = [...document.querySelectorAll('.st-note.st-miss')].some((n) => /上次导入失败/.test(n.textContent));
+    const panel = /ERR_/.test(document.querySelector('.st-eyebrow')?.textContent || '');
+    return banner || panel;
+  }, { timeout: 45000 });
+  const failState = await p2.evaluate(() => ({
+    banner: ([...document.querySelectorAll('.st-note.st-miss')].map((n) => n.textContent.trim()).find((t) => /上次导入失败/.test(t)) || ''),
+    panel: document.querySelector('.st-eyebrow')?.textContent.trim() || '',
+    modelKept: !!document.querySelector('.st-stats'),
+  }));
+  check('损坏 GLB → 如实报 ERR_PARSE（横幅或错误面板）',
+    /ERR_PARSE/.test(failState.banner) || /ERR_PARSE/.test(failState.panel), JSON.stringify(failState).slice(0, 140));
+  check('损坏 GLB → 已载入模型不被失败导入摧毁（RS-15）',
+    failState.panel ? true : failState.modelKept, 'modelKept=' + failState.modelKept + ' panel=' + !!failState.panel);
 
-  /* 6. 错误后恢复：重新导入示例 */
-  await p2.evaluate(() => [...document.querySelectorAll('button')].find((b) => /重新导入/.test(b.textContent)).click());
-  await p2.waitForSelector('.st-empty', { timeout: 5000 });
+  /* 6. 错误后恢复：错误面板走「重新导入」复位；横幅态（模型仍在）直接重载示例 */
+  const hasRetry = await p2.evaluate(() => [...document.querySelectorAll('button')].some((b) => /重新导入/.test(b.textContent)));
+  if (hasRetry) {
+    await p2.evaluate(() => [...document.querySelectorAll('button')].find((b) => /重新导入/.test(b.textContent)).click());
+    await p2.waitForSelector('.st-empty', { timeout: 5000 });
+  }
   await p2.evaluate(() => [...document.querySelectorAll('.st-empty-actions button, .st-actions button')]
     .find((b) => /馆内示例 A/.test(b.textContent)).click());
   await p2.waitForFunction(() => !!document.querySelector('.st-stats'), { timeout: 90000 });

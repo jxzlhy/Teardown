@@ -56,7 +56,9 @@ export function createGroupCommands(root, meshes, name) {
       undo: () => {
         for (const m of picked) if (m.parent) m.parent.remove(m);
         root.remove(group);
-        for (const s of snaps) restoreOriginal(s);
+        /* 必须按原兄弟序升序插回：snaps 是"选择顺序"，乱序选择时（如先选 C 再选 A）
+           按选择序 splice 会产出 A,B,D,C 这类错序（审计 RS-03） */
+        for (const s of [...snaps].sort((a, b) => a.index - b.index)) restoreOriginal(s);
         root.updateMatrixWorld(true);
       },
     }],

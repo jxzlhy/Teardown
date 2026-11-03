@@ -100,16 +100,21 @@ function withOrphanAnim(report) {
 export function runDiagnostics(report) {
   withOrphanAnim(report);
   const findings = [];
+  const failedRules = [];
   for (const r of RULES) {
     try {
       for (const hit of r.run(report) || []) {
         findings.push({ rule: r.rule, severity: r.severity, title: r.title, fixable: !!r.fixable, ...hit });
       }
-    } catch { /* 单条规则异常不阻塞其余诊断 */ }
+    } catch (e) {
+      /* 单条规则异常不阻塞其余诊断，但必须如实上报（审计 RS-17）——
+         静默吞掉会让「检查失败」伪装成「未命中任何规则」 */
+      failedRules.push({ rule: r.rule, message: String(e && e.message || e).slice(0, 120) });
+    }
   }
   const bySeverity = { error: 0, warn: 0, info: 0 };
   for (const f of findings) bySeverity[f.severity]++;
-  return { findings, bySeverity };
+  return { findings, bySeverity, failedRules };
 }
 
 /* 可自动修复规则清单（修复面板据此生成计划；不在列的如实标注「需人工判断」） */
