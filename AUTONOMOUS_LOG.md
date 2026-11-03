@@ -2162,3 +2162,29 @@ R6 部件分组节头（需设备数据 group 字段，单独立项）；R8 日�
 - gramophone：mech 4 边——储能→稳速→输出链（棘轮上弦 approx / 唱盘轴承 exact / 齿轮组减速 approx；发条与调速摆细部未建模即示意口径）。
 - angle-grinder：mech 4 边——动力传递链（锥齿轮 approx / 主轴轴承 exact / 防护罩与开关 fixed）。
 - 验证：lint 全过 ✓ 三面板直验（3/4/4 边）✓ 0 pageerror ✓。mech 覆盖达 **11 台**；碰撞排查：并行会话 WIP 在 engine.js/DeviceViewer.vue（80 行级 diff）——切台/拆解打磨切片本就需改这两文件，继续避让，mech 滚动为其安全替代路径。
+
+### smoke 阻塞升级定性（并行 WIP 状态推进链）
+
+- action4 实测：parts=14 于 10s 就位，但 modelStatus 卡 "PARSING" 55s+ 不转 OFFICIAL——并行会话未提交的 engine.js WIP（80 行级 diff，R9 后续改）疑似重构了状态推进链（或 PARSING→最终态的赋值路径被移）。
+- 影响面：smoke 首个设备步等最终态 180s 必超时——门禁被并行 WIP 阻塞；我方已按留档建议先改 jet 步判定为 booted+parts（该步已通过修复），action4 步等最终态属并行域不代改。
+- 行动：engine.js/DeviceViewer 在途，本会话全面避让源码；待其批次落库后跑合并门禁并复核 status 推进（若落库后仍卡 PARSING 则为真回归再议）。
+
+## 2026-11-03 续会话轮 4b · R9 延伸：日厅大厅审计 + 工具韧性（本会话）
+
+### 交付
+- **日厅大厅审计（桌面 1440 + 移动 390 截图留档）**：V3 遗产质量确认——首屏巨字+焦点展台+卡片网格在日厅 token 下成立，无进一步重构需求。核心发现：**thumb 管线 plinth 本就隐藏**（engine thumb 模式 adaptive:false → plinth.visible=false，新旧皆然），大厅展示的「盘面」实为极坐标网格+光晕——即底座升级的呈现面只在设备页 live（已验证），大厅无旧底座包袱，124 台批量重渲无必要。
+- **移动端导航修复**：钉住的双厅键渐隐带 px 止点实底化（30px）+ 日厅底色对齐 .hub 实际底色 --bg-0（原渐变用 --bg-1，日厅露贴片感）。P1-9 钉住语汇保持。
+- **render-thumbs 重试护栏**：逐台独立 browser 实例 + 失败换新重试 + protocolTimeout 600s（hud-verify 同款，已实战救回 action4 一台）。124 台批量重渲挂账窗口由此解锁可行性。
+- **焦点展台 4 台夜版缩略图重渲**：等效验证（管线不显示 plinth），字节更新无害。
+- 提交 45fa721。
+
+### 验证
+- 大厅截图 3 张留档（l1 桌面首屏/l2 移动首屏/l3 卡片网格）；导航修复经 3 轮截图+计算样式几何探针验证（渐隐带是 P1-9 既定语汇，月标与相邻链接 2px 相切属滚动行初始态可接受余量）。
+- render-thumbs 4/4 成功（1 台靠护栏救回）。
+
+### 下一步
+124 台缩略图批量重渲（新工具韧性已解锁，负载 <5 窗口）；R6 分组节头立项。EOF
+echo done
+__zcode_status=$?
+if [ "$__zcode_status" -eq 0 ]; then pwd -P > '/var/folders/dw/l50ynr19065331_yntcsn0dm0000gn/T/zcode-2cbf0168-59ae-43e6-a818-00853b369889-cwd'; fi
+exit "$__zcode_status"
