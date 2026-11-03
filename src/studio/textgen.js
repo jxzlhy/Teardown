@@ -5,6 +5,7 @@
    产物走与导入完全相同的下游（诊断/编辑/作品库/导出）。 */
 
 import * as THREE from 'three';
+import { TEMPLATE_KINDS, templateClamps } from './templates.js';
 
 /* —— 词表 —— */
 const SHAPES = {
@@ -196,12 +197,13 @@ export const TEXTSPEC_FMT = 'gewu-textspec/1';
 const SPEC_SHAPES = new Set(Object.keys(SHAPES));
 
 export function specToJSON(spec) {
-  if (!spec || (!spec.central && !spec.ring && !spec.plates.length && !spec.struts)) {
+  if (!spec || (!spec.central && !spec.ring && !spec.plates.length && !spec.struts && !spec.template)) {
     throw new Error('空 spec 不可导出');
   }
   /* 深拷贝 + 字段收敛：导出物即契约，不带运行时引用 */
   return JSON.parse(JSON.stringify({
     fmt: TEXTSPEC_FMT,
+    template: spec.template || undefined,
     central: spec.central || undefined,
     ring: spec.ring || undefined,
     plates: spec.plates.length ? spec.plates : undefined,
@@ -247,8 +249,22 @@ export function specFromJSON(obj) {
   if (obj.struts) {
     spec.struts = { count: clamp(obj.struts.count ?? 4, 1, 24, 'struts.count') };
   }
-  if (!spec.central && !spec.ring && !spec.plates.length && !spec.struts) {
-    throw new Error('spec 未描述任何结构（central/ring/plates/struts 至少一项）');
+  /* 模板字段（V5.0.6）：kind 白名单 + 参数按钳制表补全/收敛；template-only spec 合法 */
+  if (obj.template) {
+    if (!obj.template || !TEMPLATE_KINDS.includes(obj.template.kind)) {
+      throw new Error(`spec.template.kind 非法：${JSON.stringify(obj.template && obj.template.kind)}（支持 ${TEMPLATE_KINDS.join('/')}）`);
+    }
+    const kind = obj.template.kind;
+    const table = templateClamps(kind);
+    const params = {};
+    for (const [k, c] of Object.entries(table)) {
+      const v = obj.template.params ? obj.template.params[k] : undefined;
+      params[k] = Number.isFinite(Number(v)) ? Math.min(c.max, Math.max(c.min, Number(v))) : c.def;
+    }
+    spec.template = { kind, params };
+  }
+  if (!spec.template && !spec.central && !spec.ring && !spec.plates.length && !spec.struts) {
+    throw new Error('spec 未描述任何结构（template/central/ring/plates/struts 至少一项）');
   }
   return spec;
 }

@@ -319,6 +319,29 @@ try {
   check('spec：按 spec 重建 10 部件', specRes.rebuiltOk === true, specRes.sameSummary);
   check('spec：非法 fmt/坏 JSON 拒收（原因可读）', specRes.rejectBad && specRes.rejectBroken);
 
+  /* 4f++. 参数化模板（V5.0.6）：文字「齿轮 20:30」→ 模板路径 → 2 部件 + spec 含 template */
+  await p2.evaluate(() => {
+    const ta = document.querySelector('.st-gentext');
+    const set = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+    set.call(ta, '一对齿轮，模数1，齿数20:30');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById('studioGenBtn').click();
+  });
+  await p2.waitForFunction(() => document.querySelectorAll('.st-node.mesh').length === 2, { timeout: 15000 });
+  const tplRes = await p2.evaluate(() => {
+    const S = window.__STUDIO;
+    const out = {};
+    out.tree = document.querySelectorAll('.st-node.mesh').length;
+    const json = S.exportTextSpec();
+    out.specHasTemplate = /"template"/.test(json || '') && /gearpair/.test(json || '');
+    const r = S.generateFromSpec(json);
+    out.specRebuild = r.ok && r.parts === 2;
+    return out;
+  });
+  check('模板：齿轮文字 → 2 部件（模板路径）', tplRes.tree === 2, 'mesh=' + tplRes.tree);
+  check('模板：spec 导出含 template 字段', tplRes.specHasTemplate === true);
+  check('模板：spec 往返重建 2 部件', tplRes.specRebuild === true);
+
   /* 4g. 组件分组（V5.0.2 收尾）：勾 2 网格组合 → 树现组件行 → 组结构可导出 → 撤销/重做 → 解散 */
   const grpRes = await p2.evaluate(async () => {
     const S = window.__STUDIO;

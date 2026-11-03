@@ -10,7 +10,8 @@ import { createWorkshop } from './workshop.js';
 import { exportGlb, downloadBlob } from './exporter.js';
 import * as library from './library.js';
 import { planRepairs, buildRepairCommands, REPAIR_LABELS } from './repair.js';
-import { generateFromText, buildFromSpec, specToJSON, specFromJSON } from './textgen.js';
+import { generateFromText, buildFromSpec, specToJSON, specFromJSON, TEXTSPEC_FMT } from './textgen.js';
+import { buildTemplate, detectTemplate, templateClamps } from './templates.js';
 import { createGroupCommands, ungroupCommands, filterAncestors } from './groupops.js';
 
 export { ERR, DEFAULT_CAP_MB };
@@ -76,14 +77,15 @@ export function createStudio({ canvas, onState }) {
     emit({ report: report ? { ...report } : null, pathMap, ...extra });
   };
 
-  /* 文字/spec 两入口共用的装配路径（V5.0.4）：报告标注 textGen + spec 快照 */
-  function mountTextGen(root, spec, fileLabel) {
+  /* 文字/spec/模板多入口共用的装配路径（V5.0.4/V5.0.6）：报告标注 textGen + spec/template 快照 */
+  function mountTextGen(root, spec, fileLabel, template) {
     const s = surveyScene(root);
     const stats = { file: fileLabel, fileSize: 0, ...s.stats, animationCount: 0 };
     report = {
       root, nodes: s.nodes, nodesByPath: s.nodesByPath,
       meshes: s.meshes, materials: s.materials, animations: [],
       stats, missingResources: [], textGen: true, textGenSpec: spec,
+      textGenTemplate: template || null,
     };
     diag = runDiagnostics(report);
     if (workshop) workshop.dispose();
@@ -248,8 +250,19 @@ export function createStudio({ canvas, onState }) {
     },
 
     /* —— 文字程序化建模（V5.0.4）：关键词模板解析（非 AI），产物走导入同一下游 ——
-       mountTextGen：两个入口（文字解析 / spec 导入）共用的装配路径（确定性契约） */
+       mountTextGen：多入口（文字解析 / 模板 / spec 导入）共用的装配路径（确定性契约）。
+       模板关键词优先：含「齿轮/曲柄/滑块/活塞/啮合」的描述走参数化模板（V5.0.6）。 */
     generateFromText: (text) => {
+      const tpl = detectTemplate(text);
+      if (tpl) {
+        const built = buildTemplate(tpl.kind, tpl.params);
+        if (!built.ok) return { ok: false, reason: built.reason, hint: '模板参数支持：' + Object.keys(templateClamps(tpl.kind)).join('/') };
+        mountTextGen(built.root, null, `模板：${tpl.kind}`, { kind: built.kind, params: built.params });
+        if (built.feasible === false) {
+          return { ok: true, parts: built.parts.length, summary: built.parts.map((p) => p.id).join(', '), unknown: [], infeasible: true };
+        }
+        return { ok: true, parts: built.parts.length, summary: built.parts.map((p) => p.id).join(', '), unknown: [] };
+      }
       const out = generateFromText(text);
       if (!out.ok) return out;
       mountTextGen(out.root, out.spec, '文字生成');
@@ -258,8 +271,14 @@ export function createStudio({ canvas, onState }) {
 
     /* —— spec 结构化导入/导出（17.6 可扩展描述格式；确定性契约同文字入口） —— */
     exportTextSpec: () => {
-      if (!report || !report.textGenSpec) return null;
-      try { return JSON.stringify(specToJSON(report.textGenSpec), null, 1); } catch { return null; }
+      if (!report || !report.textGen) return null;
+      try {
+        if (report.textGenTemplate) {
+          return JSON.stringify({ fmt: TEXTSPEC_FMT, template: report.textGenTemplate }, null, 1);
+        }
+        if (report.textGenSpec) return JSON.stringify(specToJSON(report.textGenSpec), null, 1);
+        return null;
+      } catch { return null; }
     },
     generateFromSpec: (jsonText) => {
       let obj;
@@ -269,6 +288,12 @@ export function createStudio({ canvas, onState }) {
       let spec;
       try { spec = specFromJSON(obj); } catch (e) {
         return { ok: false, reason: String(e.message || e).slice(0, 200) };
+      }
+      if (spec.template) {
+        const built = buildTemplate(spec.template.kind, spec.template.params);
+        if (!built.ok) return { ok: false, reason: built.reason };
+        mountTextGen(built.root, null, 'spec 导入', { kind: built.kind, params: built.params });
+        return { ok: true, parts: built.parts.length, summary: built.parts.map((p) => p.id).join(', '), unknown: [] };
       }
       const { root, parts } = buildFromSpec(spec);
       mountTextGen(root, spec, 'spec 导入');

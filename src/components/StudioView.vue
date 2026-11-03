@@ -444,7 +444,8 @@ function doGenerate() {
   const unk = out.unknown && out.unknown.length
     ? `；未识别忽略 ${out.unknown.length} 段：${out.unknown.slice(0, 3).join('、')}${out.unknown.length > 3 ? ' 等' : ''}`
     : '';
-  genMsg.value = `已生成 ${out.parts} 个部件并载入画布（${out.summary}）——可用编辑器调整、保存进作品库${unk}`;
+  genMsg.value = `已生成 ${out.parts} 个部件并载入画布（${out.summary}）——可用编辑器调整、保存进作品库${unk}`
+    + (out.infeasible ? ' ⚠ 当前参数不满足装配条件（连杆长需 > 曲柄半径+偏置），快照为示意形态' : '');
 }
 
 /* spec 结构化契约（17.6）：导出=复制当前 spec；导入=按 spec 重建（同 spec 恒同结构） */
