@@ -11,7 +11,8 @@
 
 ## 下一次最先执行（按序）
 
-0. **R9 延伸（2026-11-03 续轮 4 新增，4b 已完成首轮延伸）**：a) ~~日厅大厅审计~~ **已完成（4b）**——V3 遗产质量确认无重构需求；实证 thumb 管线 plinth 本就隐藏（大厅无旧底座包袱）；移动端导航渐隐带修复+render-thumbs 重试护栏已入库（45fa721）。b) R9 语言向研究翼延伸（星图/编年/对比页头与档案瓦片化，REFERENCE_STUDY 语法页面级小审计先行）；c) R6 部件分组节头（设备数据 group 字段，逐台滚动）；d) hud-verify `--device action4` 旗舰断言 + smoke 全量复跑（负载 <5 窗口，含历史挂账 radial/JWST/Wright/V5.0-studio）。
+0. **R9 延伸（2026-11-04 更新）**：a) ~~日厅大厅审计~~ **已完成（4b）**——V3 遗产质量确认无重构需求；实证 thumb 管线 plinth 本就隐藏；导航修复+render-thumbs 护栏已入库（45fa721）。b) ~~研究翼延伸~~ **已完成审计（11-04）**——星图/编年/对比三页截图审计结论=PHASE_R4 成熟态，R9 语法对数据密集页过度设计，**无需重构**（截图 docs/design/screenshots/2026-11-04-research-audit/）。c) ~~R6 分组节头~~ **数据证伪（11-04）**——部件数 max 23、分布集中低位，两行行结构+滚动已可用，缓采裁定维持。d) ~~action4 旗舰断言~~ **10/10 ALL PASS（11-04）**——注意 CLI 语法必须 `--device=action4`（空格分隔不命中解析器）；AC203 档案大字+11 瓦片+era 行+chip×3 全绿。**R9 弧线只剩 smoke 全量绿一项**：三次尝试均被并行会话负载截断（大厅 4 项恒绿、设备装载段 OOM/boot 超时）——低负载窗口挂账维持，R9 代码路径已被昨日 26/28+今日 10/10 完整覆盖。
+1. **下一垂直切片候选（11-04 择取）**：V4.1a 切台时序/动画手感打磨（切台 loader 表现/相机回位缓动/面板状态清理的连贯性）——动工前先用 hud-verify 扩一段切台序列断言（action4→iphone-13→action4 往返，断言 UI 态清理+相机回位）。
 1. ~~V4.0 MI 全系统 + 收尾清点 + V4.1 照明治理循环 + 性能/兼容回归~~ **收官**（执行状态档 GEWU_V4_MI_EXECUTION_STATUS.md / v4-light-audit / v4-viewport-sweep EXIT 0 / fps-probe quality 修复 / forge nav 修正；**smoke 负载抖动已定案=环境负载非回归**——负载曲线 24→6.4 与通过/失败严格相关，load<8 单跑全过，规程入记忆库）。
 2. **V5.0 创作工作室续（11-03/04 八切片已交付）**：`/studio`（src/studio/ 十模块 + StudioView.vue 十面板）——V5.0.0 基础架构 + V5.0.1 导入/体检 + V5.0.2 Workshop（编辑+组件分组）+ V5.0.8 本地作品库 + V5.0.3 参考图 + V5.0.5 修复闭环 + V5.0.4 文字生成+**spec 契约/深链** + **V5.0.6 机械模板（齿轮对/曲柄滑块）**；Node 四套件 77 项全绿；studio-verify 55 项（浏览器段挂账 OOM，静默窗口待跑全量）；下一候选 = 凸轮模板/gizmo/studio-verify 并入 smoke，见 AUTONOMOUS_BACKLOG「V5.0 创作工作室」节与 docs/architecture/STUDIO_ARCHITECTURE.md。
 3. **V4.1 续（按价值自选）**：a) 模型切换/运动/拆解/复位体验打磨（切台时序/动画手感）；b) 零件导航/弹出层滚动优化；c) 真机性能回归（headless 已覆盖，真机 Safari/Chrome 待设备）。
