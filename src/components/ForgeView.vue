@@ -52,7 +52,7 @@
 
         <div class="forge-actions">
           <button class="forge-go" :disabled="busy" @click="generate">
-            {{ busy ? '生成中…' : '⚒ 生成并进入拆解' }}
+            {{ busy ? '生成中…' : '' }}<Icon v-if="!busy" name="hammer" /> 生成并进入拆解
           </button>
           <span v-if="err" class="forge-err">{{ err }}</span>
         </div>
@@ -67,8 +67,8 @@
               <b>{{ r.name }}</b>
               <small>{{ r.generator }} · 种子 {{ r.seed }} · {{ new Date(r.ts).toLocaleString() }}</small>
             </router-link>
-            <button class="forge-glb" :aria-label="'复制配置：' + r.name" @click="copyConfig(r.id)">⧉ 配置</button>
-            <button class="forge-glb" :aria-label="'导出 GLB：' + r.name" @click="exportGlb(r.id)">⬇ GLB</button>
+            <button class="forge-glb" :aria-label="'复制配置：' + r.name" @click="copyConfig(r.id)"><Icon name="copy" /> 配置</button>
+            <button class="forge-glb" :aria-label="'导出 GLB：' + r.name" @click="exportGlb(r.id)"><Icon name="download" /> GLB</button>
           </div>
         </div>
         <p v-if="glbMsg" class="fp-note" style="margin-top:10px">{{ glbMsg }}</p>
@@ -79,7 +79,7 @@
         <textarea v-model="importText" class="forge-import" rows="4"
           placeholder='粘贴配置 JSON（{"fmt":"gewu-forge/1",...}）——生成器+参数+种子，确定性复现'></textarea>
         <div class="forge-actions" style="margin-top:10px">
-          <button class="forge-go" style="padding:9px 18px" :disabled="busy" @click="importConfig">⇥ 导入并生成</button>
+          <button class="forge-go" style="padding:9px 18px" :disabled="busy" @click="importConfig"><Icon name="import" /> 导入并生成</button>
           <span v-if="importMsg" class="fp-note">{{ importMsg }}</span>
         </div>
       </section>
@@ -89,6 +89,7 @@
 
 <script setup>
 import { ref, reactive, watch, onMounted, nextTick } from 'vue';
+import Icon from '../ui/Icon.vue';
 import { useRouter, useRoute } from 'vue-router';
 import { createForgeDevice, forgeGeneratorList, listForgeDevices, encodeForgeConfig, importForgeConfig, getForgeDevice } from '../forge/registry.js';
 import { exportForgeGLB } from '../forge/export.js';
@@ -164,16 +165,16 @@ async function exportGlb(id) {
 const importText = ref('');
 const importMsg = ref('');
 async function copyConfig(id) {
-  const dev = getForgeDevice(id);
+  const dev = await getForgeDevice(id);   // RS-16：生成器按需动态加载
   if (!dev) { glbMsg.value = '配置不存在：' + id; return; }
   const text = encodeForgeConfig(dev.forge.generator, dev.forge.params, dev.forge.seed);
   try { await navigator.clipboard.writeText(text); glbMsg.value = '配置已复制到剪贴板（' + id + '）'; }
   catch { glbMsg.value = '剪贴板不可用，配置已显示在导入框'; importText.value = text; }
 }
-function importConfig() {
+async function importConfig() {
   importMsg.value = '';
   try {
-    const dev = importForgeConfig(importText.value);
+    const dev = await importForgeConfig(importText.value);   // RS-16：生成器按需动态加载
     recent.value = listForgeDevices();
     router.push('/device/' + dev.id);
   } catch (e) {
@@ -181,11 +182,11 @@ function importConfig() {
   }
 }
 
-function generate() {
+async function generate() {
   err.value = '';
   busy.value = true;
   try {
-    const dev = createForgeDevice(gen.value, { ...params }, seedText.value);
+    const dev = await createForgeDevice(gen.value, { ...params }, seedText.value);   // RS-16：生成器按需动态加载
     recent.value = listForgeDevices();
     router.push('/device/' + dev.id);
   } catch (e) {

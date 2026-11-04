@@ -112,6 +112,49 @@ function worldMatrix(node) {
   }
   return m;
 }
+const sanitize = (s) => String(s).replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
+
+/* —— 按名字正则分组 join：--join-name <正则> → 命中节点合并为 JOINED_<正则> —— */
+const joinNames = [];
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--join-name') joinNames.push(args[++i]);
+}
+for (const pattern of joinNames) {
+  const re = new RegExp(pattern);
+  const picked = [];
+  for (const node of root.listNodes()) if (node.getMesh() && re.test(node.getName() || '')) picked.push(node);
+  if (!picked.length) { console.log(`join-name '${pattern}': 无命中，跳过`); continue; }
+  /* joinPrimitives 要求同材质+同属性：按「材质+属性集」子分组逐组合并 */
+  const matName = (mat) => (mat && mat.getName) ? mat.getName() : '?';
+  const attrKey = (p) => p.listSemantics().sort().join(',') + '|ix' + (p.getIndices() ? 1 : 0);
+  const buckets = new Map();
+  for (const n of picked) for (const p of n.getMesh().listPrimitives()) {
+    const k = matName(p.getMaterial()) + '::' + attrKey(p);
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(p);
+  }
+  let merged = 0;
+  for (const [k, prims] of buckets) {
+    if (prims.length < 2) { merged += prims.length; continue; } /* 单件不动 */
+    const joined = joinPrimitives(prims);
+    const mesh = doc.createMesh(`JOINED_${sanitize(pattern)}_${merged ? merged : ''}`);
+    mesh.addPrimitive(joined);
+    const node = doc.createNode(`JOINED_${sanitize(pattern)}`);
+    node.setMesh(mesh);
+    const srcNode = picked.find((n) => n.getMesh().listPrimitives().some((p) => prims.includes(p)));
+    const wm = srcNode ? worldMatrix(srcNode) : null;
+    if (wm) node.setMatrix(wm);
+    root.listScenes()[0].addChild(node);
+    merged += prims.length;
+  }
+  for (const n2 of picked) {
+    const parent = parentOf.get(n2) || root.listScenes().find((s) => (s.listChildren ? s.listChildren() : []).includes(n2));
+    if (parent && parent.removeChild) parent.removeChild(n2);
+    n2.dispose();
+  }
+  console.log(`join-name '${pattern}': ${picked.length} 节点 ${merged} primitive → ${buckets.size} 组`);
+}
+
 if (opt.joinMats.length) {
   const matName = (mat) => (mat && mat.getName) ? mat.getName() : '';
   for (const target of opt.joinMats) {

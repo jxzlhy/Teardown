@@ -5,6 +5,8 @@
 
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
 |---|---|---|---|---|---|
+| P2 | **P2-11 SEO 基础件**——og:image（复用 public/thumbs）+ robots.txt + sitemap.xml + manifest.webmanifest + CSP meta（实测不破坏 Draco/Cache Storage） | 分享卡片与可索引性 | 低：纯构建期/静态产物 | build + dist 检查 + og:image 200 断言 | **🟡 大部分完成（2026-11-04，AURORA PHASE 1）**：og:image+twitter:card+manifest+robots.txt 已上线（dist 三件 200 ✓）；**遗留**：sitemap（待部署域名；hash 路由设备页需预渲染才可索引）、CSP meta（需含 Draco worker/blob 的实测窗口）——两项并入 AURORA PHASE 7 终验窗口 |
+| P2 | 设备页 A→B 同文档 hash 热切换 config 不换新（如 iphone-13 → forge 深链仅变 hash 时部件清单停留旧设备、永久 LOADING）——**既有问题非本轮回归**（干净 HEAD worktree 复现，2026-11-04 无头取证） | 设备切换正确性 | 中：需先人工浏览器复测定级 | 人工复现 → 定级 → 修 route watcher 或 loadDevice 时序 | 待定级（PROJECT_ISSUES 观察记录） |
 | P2 | GraphView 品牌标签重叠 + 设备搜索定位输入框 | 星图可读性 | 低：Canvas 绘制层 | 截图 + 标签间距断言 | **已完成**（2026-11-01 续轮 8：两阶段标签去碰撞 + 搜索定位/脉冲/未命中徽标；`"WALTHER` 系标签重叠视觉切片，数据无引号） |
 | P3 | 移动端 dock 溢出项（标签/导览/截图/帮助）加滚动渐隐提示 | 移动可发现性 | 低 | 390×844 截图 | 待办（2026-10-31 审计遗留） |
 | P2 | 触控目标 ≥44px 真机实测（视觉 34–38px + padding 扩展的口径需真机复核） | 移动可用性 | 需真机环境 | iOS Safari / Android Chrome 实测 | 待办（headless 无法覆盖） |
@@ -75,7 +77,7 @@
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
 |---|---|---|---|---|---|
 | P1 | **Smithsonian 免 key 通道接入**：S3 bucket（104k key 全量目录已在 `vendor/assets/originals/_si-research/si_titles.tsv`）+ CDN `cdn.3d-api.si.edu/{uuid}/{file}`。**JWST ✓ → 1903 Wright Flyer ✓ → Apollo 11 舱门 CAD ✓（125）→ Apollo CM 座舱 ✓（126）→ Apollo CM 外壳 ✓（第 127 台：shell+top 双分包，烧蚀热盾叙事）**——"外壳→座舱→舱门"Apollo 递进三联展线成型 | 全馆级馆藏补充（CC0 无署名负担） | 中：SI 扫描多为单焊接网格需逐个验分组 | inspect-glb + add-device SOP | **五台已完成**；二线池滚动 |
-| P2 | 资源压力随机丢件复验（CM interior seats 4/4 + CM exterior nose 2/2，空闲窗口 IAB 探针）+ smoke 全量×2 收官 | 排障闭环 | 低 | 探针脚本在手（cmi-robust/apollo-pid） | 挂账 |
+| P2 | ~~随机丢件复验~~ **模式修正（2026-11-04 IAB 两轮复验）**：丢失非随机——两台丢的都是 merge 文件中**顶点数最大 primitive**（CM interior seats 59k / CM exterior nose 160k，各连续两轮稳定丢失）→ 定性改"**特定大网格确定性丢失**"（疑似装载内存预算阈值）；空闲机器复测区分预算不足 vs loader 缺陷。同轮 smoke 尝试（load 4.88）仍 180s 超时——按"不影响其他进程"主动停手 | 排障闭环 | 低 | IAB 探针（cmi-robust/apollo-pid） | 定性更新；修复待空闲机器 |
 | P2 | **gltf-transform merge 孤儿节点缺陷**：merge 多个单 node GLB 时输出 scenes[0].nodes=[0] 仅首件挂场景（nodes 1-3 孤儿，GLTFLoader 不实例化）——修复脚本 /tmp/dji-fetch/fix-scene.mjs（重写 scenes.nodes + BIN 重组；待收编 tools/ 加测试） | 资产管线 | 低 | CM interior 修复后 3/4 网格装载实测 | 已定性（脚本收编挂账） |
 | P2 | **资源压力下 GLTFLoader 大网格随机静默丢失**：25k-150k 面网格在内存/调度压力下实例化间歇失败（两轮各丢一件不同 mesh；无错误无 catch）——文件结构与路由规则不受影响，4/4 验证等空闲窗口 | 排障定性 | 低 | IAB 长驻进程探针（无头新实例易冻结） | 已定性入 LOG |
 | P2 | **SI 预编码 draco 兼容性坑**：SI 的 `*_draco.glb`（S3 直链）使 three 0.164 DRACOLoader worker 挂死（PARSING 永挂；gltf-transform node 侧解码正常、重编码无效）——**SI 资产一律 decode 后跳过 draco**（去 draco 版 4.54MB 装载即通） | 资产管线 | 低 | 已实测（radial 对照同实例 OK） | 已定性入 LOG |
@@ -83,7 +85,7 @@
 | P1 | ~~radial-engine 分离活塞置换切片~~ **已完成（2026-11-03）**：senguptaarmaan Fusion 装配体（51 网格 CC-BY）置换 basharnazzal 3 部件版，draco 1.55MB；部件 3→6（+曲轴/活塞/安装座），8 组活塞连杆独立分件；**引擎新增 stroke `phaseMode:'radial'`**（方位角均布相位）+ 修复 axisL/axisR 无缺省抛错、演示初始化与 GLB 合并竞态两处既有缺陷；8 组活塞 8 条相位分化轨迹实测 ✓ v8 回归 ✓ | 星型发动机 signature 演示补全 | 已回归（lint/build/thumbs/截图/相位实测/v8 canary） | stroke 相位采样 + v8 canary ✓ | **已完成**（smoke 挂账等负载） |
 | P2 | smoke 补跑（radial + JWST 两切片，负载 <5 时） | 回归完整性 | 低 | npm run smoke | 待补 |
 | P2 | ~~Curta 双版本裁决~~ **已关闭（2026-11-03 自动解决）**：并行会话下载 curta-calculator.glb 后未接入即自行清理（孤儿件消失，registry/inventory 无痕迹）；curta-type2 独占计算器类目 | 类目纯净 | 低 | ls + grep registry 实证 | **已关闭** |
-| P3 | 二线候选滚动池（社区报告已验 uid）：~~CMBC Singer 15~~（落选：重叠几何）~~Sea-Gull 1963~~（**已接入 128 台**）~~Agfa Movex 88~~（**落选**：6×65532v 重叠几何，Singer 同款缺陷三连）~~Lefaucheux 针发左轮~~（**落选**：单网格 25.8k 全焊接不可拆）~~瓦特蒸汽机~~（**已接入第 129 台**：174 网格 4 部件 y 分层路由 174/174 全量，波兰国家级数字化）| Polyphon 45D 盘式八音盒 10.9k（池内最后候选） | 内容扩充 | 低 | convert-asset SOP | **2 接入 3 落选**；余 1 候选 |
+| P3 | ~~二线候选滚动池~~ **正式收官（2026-11-04）**：6 候选全部消化——2 接入（Sea-Gull 1963 第 128 台 / 瓦特蒸汽机第 129 台）+ 4 落选（Singer、Agfa 重叠几何；Lefaucheux、Polyphon 45D 单网格全焊接，原件均备份标 REJECTED）。**规律定稿**：Sketchfab 小件落选三征（重叠 65532v×n / 单网格 / 匿名无语义），后续调研须把"部件可分性"提升为硬性过滤条件 | 内容扩充 | 低 | inspect 先行 | **已收官** |
 | P3 | seagull-1963 thumbs 补渲染（8301 实例环境冻结挂账；IAB 首屏+142/142 路由已替代验证） | 缩略图完整性 | 低 | npm run thumbs -- --only seagull-1963 | 挂账窗口 |
 | P3 | 品牌档案补齐：CURTA 品牌新档（curta-type2 接入产生）；39→40 品牌 | 档案完整 | 低 | lint brand-check | 待办（并行会话可能已动） |
 

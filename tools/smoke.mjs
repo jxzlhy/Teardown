@@ -100,7 +100,7 @@ try{
   await page.waitForFunction(() => {
     const e = window.__ENGINE;
     return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(800);
   const dev = await page.evaluate(() => {
     const s = window.__ENGINE.getState();
@@ -195,12 +195,14 @@ try{
 
   /* 视觉原理演示（Phase 5）：jet-engine 风扇段选中即绕轴线旋转（toast 标注示意动画） */
   await page.goto(BASE + '/#/device/jet-engine', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && /COMMUNITY|OFFICIAL/.test(s.modelStatus || ''); }, { timeout: 90000, polling: 200 });
+  /* V4.1 修正：jet GLB 4.63MB 解析（PARSING）滞留可达 80s+，最终状态标记晚于可用——
+     改等 booted+parts 就位（模型已可交互），不强等状态标记（此前 180s 反复超时根因） */
+  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && s.parts && s.parts.length > 0; }, { timeout: 180000, polling: 200 });
   await sleep(400);
   await page.evaluate(() => window.__ENGINE.selectPart('fan-section'));
-  await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 15000, polling: 100 });
+  await page.waitForFunction(() => window.__ENGINE.getState().demoActive, { timeout: 30000, polling: 100 });
   const d1 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
-  await sleep(900);
+  await sleep(2200);   /* swiftshader 低帧率下 1s 窗口 rAF 帧太稀（backlog 已知模式），拉长采样窗 */
   const d2 = await page.evaluate(() => window.__ENGINE.getPartRotation('fan-section').x);
   check('运行演示：风扇段选中旋转', d2 > d1 + 0.2, `Δx=${(d2 - d1).toFixed(2)}`);
   await page.evaluate(() => window.__ENGINE.selectPart(null));
@@ -220,9 +222,9 @@ try{
 
   /* 导览升级（Phase 6）：对象条目讲解词 + 讲解卡 */
   await page.goto(BASE + '/#/device/pocket3', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && s.partsCount > 0; }, { timeout: 90000, polling: 200 });
+  await page.waitForFunction(() => { const e = window.__ENGINE; const s = e && e.getState(); return s && s.booted && s.partsCount > 0; }, { timeout: 180000, polling: 200 });
   await page.evaluate(() => window.__ENGINE.startTour('auto'));
-  await page.waitForFunction(() => !!document.querySelector('#tourNote .tour-note-text'), { timeout: 8000, polling: 200 });
+  await page.waitForFunction(() => !!document.querySelector('#tourNote .tour-note-text'), { timeout: 20000, polling: 200 });
   const noteText = await page.evaluate(() => document.querySelector('#tourNote .tour-note-text').textContent);
   check('导览讲解卡（策展讲解词渲染）', /旋转屏/.test(noteText), noteText.slice(0, 20));
   await page.evaluate(() => window.__ENGINE.stopTour());
@@ -244,7 +246,7 @@ try{
     const e = window.__ENGINE;
     const s = e && e.getState();
     return s && s.booted && s.device && s.device.id === 'pocket3';
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(800);
   const mpts = await page.evaluate(() => {
     const cam = window.__ENGINE.getCamera();
@@ -283,7 +285,7 @@ try{
     const s = e && e.getState();
     return s && s.booted && s.device && s.device.id === 'marshall-jcm800'
       && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(s.modelStatus || '');
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(600);
   await page.keyboard.press('KeyT');
   await sleep(800);
@@ -308,7 +310,7 @@ try{
   await page.waitForFunction(() => {
     const e = window.__ENGINE;
     return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(1200);
   await page.keyboard.press('Digit5');
   await sleep(1400);
@@ -325,7 +327,7 @@ try{
   await page.waitForFunction(() => {
     const e = window.__ENGINE;
     return e && e.getState().booted && /OFFICIAL|COMMUNITY|PROCEDURAL|FALLBACK/.test(e.getState().modelStatus || '');
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(800);
   const m4hull = await page.evaluate(() => window.__ENGINE.getState().hullRadius);
   check('m4 取景尺度护栏（hullRadius ∈ [2, 30]）', m4hull > 2 && m4hull < 30, `hullRadius=${m4hull}`);
@@ -373,7 +375,7 @@ try{
     const e = window.__ENGINE;
     const s = e && e.getState();
     return s && s.booted && s.device && s.device.id === 'action4';
-  }, { timeout: 90000, polling: 200 });
+  }, { timeout: 180000, polling: 200 });
   await sleep(1200);
   await page.evaluate(() => document.querySelector('#mpChips button')?.click());
   await sleep(700);

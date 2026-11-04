@@ -67,13 +67,13 @@ onMounted(async () => {
 .tl-item{
   position:relative; display:grid; grid-template-columns:64px minmax(0,1fr); grid-template-rows:auto auto;
   column-gap:40px; align-items:baseline;
-  padding:9px 14px 9px 0; border:none; border-bottom:1px solid rgba(120,150,180,.07);
+  padding:9px 14px 9px 0; border:none; border-bottom:1px solid var(--glass-bg);
   border-radius:0; background:none;
 }
 .tl-item::before{
   content:""; position:absolute; left:88px; top:50%; width:8px; height:8px; z-index:1;
   transform:translate(-50%,-50%) rotate(45deg);
-  background:#0a121c; border:1.5px solid rgba(120,150,180,.45); transition:border-color var(--dur-1), background var(--dur-1);
+  background:#0a121c; border:1.5px solid var(--glass-line-hi); transition:border-color var(--dur-1), background var(--dur-1);
 }
 .tl-item .tl-year{ grid-row:1 / span 2; align-self:center; text-align:right; font-family:var(--mono); font-size:12.5px; letter-spacing:.06em; color:var(--acc); }
 .tl-item .tl-label{ font-size:13px; color:var(--txt-1); font-family:var(--sans); line-height:1.5; }

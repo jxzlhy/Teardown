@@ -126,6 +126,11 @@ import grandfatherClock from './grandfather-clock.js';
 import vintageKettle from './vintage-kettle.js';
 import wrightFlyer from './wright-flyer.js';
 import armillarySphere from './armillary-sphere.js';
+import apolloHatch from './apollo-hatch.js';
+import apolloCmInterior from './apollo-cm-interior.js';
+import apolloCmExterior from './apollo-cm-exterior.js';
+import seagull1963 from './seagull-1963.js';
+import wattSteamEngine from './watt-steam-engine.js';
 
 export const devices = [
   /* DJI */
@@ -202,7 +207,11 @@ export const devices = [
   /* BRAUN */
   braunSk55,
   /* SMITHSONIAN */
-  wrightFlyer,
+  wrightFlyer, apolloHatch, apolloCmInterior, apolloCmExterior,
+  /* SEA-GULL */
+  seagull1963,
+  /* WIRTUALNE MUZEA */
+  wattSteamEngine,
 ];
 export const getDevice = id => devices.find(d => d.id === id);
 export const brands = [...new Set(devices.map(d => d.brand || 'OTHER'))];

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# 格物馆（GEWU / MUSEUM OF MACHINES）
+# 说明：站点为 hash 路由 SPA（/#/device/:id 等），设备页需构建期预渲染后才可被单独索引
+# （见 docs/audit/PROJECT_ISSUES.md P2-11）。Sitemap 行待部署域名确定后补充。

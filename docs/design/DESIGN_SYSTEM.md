@@ -66,18 +66,36 @@
 | `--name` | `"Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "HarmonyOS Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif` | 名字层：馆名、展区标题、展品名、部件名（display only；Noto Sans SC 900 webfont 分片懒加载） |
 | `--fs-hud` | `10px` | HUD 微标注（仅装饰性标注，配 ≥.2em 字距） |
 
+### 3.1 字号令牌层（V5.0.10 AURORA PHASE 1，2026-11-04）
+
+**代码唯一来源：`src/style.css :root`**；`style.css` 内**禁止新增裸 `font-size` 字面量**（全量 133 处已令牌化，1:1 同值迁移，双厅截图对比零排版差异）。
+
+原始层（以值命名）：
+`--fs-8` `--fs-8-5` `--fs-9` `--fs-9-5` `--fs-10` `--fs-10-5` `--fs-11` `--fs-11-5` `--fs-12` `--fs-12-5` `--fs-13` `--fs-13-5` `--fs-14` `--fs-15` `--fs-15-5` `--fs-16` `--fs-17` `--fs-18` `--fs-20` `--fs-21` `--fs-22` `--fs-24` `--fs-26` `--fs-44`
+
+语义/展示层（以角色命名，单消费者）：
+
+| Token | 值 | 用途 |
+| --- | --- | --- |
+| `--fs-hud` | `10px` | HUD 微标注 |
+| `--fs-brand-hero` | `clamp(44px,6vw,84px)` | 馆名主标（.hub 门厅；**以代码为准修正旧档 clamp(76,11.5vw,172) 漂移**） |
+| `--fs-brand-hero-compact` | `clamp(64px,19vw,110px)` | 馆名（.hub-title 窄屏覆盖） |
+| `--fs-section-title` | `clamp(24px,3vw,34px)` | 常设展分节标题（.hub-sect h2） |
+| `--fs-display-xl` | `clamp(26px, 5.4vw, 58px)` | 门厅陈列大字 |
+| `--fs-display-sub` | `clamp(17px, 3vw, 30px)` | 门厅陈列副字 |
+
 字号阶梯（现状实测 + 约束）：
 
 | 级 | 用途 | 规格 |
 | --- | --- | --- |
-| Display | 大厅馆名（黑体巨字） | `clamp(76px,11.5vw,172px)` / 900 |
+| Display | 大厅馆名（黑体巨字） | `var(--fs-brand-hero)` = `clamp(44px,6vw,84px)` / 900 |
 | H1 | 展品名（设备页标题 / 详情卡 / 卡片名） | 17–22px 黑体 800 |
 | H2 | 次级页/展区标题 | 13–20px（衬线展区 / sans 页头） |
 | Body | 正文、部件描述 | 12–13.5px，行高 ≥1.7 |
 | Caption | 卡片 tagline、辅助说明 | 11–12.5px |
 | Label/HUD | eyebrow、状态、徽标 | 8.5–11px mono，宽字距 |
 
-规则：中文正文 ≥13px（长文 ≥12px 需行高 ≥1.8 兜底）；<10px 仅限 HUD 装饰性标注；数字读数用 `--mono`。
+规则：中文正文 ≥13px（长文 ≥12px 需行高 ≥1.8 兜底）；<10px 仅限 HUD 装饰性标注；数字读数用 `--mono`；后续归并（29 种值收敛为更紧的语义档）须逐级截图评审后进行，不做无证据合并。
 
 ## 4. Spacing / Shape / Elevation
 

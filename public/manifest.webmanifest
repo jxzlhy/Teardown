@@ -1,0 +1,14 @@
+{
+  "name": "格物馆 · MUSEUM OF MACHINES",
+  "short_name": "格物馆",
+  "description": "129 台设备的可交互 3D 拆解数字博物馆 + 程序化机械锻造所。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#040810",
+  "theme_color": "#040810",
+  "icons": [
+    { "src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

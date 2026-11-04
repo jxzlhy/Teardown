@@ -56,7 +56,7 @@
 /* 发光按钮：默认描边态 → hover 发光 + 强调色 */
 .hud-glow-btn{
   appearance:none; display:inline-flex; align-items:center; justify-content:center; gap:7px;
-  border:1px solid rgba(120,150,180,.28); background:rgba(120,150,180,.06);
+  border:1px solid var(--glass-line-strong); background:var(--glass-bg);
   color:var(--txt-2); font-family:var(--sans); font-size:12px; letter-spacing:.12em;
   padding:7px 13px; border-radius:7px; cursor:pointer; white-space:nowrap;
   transition:all var(--dur-1) var(--ease-out);
@@ -78,12 +78,12 @@
 
 /* 筛选 chip：选中内发光 + 微缩放 */
 .hud-chip{
-  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:var(--txt-2);
-  background:rgba(120,150,180,.06); border:1px solid rgba(120,150,180,.18);
+  font-family:var(--mono); font-size:var(--fs-10-5); letter-spacing:.08em; color:var(--txt-2);
+  background:var(--pill-bg); border:1px solid var(--pill-line);
   padding:5px 13px; border-radius:999px; cursor:pointer;
   transition:all var(--dur-1) var(--ease-out);
 }
-.hud-chip:hover{ color:var(--txt-1); border-color:rgba(120,170,200,.4); }
+.hud-chip:hover{ color:var(--txt-1); border-color:var(--pill-line-hover); }
 .hud-chip.on{
   color:var(--acc); border-color:var(--acc); background:var(--acc-08);
   box-shadow:0 0 12px var(--acc-16), inset 0 0 8px var(--acc-08);

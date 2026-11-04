@@ -65,4 +65,11 @@ export default makeDevice({
       desc: '摇柄带动发条上弦，棘轮防止回弹；播放时发条经齿轮组减速稳速输出到唱盘轴。一整圈摇柄约换 30 秒播放时间——"听一首歌摇三次"是留声机时代的日常。齿轮组的调速离心摆决定恒速品质。',
       specs: [['储能', '发条（棘轮防回弹）'], ['比例', '一圈摇柄 ≈ 30s 播放'], ['稳速', '离心调速摆']] },
   ],
+  /* V4.0 MI①：储能→稳速→输出链（33⅓ rpm 真实速率；离心摆调速为示意口径） */
+  mech: { driver: 'crank', edges: [
+    { id: 'cr-crank-spring', type: 'gear_mesh', from: 'crank', to: 'cabinet', kinematic: 'approx', note: '摇柄经棘轮给发条上弦（棘轮防回弹）；发条藏于柜体内，本模型未建发条件' },
+    { id: 'bd-turntable', type: 'bearing_support', from: 'cabinet', to: 'turntable', kinematic: 'exact', note: '唱盘轴支承于柜体轴承' },
+    { id: 'gm-drive', type: 'gear_mesh', from: 'cabinet', to: 'turntable', kinematic: 'approx', note: '发条经齿轮组减速稳速输出 33⅓ rpm（离心调速摆稳速——调速细部未建模，示意口径）' },
+    { id: 'fx-horn', type: 'fixed', from: 'cabinet', to: 'horn', note: '号角固定于柜体声臂' },
+  ] },
 });

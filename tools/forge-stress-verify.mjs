@@ -16,7 +16,7 @@ const ids = await page.evaluate(async () => {
   const { createForgeDevice } = await import('/src/forge/registry.js');
   const out = [];
   for (const gen of ['v8', 'turbofan', 'ringdrive']) {
-    for (const seed of ['st-a', 'st-b', 'st-c']) out.push(createForgeDevice(gen, undefined, seed).id);
+    for (const seed of ['st-a', 'st-b', 'st-c']) out.push((await createForgeDevice(gen, undefined, seed)).id);
   }
   return out;
 });

@@ -107,4 +107,20 @@ export default makeDevice({
       desc: '天王星支臂：公转 84 年，1781 年赫歇尔用望远镜发现——它是第一颗「不是古人看见」的行星。早期太阳系仪造好后又被拿去加装天王星臂，是仪器史上常见的「改装件」。',
       specs: [['公转', '84 年'], ['发现', '1781 · Herschel'], ['身份', '首颗望远镜行星'], ['位置', '最外圈']] },
   ],
+  /* V4.0 MI①：轮系减速链（各臂与 base-column 之间的塔轮减速——速率比来自其 specs 声明的公转周期，
+     以地球 365 天为基准归一；本模型未建齿轮网格，revolute approx = 关系真实、齿形不展示） */
+  mech: { driver: 'base-column', edges: [
+    { id: 'rv-mercury', type: 'revolute', from: 'base-column', to: 'mercury', kinematic: 'approx', ratio: 0.241, note: '水星臂 88 天（0.241×地球周期）；塔轮减速比按其公转周期换算' },
+    { id: 'rv-venus', type: 'revolute', from: 'base-column', to: 'venus', kinematic: 'approx', ratio: 0.615, note: '金星臂 225 天（0.615×）' },
+    { id: 'rv-earth', type: 'revolute', from: 'base-column', to: 'earth', kinematic: 'exact', ratio: 1, note: '地球臂 365 天——一切减速比的分母（基准轴）' },
+    { id: 'rv-mars', type: 'revolute', from: 'base-column', to: 'mars', kinematic: 'approx', ratio: 1.881, note: '火星臂 687 天（1.881×）' },
+    { id: 'rv-jupiter', type: 'revolute', from: 'base-column', to: 'jupiter', kinematic: 'approx', ratio: 11.86, note: '木星臂 11.86 年（深减速 12:1）' },
+    { id: 'rv-saturn', type: 'revolute', from: 'base-column', to: 'saturn', kinematic: 'approx', ratio: 29.46, note: '土星臂 29.5 年（最深减速）' },
+    { id: 'rv-uranus', type: 'revolute', from: 'base-column', to: 'uranus', kinematic: 'approx', ratio: 84.01, note: '天王星臂 84 年（后世加装件）' },
+    { id: 'rv-neptune', type: 'revolute', from: 'base-column', to: 'neptune', kinematic: 'approx', ratio: 164.8, note: '海王星臂 164.8 年（完整版补齐件）' },
+    { id: 'fx-legs', type: 'fixed', from: 'base-legs', to: 'base-column', note: '中央立柱塔固定于三足底座' },
+    { id: 'fx-ring', type: 'fixed', from: 'base-legs', to: 'base-ring', note: '刻度环（年历环）固定于底座' },
+    { id: 'fx-sun', type: 'fixed', from: 'base-column', to: 'sun', note: '太阳居于立柱顶端（自转演示见部件说明，本模型未建自转轴）' },
+    { id: 'fx-sun-core', type: 'fixed', from: 'sun', to: 'sun-core', note: '太阳内芯与太阳球体装配' },
+  ] },
 });

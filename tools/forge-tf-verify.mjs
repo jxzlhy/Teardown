@@ -55,7 +55,7 @@ await new Promise(r => setTimeout(r, 1800));
 await page.screenshot({ path: `${OUT}forge-tf-day.png` });
 const wide = await page.evaluate(async () => {
   const { createForgeDevice } = await import('/src/forge/registry.js');
-  const d = createForgeDevice('turbofan', { fanDiameter: 2400, bpr: 11, hpcStages: 7, lptStages: 4, finish: 'painted', detail: 2 }, 'tf-wide');
+  const d = await createForgeDevice('turbofan', { fanDiameter: 2400, bpr: 11, hpcStages: 7, lptStages: 4, finish: 'painted', detail: 2 }, 'tf-wide');
   return { id: d.id, parts: d.parts.length, disp: d.specs[1][1] };
 });
 console.log('widebody preset:', JSON.stringify(wide));

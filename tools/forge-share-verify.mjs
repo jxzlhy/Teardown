@@ -13,10 +13,10 @@ await new Promise(r => setTimeout(r, 1500));
 /* 1. API 链路：生成→编码→解码→导入 ⇒ 同 id（确定性） */
 const api = await page.evaluate(async () => {
   const { createForgeDevice, encodeForgeConfig, decodeForgeConfig, importForgeConfig } = await import('/src/forge/registry.js');
-  const a = createForgeDevice('turbofan', { fanDiameter: 1800, bpr: 7 }, 'share-test');
+  const a = await createForgeDevice('turbofan', { fanDiameter: 1800, bpr: 7 }, 'share-test');
   const text = encodeForgeConfig('turbofan', a.forge.params, a.forge.seed);
   const dec = decodeForgeConfig(text);
-  const b = importForgeConfig(text);
+  const b = await importForgeConfig(text);
   let badFmt = null;
   try { decodeForgeConfig('{"fmt":"other/1","generator":"v8"}'); } catch (e) { badFmt = String(e.message).slice(0, 30); }
   let badJson = null;
@@ -29,7 +29,7 @@ console.log('api:', JSON.stringify(api));
 const text = await page.evaluate(async () => {
   const { encodeForgeConfig, getForgeDevice } = await import('/src/forge/registry.js');
   const { createForgeDevice } = await import('/src/forge/registry.js');
-  const d = createForgeDevice('v8', undefined, 'share-ui');
+  const d = await createForgeDevice('v8', undefined, 'share-ui');
   return encodeForgeConfig('v8', d.forge.params, d.forge.seed);
 });
 await page.evaluate((t) => { const ta = document.querySelector('.forge-import'); const set = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set; set.call(ta, t); ta.dispatchEvent(new Event('input', { bubbles: true })); }, text);

@@ -16,6 +16,8 @@ npm run smoke      # 端到端冒烟回归（详见 package.json）
 
 | 文档 | 说明 |
 | --- | --- |
+| [docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md](docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md) | **自主研发总任务书 v2.0.0（长期总纲 · 28 部分 51 章：最高目标/真实性红线/资产标准/四类体验能力/机械模拟分级/PHASE 01-07 路线/GOAL 模式/停止条件）** |
+| [docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md](docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md) | **V5.0.10 AURORA 体验与性能专项任务书（当前执行中：体验第一优先级/性能第二，PHASE 0-7；独立专项，不转长期 goal）** |
 | [AGENTS.md](AGENTS.md) | 自主研发总则（长期工作规则） |
 | [TECH.md](TECH.md) | 技术架构与收口记录 |
 | [MODEL_INVENTORY.md](MODEL_INVENTORY.md) | 自动生成的模型清单（勿手改） |
@@ -39,6 +41,7 @@ npm run smoke      # 端到端冒烟回归（详见 package.json）
 | [docs/audit/PROJECT_ROADMAP.md](docs/audit/PROJECT_ROADMAP.md) | **优化路线图 Phase 0–7（含依赖顺序与验收标准）** |
 | [docs/audit/PROJECT_AUDIT_SCORE.md](docs/audit/PROJECT_AUDIT_SCORE.md) | **综合评分 75/100（十维加权，逐项证据）** |
 | [docs/audit/PROJECT_OPTIMIZATION_LOG.md](docs/audit/PROJECT_OPTIMIZATION_LOG.md) | 审计驱动的整改台账 |
+| [docs/audit/REAUDIT-2026-11-03.md](docs/audit/REAUDIT-2026-11-03.md) | **复审记录（2026-11-03）**：128 台 / 新增 `/studio` 后的增量重审、旧结论存续核查、RS-01~18 新问题、上轮两处测量纠错、复评 77/100 |
 | [AUTONOMOUS_LOG.md](AUTONOMOUS_LOG.md) | 自主研发迭代日志 |
 | [AUTONOMOUS_BACKLOG.md](AUTONOMOUS_BACKLOG.md) | 待办池 |
 | [MUSEUM-ROADMAP.md](docs/MUSEUM-ROADMAP.md) | 博物馆化路线研究 |

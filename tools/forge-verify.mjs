@@ -78,7 +78,7 @@ await page.screenshot({ path: `${OUT}forge-v8-day.png` });
 const same = await page.evaluate(async () => {
   const { createForgeDevice } = await import('/src/forge/registry.js');
   const a = window.__ENGINE.getState().device;
-  const b = createForgeDevice('v8', a.forge.params, a.forge.seed);
+  const b = await createForgeDevice('v8', a.forge.params, a.forge.seed);
   return { idSame: a.id === b.id, posSame: JSON.stringify(a.assembledPos) === JSON.stringify(b.assembledPos), partsSame: a.parts.length === b.parts.length };
 });
 console.log('determinism:', JSON.stringify(same));

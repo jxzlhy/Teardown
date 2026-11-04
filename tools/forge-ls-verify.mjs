@@ -88,7 +88,7 @@ await new Promise(r => setTimeout(r, 1800));
 await page.screenshot({ path: `${OUT}forge-ls-day.png` });
 const heavy = await page.evaluate(async () => {
   const { createForgeDevice } = await import('/src/forge/registry.js');
-  const d = createForgeDevice('lockstitch', { needleStroke: 42, feedStroke: 6, cadence: 0.6, finish: 'bare', detail: 2 }, 'ls-heavy');
+  const d = await createForgeDevice('lockstitch', { needleStroke: 42, feedStroke: 6, cadence: 0.6, finish: 'bare', detail: 2 }, 'ls-heavy');
   return { id: d.id, parts: d.parts.length, stroke: d.forge.params.needleStroke };
 });
 console.log('heavy preset regen:', JSON.stringify(heavy));

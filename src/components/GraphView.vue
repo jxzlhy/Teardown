@@ -47,7 +47,7 @@
     <!-- 技术详情浮层：点击技术节点（知识库词条：原理/沿革/应用设备/来源） -->
     <Transition name="fade">
       <aside v-if="panelTech" id="techPanel" class="hud-panel">
-        <button class="tp-close" @click="closePanel" aria-label="关闭">✕</button>
+        <button class="tp-close" @click="closePanel" aria-label="关闭"><Icon name="close" /></button>
         <div class="hud-eyebrow">TECHNOLOGY · 技术词条</div>
         <h3>{{ panelTech.zh }}<small v-if="panelTech.invented"> · {{ panelTech.invented }}</small></h3>
         <p class="tp-principle">{{ panelTech.principle }}</p>
@@ -57,19 +57,19 @@
         <div class="tp-sec" v-if="panelRelated.length">
           <h4>应用设备 <small>{{ panelRelated.length }}+</small></h4>
           <router-link v-for="d in panelRelated" :key="d.id" :to="'/device/' + d.device" class="tp-dev" @click="closePanel">
-            {{ d.label }}<i>拆解 ↗</i>
+            {{ d.label }}<i>拆解 <Icon name="external" /></i>
           </router-link>
         </div>
         <div class="tp-sec" v-if="panelTech.sources && panelTech.sources.length">
           <h4>来源</h4>
-          <a v-for="s in panelTech.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener" class="tp-src">{{ s.label }} ↗</a>
+          <a v-for="s in panelTech.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener" class="tp-src">{{ s.label }} <Icon name="external" /></a>
         </div>
       </aside>
     </Transition>
     <!-- 品牌档案浮层：点击品牌节点（史料已核证者显示创立年与一句话；待考者只列馆藏） -->
     <Transition name="fade">
       <aside v-if="panelBrand" id="brandPanel" class="hud-panel">
-        <button class="tp-close" @click="closePanel" aria-label="关闭">✕</button>
+        <button class="tp-close" @click="closePanel" aria-label="关闭"><Icon name="close" /></button>
         <div class="hud-eyebrow">BRAND · 品牌档案</div>
         <h3>{{ panelBrand.id }}<small v-if="panelBrand.founded"> · {{ panelBrand.founded }}</small></h3>
         <p v-if="panelBrand.note" class="tp-principle">{{ panelBrand.note }}</p>
@@ -79,12 +79,12 @@
         <div class="tp-sec">
           <h4>馆藏设备 <small>{{ panelBrandRelated.length }}</small></h4>
           <router-link v-for="d in panelBrandRelated" :key="d.id" :to="'/device/' + d.device" class="tp-dev" @click="closePanel">
-            {{ d.label }}<i>拆解 ↗</i>
+            {{ d.label }}<i>拆解 <Icon name="external" /></i>
           </router-link>
         </div>
         <div class="tp-sec" v-if="panelBrand.sources && panelBrand.sources.length">
           <h4>来源</h4>
-          <a v-for="s in panelBrand.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener" class="tp-src">{{ s.label }} ↗</a>
+          <a v-for="s in panelBrand.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener" class="tp-src">{{ s.label }} <Icon name="external" /></a>
         </div>
       </aside>
     </Transition>
@@ -99,6 +99,7 @@
    交互：滚轮/双指缩放、拖拽平移与节点、悬停一跳高亮、点击设备跳深链
 ============================================================= */
 import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue';
+import Icon from '../ui/Icon.vue';
 import { useRoute, useRouter } from 'vue-router';
 import PageHeader from './PageHeader.vue';
 import { technologies } from '../knowledge/index.js';
@@ -682,8 +683,8 @@ function onWheel(e){
 /* 搜索定位 */
 .gb-search{
   display:flex; align-items:center; gap:7px; flex:none;
-  border:1px solid rgba(120,150,180,.2); border-radius:999px; padding:5px 13px;
-  background:rgba(120,150,180,.05); min-width:170px;
+  border:1px solid var(--glass-line); border-radius:999px; padding:5px 13px;
+  background:var(--glass-bg); min-width:170px;
 }
 .gb-search svg{ width:13px; height:13px; color:var(--txt-dim); flex:none; }
 .gb-search input{
@@ -700,7 +701,7 @@ function onWheel(e){
 }
 .gb-chip{
   display:flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px;
-  border:1px solid rgba(120,150,180,.25); background:rgba(7,13,20,.5);
+  border:1px solid var(--pill-line); background:rgba(7,13,20,.5);   /* 深底浮层上下文：底色保留局部值 */
   color:var(--txt-2); font-size:10px; letter-spacing:.1em; cursor:pointer; font-family:var(--mono);
 }
 .gb-chip i{ width:7px; height:7px; border-radius:50%; }
@@ -715,7 +716,7 @@ function onWheel(e){
 #graphTimeStrip input[type=range]{ width:110px; accent-color:var(--acc); }
 #graphTimeStrip .ts-note{ font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--txt-dim); white-space:nowrap; }
 #graphTimeStrip .ts-clear{
-  background:none; border:1px solid rgba(120,150,180,.3); border-radius:999px;
+  background:none; border:1px solid var(--glass-line-strong); border-radius:999px;
   color:var(--txt-2); font-size:10px; padding:3px 10px; cursor:pointer; font-family:var(--mono);
 }
 #graphTimeStrip .ts-clear:hover{ color:var(--acc); border-color:var(--acc); }

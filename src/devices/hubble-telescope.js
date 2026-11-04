@@ -81,4 +81,14 @@ export default makeDevice({
       specs:[['段位','主镜后 · 仪器舱前'],['构成','焦面接续 · 承载结构'],['演变','历次维护换装仪器']] },
   ],
   tick: null,
+  /* V4.0 MI①：航天器结构连接（无旋转机构部件——太阳能翼在轨旋转由姿控实现，模型未建驱动件即不虚构） */
+  mech: { driver: 'tube', edges: [
+    { id: 'fx-tube-science', type: 'fixed', from: 'tube', to: 'science-section', note: '主镜筒与科学仪器承载段刚性连接（光学链一体化）' },
+    { id: 'fx-science-aft', type: 'fixed', from: 'science-section', to: 'aft-shroud', note: '承载段与后部遮罩舱对接' },
+    { id: 'dep-array-l', type: 'revolute', from: 'tube', to: 'solar-array-l', kinematic: 'visual', note: '左翼经铰链展开——在轨朝向由姿控系统驱动，模型未建驱动机构（视觉演示口径）' },
+    { id: 'dep-array-r', type: 'revolute', from: 'tube', to: 'solar-array-r', kinematic: 'visual', note: '右翼同上' },
+    { id: 'fx-door', type: 'fixed', from: 'tube', to: 'aperture-door', note: '光圈门铰装于镜筒前端（发射保护态开启）' },
+    { id: 'fx-radiators', type: 'fixed', from: 'aft-shroud', to: 'radiators', note: '散热器安装于后部舱段' },
+    { id: 'fx-antennas', type: 'fixed', from: 'tube', to: 'antennas', note: '高增益天线支架固定于镜筒' },
+  ] },
 });

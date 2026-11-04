@@ -1,8 +1,8 @@
 # 已有模型清单（防重复登记表 · 自动生成）
 
-> 生成时间：2026-11-03 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
+> 生成时间：2026-11-04 · 由 `tools/gen-inventory.mjs` 扫描 `src/devices/registry.js` + `public/assets/` 生成
 > **本文件不要手改** —— 改动请跑 `npm run gen:inventory` 重新生成。
-> 当前：**124 台设备** · 932 个部件 · 123 套 GLB · 43 个品牌
+> 当前：**129 台设备** · 956 个部件 · 129 套 GLB · 45 个品牌
 
 ## 查重三步（新增前必做）
 
@@ -49,7 +49,7 @@
 |---|---|---|---|---|---|---|
 | phone3 | Nothing Phone (3) | 手机 | 12 | 官方 | phone3.glb | 706 KB |
 | phone4apro | Nothing Phone (4a) Pro | 手机 | 6 | 官方 | phone4apro.glb | 3.8 MB |
-| phone3alite | Nothing Phone (3a) Lite | 手机 | 7 | 官方 | phone3alite.glb | 1.1 MB |
+| phone3alite | Nothing Phone (3a) Lite | 手机 | 7 | 官方 | phone3alite.glb | 983 KB |
 
 ### APPLE（22 台）
 
@@ -143,7 +143,7 @@
 | vintage-microwave | 复古微波炉 | 厨电 | 6 | 社区 | vintage-microwave.glb | 900 KB |
 | grandfather-clock | 落地摆钟 | 钟表 | 6 | 社区 | grandfather-clock.glb | 1.3 MB |
 | vintage-kettle | 复古电水壶 | 厨电 | 6 | 社区 | vintage-kettle.glb | 1.7 MB |
-| armillary-sphere | 浑天仪 | 天文仪器 | 1 | 程序化 | — | — |
+| armillary-sphere | 浑天仪 | 天文仪器 | 6 | 社区 | armillary-sphere.glb | 5.8 MB |
 
 ### KALASHNIKOV（1 台）
 
@@ -354,13 +354,24 @@
 |---|---|---|---|---|---|---|
 | braun-sk55 | Braun SK 55 收音唱机 | 影音 | 7 | 社区 | braun-sk55.glb | 735 KB |
 
-### SMITHSONIAN（1 台）
+### SMITHSONIAN（4 台）
 
 | id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
 |---|---|---|---|---|---|---|
-| wright-flyer | 1903 莱特飞行者 | 航天 | 3 | 社区 | wright-flyer.glb | 3.8 MB |
+| wright-flyer | 1903 莱特飞行者 | 航天 | 3 | 官方 | wright-flyer.glb | 3.8 MB |
+| apollo-hatch | 阿波罗 11 号乘员舱门 | 航天 | 3 | 官方 | apollo-hatch.glb | 956 KB |
+| apollo-cm-interior | 阿波罗 11 号指令舱座舱 | 航天 | 4 | 官方 | apollo-cm-interior.glb | 3.1 MB |
+| apollo-cm-exterior | 阿波罗 11 号指令舱外壳 | 航天 | 2 | 官方 | apollo-cm-exterior.glb | 2.8 MB |
 
-## ⚠️ 孤儿 GLB（public/assets 有文件但 registry 未注册，共 1 个）
+### SEA-GULL（1 台）
 
-- armillary-sphere.glb（5.8 MB）
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| seagull-1963 | 海鸥 1963 计时码表 | 钟表 | 6 | 社区 | seagull-1963.glb | 3.3 MB |
+
+### WIRTUALNE MUZEA（1 台）
+
+| id | 机型 | 分类 | 部件 | 模型 | GLB | 大小 |
+|---|---|---|---|---|---|---|
+| watt-steam-engine | 瓦特蒸汽机教学模型 | 机械 | 4 | 社区 | watt-steam-engine.glb | 3.9 MB |
 

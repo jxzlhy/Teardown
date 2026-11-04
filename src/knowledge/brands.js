@@ -129,11 +129,23 @@ const brands = [
       { label: 'NASA — JWST international collaboration', url: 'https://science.nasa.gov/mission/webb/about-international-collaboration/' },
       { label: 'ESA — Webb overview', url: 'https://www.esa.int/Science_Exploration/Space_Science/Webb' },
     ], confidence: 'verified-3rd' },
-  { id: 'SMITHSONIAN', kind: 'institution', founded: '1846',
+  { id: 'SMITHSONIAN', kind: 'agency', founded: '1846',
     note: '史密森尼学会（Smithsonian Institution）1846 年依国会法令创立；旗下国家航空航天博物馆（NASM）的开放获取 3D 项目将馆藏扫描件以 CC0 发布——1903 莱特飞行者（NASM A19610048000）为其旗舰藏品。',
     sources: [
       { label: 'Smithsonian Open Access', url: 'https://www.si.edu/openaccess' },
       { label: 'NASM — 1903 Wright Flyer', url: 'https://airandspace.si.edu/collection-objects/1903-wright-flyer/nasm_A19610048000' },
+    ], confidence: 'verified-3rd' },
+  { id: 'SEA-GULL', kind: 'company', founded: '1955',
+    note: '海鸥手表起源于 1955 年成立的天津手表厂（1957 年首只「五一」表量产）；1963 年为空军试制 D304 航空计时码表（后称「海鸥 1963」），机芯 ST19 源自瑞士维纳斯 175 柱轮计时机芯的国产化，至今仍是中国机械计时芯的主力。',
+    sources: [
+      { label: 'Wikipedia — Sea-Gull (Tianjin Watch Factory)', url: 'https://en.wikipedia.org/wiki/Seagull_(watch_brand)' },
+      { label: 'Seagull 官网 — 品牌历史', url: 'https://www.seagullwatch.com/' },
+    ], confidence: 'verified-3rd' },
+  { id: 'WIRTUALNE MUZEA', kind: 'agency',
+    note: '「小波兰虚拟博物馆」（Wirtualne Muzea Małopolski）：波兰小波兰省国家级数字化项目，对省内博物馆馆藏做毫米级 3D 扫描并开放发布——本件瓦特蒸汽机教学模型（约 1835，Eugène Bourdon 制作）带馆藏编号与 muzea.malopolska.pl 出处。',
+    sources: [
+      { label: 'Wirtualne Muzea Małopolski', url: 'https://muzea.malopolska.pl/' },
+      { label: 'Sketchfab — WirtualneMuzeaMalopolski', url: 'https://sketchfab.com/WirtualneMuzeaMalopolski' },
     ], confidence: 'verified-3rd' },
 ];
 

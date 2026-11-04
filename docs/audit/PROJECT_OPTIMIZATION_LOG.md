@@ -330,3 +330,90 @@ Phase 3 生命周期与内存（P1-5 `delete window.__ENGINE` / P1-6 PMREM / P2-
 
 ### 下一项（按 ROADMAP）
 Phase 1-C（分享与索引最小集：og:image 复用 thumbs、robots.txt、manifest、CSP 实测不破坏 Draco/Cache Storage）；或 Phase 3 生命周期（需先做 5-C 调试面收敛再删 `__ENGINE`）。
+
+---
+
+## 2026-11-03 · 第 7 轮：复审后整改（RS 系列 + 两道新闸门）
+
+> 前置：本轮先做增量复审（见 `REAUDIT-2026-11-03.md`），确认 HEAD `6f5ed70` / 128 台 / 新增 `/studio` 后的真实状态，再动手。
+> 归因纪律：所有"是否我改坏"的判断都用**干净 git worktree 跑同一套件**对照，不靠推测。
+
+### A. 两道机器闸门（复审结论里性价比最高的动作）
+
+| 工具 | 断言 | 首轮命中 |
+|---|---|---|
+| `tools/lint-hooks.mjs`（新建） | 对象图钩子（`__ENGINE/__STUDIO/__GRAPH`，登记制）必须有配对 `delete window.__X`；右值疑似持有实例却未登记的钩子直接 error；另对"只增列表钩子"给告警 | ✓ 抓到并确认 `__STUDIO` 无配对 delete（RS-01）；顺带把上轮记过的 `__LOADS`/`__LOAD_WARN` 只增问题变成常驻告警；其余 9 个数据快照钩子正确判为不需 delete |
+| `tools/lint-assets.mjs`（新建） | 在馆 GLB 必须 DRACO；有纹理者必须全 `image/webp` + `EXT_texture_webp`；纹理最大边 ≤2048；`asset-exempt:` 显式豁免需写理由 | ✗ 首轮命中 **4 台**：`apollo-cm-exterior/interior`（JPEG×10）、`apollo-hatch`（JPEG×3 + 未 DRACO）、**`phone3alite`（纹理 2640px > 2048）** |
+
+> 诚实记账：`phone3alite` 的 2640px 是我复审时**漏掉的**——我当时只筛了 ≥4096。机器闸门抓到了人眼没抓到的东西，这正是加闸门的理由。
+
+两者均已挂进 `npm run lint:devices` 链尾（现 6 段）。
+
+### B. RS-08 资产整改（4 台，安装前强制几何闸门）
+
+| 展品 | 体积 | 处理 | 几何一致性闸门 |
+|---|---|---|---|
+| apollo-cm-exterior | 3.32 → **2.79MB** | 原件已 draco：`webp`（自动解码，警告"进一步压缩为有损"）→ `draco` | ✓ tris 239,491 / prims 2 / mats 2 / imgs 6 / 网格名集合 全等 |
+| apollo-cm-interior | 4.43 → **3.15MB** | 无本地原件，在在馆文件上原地 `webp → draco`（只动贴图不动几何） | ✓ tris 295,926 / prims 4 / mats 4 / imgs 4 / 名 全等 |
+| apollo-hatch | 4.33 → **0.93MB（-78%）** | 原件 `webp → draco` | ✓ tris 98,889 / prims 3 / mats 3 / imgs 3 / 名 全等 |
+| phone3alite | 1.12 → **0.96MB**，纹理 2640 → 2048 | `optimize-glb.mjs`（默认 `--max-texture 2048`）从原件重跑 | ✓ tris 68,871 / prims 33 / mats 18 / imgs 6 / 名 全等 |
+
+`npm run thumbs -- --only <4 台>` → **4 成功 / 0 失败**（引擎装载/映射/出图全通）；`lint-assets` 现 **128/128 合规**。
+
+### C. RS-01 / 02 / 03 / 04 / 05 / 06 / 07 整改
+
+| 编号 | 改动 | 验证（实测，非推断） |
+|---|---|---|
+| **RS-01** | `api.dispose` 现在 `viewer.dispose()` + `workshop.dispose()` + 清 `report/diag/selectedPath` + `delete window.__STUDIO`（`src/studio/index.js`） | 运行时：进 `/studio` 钩子 `true` → 离开 `false` ✓；5 次往返后 heap **10.3MB**、0 报错 |
+| **RS-02** | `resurvey()` 用 **uuid 做旧→新 path 桥**，产出 `pathMap` 并回写 `selectedPath`；新增 `resync()` 统一 5 处调用点；Vue `onState` 用 `pathMap` 重映射 `checked` 并丢弃已消失节点 | **对照实验**（同脚本、基线 worktree vs 修复后）：基线在"组合"后选中态**丢失**（`.on` 行 = null），修复后全程跟随同一对象 `◈Default_100` ✓。⚠️ 未端到端复现"选中态指向另一块网格"，那条仍属代码级风险 |
+| **RS-03** | `groupops.js` undo 前 `snaps.sort((a,b)=>a.index-b.index)`（旧实现按选择顺序插回） | 新增 2 个单测用例（同父乱序选择）：修复后 `a,b,c,d → a,b,c,d`；**把修复临时还原后立刻复现 `a,b,c,d → a,b,d,c`**（反向证明用例有效）。`groupops-unit` 19→**21 过 / 0 败** |
+| **RS-04** | 导入守卫加**多文件合计上限**；`size` 未知不再当 0 绕过，改为读取后补判；`loadSample` 用 `content-length` 预拒 | 代码 + `?cap=1` 用例仍绿（studio-verify） |
+| **RS-05** | blob URL 创建与解析整体包进 `try/finally`，失败路径也 revoke | 连续 30 次失败导入 heap `9.9 → 10.8MB`（无单调增长）；⚠️ 小文件用例偏弱，仅作旁证 |
+| **RS-06** | `.studio-side` 移动端恢复 `overflow-y:auto`（旧规则 `overflow:visible` 在 `position:fixed` 不滚的容器里让下半屏彻底触不到）+ `-webkit-overflow-scrolling` + `env(safe-area-inset-bottom)`；`/studio` 8 类控件加入 `pointer: coarse` 命中盒名单 | 待复测（见"遗留"） |
+| **RS-07** | `setURLModifier` 本地未命中改为返回空 `data:` URL（**绝不外发**）并计入 `missing`，错误仍如实报 `ERR_RESOURCES` | **canary 实测**：`.gltf` 引用 `http://127.0.0.1:5999/canary-external.bin` → 修复前**发出 1 次外部请求**，修复后 **0 次**；UI 如实显示"缺少外部资源：<该 URL>"；正常导入 126 节点不受影响 ✓ |
+
+> 过程纠错两条（都记下来，避免下次重犯）：
+> ① 我第一版 RS-07 修复**没有真正生效**——只是把 URL 记进 `missing` 却仍原样返回，canary 照样发请求。是 canary 测试把它抓出来的。
+> ② 我第一版 canary 测试本身是假的：`canaryHits` 从没自增，且把 canary 文件当本地输入传了进去（等于没走外链分支）。重做后才有效。
+
+### D. 撤销的误报
+
+- ~~RS-10 `/studio` PMREM 不 dispose~~ —— 实为**已正确释放**：`src/studio/viewer.js:193-194` 有 `pmrem.dispose()` 与 `scene.environment = null`。子代理误报，我读码后撤销该条。
+
+### E. 回归与归因
+
+| 检查 | 结果 |
+|---|---|
+| `npm run build` | ✓ 2.58s |
+| `npm run lint:devices`（6 段链） | ✓ 0 错 · 五处一致 128 · 对象图钩子全配对 · 128/128 资产合规 |
+| `node tools/groupops-unit.mjs` | ✓ **21 过 / 0 败**（含 2 个新用例 + 反向验证） |
+| `npm run smoke` | ✓ 全绿（首轮 1 项失败在负载 6.9 下，清场后复跑通过；按项目"负载>5 不作数"口径记为环境抖动） |
+| `node tools/studio-verify.mjs` | ⬜ 见下 |
+| `npm run verify:contrast` | ⬜ 待复跑（整改后未重测） |
+
+**studio-verify 归因（关键）**：修复前跑基线 worktree 得 **FAIL(5)**（文字生成 UI 载入 / 分组 3 项 / 403 资源），修复后首跑 **FAIL(4)**，同 4 项——即**分组与文字生成的浏览器集成断言是既有挂账**（他们提交信息里也写了"浏览器集成断言挂账"），不是我引入。高负载下复跑升到 FAIL(8)（多出"修复：…"4 项），按负载规约不作数，需低负载复跑确认。
+
+### 遗留
+
+1. `studio-verify` 的 4 项既有失败（分组/文字生成浏览器断言）仍在，需按他们自己的挂账计划处理；我改的 `resync/checked` 重映射可能正好是这些断言需要的行为变更，**低负载复跑后可能要同步更新断言期望值**（属他们的测试口径，我不擅自改）。
+2. RS-09（组合命令先入栈后执行）、RS-11（DRACO 双单例）、RS-12（修复粒度文案）、RS-13（textgen 成功不报 unknown + 无长度上限）、RS-14（IDB 连接/备份原子性）、RS-15（无确认替换场景）、RS-16（DeviceViewer 静态依赖 forge 生成器，gzip +14.58KB）、RS-17（诊断异常静默）、RS-18（`/studio` 无 aria-live + 页脚文案过时）—— 未动。
+3. RS-06 的移动端实测复跑与 RS-02 的"指向别的对象"端到端复现仍缺。
+4. 上游资产许可逐台人工复核（P1-8 尾项）仍未做。
+
+---
+
+## 2026-11-04 续 · RS-09~18 九项收官（PHASE 01 完结）
+
+上一节"遗留 2"的九项全部整改关闭。方法与证据全录 `REAUDIT-2026-11-03.md` §八；此处只记关键数值与门禁：
+
+| 检查 | 结果 |
+|---|---|
+| `npm run build` | ✓ 2.71–4.31s |
+| `npm run lint:devices`（6 段链） | ✓ 0 错 · 钩子全配对 · 128/128 资产合规 |
+| `node tools/groupops-unit.mjs` | ✓ 21/21 |
+| `node tools/textgen-unit.mjs` | ✓ 16/16 |
+| `node tools/studio-verify.mjs` | ✓ **55/55 ALL PASS**（负载 4.4，含本轮新断言：RS-14 同 id 跳过、RS-15 失败保留现场+横幅） |
+| registry chunk | gzip **29.17 → 1.35KB（−95%）**；生产 preview 实证普通设备页零 forge 生成器 chunk |
+| smoke | 设备页装载步维持环境挂账（三处环境复现、干净 HEAD 亦复现=非本轮回归） |
+
+问题状态：RS-09/11/12/13/14/15/16/17/18 → **已关闭**（逐项证据见 PROJECT_ISSUES RS 表 2026-11-04 节）。新记录观察项：设备页 A→B 同文档 hash 热切换 config 不换新（既有，待人工定级）。

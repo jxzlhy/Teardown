@@ -231,3 +231,15 @@
 | 全站冒烟 | smoke 26/28 绿（2 失败定性环境：tour 墙钟抖动 + 并行 OOM 截断，设备页链路全绿） | tools/smoke.mjs |
 | 截图证据 | 5 张日夜×桌面/移动（1440×900 / 390×844） | docs/design/screenshots/2026-11-03-hud-rev/ |
 | lint | lint:devices ✓ 128 台五处一致 | tools/lint-*.mjs |
+
+## 2026-11-04 深夜续 5 · 瓦特蒸汽机（第 129 台）+ 二线池消化收官（本会话）
+| 指标 | 数值 | 来源 |
+|---|---|---|
+| 资产 | watt-steam-engine.glb 4.08MB（原 82.46MB，5% 保留比；resize2048+webp q82+draco） | 压缩管线 |
+| 映射 | **174/174 全量路由 4 部件**（base 14 / frame 12 / cylinder 36 / flywheel 112）y 分层 | IAB 探针 |
+| 品牌档案 | WIRTUALNE MUZEA（波兰国家级数字化项目，双来源 verified-3rd；kind 修正 institution→agency 合法枚举） | brands.js |
+| 落选×2 | Agfa Movex 88（6×65532v 重叠）+ Lefaucheux 左轮（单网格 25.8k）——原件备份标 REJECTED | inspect 定性 |
+| 馆口径 | 129 台 · 956 部件 · 45 品牌（五处一致） | gen:inventory |
+| 验证 | lint/build 3.40s/thumbs/graph/timeline ✓；IAB 174/174+首屏立式布局 ✓ | IAB 长驻进程 |
+| 二线池收官 | 6 候选消化：2 接入（海鸥/瓦特）4 落选（Singer/Agfa/Lefaucheux/**Polyphon 45D 单网格 21.5k**——2026-11-04 下载实测补录） | BACKLOG 池 |
+| 丢件模式修正 | 非随机——merge 文件最大 primitive 稳定丢失（CM seats 59k×2 轮 / exterior nose 160k×2 轮 IAB 复验），疑似内存预算阈值 | IAB 轻量复验 |

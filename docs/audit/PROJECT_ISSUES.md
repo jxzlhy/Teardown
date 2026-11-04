@@ -148,6 +148,7 @@
 - **影响**：笔记本发热/掉电快，移动端续航差；`antialias` 白付一份 MSAA 成本却对 composer 输出无效。
 - **建议**：脏标记按需渲染（相机静止 + 无动画 + 无 hover 时跳帧或降 30fps）；composer RT 显式 `samples: 4` 并关 renderer antialias。
 - **成本**：中（涉及自转/导览/演示动画的状态判定，需回归）
+- **✅ 已关闭（2026-11-04 AURORA PHASE 5 R1+R3）**：R1 时间基准 idle（无活动 1.2s）半帧率降频——待机自转允许降频（慢速环绕 30fps 无感知，为主要降频对象），用户输入 1.5s 余波窗口恢复全速；跳帧帧丢弃 clock 间隔保墙钟速率；watchdog 兜底帧恒渲染。R3 composer RT samples:4 + renderer antialias:false（thumb 模式保持旧输出）。实测（swiftshader@load4.5）：idle render 16.9 ≈ rAF 30.8×0.5（降频生效）；交互恢复 28.5≈30.8（全速+R3 无回退）；smoke 27/28（唯一失败=历史 tour 抖动同项）。踩坑：OrbitControls change 事件不可用作 idle 判定（update() 每次 dispatch）——两轮实测抓出后改输入窗口方案。真实 GPU 绝对帧耗待真机。
 
 ### P2-2 · PER-04 标签层每帧全量写 DOM
 - **现象**：`labels.js` 在更新循环里对每个部件标签写 `style.display / transform / setAttribute('d') / viewBox`，无脏检查。
@@ -155,6 +156,7 @@
 - **影响**：部件多的展品（14–45 部件）60fps 下持续触发样式重算与 GC 压力。
 - **建议**：位置/可见性做上一帧比较，未变则跳过；标签数 >N 时按距离裁剪。
 - **成本**：低
+- **✅ 已关闭（2026-11-04 AURORA PHASE 5 R2）**：帧间签名脏检查（boxX|boxY|sel|hot|pathD|dotCx|dotCy 字符串签名，相机静止时浮点确定性→整件跳过 DOM 写；viewBox 仅尺寸变化写；隐藏/离屏分支 prevShow 判定）。build 2.76s + lint ✓；smoke 标签断言见当轮 LOG。
 
 ### P2-3 · PER-05 单台 >6MB 下载共 10 台，中位 0.94MB
 - **现象**：>6MB：v6-engine 13.7 / ak-47 13.0 / curta-type2 9.5 / gl-06-launcher 9.4 / porsche-911-930 9.1 / phone4apro 7.8 / combustion-engine 6.7 / iphone-12-teardown 6.4 / walther-p99 6.2 / computer-parts 6.1（MB，实测）。
@@ -204,6 +206,7 @@
 - **影响**：跨平台字形漂移（Windows/Android 上 ✕/★ 宽窄不一）、与 SVG 图标视觉语言不统一、读屏可能读出符号名。
 - **建议**：建一份内联 SVG sprite（close/star/edit/download/copy/back/arrow），逐点替换；字符图标处至少补 `aria-hidden="true"` + 文本标签。
 - **成本**：中
+- **✅ 已关闭（2026-11-04 AURORA PHASE 1 轮 18）**：新建 `src/ui/Icon.vue`（21 图形内联 sprite，currentColor/aria-hidden）；38 处控件字符逐点替换为 SVG（含动态展开 caret、收藏/徽章实心态 name 切换）；控件字符 grep 残留 0；按键描述文本与空状态说明按语义保留。build 3.07s ✓ + forge 页截图目检。
 
 ### P2-10 · MOB-01 触控目标 <44px 成规模（128/299），safe-area 全站仅 1 处
 - **现象**：390×844 实测 299 个可交互元素中 **128 个** 宽或高 <44px（导视 41×17、圆点导航 30、星标 28、步进/关闭 26、chip ≈25）；`env(safe-area-inset-*)` 仅 `src/style.css:928` 一处，`#dock{bottom:10px}`（`src/style.css:941`）无 env()。
@@ -302,3 +305,84 @@
 | 弱网下 10 台大件首载耗时 | 未做网络节流实验 | DevTools throttling 慢 3G |
 | 读屏（VoiceOver/NVDA）真实走查 | 未做 | 桌面 VoiceOver + 移动各 1 轮 |
 | 长时间（>10 分钟）连续导览的帧率与内存 | 未做 | 需要专门的 soak 脚本 |
+
+---
+
+## 追加：2026-11-03 复审新增问题（RS 系列）
+
+> 触发：HEAD 由 `e8106be` 前进 22 个提交至 `6f5ed70`，规模 115→**128 台 · 952 部件 · 44 品牌**，新增 `src/studio/`（2181 行）+ `StudioView.vue`（749 行）+ `/studio` 路由。
+### RS 整改状态（2026-11-04 续轮后，RS 全表收官；详见 `REAUDIT-2026-11-03.md` §七/§八）
+
+| 编号 | 状态 |
+|---|---|
+| RS-01 `__STUDIO` 泄漏 | ✅ 已关闭（运行时验证：离开 /studio 钩子消失；5 次往返 heap 10.3MB） |
+| RS-02 path 失配 | 🟡 已实现+对照验证（基线组合后选中态丢失→修复后跟随；"指向别的对象"未端到端复现） |
+| RS-03 兄弟序还原 | ✅ 已关闭（新增 2 用例 + 反向证明；单测 21/21） |
+| RS-04 导入预算 | ✅ 已关闭（合计上限 + size 未知补判 + content-length 预拒） |
+| RS-05 blob 泄漏 | ✅ 已关闭（try/finally） |
+| RS-06 移动端右列 | ✅ 已关闭（overflow-y:auto；触控未覆盖 131→7） |
+| RS-07 外链外发 | ✅ 已关闭（canary：修复前 1 次真实请求 → 0 次；data: 放行） |
+| RS-08 资产格式 | ✅ 已关闭（4 台重编码，几何全等闸门；lint-assets 128/128） |
+| RS-09 组合命令幽灵记录 | ✅ 已关闭（2026-11-04：`applyCommands` 执行先行+逆序回滚，全部成功才入栈） |
+| RS-10 studio PMREM | ❌ **撤销（误报）**——viewer.js:193-194 已有 pmrem.dispose |
+| RS-11 DRACO 双单例不终止 | ✅ 已关闭（2026-11-04：引擎与 studio 两侧 dispose 时 terminate worker 池） |
+| RS-12 修复粒度文案失真 | ✅ 已关闭（2026-11-04：新增 `repairAll`，全部可修规则合并为**一条**组合命令，文案承诺为真） |
+| RS-13 textgen unknown/上限 | ✅ 已关闭（2026-11-04：成功路径列出未识别子句 + textarea maxlength=600 + API 层 4000 兜底） |
+| RS-14 IDB 连接/原子性 | ✅ 已关闭（2026-11-04：整页单连接+onversionchange 关闭；恢复单事务原子+同 id 跳过不覆盖；base64 分块编解码；浏览器断言含「同 id 重复恢复跳过」） |
+| RS-15 无确认替换/失败毁现场 | ✅ 已关闭（2026-11-04：失败导入保留已载入模型+01 面板横幅报错；生成前确认；loadWork 按返回值如实报失败。衍生 RS-15b 确认框无头挂起已由 studio-verify 对话框自动接受解决，55/55） |
+| RS-16 设备页付费整包生成器 | ✅ 已关闭（2026-11-04：registry 懒加载化——registry chunk gzip 29.17→**1.35KB（−95%）**，6 生成器拆独立异步 chunk；生产 preview 实证普通设备页零生成器 chunk；CREATE/深链 async 化，冷加载重建路径实测正常；GENERATOR_ID 运行时断言防表漂移） |
+| RS-17 诊断异常静默 | ✅ 已关闭（2026-11-04：`failedRules` 上报 + UI 与「未命中任何规则」明确区分） |
+| RS-18 aria-live/页脚 | ✅ 已关闭（2026-11-04：polite status 区汇总四路结果消息；页脚更正为实际交付口径） |
+| 新增闸门 | ✅ `tools/lint-hooks.mjs`、`tools/lint-assets.mjs`（已挂 lint:devices，现 6 段） |
+
+> 观察记录（2026-11-04 无头取证，非本轮回归）：设备页 **A→B 同文档 hash 热切换**（如 iphone-13 → forge 深链经 `page.goto` 仅变 hash）config 不换新、模型永久 LOADING——**干净 HEAD worktree 复现同样行为**，属既有缺陷/伪影；正常用户路径（/forge 生成后 router.push、冷加载深链）实测正常。
+> **✅ 已关闭（2026-11-04 AURORA PHASE 3 前置项）**：根因两层——① RS-16 的 `forgeRequested` 纯前缀化已修复主装载路径（HEAD 复验的失败发生在该修复之前）；② `DeviceViewer.vue:1222` watcher 的 `metaById[id]?id:FALLBACK` 对 forge id 一律回落（双保险已加固为 `metaById[id]||isForgeId(id)`）。实证：forge 热切换 ✓（booted+PROCEDURAL）+ 普通设备热切换回归 ✓。
+
+> 本文件上方所有原始结论**保留不改**；旧条目的存续核查（哪些仍关闭、哪些已被内容工作真正解决）与完整证据见 **`REAUDIT-2026-11-03.md`**。
+> 上轮两处测量错误也在该文件第四节自查纠正（"星图加载 three" 系 `three-axis-gimbal.js` 文件名误判；"Apollo 纹理 64547 / 34GB 显存" 系我的 JPEG marker 解析未在 SOS 处停止）。
+
+### P0
+
+**RS-01 · `/studio` 卸载不删 `window.__STUDIO`**
+- 证据：`src/studio/index.js:240` 写入；`src/components/StudioView.vue:300` 卸载只调 `api.dispose()`，而 `api.dispose` 仅 `viewer.dispose()`。留存链：`api → report → nodesByPath（全部 Object3D）→ 几何/贴图` + `workshop.history` 50 条命令闭包 + 已 dispose 的 renderer + 脱离 DOM 的 canvas（匿名 pointer 监听 `viewer.js:147-154` 无法移除）。
+- 定性：与**上一轮刚修好并写进注释**的 `__ENGINE` 是同一缺陷类别在新模块重演（对照 `DeviceViewer.vue:1258`）。是项目自述"OOM 崩页"的代码侧放大器之一；**根因归因未定论**（另一路运行时观察显示单轮访问可回收，环境负载亦是触发器）。
+- 建议：`api.dispose` 内 `delete window.__STUDIO` + `workshop.dispose()` + `report = null`；canvas 监听改具名并 remove。**成本：低**。**立即实施：是**。
+
+### P1
+
+| 编号 | 问题 | 证据 | 影响 | 成本 |
+|---|---|---|---|---|
+| RS-02 | 结构性操作后索引型 path 全线失配（`resurvey` 重建 path，但 snapshot 键 / `selectedPath` / `checked` 不重映射） | `importer.js:170`、`workshop.js:15`、`index.js:48-53`、`StudioView.vue:360` | 复位静默失效；"应用变换"可能改到**另一块网格**并写入历史 | 中 |
+| RS-03 | 乱序选择的兄弟序还原不确定（`snaps` 依选择序、`splice(index)` 假设升序） | `groupops.js:24,41`；探针选择 [C,A] 撤销后 `A,B,D,C` | 与提交信息"精确还原兄弟序"不符；19/19 单测未覆盖同父乱序 | 低 |
+| RS-04 | 导入无总量/顶点预算；`size ?? 0` 使未知 size **绕过体积守卫**；`loadSample` 先全量读入内存再校验 | `importer.js:12,33,43-48`、`index.js:92-95` | 大文件直接崩页 | 中 |
+| RS-05 | `URL.createObjectURL` 仅在成功路径 revoke（位于所有 throw 之后） | `importer.js:58-62` vs `:112` | 每次失败导入永久留存全部文件字节 | 低 |
+| RS-06 | `/studio` 移动端右列不可滚动 + 触控热区未覆盖 | `StudioView.vue:744-748`；实测 390×844：aside 高 329px、`overflowY:visible`、**14 目标 11 个 <44px** | 手机上下半屏功能触不到 | 低 |
+| RS-07 | 外链 URI 被真实 `fetch`，与 UI 承诺"文件不离开浏览器"冲突 | `importer.js:63-68`、`StudioView.vue:24,78` | 隐私 + 真实性双违背（AGENTS §1.2）；canary 实测待补 | 低 |
+| RS-08 | 新入馆资产违反项目自有压缩铁律：Apollo 三件贴图为 **JPEG**（13 张），`apollo-hatch` **未走 DRACO** | `/tmp/glb-audit-v3.json`：`{webp:1154, jpeg:13}`、`noDraco:['apollo-hatch']` | 体积/显存白付 2–3×；铁律只写在工具注释里，**无闸门** | 低 |
+
+### P2 / P3
+
+| 编号 | 级别 | 问题 | 证据 |
+|---|---|---|---|
+| RS-09 | P2 | 组合命令"先入栈后执行"，子命令抛错留半生效幽灵记录 | `workshop.js:118-126`；`index.js:145-146,157-158,190-191` |
+| RS-10 | P2 | `/studio` 自建 PMREM + RoomEnvironment 不 dispose（P1-6 同类在新模块重演） | `viewer.js:19-20` vs `:185-196` |
+| RS-11 | P2 | 主引擎与 studio 各持一个 DRACO 单例（workerLimit=4 各一组，均不 terminate）；注释"同约定"易误读为复用 | `importer.js:27` vs `engine.js:53-62` |
+| RS-12 | P2 | `doRepairAll` 多规则各成一条命令，UI 却称"撤销可整体还原" | `StudioView.vue:346-357` vs `index.js:185-199` |
+| RS-13 | P2 | 文字生成成功路径不展示未识别子句（只在失败时列）；textarea 无长度上限，超长粘贴可主线程冻结 | `StudioView.vue:407 vs :410`；`textgen.js:61-62,98-110` |
+| RS-14 | P2 | IDB 每次 `openDb()` 不 close、无 `onversionchange/blocked`；备份恢复逐条事务非原子、可携带任意 id 覆盖既有作品；备份全量 base64 是堆尖峰 | `library.js:10-23,127-136,96-103` |
+| RS-15 | P2 | `generateFromText` 无确认、不入历史替换当前场景；失败导入顺手 dispose 上一份好模型 | `index.js:165-184`、`index.js:75` |
+| RS-16 | P3 | `DeviceViewer.vue:492` 静态 import `isForgeId/getForgeDevice` ⇒ 每台设备页付费整个生成器集合（registry chunk gzip 14.59→**29.17KB，+100%**） | `src/forge/registry.js:7-12` |
+| RS-17 | P3 | 单条诊断规则异常被静默吞掉，仍可显示"未命中任何规则" | `diagnostics.js:108`、`StudioView.vue:135` |
+| RS-18 | P3 | `/studio` 无 `aria-live`（导入/修复/保存对读屏静默）；页脚仍称编辑/作品库/程序化建模"后续版本接入"（实际已上线） | 实测 `ariaLive: 0`；`StudioView.vue:261` |
+
+### 本轮新增的正面记录（防后续误删）
+
+- studio 与主引擎**真解耦**（不 import engine；`markRaw` 阻止 Three 对象深代理，`StudioView.vue:286-297`）。
+- 真实性约束落到实现：8 类不可自动修复逐条给理由（`repair.js:7-16`）、诊断标"本地规则 · 非 AI 推断"（`StudioView.vue:129`）、程序化产物 `fileSize:0`（`index.js:169`）。
+- `tools/studio-verify.mjs` 显式区分"环境冻结 vs 代码路径"，带负载守护与懒加载边界独立验证。
+- 零新依赖（7 个 studio 提交均未动 `package.json`）；工作区 411→38 项，提交按主题拆分且带验证数值。
+
+### 建议新增的两道机器闸门（成本极低，防同类复发）
+
+1. `tools/lint-hooks.mjs`：任何 `window.__<NAME> = ` 写入点必须存在配对 `delete`（当前会命中 RS-01）。
+2. `tools/lint-assets.mjs`：断言有纹理的 GLB 一律 `EXT_texture_webp` + `KHR_draco_mesh_compression`（当前命中 Apollo 三件，即 RS-08）。

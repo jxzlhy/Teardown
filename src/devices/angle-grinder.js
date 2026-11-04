@@ -70,4 +70,11 @@ export default makeDevice({
       desc: '树脂结合剂砂轮片由玻璃纤维网两面夹持磨料压制而成——强度来自纤维网而非树脂本身。切割片与打磨片不可混用：切割片薄且不能受侧向力，侧压是它碎裂的第一诱因。寿命以毫米计，是全机唯一的规律性消耗件。',
       specs: [['直径', 'Φ125mm'], ['结构', '磨料 + 玻纤网增强'], ['红线', '切割片严禁侧压']] },
   ],
+  /* V4.0 MI①：动力传递链（电机→锥齿轮→主轴；齿轮网格未建模，示意口径） */
+  mech: { driver: 'disk', edges: [
+    { id: 'gm-motor-disk', type: 'gear_mesh', from: 'body', to: 'disk', kinematic: 'approx', note: '电机经锥齿轮换向减速驱动主轴（齿轮藏于齿轮头壳内，本模型齿轮网格未建，示意口径）' },
+    { id: 'bd-disk', type: 'bearing_support', from: 'gearhead', to: 'disk', kinematic: 'exact', note: '主轴轴承支承于齿轮头壳体' },
+    { id: 'fx-guard', type: 'fixed', from: 'gearhead', to: 'guard', note: '防护罩卡固于齿轮头（断片防护第一道屏障）' },
+    { id: 'fx-switch', type: 'fixed', from: 'body', to: 'switches', note: '开关组件固定于机身手柄' },
+  ] },
 });

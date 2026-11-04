@@ -13,7 +13,7 @@
         <router-link to="/timeline">技术编年</router-link>
         <router-link to="/forge">锻造所</router-link>
         <router-link to="/studio">创作室</router-link>
-        <button class="explore-link" @click="drawerOpen = true">我的探索<template v-if="favs.length || Object.keys(explored).length"><span class="el-badge" v-if="favs.length">★{{ favs.length }}</span><span class="el-badge" v-if="Object.keys(explored).length">迹{{ Object.keys(explored).length }}</span></template></button>
+        <button class="explore-link" @click="drawerOpen = true">我的探索<template v-if="favs.length || Object.keys(explored).length"><span class="el-badge" v-if="favs.length"><Icon name="star" />{{ favs.length }}</span><span class="el-badge" v-if="Object.keys(explored).length">迹{{ Object.keys(explored).length }}</span></template></button>
         <button class="hall-link" @click="toggleLobbyHall" :aria-label="lobbyHall === 'day' ? '切换夜厅' : '切换日厅'">
           <svg v-if="lobbyHall === 'day'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5 5l1.9 1.9M17.1 17.1L19 19M19 5l-1.9 1.9M6.9 17.1L5 19"/></svg>
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z"/></svg>
@@ -79,7 +79,7 @@
         {{ cat }}（{{ catCount(cat) }}）
       </button>
       <button class="chip" :class="{ on: collCat === '未分类' }" @click="collCat = '未分类'">未分类（{{ catCount('未分类') }}）</button>
-      <button class="chip" :class="{ on: collManage }" @click="collManage = !collManage" title="重命名 / 删除分类">✎ 管理</button>
+      <button class="chip" :class="{ on: collManage }" @click="collManage = !collManage" title="重命名 / 删除分类"><Icon name="edit" /> 管理</button>
       <div class="coll-sort">
         排序
         <select v-model="collSort" aria-label="收藏排序">
@@ -95,7 +95,7 @@
       <template v-if="manageSel">
         <input class="chip" style="width:130px; cursor:text" v-model="manageName" maxlength="12" aria-label="分类新名称">
         <button class="chip" @click="doRenameCat">重命名</button>
-        <button class="chip clear-chip" @click="doDelCat">✕ 删除「{{ manageSel }}」</button>
+        <button class="chip clear-chip" @click="doDelCat"><Icon name="close" /> 删除「{{ manageSel }}」</button>
       </template>
     </div>
 
@@ -115,7 +115,7 @@
           <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
         </svg>
         <input type="text" v-model="query" placeholder="搜索设备…" aria-label="搜索设备">
-        <button v-if="query" class="search-clear" @click="query = ''" aria-label="清空搜索">✕</button>
+        <button v-if="query" class="search-clear" @click="query = ''" aria-label="清空搜索"><Icon name="close" /></button>
       </div>
       <div class="view-toggle">
         <button class="hud-icon" :class="{ on: view === 'grid' }" @click="view = 'grid'" aria-label="卡片视图">
@@ -130,9 +130,9 @@
           </svg>
         </button>
       </div>
-      <button class="chip fav-chip" :class="{ on: favOnly }" @click="favOnly = !favOnly" :aria-pressed="favOnly ? 'true' : 'false'">★ 收藏（{{ favs.length }}）</button>
+      <button class="chip fav-chip" :class="{ on: favOnly }" @click="favOnly = !favOnly" :aria-pressed="favOnly ? 'true' : 'false'"><Icon name="star" /> 收藏（{{ favs.length }}）</button>
       <button v-if="isNarrow" class="chip filter-toggle" @click="filterExpanded = !filterExpanded" :aria-expanded="filterExpanded ? 'true' : 'false'">
-        筛选<span v-if="activeFilters" class="ft-count">{{ activeFilters }}</span>{{ filterExpanded ? ' ▴' : ' ▾' }}
+        筛选<span v-if="activeFilters" class="ft-count">{{ activeFilters }}</span><Icon name="caret" :style="filterExpanded ? '' : 'transform:rotate(180deg)'" />
       </button>
     </div>
     <div class="filter-groups" v-show="!isNarrow || filterExpanded">
@@ -152,7 +152,7 @@
           </button>
         </div>
       </div>
-      <button v-if="activeFilters" class="chip clear-chip" @click="clearFilters">✕ 清除全部筛选</button>
+      <button v-if="activeFilters" class="chip clear-chip" @click="clearFilters"><Icon name="close" /> 清除全部筛选</button>
     </div>
 
     <!-- 设备网格：TransitionGroup FLIP —— 筛选/搜索时卡片从旧位置平滑滑到新位置 -->
@@ -172,7 +172,7 @@
           <span class="card-name">{{ d.name }}</span>
           <span class="card-tag">{{ d.tagline }}</span>
           <span class="card-meta">
-            <i v-if="myRatings[d.id] && myRatings[d.id].overall > 0" class="rate-badge" title="我的评分">★ {{ myRatings[d.id].overall }}</i>
+            <i v-if="myRatings[d.id] && myRatings[d.id].overall > 0" class="rate-badge" title="我的评分"><Icon name="star" /> {{ myRatings[d.id].overall }}</i>
             <i>{{ d.parts }} 部件</i>
             <i>{{ d.category }}</i>
             <i class="glb-badge">{{ modelClassLabel(d) }}</i>
@@ -216,12 +216,12 @@
     <Transition name="drawer">
       <aside v-if="drawerOpen" id="exploreDrawer" class="hud-panel" role="dialog" aria-label="我的探索">
         <div class="hub-eyebrow">MY EXPLORE · 我的探索</div>
-        <button class="drawer-close" @click="drawerOpen = false" aria-label="关闭">✕</button>
+        <button class="drawer-close" @click="drawerOpen = false" aria-label="关闭"><Icon name="close" /></button>
         <div class="dw-sec">
           <h4>徽章 <small>{{ badges.filter(b => b.earned).length }}/{{ badges.length }}</small></h4>
           <div class="dw-badges">
             <div v-for="b in badges" :key="b.id" class="dw-badge" :class="{ earned: b.earned }" :title="b.desc">
-              <i>{{ b.earned ? '◆' : '◇' }}</i><span>{{ b.zh }}</span>
+              <i><Icon :name="b.earned ? 'diamond' : 'diamond-o'" /></i><span>{{ b.zh }}</span>
             </div>
           </div>
         </div>
@@ -250,6 +250,7 @@ import { useRoute, useRouter } from 'vue-router';
 /* 大厅只取构建期元数据（不拉 three.js / 设备实现），完整配置在设备页按需加载 */
 import devices from 'virtual:device-manifest';
 import { BRAND } from '../lib/brand.js';
+import Icon from '../ui/Icon.vue';
 import { prefetchGlb } from '../engine/glbCache.js';
 import { assetUrl } from '../lib/url.js';
 import { isCommunityModel, modelClassLabel } from '../lib/model-class.js';

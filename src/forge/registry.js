@@ -1,21 +1,18 @@
 /* 机械锻造所 · 生成物注册与复现（V3.0 任务书 §5/§9）
    运行时注册表 = Map；持久层只存 {生成器, 参数, 种子}——同版本+参数+种子确定性重建（§4.1），
-   几何不落盘。id 约定：forge-<generator>-<seed36>，DeviceViewer 按前缀分流。 */
-
-import { buildV8, GENERATOR_ID as V8_ID, GENERATOR_VERSION as V8_VER } from './v8.js';
-import { buildTurbofan, GENERATOR_ID as TF_ID, GENERATOR_VERSION as TF_VER } from './turbofan.js';
-import { buildRingDrive, GENERATOR_ID as RD_ID, GENERATOR_VERSION as RD_VER } from './ringdrive.js';
-import { buildLockstitch, GENERATOR_ID as LS_ID, GENERATOR_VERSION as LS_VER } from './lockstitch.js';
-import { buildWankel, GENERATOR_ID as WK_ID, GENERATOR_VERSION as WK_VER } from './wankel.js';
-import { buildGovernor, GENERATOR_ID as GV_ID, GENERATOR_VERSION as GV_VER } from './governor.js';
+   几何不落盘。id 约定：forge-<generator>-<seed36>，DeviceViewer 按前缀分流。
+   审计 RS-16：生成器模块改为**动态 import 按需加载**——旧实现静态引入全部 6 个生成器，
+   导致每台普通设备页都为整包生成器代码付费（registry chunk gzip 14.59→29.17KB，+100%）。
+   生成器体量只由 /forge 页（本就需要）与 forge- 深链装载路径承担。
+   注意：createForgeDevice / getForgeDevice 相应为 async（装载点本就在异步流程内）。 */
 
 const GENERATORS = {
-  [V8_ID]: { build: buildV8, version: V8_VER, label: 'V8 内燃机（交叉曲柄）' },
-  [TF_ID]: { build: buildTurbofan, version: TF_VER, label: '大涵道比涡扇（双转子）' },
-  [RD_ID]: { build: buildRingDrive, version: RD_VER, label: 'FORGE-99 环式磁耦合核心（虚构概念）' },
-  [LS_ID]: { build: buildLockstitch, version: LS_VER, label: '锁式线迹机构（缝纫原理）' },
-  [WK_ID]: { build: buildWankel, version: WK_VER, label: '转子发动机（Wankel 偏心轴系）' },
-  [GV_ID]: { build: buildGovernor, version: GV_VER, label: '瓦特离心调速器（飞球反馈）' },
+  v8:        { label: 'V8 内燃机（交叉曲柄）',            version: 1, build: 'buildV8',        load: () => import('./v8.js') },
+  turbofan:  { label: '大涵道比涡扇（双转子）',           version: 1, build: 'buildTurbofan',  load: () => import('./turbofan.js') },
+  ringdrive: { label: 'FORGE-99 环式磁耦合核心（虚构概念）', version: 1, build: 'buildRingDrive', load: () => import('./ringdrive.js') },
+  lockstitch:{ label: '锁式线迹机构（缝纫原理）',         version: 1, build: 'buildLockstitch', load: () => import('./lockstitch.js') },
+  wankel:    { label: '转子发动机（Wankel 偏心轴系）',    version: 1, build: 'buildWankel',    load: () => import('./wankel.js') },
+  governor:  { label: '瓦特离心调速器（飞球反馈）',       version: 1, build: 'buildGovernor',  load: () => import('./governor.js') },
 };
 
 const reg = new Map();
@@ -32,11 +29,20 @@ function writeIndex(list) {
   try { localStorage.setItem(LS_INDEX, JSON.stringify(list.slice(0, 60))); } catch { /* 隐私模式等：仅内存 */ }
 }
 
-/* 生成并注册（params/seed 已校验由生成器内部处理）；返回设备配置 */
-export function createForgeDevice(generatorId, params, seed) {
+/* 生成并注册（params/seed 已校验由生成器内部处理）；返回设备配置。
+   GENERATOR_ID 断言：注册表 key 与模块内声明不一致立即抛错（防表内硬编码漂移） */
+export async function createForgeDevice(generatorId, params, seed) {
   const gen = GENERATORS[generatorId];
   if (!gen) throw new Error(`未注册的生成器：${generatorId}`);
-  const dev = gen.build(params, seed);
+  const mod = await gen.load();
+  if (mod.GENERATOR_ID !== generatorId) {
+    throw new Error(`生成器注册表不一致：表键 ${generatorId} ≠ 模块声明 ${mod.GENERATOR_ID}`);
+  }
+  const build = mod[gen.build];
+  if (typeof build !== 'function') {
+    throw new Error(`生成器模块缺少导出 ${gen.build}（注册表与模块实现不一致）`);
+  }
+  const dev = build(params, seed);
   reg.set(dev.id, dev);
   const idx = readIndex().filter(e => e.id !== dev.id);
   idx.unshift({ id: dev.id, generator: generatorId, params: dev.forge.params, seed: dev.forge.seed, name: dev.name, ts: Date.now() });
@@ -45,12 +51,11 @@ export function createForgeDevice(generatorId, params, seed) {
 }
 
 /* DeviceViewer 装载入口：先查运行时表，再按持久化记录确定性重建 */
-export function getForgeDevice(id) {
+export async function getForgeDevice(id) {
   if (reg.has(id)) return reg.get(id);
   const rec = readIndex().find(e => e.id === id);
   if (!rec) return null;
-  const dev = createForgeDevice(rec.generator, rec.params, rec.seed);
-  return dev;
+  return createForgeDevice(rec.generator, rec.params, rec.seed);
 }
 
 /* /forge 页列出历史生成记录（可复现入口） */
@@ -76,7 +81,7 @@ export function decodeForgeConfig(text) {
   return { generator: obj.generator, params: obj.params || {}, seed: obj.seed };
 }
 
-export function importForgeConfig(text) {
+export async function importForgeConfig(text) {
   const cfg = decodeForgeConfig(text);
   return createForgeDevice(cfg.generator, cfg.params, cfg.seed);
 }

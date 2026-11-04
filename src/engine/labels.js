@@ -74,11 +74,21 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
 
     for(const it of items){
       it.show = wanted(it, opt);
-      if(!it.show){ it.el.classList.remove('on'); it.el.style.display = 'none'; it.path.style.display = 'none'; it.dot.style.display = 'none'; continue; }
+      if(!it.show){
+        /* 脏检查（审计 P2-2）：连续隐藏帧不再重写三处 display */
+        if(it.prevShow !== false){
+          it.el.classList.remove('on'); it.el.style.display = 'none'; it.path.style.display = 'none'; it.dot.style.display = 'none';
+          it.prevShow = false; it.prevSig = null;
+        }
+        continue;
+      }
       it.p.anchor.getWorldPosition(_v);
       _v.project(opt.camera);
       if(!Number.isFinite(_v.x) || !Number.isFinite(_v.y) || _v.z > 1){
-        it.el.style.display = 'none'; it.path.style.display = 'none'; it.dot.style.display = 'none';
+        if(it.prevShow !== false){
+          it.el.style.display = 'none'; it.path.style.display = 'none'; it.dot.style.display = 'none';
+          it.prevShow = false; it.prevSig = null;
+        }
         it.show = false; continue;
       }
       const ax = (_v.x * 0.5 + 0.5) * W;
@@ -111,12 +121,8 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
 
     for(const it of visible){
       const el = it.el;
-      el.style.display = '';
-      el.style.transform = `translate(${(it.boxX).toFixed(1)}px,${(it.boxY).toFixed(1)}px)`;
       const sel = it.p.data.id === opt.selected;
       const hot = sel || it.p.data.id === opt.hovered;
-      el.classList.toggle('on', true);
-      el.classList.toggle('hot', hot);
 
       /* 引线：锚点 → 45° 拐角 → 标签框近侧边中点 */
       const by = it.boxY + it.boxH / 2;
@@ -130,15 +136,30 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
         const ey = it.ay + Math.sign(dy || 1) * Math.abs(dx);
         d = `M${it.ax.toFixed(1)},${it.ay.toFixed(1)}L${bx.toFixed(1)},${ey.toFixed(1)}L${bx.toFixed(1)},${by.toFixed(1)}`;
       }
+      const cx = it.ax.toFixed(1), cy = it.ay.toFixed(1);
+
+      /* 帧间签名：相机静止时浮点确定性 → toFixed 字符串恒等 → 整帧零 DOM 写
+         （审计 P2-2：此前每帧对每件全量写 display/transform/class/d/cx/cy） */
+      const sig = `${it.boxX.toFixed(1)}|${it.boxY.toFixed(1)}|${sel?1:0}${hot?1:0}|${d}|${cx}|${cy}`;
+      if(it.prevShow === true && it.prevSig === sig) continue;
+
+      el.style.display = '';
+      el.style.transform = `translate(${it.boxX.toFixed(1)}px,${it.boxY.toFixed(1)}px)`;
+      el.classList.add('on');
+      el.classList.toggle('hot', hot);
       it.path.style.display = '';
       it.path.setAttribute('d', d);
       it.path.classList.toggle('sel', sel);
       it.dot.style.display = '';
-      it.dot.setAttribute('cx', it.ax.toFixed(1));
-      it.dot.setAttribute('cy', it.ay.toFixed(1));
+      it.dot.setAttribute('cx', cx);
+      it.dot.setAttribute('cy', cy);
+      it.prevShow = true; it.prevSig = sig;
     }
 
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    if(svg._vw !== W || svg._vh !== H){
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg._vw = W; svg._vh = H;
+    }
   }
 
   function dispose(){

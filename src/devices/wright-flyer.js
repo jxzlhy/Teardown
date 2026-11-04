@@ -43,6 +43,17 @@ export default makeDevice({
   tour: ['engine', 'airframe', 'wings'],
   /* 无独立外壳网格（开放骨架结构），不设 xrayShellIds */
   realPartIds: ['engine', 'airframe', 'wings'],
+  postLoad: ({ partsById }) => {
+    /* 白布翼+白光布光下过曝（radial 同款）：整体压暗 */
+    for (const pid of ['engine', 'airframe', 'wings']) {
+      const p = partsById[pid]; if (!p) continue;
+      p.group.traverse(o => {
+        if (!o.isMesh) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) { if (m.color) m.color.multiplyScalar(0.42); }
+      });
+    }
+  },
   parts: [
     { id: 'engine', zh: '12 马力引擎', en: 'ENGINE', real: true,
       ex: [-0.9, 0.2, 0.4], lo: [0, 1.1, 0.3], tag: '铝壳四缸 · 自行车匠造',

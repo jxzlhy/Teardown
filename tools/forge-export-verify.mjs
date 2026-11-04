@@ -18,8 +18,8 @@ await new Promise(r => setTimeout(r, 1200));
 /* 先生成两台（V8 + 涡扇）→ 刷新出列表 → 点按钮导出 */
 const made = await page.evaluate(async () => {
   const { createForgeDevice } = await import('/src/forge/registry.js');
-  const a = createForgeDevice('v8', undefined, 'glb-test-v8');
-  const b = createForgeDevice('turbofan', undefined, 'glb-test-tf');
+  const a = await createForgeDevice('v8', undefined, 'glb-test-v8');
+  const b = await createForgeDevice('turbofan', undefined, 'glb-test-tf');
   return [a.id, b.id];
 });
 console.log('made:', JSON.stringify(made));

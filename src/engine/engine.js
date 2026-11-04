@@ -18,7 +18,7 @@ import { isCommunityModel } from '../lib/model-class.js';
 import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { matScreen } from './materials.js';
-import { fetchGlb } from './glbCache.js';
+import { fetchGlb, lastFetchSource } from './glbCache.js';
 import { assetUrl } from '../lib/url.js';
 import { createLabelSystem } from './labels.js';
 import { createViewModes } from './view-modes.js';
@@ -67,7 +67,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const reducedMotion = !!hooks.reducedMotion;
 
   /* ---------- 渲染器 / 场景 / 相机 ---------- */
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+  /* AURORA R3：全项目渲染都走 composer（含缩略图/特写实例），renderer 的 MSAA
+     backbuffer 从不参与最终输出——antialias:true 是纯白付成本，改由 composer RT
+     samples:4 承担（见下）。特写捕获走自建 samples:4 RT，不受影响。 */
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:false });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(innerWidth, innerHeight);
   renderer.shadowMap.enabled = true;
@@ -105,9 +108,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
 
   /* ---------- 后期：OutlinePass（选中/悬停描边）+ 辉光 ---------- */
   /* 剖切 stencil 封盖要求渲染目标带 stencil buffer（composer 默认 RT 没有）：
-     自建 HalfFloat+stencil RT 传入，renderTarget2 由 composer 克隆继承同配置 */
+     自建 HalfFloat+stencil RT 传入，renderTarget2 由 composer 克隆继承同配置。
+     AURORA R3：RT 显式 4x MSAA（WebGL2 多采样 RT）——此前 renderer.antialias 对
+     composer 输出无效（白付成本），RT 无 samples 则全馆锯齿裸奔；缩略图模式
+     （adaptive=false）保持旧输出一致性不加 samples。 */
   const composerRT = new THREE.WebGLRenderTarget(innerWidth, innerHeight,
-    { type: THREE.HalfFloatType, stencilBuffer: true });
+    { type: THREE.HalfFloatType, stencilBuffer: true, samples: (hooks.adaptive !== false) ? 4 : 0 });
   const composer = new EffectComposer(renderer, composerRT);
   composer.setSize(innerWidth, innerHeight);   // 让 composer 记住 CSS 口径（乘自身 pixelRatio）
   composer.addPass(new RenderPass(scene, camera));
@@ -131,6 +137,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
      L2 满配 → L1 pixelRatio 1.5 / 阴影 1024 → L0 pixelRatio 1 / 关辉光/描边 / 阴影 512 ---------- */
   const adaptive = hooks.adaptive !== false;
   let quality = 2, fpsAcc = 0, fpsFrames = 0, fpsWindow = 0, watchdogStep = false;
+  let renderCount = 0, frameMsAcc = 0;   // AURORA：渲染帧计数与帧耗累计（均值经 getState 暴露）
   function applyQuality(l){
     quality = l;
     renderer.setPixelRatio(l === 2 ? Math.min(devicePixelRatio, 2) : (l === 1 ? 1.5 : 1));
@@ -448,6 +455,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     stepCur: 0,                      // 已装配组数（连续值，动画用）
     stepTarget: 0, stepSpeed: 2.0, stepGroups: null, stepExitPending: false, stepEmitPending: false,
     demos: null, demoActive: null,   // 视觉原理演示（Phase 5）：device.demos + 当前激活标签
+    loadTiming: null,                // AURORA PHASE 4：装载分环节打点（loadDevice 每次装载重建）
     demoSpeed: 1, demoClock: 0,      // V4.0 MI②：统一演示时钟（积分 dt×speed）与播放速度乘子
     selected: null, hovered: null,
     labelsMode: 'auto',              // 'auto' | 'all' | 'off'
@@ -641,6 +649,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     const signal = loadAbort.signal;
     const intro = opts.intro !== false && adaptive;   // 缩略图渲染器不开场
     window.__LOADS = (window.__LOADS || []).concat(device.id + '@' + (Date.now() % 100000));
+    /* AURORA PHASE 4 装载分环节打点（任务书 §8.1）：fetch / parse(含 draco) / scene(归一化映射) /
+       finalize / firstRender / bvh(分帧累计)——经 getState().loadTiming 暴露，探针程序化读取；
+       DevTools 时间轴同步 performance.mark（观测面与代码面同值）。 */
+    const _lt = { id: device.id, t0: performance.now(), cached: false, bytes: 0,
+      fetchMs: 0, parseMs: 0, sceneMs: 0, finalizeMs: 0, doneMs: 0, firstRenderMs: 0, bvhMs: 0 };
+    state.loadTiming = _lt;
+    performance.mark('gewu-load-start');
     disposeDevice();
     state.device = device;
     state.demos = Array.isArray(device.demos) ? device.demos : null;
@@ -657,10 +672,16 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
     state.modelStatus = device.glb ? 'LOADING 0%' : 'PROCEDURAL';
     emit();
+    const _sp0 = performance.now();
     buildProceduralParts(device);
     labelSystem.build(state.parts);
+    _lt.sceneMs += Math.round(performance.now() - _sp0);
     if(!device.glb){
+      const _sf0 = performance.now();
       finalize(intro);
+      _lt.finalizeMs = Math.round(performance.now() - _sf0);
+      _lt.doneMs = Math.round(performance.now() - _lt.t0);
+      performance.mark('gewu-load-done');
       return;
     }
     const loader = new GLTFLoader();
@@ -668,15 +689,24 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     loader.setDRACOLoader(getDracoLoader());
     try{
       /* GLB 均为单文件自包含：优先命中 Cache Storage，未命中流式下载（带进度）并回填 */
+      const _sf0 = performance.now();
       const buffer = await fetchGlb(device.glb, (loaded, total)=>{
         if(token !== loadSeq || !total) return;
+        if(total) _lt.bytes = total;
         state.modelStatus = 'LOADING ' + Math.round(loaded/total*100) + '%';
         emit();
       }, signal);
       if(token !== loadSeq) return;   // 等待期间已切换设备：丢弃本次结果
+      _lt.fetchMs = Math.round(performance.now() - _sf0);
+      _lt.cached = lastFetchSource() === 'cache';
+      performance.mark('gewu-load-fetched');
       state.modelStatus = 'PARSING';
       emit();
+      const _sp0 = performance.now();
       const gltf = await new Promise((resolve, reject)=> loader.parse(buffer, '', resolve, reject));
+      if(token !== loadSeq) return;
+      _lt.parseMs = Math.round(performance.now() - _sp0);
+      performance.mark('gewu-load-parsed');
       if(token !== loadSeq) return;
       {
         const root = gltf.scene;
@@ -836,7 +866,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         /* 设备特有后处理（传感器对位、保护镜、点亮屏幕等） */
         if(device.postLoad) device.postLoad({ partsById: state.partsById, addLiveScreen });
 
+        _lt.sceneMs += Math.round(performance.now() - _sp0);   // 归一化/映射/后处理段
+        const _sf1 = performance.now();
         finalize(intro);
+        _lt.finalizeMs = Math.round(performance.now() - _sf1);
+        _lt.doneMs = Math.round(performance.now() - _lt.t0);
+        performance.mark('gewu-load-done');
       }
     }catch(err){
       if(token !== loadSeq) return;   // 已被新装载/切换取代：不覆盖当前状态
@@ -844,7 +879,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       console.error('GLB 装载/接入失败，保留程序化模型\n', (device && device.id) || '?', '\n', err && err.stack || err);
       window.__LOAD_ERR = (err && (err.stack || err.message)) || String(err || 'GLB load failed');
       state.modelStatus = 'FALLBACK · PROCEDURAL';
-      if(token === loadSeq) finalize(intro);
+      if(token === loadSeq){
+        finalize(intro);
+        _lt.doneMs = Math.round(performance.now() - _lt.t0);
+      }
     }
   }
 
@@ -1368,7 +1406,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
   function resetView(){
     controls.minDistance = 6;
-    state.camTween = { t:0, dur:0.9,
+    /* AURORA PHASE 3：trackHome——目标每帧引用 live CAM_HOME。
+       切台时 resetView 与 applyCamHomes/装载完成时序存在漂移窗口（实测 tween 结束位
+       ≠ 最终 home：pos 冻结 [8.7,6,14.7] vs [12.1,6.9,15.5]），快照 tp 会把相机
+       停在旧 home；「回到当前台取景位」的语义本就该跟随最新值。
+       视角预设/爆炸取景（flyToView/setExplode）目标独立，保持快照语义不变。 */
+    state.camTween = { t:0, dur:0.9, trackHome: true,
       fp:camera.position.clone(), tp:CAM_HOME.clone(),
       ft:controls.target.clone(), tt:CAM_TARGET.clone() };
   }
@@ -1453,6 +1496,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       else {
         bvhBuilt = true;
         raycaster.firstHitOnly = true;
+        if(state.loadTiming) state.loadTiming.bvhMs = Math.round(performance.now()-t0);   // AURORA：分帧累计
         console.log('[pick] BVH 增量 ×' + total + '，跨帧累计 ' + Math.round(performance.now()-t0) + 'ms');
       }
     };
@@ -1695,6 +1739,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   function mainLoop(){
     /* rawDt 未钳制：爆炸推进/导览计时按真实墙钟走（低帧率设备与后台恢复时节奏不拖长）；
        dt 钳到 0.05 供呼吸/高亮等连续效果保持稳定 */
+    const _fms0 = performance.now();   // AURORA：帧耗统计（getState 暴露均值/计数，供 fps-probe 实测）
     const rawDt = Math.min(clock.getDelta(), 1);
     const dt = Math.min(rawDt, 0.05);
     const t = clock.elapsedTime;
@@ -1785,21 +1830,6 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       }
     }
 
-    if(state.camTween){
-      const tw = state.camTween;
-      if(reducedMotion){
-        camera.position.copy(tw.tp);
-        controls.target.copy(tw.tt);
-        state.camTween = null;
-      }else{
-        /* 墙钟驱动：rAF 挂起环境（看门狗 500ms 步进）下动画时长依然准确 */
-        if(tw.start === undefined) tw.start = performance.now();
-        const k = easeO(clamp((performance.now() - tw.start)/(tw.dur*1000), 0, 1));
-        camera.position.lerpVectors(tw.fp, tw.tp, k);
-        controls.target.lerpVectors(tw.ft, tw.tt, k);
-        if(k >= 1) state.camTween = null;
-      }
-    }
     /* Tour 停留计时（走真实墙钟，低帧率/看门狗步进环境下停留时长依然准确）；手动模式不自动前进 */
     if(state.tour && state.tour.playing && state.tour.mode === 'auto'){
       state.tour.wait -= rawDt;
@@ -1810,6 +1840,34 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     }
     if(!controls.autoRotate && !state.userInteracted && ex===0) controls.autoRotateSpeed = 0.5;
     controls.update();
+    /* ---------- 相机补间（AURORA PHASE 3 移至 controls.update() 之后） ----------
+       裁决实验实证：controls.update() 每帧用内部 spherical 状态重建 camera.position，
+       任何外部写入（tween lerp/绝对赋值/直写）都会被下一帧 update 完全恢复——
+       这是「切台后相机停在旧 home」的根因。把补间移到 update 之后，
+       tween 写入成为每帧最终状态；补间结束后 update 从新 position/target 重算，平滑接管。 */
+    if(state.camTween){
+      const tw = state.camTween;
+      if(reducedMotion){
+        camera.position.copy(tw.tp);
+        controls.target.copy(tw.tt);
+        state.camTween = null;
+      }else{
+        /* 墙钟驱动：rAF 挂起环境（看门狗 500ms 步进）下动画时长依然准确 */
+        if(tw.start === undefined) tw.start = performance.now();
+        const k = easeO(clamp((performance.now() - tw.start)/(tw.dur*1000), 0, 1));
+        if(tw.trackHome){
+          /* resetView：跟随 live home（切台时 applyCamHomes 与装载完成存在时序漂移窗口，
+             快照 tp 会停在旧 home；「回到当前台取景位」语义本就该用最新值） */
+          camera.position.copy(CAM_HOME);
+          controls.target.copy(CAM_TARGET);
+          if(k >= 1) state.camTween = null;
+        }else{
+          camera.position.lerpVectors(tw.fp, tw.tp, k);
+          controls.target.lerpVectors(tw.ft, tw.tt, k);
+          if(k >= 1) state.camTween = null;
+        }
+      }
+    }
 
     deviceGroup.position.y = reducedMotion ? 0 : Math.sin(t*0.7)*0.1;
     if(!reducedMotion) particles.rotation.y = t*0.012;
@@ -1839,15 +1897,63 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       const pct = Math.round(ex*100);
       if(pct !== lastEmitExp){ lastEmitExp = pct; emit(); }
     }
+    renderCount++; frameMsAcc += performance.now() - _fms0;
+    /* AURORA：装载完成（doneMs 已写）后的首个渲染帧 → firstRenderMs。
+       不可挂 booted 块（那是引擎生命周期首帧，远早于 loadTiming 存在）；独立每帧检查。 */
+    if(state.loadTiming && state.loadTiming.doneMs > 0 && !state.loadTiming.firstRenderMs){
+      state.loadTiming.firstRenderMs = Math.round(performance.now() - state.loadTiming.t0);
+    }
   }
 
+  /* ---------- AURORA R1 按需渲染（审计 P2-1） ----------
+     静止画面降为半帧率采样：待机自转（0.5rad/s 慢速环绕）、展品浮动、粒子在 30fps
+     采样下均无感知损失，GPU/CPU 帧成本约减半；任一用户交互/显式动画立即恢复全速。
+     判定边界：**待机自转不算活动**（26s 无交互后开启，engine idleTimer——它是主要
+     降频对象）；用户主动输入以 1.5s 余波窗口覆盖拖拽惯性 damping；
+     OrbitControls 'change' 事件不可用作判定（update() 每次都 dispatch，含静止后）。 */
+  let inputUntil = 0;         // 用户交互余波窗口（拖拽/滚轮/惯性 damping 收敛前保持全速）
+  let frameParity = 0;
+  let lastActiveT = 0;        // 时间基准（帧数基准在低帧率环境永不进入）：无活动 1.2s 即降频
+  const IDLE_AFTER_MS = 1200;
+  const markInput = () => { inputUntil = performance.now() + 1500; };
+  canvas.addEventListener('pointerdown', markInput, { passive: true });
+  canvas.addEventListener('wheel', markInput, { passive: true });
+  canvas.addEventListener('touchmove', markInput, { passive: true });
+  function isSceneActive(){
+    if(!booted) return true;
+    if(performance.now() < inputUntil) return true;            // 拖拽/缩放/惯性期
+    if(hoverDirty || hallTween || state.camTween) return true;
+    if(Math.abs(state.explodeCurrent - state.explodeTarget) > 0.0004) return true;
+    if(state.stepMode && state.stepGroups && Math.abs(state.stepCur - state.stepTarget) > 0.0004) return true;
+    const ft = (state.selected && state.explodeCurrent < 0.2 && !state.stepMode) ? 1 : 0;
+    if(Math.abs(ft - (state.focusFloatK ?? 0)) > 0.001) return true;   // 拆分悬浮渐变
+    if(state.tour && state.tour.playing) return true;
+    if(state.demoActive) return true;                          // 部件演示动画
+    if(state.selected || state.hovered) return true;           // 选中呼吸/悬停辉光
+    if(state.measureOn) return true;
+    if(state.device && state.device.tick) return true;         // 动态屏幕贴图（native 屏方案）
+    const m = modes.state.mode;
+    if(m && m !== 'xray') return true;                         // 剖切滑杆/隔离渐变交互期
+    return false;                                              // 含待机自转：允许降频
+  }
   function animate(){
     if(!running) return;
     requestAnimationFrame(animate);
-    try{ mainLoop(); }
-    catch(err){
-      if(!window.__animErr){ window.__animErr = (err && (err.stack || err.message)) || String(err); console.error(err); }
+    if(watchdogStep){ try{ mainLoop(); } catch(err){ recordAnimErr(err); } return; }   // 看门狗兜底帧恒渲染
+    const nowMs = performance.now();
+    if(isSceneActive()) lastActiveT = nowMs;
+    else if(nowMs - lastActiveT > IDLE_AFTER_MS){
+      frameParity = 1 - frameParity;
+      if(frameParity === 0){
+        clock.getDelta();   // 丢弃本帧间隔：下一渲染帧 dt 仍为真实墙钟差（演示/导览/爆炸速率不变）
+        return;
+      }
     }
+    try{ mainLoop(); }
+    catch(err){ recordAnimErr(err); }
+  }
+  function recordAnimErr(err){
+    if(!window.__animErr){ window.__animErr = (err && (err.stack || err.message)) || String(err); console.error(err); }
   }
   animate();
 
@@ -2024,6 +2130,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       tool: state.measureOn ? 'measure' : null,
       step: state.stepMode && state.stepGroups ? { i: Math.round(state.stepCur), n: state.stepGroups.length } : null,
       demoActive: state.demoActive || null,
+      /* AURORA 性能度量：渲染帧计数 / 均值帧耗 / 装载分环节打点 / 实时相机位置遥测
+         （__CAM 是 finalize 快照非实时；切台相机回归断言需要实时位） */
+      renderCount,
+      frameMsAvg: renderCount ? +(frameMsAcc / renderCount).toFixed(2) : 0,
+      loadTiming: state.loadTiming || null,
+      camPos: camera.position.toArray().map(v => +v.toFixed(2)),
       /* parts/partsById 含 THREE 对象，不进响应式/跨页传输，只出计数字段 */
       partsCount: state.parts.length,
     }),
@@ -2052,6 +2164,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       controls.dispose();
       renderer.dispose();
       if(composer.dispose) composer.dispose();
+      /* Draco worker 池随页面卸载终止（审计 RS-11）：单例只管同页复用，
+         不终止则每次进出设备页净留存 4 个 worker；下次装载会在 getDracoLoader 重建 */
+      if(_dracoLoader){ _dracoLoader.dispose(); _dracoLoader = null; }
     }
   };
 }

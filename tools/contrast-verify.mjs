@@ -103,25 +103,46 @@ const browser = await puppeteer.launch({
   args: ['--no-sandbox', '--disable-dev-shm-usage', '--use-angle=metal', '--hide-scrollbars'],
   defaultViewport: { width: 1440, height: 900, deviceScaleFactor: 1 },
 });
-const page = await browser.newPage();
+let page = await browser.newPage();   // let：用例级失败时换新页面（护栏需要）
 let total = 0, bad = 0;
-for (const [label, hash, hall, scroll] of CASES) {
-  await page.goto(BASE + '/#/', { waitUntil: 'domcontentloaded' }).catch(() => {});
-  await page.evaluate(h => localStorage.setItem('dtm.hall', h), hall);
-  await page.goto(BASE + hash, { waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {});
+/* 高负载/无头环境护栏（与 hud-verify 同口径）：reload 可冻结（waitForNavigation 挂死）、
+   长会话页面可 frame detached——reload 带重试环，单用例失败换新页面整例重试 */
+async function robustReload(p) {
+  for (let a = 0; a < 3; a++) {
+    try { await p.reload({ waitUntil: 'networkidle2', timeout: 45000 }); return; }
+    catch (e) { if (a === 2) throw e; await sleep(1500); }
+  }
+}
+async function runCase(p, [label, hash, hall, scroll]) {
+  await p.goto(BASE + '/#/', { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+  await p.evaluate(h => localStorage.setItem('dtm.hall', h), hall);
+  await p.goto(BASE + hash, { waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {});
   /* hash 路由不重载：显式 reload 让厅别 token 真正生效，否则测到的是上一例的厅 */
-  await page.reload({ waitUntil: 'networkidle2' });
+  await robustReload(p);
   await sleep(2600);
   if (hash.startsWith('/#/device/')) {
-    for (let i = 0; i < 160; i++) { if (await page.evaluate(() => !!(window.__ENGINE && window.__ENGINE.getState && window.__ENGINE.getState().booted))) break; await sleep(250); }
+    for (let i = 0; i < 160; i++) { if (await p.evaluate(() => !!(window.__ENGINE && window.__ENGINE.getState && window.__ENGINE.getState().booted))) break; await sleep(250); }
     await sleep(2500);
   }
-  if (scroll) await page.evaluate(y => { const h = document.querySelector('.hub'); if (h) h.scrollTop = y; }, scroll);
+  if (scroll) await p.evaluate(y => { const h = document.querySelector('.hub'); if (h) h.scrollTop = y; }, scroll);
   await sleep(900);
-  const r = await page.evaluate(SCAN, hall);
+  return p.evaluate(SCAN, hall);
+}
+for (const c of CASES) {
+  let r = null;
+  for (let a = 0; a < 3 && !r; a++) {
+    try { r = await runCase(page, c); }
+    catch (e) {
+      console.log(`· ${c[0]}（${c[2]}）第 ${a + 1} 次环境性失败（${String(e).split('\n')[0].slice(0, 80)}），换新页面重试`);
+      try { await page.close(); } catch {}
+      page = await browser.newPage();
+      await sleep(2000);
+    }
+  }
+  if (!r) { console.log(`✗ ${c[0]} · ${c[2]}：三轮环境性失败（不计入对比度结论，单独计坏）`); bad++; continue; }
   total += r.failing;
   if (r.failing > MAX) bad++;
-  console.log(`${r.failing <= MAX ? '✓' : '✗'} ${label} · ${r.hall}：不达标 ${r.failing} 节点 / ${r.failingUnique} 类`);
+  console.log(`${r.failing <= MAX ? '✓' : '✗'} ${c[0]} · ${r.hall}：不达标 ${r.failing} 节点 / ${r.failingUnique} 类`);
   if (verbose || r.failing > MAX) for (const w of r.worst) console.log(`    ${String(w.ratio).padStart(5)}:1  ${w.px}px w${w.w}  .${w.cls}  「${w.txt}」`);
 }
 await browser.close();

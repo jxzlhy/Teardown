@@ -5,6 +5,8 @@ dist/
 *.local
 # 原始资产备份（1.2GB，含 >100MB 文件，超过 Gitee 单文件限制；仅本地保存）
 vendor/assets/originals/
+# 本地归档压缩包（272MB，超 GitHub/Gitee 单文件 100MB 硬限制；仅本地保存）
+/归档.zip
 # 临时转换脚本与缓存
 rotate_m4.tmp.mjs
 .v2c/

@@ -15,7 +15,7 @@ console.log('T2 build ringdrive in page');
 const built = await page.evaluate(async () => {
   try {
     const { createForgeDevice } = await import('/src/forge/registry.js');
-    const d = createForgeDevice('ringdrive', undefined, 'probe99');
+    const d = await createForgeDevice('ringdrive', undefined, 'probe99');
     return { id: d.id, parts: d.parts.length };
   } catch (e) { return { err: String(e && e.stack || e).slice(0, 300) }; }
 });

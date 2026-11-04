@@ -36,13 +36,13 @@
         <div v-if="dragging" class="st-dropmask"><b>松开以导入</b></div>
 
         <div v-if="st.phase === 'ready'" class="st-tools">
-          <button :class="{ on: spin }" @click="toggleSpin" :aria-pressed="spin">⟳ 自动旋转</button>
-          <button @click="studio && studio.reframe()">⌖ 复位视角</button>
-          <button @click="$refs.file.click()">＋ 导入替换</button>
+          <button :class="{ on: spin }" @click="toggleSpin" :aria-pressed="spin"><Icon name="rotate" /> 自动旋转</button>
+          <button @click="studio && studio.reframe()"><Icon name="focus" /> 复位视角</button>
+          <button @click="$refs.file.click()"><Icon name="plus" /> 导入替换</button>
           <i class="st-tools-sep"></i>
-          <button :disabled="!st.canUndo" @click="studio.undo()" aria-label="撤销">↩ 撤销</button>
-          <button :disabled="!st.canRedo" @click="studio.redo()" aria-label="重做">↪ 重做</button>
-          <button @click="doExport" :disabled="exporting">{{ exporting ? '导出中…' : '⬇ 导出 GLB' }}</button>
+          <button :disabled="!st.canUndo" @click="studio.undo()" aria-label="撤销"><Icon name="undo" /> 撤销</button>
+          <button :disabled="!st.canRedo" @click="studio.redo()" aria-label="重做"><Icon name="redo" /> 重做</button>
+          <button @click="doExport" :disabled="exporting"><Icon name="download" /> {{ exporting ? '导出中…' : '导出 GLB' }}</button>
           <span v-if="st.lastEditLabel" class="st-history">{{ st.lastEditLabel }}</span>
         </div>
       </section>
@@ -230,15 +230,15 @@
             <textarea v-model="genText" class="st-gentext" rows="4" maxlength="600"
               placeholder='描述结构，例如：&#10;中央圆柱形能量核心，外围三个环形结构，上下两层机械支撑，四组对称连接装置，钛合金与深色金属材质，核心发光'></textarea>
             <div class="st-edrow" style="margin-top:10px">
-              <button id="studioGenBtn" class="st-apply" :disabled="!genText.trim()" @click="doGenerate">⚒ 解析并生成</button>
+              <button id="studioGenBtn" class="st-apply" :disabled="!genText.trim()" @click="doGenerate"><Icon name="hammer" /> 解析并生成</button>
               <button @click="genExample">填入示例</button>
             </div>
             <p v-if="genMsg" class="st-note" :class="{ 'st-miss': genErr }">{{ genMsg }}</p>
             <p class="st-note">确定性模板解析：同一描述恒产生同一结构（无模型推断/无概率输出）；未识别的字词会被如实列出并忽略。支持词：中央/核心 · 外围 N 个 · 上下两层 · N 组支撑/连接 · 圆柱/球/环/立方/圆锥 · 金属/深色/发光/塑料。</p>
             <div class="st-specrow">
-              <button :disabled="!st.report || !st.report.textGen" @click="doCopySpec">⧉ 复制 spec</button>
+              <button :disabled="!st.report || !st.report.textGen" @click="doCopySpec"><Icon name="copy" /> 复制 spec</button>
               <input v-model="specText" type="text" placeholder='粘贴 spec JSON（{"fmt":"gewu-textspec/1",…}）' aria-label="spec JSON" />
-              <button :disabled="!specText.trim()" @click="doImportSpec">⇥ 导入</button>
+              <button :disabled="!specText.trim()" @click="doImportSpec"><Icon name="import" /> 导入</button>
             </div>
             <p class="st-note">spec 是结构契约：同 spec 恒同结构，可存档/分享/版本化（深链 ?spec= 同效）。</p>
           </div>
@@ -265,8 +265,8 @@
             </div>
             <p v-else class="st-note">还没有保存的作品——编辑满意后点「保存当前」</p>
             <div class="st-libfoot">
-              <button @click="doBackup" :disabled="!works.length">⬇ 备份全部（JSON）</button>
-              <button @click="$refs.restore.click()">⬆ 恢复备份</button>
+              <button @click="doBackup" :disabled="!works.length"><Icon name="download" /> 备份全部（JSON）</button>
+              <button @click="$refs.restore.click()"><Icon name="upload" /> 恢复备份</button>
               <input ref="restore" type="file" accept=".json" hidden @change="doRestore" />
             </div>
             <p class="st-note">作品存于本浏览器的 IndexedDB——清理站点数据会丢失，请用「备份全部」导出留底</p>
@@ -285,6 +285,7 @@
 
 <script setup>
 import { ref, reactive, computed, markRaw, watch, onMounted, onBeforeUnmount } from 'vue';
+import Icon from '../ui/Icon.vue';
 import { createStudio, readCapMB } from '../studio/index.js';
 
 const cv = ref(null);

@@ -59,4 +59,10 @@ export default makeDevice({
       desc: '秒针：最细最长的针，每秒「咔」一格——跳秒是石英钟的声纹（机械表多为扫秒或快跳）。这一秒一格的节奏由分频电路精确保证，让它成了全世界对时的默认基准：新闻报时、倒计时、考试铃。',
       specs: [['走法', '每秒跳一格'], ['声纹', '石英钟的「咔」'], ['基准', '全球对时默认'], ['耗电', '跳秒比扫秒省电']] },
   ],
+  /* V4.0 MI①：钟表传动链（秒→分→时 = 60:1 齿轮轮系两级；速率真实可算） */
+  mech: { driver: 'hand-second', edges: [
+    { id: 'gm-sec-min', type: 'gear_mesh', from: 'hand-second', to: 'hand-minute', kinematic: 'exact', ratio: 1 / 60, note: '秒针轴经 60:1 轮系驱动分针（60 秒 = 分针一圈）' },
+    { id: 'gm-min-hour', type: 'gear_mesh', from: 'hand-minute', to: 'hand-hour', kinematic: 'exact', ratio: 1 / 12, note: '分针轴经 12:1 轮系驱动时针（12 小时 = 时针一圈）' },
+    { id: 'fx-case', type: 'fixed', from: 'case', to: 'hand-second', note: '机芯固定于钟壳，三针同轴叠装' },
+  ] },
 });

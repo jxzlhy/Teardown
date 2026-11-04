@@ -2285,3 +2285,145 @@ exit "$__zcode_status"
 
 ### 交付（d9a1848 + 本轮 studio-verify 加固）
 验证工具工程化：对话框处理/协议超时/真实交互路径/渲染时序环/顺序依赖隔离——高负载 OOM 环境下套件韧性达到「负载<9 单跑即绿」水位。
+
+## 2026-11-04 续会话轮 7 · RS-09~18 九项收官（总任务书 TASK 04/05 延续，本会话）
+
+### 目标与范围
+接管后按 REAUDIT §七遗留清单执行 PHASE 01 收尾：RS-09/11/12/13/14/15/16/17/18 九项全部整改，全部验证闭环（状态表与证据见 `PROJECT_ISSUES.md` RS 表；详录 `REAUDIT-2026-11-03.md` §八）。
+
+### 改动文件
+- `src/studio/workshop.js`：applyCommands 执行先行+逆序回滚（RS-09）。
+- `src/studio/index.js`：repairAll 单组合命令（RS-12）；importFiles 失败保留现场+返回布尔（RS-15）；loadWork 如实抛失败；dispose 时 terminate DRACO（RS-11）。
+- `src/studio/library.js`：重写——单连接+onversionchange、恢复单事务原子+同 id 跳过、base64 分块编解码（RS-14）。
+- `src/studio/importer.js`：disposeDraco 导出（RS-11）。
+- `src/studio/textgen.js`：4000 字 API 兜底（RS-13）；`src/studio/diagnostics.js`：failedRules（RS-17）。
+- `src/components/StudioView.vue`：doRepairAll 单命令化、生成前 confirm、成功路径列 unknown、textarea maxlength、恢复计数、失败横幅、failedRules 警示行、aria-live 状态区、页脚更正（RS-12/13/15/17/18）。
+- `src/forge/registry.js`：生成器动态 import + GENERATOR_ID 断言（RS-16）；`src/components/DeviceViewer.vue`：forgeRequested 纯前缀 + await 装载；`src/components/ForgeView.vue`：三处 await；`src/engine/engine.js`：dispose terminate draco。
+- `tools/forge-{export-verify,rd-probe,ls-verify,stress-verify,tf-verify,verify,share-verify}.mjs`：调用点 await 化（API 契约变更同步）。
+- `tools/studio-verify.mjs`：恢复往返断言更新为新契约 + 新增「同 id 重复恢复跳过」断言；损坏 GLB 节改 RS-15 新契约（横幅/保留模型双断言）；错误恢复节适配两形态。
+
+### 验证
+- `npm run build` ✓ 2.71–4.31s；`npm run lint:devices`（6 段）✓ 0 错·钩子全配对·资产 128/128。
+- `groupops-unit` 21/21；`textgen-unit` 16/16。
+- **`studio-verify` 55/55 ALL PASS（负载 4.4）**——含本轮全部新断言（RS-14 跳过、RS-15 横幅+modelKept）。
+- 生产 chunk 取证（/tmp 脚本）：普通设备页**零生成器 chunk**；registry chunk gzip **29.17→1.35KB（−95%）**；forge 冷加载深链 rebuild 正常（工作区+干净 HEAD 双实证）。
+- 归因取证：设备页 A→B 同文档 hash 热切换 config 不换新——干净 HEAD 复现 = **既有问题非本轮回归**（已记 PROJECT_ISSUES 观察记录，待人工定级）；设备页 3D boot 无头挂起（booted=true/parts=0，三处环境一致复现、零错误零网络失败）同 HEAD 复现，维持环境挂账。
+- 环境清理：清掉本轮崩溃脚本遗留的孤儿 vite/headless Chrome（峰值 77 Chrome），保护用户 8137 dev server 未动。
+
+### 自己引入并抓回的回归（如实留档）
+1. RS-15 confirm 在无头下挂起 CDP——曾误判为"既有冻结类"，由并行会话定性并修复工具（RS-15b 对话框自动接受），教训=改产品交互须同步考虑无头验证通道。
+2. registry 懒加载误写 `mod.build`（生成器导出为具名函数）——深链取证当场抓出，改表内 build 字段+缺失导出显式抛错。
+3. 取证脚本两坑：waitForFunction 传参须 JSON 可序列化（RegExp→{}）；`sleep()` 返回 Promise<void> 被当布尔判据→恒 continue 静默跳过。
+
+### 下一项（按 backlog）
+P2-11 SEO 基础件（og:image/robots/sitemap/manifest + CSP meta，纯静态构建期产物，成本低收益确定）→ P1-4 首屏发现路径（需产品裁定，先出方案不擅动）→ Phase 4 令牌归一。
+
+## 2026-11-04 续会话轮 8 · 总任务书归档（用户指令：仅文档保存与入口更新，不动代码）
+
+- **原文归档**：用户下达的《GEWU AUTONOMOUS MASTER DEVELOPMENT MISSION》v2.0.0（2026-11-03 完整重建版）保存至 `docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md`——与用户粘贴原文 `cmp` **字节级一致**（57,122 字节 / 2,497 行）；结构核验：28 部分（一~二十八连续无缺）/ 51 章（1~51 连续无缺）/ 最终任务声明收尾；目标文件此前不存在，无覆盖风险。
+- **入口更新（均为增量行，未动既有内容）**：README.md 核心文档索引首行；AGENTS.md 头部新增总纲行（注明「历史专项规范继续有效，总纲不替代它们」+ 第 50 章 18 条约束最高优先级）；`docs/AI_HANDOFF.md` 必读清单新增第 0 项（总纲章节地图）。TECH.md 无 roadmap 索引段、docs/ 无其他集中索引，无需改动。
+- 历史规范保护：V2/V3/V4 任务书等全部未动；本轮仅 4 个文档文件变更（README/AGENTS/AI_HANDOFF 修改 + 新任务书未跟踪），无代码改动。
+
+## 2026-11-04 续会话轮 9 · V5.0.10 AURORA 专项启动（PHASE 0 完成）
+
+- **任务书归档**：用户下达《GEWU V5.0.10 — AURORA EXPERIENCE & PERFORMANCE OVERHAUL》（898 行/18 节）字节级保存至 `docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md`（cmp ✓）；README/AGENTS/AI_HANDOFF 三入口各加一行指针。
+- **版本核定**：git log 实证 V5.0.0–6/8 已占用、V5.0.7/9 未启用 → **采用 V5.0.10**（任务书建议值，未占用）。
+- **PHASE 0 完成**：`docs/audit/V5_AURORA_BASELINE_AUDIT.md`——架构/设计体系（含字号 29 种等设计债重测）/UI·交互问题清单（重组既有审计 U1-U7/I1-I5）/38 个 Skills 清单与优先激活池/加载链路图（glbCache LRU+预取+并发合并已有，KTX2/meshopt/LOD/InstancedMesh 均未用）/渲染性能开放项 R1-R6/内存 GPU 已关·开放项/移动端现状/防重复建设清单/实施顺序裁定。**执行状态档** `docs/roadmap/GEWU_V5_AURORA_EXECUTION_STATUS.md`（阶段表 + Skills 台账 + 性能基线表，其中加载分环节耗时标 UNVERIFIED 待 PHASE 4 打点）。
+- **关键裁定**：实施顺序=1 设计系统 → 3 前置修 hash 热切换（与 V4.1a 合流）→ 4 资产管线（KTX2 先试点）→ 5 渲染引擎 → 2 全局 UI 滚动 → 6/7；PHASE 2 的 P1-4 首屏路径属产品裁定，先出方案稿。
+- 本轮仅文档变更，无代码改动；下一阶段 PHASE 1（令牌归一）待续。
+
+## 2026-11-04 续会话轮 10 · AURORA PHASE 1 首切片（令牌原始层 + 按压反馈 + SEO 静态件）
+
+- **字号原始层 1:1 令牌化**（零视觉变更第一遍）：`src/style.css :root` 新增 11 个 `--fs-*` 原始层令牌（仅收纳 ≥3 次出现的高频值：8.5/9/9.5/10/10.5/11/11.5/12/12.5/13/17px），`replace_all` 迁移 **112/160 处**；长尾 18 种 + 5 个 clamp() 展示值按计划留存（归并遍与对应组件触碰时收编）；注释块明令"新代码禁止新增裸字号字面量"。策略依据 frontend-design Skill（克制：既有体系令牌化而非新设计；shorthand `font:` 计数 0，迁移面干净）。
+- **U4 按压反馈**：全局 `button:active:not(:disabled){transform:translateY(1px)}`（瞬时无过渡，不涉 reduced-motion；仅按钮不含卡片链接，避免覆盖既有 hover transform）。
+- **U6 SEO 静态件**（原 P2-11 部分）：`public/og-cover.webp`（v8-engine 缩略图）+ index.html 增 og:image/alt + twitter:card + manifest 链接；新建 `public/robots.txt`（注明 hash 路由预渲染前提）与 `public/manifest.webmanifest`（favicon.svg icon，theme #040810）。**缓办有因**：sitemap（无部署域名 + 设备页需预渲染才可索引）、CSP meta（需 Draco worker/blob 实测窗口，headless 设备页 boot 挂起期间不可验证——不冒进）。
+- **验证**：`npm run build` ✓ 2.71s；dist 含 robots/manifest/og-cover 三件 ✓；preview :8200 三静态件 200 ✓；`verify:contrast` 全 11 组（后台运行，结果回填 EXECUTION_STATUS 门禁节）。
+- 改动文件：`src/style.css`（+13 行令牌/反馈规则、112 处值迁移）、`index.html`（+5 行）、`public/{robots.txt,manifest.webmanifest,og-cover.webp}`（新增）。
+- Skills 台账首两条已回填（frontend-design ✅ / impeccable 待 PHASE 2）。
+- **验证补记**：build ✓ 2.71s；三静态件 200 ✓；`verify:contrast` 两次连续死于无头环境（launch 挂起/reload 冻结，负载 6.8）→ 按规程转**定向探针**：11/11 令牌 getComputedStyle 恒等原值 ✓、:active 入 CSSOM ✓、抽样无漂移 ✓——1:1 同值替换构造性不影响对比度，全量闸门挂账空闲窗口（EXECUTION_STATUS 门禁节已回填）。
+
+## 2026-11-04 续会话轮 11 · AURORA PHASE 3 前置项 I2 关闭（hash 热切换）
+
+- **根因两层（归因修正）**：① 主路径实由 RS-16 的 `forgeRequested` 纯前缀化修复——干净 HEAD 复验失败发生在该修复之前；② `DeviceViewer.vue:1222` watcher 的 `const rid = metaById[id] ? id : FALLBACK_ID` 对 forge id 一律回落 m4-carbine（首轮探针 `"id":"m4-carbine"` 的实证来源），已加固为 `(metaById[id] || isForgeId(id)) ? id : FALLBACK_ID` 并注释口径（AURORA I2）。
+- **实证（生产 build + preview :8200）**：forge 热切换 `{"booted":true,"parts":10,"modelStatus":"PROCEDURAL","id":"forge-v8-10996ik"}` ✓；普通设备热切换回归 iphone-13→mac-mini `{"booted":true,"parts":7}` ✓（第二次尝试成功，首次 goto 30s 超时系负载 8.9 环境抖动）。
+- **环境**：verify:contrast 两连败后清场（launch 挂起 21min/reload 冻结）；探针脚本先行，全量闸门挂账空闲窗口。
+- PROJECT_ISSUES 观察记录已标 ✅ 关闭；EXECUTION_STATUS PHASE 3 前置项已回填；build 3.24s ✓（含令牌层+I2）。
+
+## 2026-11-04 续会话轮 12 · AURORA PHASE 1 归并遍 + PHASE 5 R2 + contrast 挂账清零
+
+- **PHASE 1 归并遍（PHASE 1 收口）**：先读 design-system/tokens 两 Skill（命名纪律=原始层值命名/展示层角色命名；增量补丁不覆盖）→ style.css 长尾 13 静态值（--fs-8…--fs-44）+ 5 流式展示值（--fs-brand-hero/-compact/section-title/display-xl/display-sub）令牌化，**裸字号字面量清零（0 剩余 / 133 处全令牌）**；DESIGN_SYSTEM §3.1 令牌清单落档 + 修正馆名 clamp 文档漂移（旧档 76/11.5vw/172 → 代码 44/6vw/84，旧审计 P2-4 子项）。
+- **归并遍截图对比验证**：base/after 双 dist 各 3 图（夜景大厅/日厅大厅/设备页 rail，裁剪纯 UI 区 + fonts.ready + reduced-motion）：夜景与设备页 **0 像素差异**；日厅唯一差异带 145×10px（maxDelta 11/255）经三重对照定性=日厅氛围光动效相位时变（after 自身连拍同区亦差异、base 连拍 0 差异 → 采集时相伪影非排版回归），目检不可感知。
+- **verify:contrast 三轮挂账清零**：第三次仍死于 reload 冻结后修工具——加 reload×3 重试环 + 用例级换新页面整例重试（hud-verify 同模式护栏）→ 加固版 **10/10 组全绿 · 合计 0 不达标节点**（负载 4.5-7 窗口）。工具脆弱性（无护栏）而非负载是此前连败主因。
+- **PHASE 5 R2（P2-2 关闭）**：labels.js 帧间签名脏检查——boxX|boxY|sel|hot|pathD|dotCx|dotCy toFixed 签名，相机静止时整件零 DOM 写；viewBox 尺寸判定；隐藏分支 prevShow；build() 重建无残留。**验证**：build 2.76s + lint ✓ + smoke **27/28**（唯一失败=历史 tour 墙钟抖动同类，非 R2 模块；设备页全流程+无控制台错误 = 脏检查数千帧零异常）。
+- 环境曲线：load 11.6 → 轮询等窗 → 6.95 闸门 → 4.79 smoke；负载窗口策略全程生效。
+
+## 2026-11-04 续会话轮 13 · AURORA PHASE 5 R1+R3 合并切片（P2-1 关闭）
+
+- **R3**：composer RT `samples:4`（HalfFloat+stencil 保留；thumb 模式 samples:0 保旧缩略图一致性）+ renderer `antialias:false`——核验全项目渲染（含缩略图/特写实例）都走 composer 或自建 samples:4 RT，MSAA backbuffer 从不参与输出。
+- **R1 按需渲染**（两轮实测踩坑后定型）：时间基准 idle（无活动 1.2s）→ 帧奇偶半帧率；活动源 = 用户输入 1.5s 余波窗口（pointerdown/wheel/touchmove，覆盖 damping 惯性）+ hoverDirty/补间/爆炸步进/拆分悬浮/tour/演示/选中呼吸/测量/动态屏幕 tick/clip·isolate；**待机自转（engine idleTimer 26s 特性）明确允许降频**（0.5rad/s 环绕 30fps 无感知=主要降频对象）；跳帧帧丢弃 clock 间隔保演示/导览墙钟速率；watchdog 兜底帧恒渲染。
+- **踩坑（都由 fps 实测抓出）**：① OrbitControls.update() 每次 dispatch change（含静止后）→ 事件判定永不 idle（首轮 render≈rAF 实证）→ 改输入窗口方案；② 帧数基准 IDLE_ENTER=45 在软渲染低帧率下永不进入 → 改时间基准。
+- **实测（swiftshader@load4.5，iphone-13@1440×900）**：idle rAF 30.8 / render **16.9**（≈rAF×0.5+watchdog，降频精确生效）；交互恢复 render **28.5**≈rAF 30.8（全速回满=同时证明 R3 无帧率回退）。R1 前构造性口径：渲染 fps≡rAF（P2-1 证据）。真实 GPU 绝对帧耗待真机（软渲染绝对值无意义，诚实挂账）。
+- **回归**：smoke **27/28**（唯一失败=历史 tour 抖动同项，与 R2 轮完全一致，非本轮模块）；演示 Δx=1.53/装配/测量/「无控制台错误」全绿。build 2.78s ✓。
+- **工具**：fps-probe.mjs 升级（FPS_BASE 参数 + renderCount/frameMsAvg 度量）；state.renderCount/frameMsAvg 经 getState 暴露（不加 window 钩子）。
+- PROJECT_ISSUES P2-1 标 ✅；EXECUTION_STATUS PHASE 5 表回填。
+
+## 2026-11-04 续会话轮 14 · AURORA PHASE 4 打点基建完成（基线数据被无头冻结阻塞，如实挂账）
+
+- **打点基建（全部落地并通过 build/lint）**：① `loadDevice` 全链路打点——`state.loadTiming = { id, t0, cached, bytes, fetchMs, parseMs(含 draco worker), sceneMs(归一化/映射/后处理), finalizeMs, doneMs, firstRenderMs, bvhMs(分帧累计) }`，经 `getState().loadTiming` 暴露；同步 `performance.mark`（gewu-load-start/fetched/parsed/done）供 DevTools 时间轴；② `glbCache` 新增 `lastFetchSource()`（cache/network，观测性字段，注释注明竞态口径）；③BVH 分帧累计在 scheduleBVH 完成回调回填；procedural 与 fallback 路径同样打点。
+- **基线数据采集 6/6 全冻结——BLOCKED 如实挂账**：探针（/tmp/aurora-loadmark.mjs，冷/热 × 小/中/大 3 台 × 每组 3 次 fresh-page 重试护栏）在 load 9.0→3.26→4.6 全区间、preview 与 dev 双口径下全部超时；页内取证 booted=true/parts=0/modelStatus=INIT/loadTiming=null/零 console 错误 = `loadConfig` 动态 import 挂起（NEXT_SESSION 既有定性「无头标签冻结于动态 import pending」），今天由间歇性转为**持续性**（今晨 02:50 同口径 smoke 27/28 可过）。打点代码与已在 R1 实测中验证工作的 renderCount 同构同通道，构造性可信；首装时序值待无头解冻/真实浏览器补测。
+- 按 AGENTS §8 记录阻塞并自动转下一任务：PHASE 1 组件类归一（style.css 纯文本工作，验证不依赖无头设备页）。
+- 变更文件：src/engine/engine.js（loadDevice 打点 + state.loadTiming + getState 暴露）、src/engine/glbCache.js（lastSource）。build 2.89s ✓ lint ✓。
+
+## 2026-11-04 续会话轮 15 · AURORA PHASE 1 组件归一（药丸按钮族）
+
+- **药丸按钮族 token 收编**（原 P2-8 主债）：`:root` 新增 `--pill-bg/--pill-line/--pill-line-hover/--pill-fg`；`.chip`（style.css:326）/`.hud-chip`（hud.css:80）/`.fav-cat`（:1122）/`.gb-chip`（GraphView.vue scoped）四套 `rgba(120,150,180,*)` 字面量全部改为 token 引用。**有意统一两处漂移**：fav-cat 静默描边 .3→.18、gb-chip .25→.18（与 chip/hud-chip 同公式）；gb-chip 的深底浮层底色 rgba(7,13,20,.5) 为上下文差异保留局部值（注释说明）。fp-seg/motion-speed 核验已走 --wash-1/--hairline token 体系，无需动。
+- **范围控制**：hall-link/filter-search 等约 28 处同家族字面量属 glass/line 大家族 token 化（P2-8 另一半），记入 EXECUTION_STATUS 遗留不在本轮扩张；图标体系（P2-9）未动。
+- 验证：build 2.44s ✓；字面量残留 grep 确认（hud.css 剩 1 处非 pill 上下文、GraphView 剩 3 处为深底/圆点局部值）；视觉差异仅两处有意统一（border 弱档），对比度不受影响（border 非文字色）。
+
+## 2026-11-04 续会话轮 16 · AURORA glass/line 家族收编（P2-8 主债清账）
+
+- **33 处 / 15 种 alpha 全收敛五档**：`--glass-bg(.06)` / `--glass-line-faint(.14)` / `--glass-line(.2)` / `--glass-line-strong(.3)` / `--glass-line-hi(.45)`，定义入 `:root`（AURORA 注释块）；`--pill-*` 自动分层为组件语义层引用。覆盖 style.css 26 处 + GraphView 3 + Timeline 2 + hud.css 1。
+- **唯一例外**：DeviceViewer.vue:571 canvas 2D `strokeStyle` 内 `var()` 不被解析，保留字面量并注释声明。
+- **漂移量化（诚实口径）**：15 值种中 10 种有漂移，最大 Δalpha .06（≈2.8% 深底亮度：.35→.3 抓握条/.4→.45 focus 线，方向均增强可见性），其余 ≤.04；无头冻结期间以数值等价审查替代截图对比（border/底色非文字色，对比度闸门覆盖面不变）。
+- build 2.37s ✓；全库 grep 残留 = canvas 例外 + :root 定义，**P2-8 主债（字号/药丸/glass 三线）全部清账**；P2-9 图标体系未动留待后续。
+
+## 2026-11-04 续会话轮 17 · AURORA PHASE 4 定性修正 + 首组装载实测（重要）
+
+- **「无头冻结」定性推翻**：时序采样（10/30/60/90s 四点）实证设备页装载**在跑只是极慢**——renderFps 累计曲线 2→15→299→724，fetchMs=**16510ms**、done=**84576ms**（iphone-13 178KB@swiftshader+load6.5）：软渲染首帧风暴饱和主线程→装载 84.6s，90-150s 探针超时线全部误判为冻结。记忆库「boot 放宽 300s」规程本已存在，教训=**先查规程再定超时线**（本轮在超时线上烧掉约 1 小时）。
+- **打点首组真实数据入库**（口径=swiftshader 饱和参考值，非真实 GPU 表现）：loadTiming 全链路工作正常（fetch/parse/scene/done 各段分离清晰，PARSING→COMMUNITY 状态机正确推进）；curl 7.9ms/页内裸 fetch ok/Cache API ok/planEviction ok 逐步排除法定位到「饱和慢」而非代码挂点。
+- **残余未竟**：300s 探针版全套 3 台×冷热未稳定产出（后台失败+全缓冲）；冷/热对比、KTX2 A/B 挂账真实浏览器/解冻窗口。探针与规程已留档（/tmp/aurora-loadmark.mjs@300s）。
+- 清场：8251-8260 探针端口全清。EXECUTION_STATUS PHASE 4 表已更新定性。
+
+## 2026-11-04 续会话轮 18 · AURORA P2-9 图标体系（字符图标 → SVG sprite）
+
+- **新建 `src/ui/Icon.vue`**：内联 SVG sprite 组件——24px 网格 / currentColor 继承 / aria-hidden + focusable=false（语义由按钮文本或 aria-label 承担）/ stroke 与 fill 双风格 / 21 图形（close/star/star-o/edit/diamond/diamond-o/chevron-left/right/caret/plus/external/download/upload/copy/import/rotate/focus/undo/redo/hammer）。
+- **38 处控件字符逐点替换**：GalleryHub 10（★ 徽标/✎/✕×4/▴▾ 展开/◆◇ 徽章）、DeviceViewer 9（↗×3/‹›步进/★ 评分×2/▴▾/★☆ 收藏态/＋）、StudioView 11（⟳⌖＋↩↪⬇×2⬆⧉⇥⚒）、ForgeView 4（⚒⧉⬇⇥）、GraphView 6（✕×2/↗×4）；动态展开指示改 caret + rotate(180deg)，收藏/徽章实心态改 name 切换。
+- **有意保留**（非图标语义）：toast/帮助文本中描述按键的「‹ ›」4 处、空状态说明「★ 收藏设备」1 处、studio 树结构符号 ◈/▸（非审计控件清单）。
+- 验证：build 3.07s ✓；**控件字符 grep 残留 0**；forge 页截图目检（import 图标风格协调）+ aria-hidden SVG DOM 断言（2 处渲染正常）；纯图标按钮 aria-label 在替换前后保持不变。
+- 改动文件：新增 src/ui/Icon.vue；GalleryHub/DeviceViewer/StudioView/ForgeView/GraphView 五组件模板替换+import。P2-9 关闭。
+
+## 2026-11-04 续会话轮 19 · AURORA PHASE 3 首切片取证——切台序列断言抓出「相机停在旧 home」确证缺陷
+
+- **切台序列探针落地**（/tmp/aurora-switch-seq.mjs，action4→iphone-13→action4 往返 + 脏状态布置[选中 lens+爆炸 40%+剖切] + 300s 装载规程 + fresh-page）。
+- **健康面（基线 ALL PASS 项）**：设备切换正确、UI 态清理全绿（选中/爆炸/演示/导览/逐步/剖切模式全清）、console 零错误、往返装载稳定。
+- **确证缺陷（连续采样定位）**：A→B 切台后相机**停在旧 home**——7 次采样轨迹：`tw:true（tween 存在）→ tw:false（结束）` 但 pos 冻结 `[8.7,6,14.7]` ≠ 当前 `__CAM.home [12.1,6.9,15.5]`，12s 不收敛；即 **resetView 的 tween 目标 tp（其时刻的 CAM_HOME）与装载完成后的最终 CAM_HOME 不一致**（双装载间 CAM_HOME 漂移；往返 B→A 时 Δ 0.22~2.71 抖动亦同源）。UI 态清理不受影响。
+- **下一动工项（PHASE 3 首修复目标）**：读 applyCamHomes/portraitBoost 链定位 CAM_HOME 漂移点 → 修法候选（resetView 以 getter 引用最新 home / 双触发守卫 / tween 每帧读 live home）；修后以本探针回归（断言已就绪：Δ<1.5 @20s 轮询）。
+- 记忆库补充口径：无头装载慢（84.6s@iphone-13）下探针断言须按「终态轮询」而非「定时采样」。
+
+## 2026-11-04 续会话轮 20 · PHASE 3 首修复实施（两步修复已落地，探针缺陷浮出，回归验证待续）
+
+- **修复一（trackHome）**：resetView 的 tween 加 `trackHome:true`，mainLoop tween 段对 trackHome 目标每帧引用 live CAM_HOME（视角预设/爆炸取景保持快照语义）。
+- **修复二（绝对赋值兜底）**：诊断实验（120ms 密集采样）实证诡异行为——**k 正常推进（0.71→0.98 墙钟）但 pos 恒冻结在 fp [9.96,6,13.9]，lerp 写入不生效且无同帧覆盖者**（controls.update 已跳过、无第三方 camTween=null、无 camera 写点）；为优先交付可用行为，trackHome 分支改为**每帧绝对赋值** `camera.position.copy(CAM_HOME)`（切台立即回位，平滑性让位于正确性）；trackHome 期间跳过 controls.update()（其内部 spherical 重建会覆盖 tween 写入）。
+- **探针缺陷浮出（回归未过的原因层）**：`waitBooted` 条件 `(s.device ? match : true)` 在生产态 device=null 时**恒真**→③ 往返断言可能在 B 装载未完成时放行、采样错对象；且断言量纲曾错（绝对位置——装载 2.6s 后自转特性开启，pos 永远在绕 home 转圈，应断言**半径**）；③ Δ2.75 恒定（rp 20.9 vs rh 18.1）疑为 B 尺度+多装载交错的采样错位。
+- **门禁**：build 2.63s ✓ / lint ✓ / console 零错误（探针全程）/ ①② 的 UI 态清理与切换正确性全绿。
+- **下轮收口路径**：修探针（waitBooted 以 device.id 严格匹配 + 采样前等 idle 稳态 + 半径量纲）→ 回归 Δ<1.5 → 若修复仍不生效则按「绝对赋值不生效」的新证据重定位（camera 实例分离嫌疑）。探针与修复代码均在工作区，状态可恢复。
+
+## 2026-11-05 续会话轮 21 · PHASE 3 首修复回归 ALL PASS（Δ=0 双向）+ 假遥测陷阱清账
+
+- **探针 v2 重构**：waitLoaded 以 `loadTiming.id` 严格匹配（生产态 getState().device 为 null，旧条件恒真——旧探针 ③ 断言采样错对象）；半径量纲（|pos|≈|home|，自转只改方向）；采样前 idle 稳态 8s。
+- **firstRenderMs 打点错位修复**：旧实现挂 booted 块（引擎生命周期首帧，远早于 loadTiming 存在）→ 恒 0；改为 mainLoop 每帧独立检查「doneMs>0 且 firstRenderMs 未写」（装载完成后首帧，语义正确）。
+- **假遥测陷阱（本轮最大教训）**：切台相机取证的 5 轮全部建立在 `window.__CAM.pos` 上——**它是 finalize 时的一次性快照非实时遥测**，「相机停在旧 home」的部分证据（k 推进 pos 冻结/绝对赋值无效/Δ 恒定）都被快照污染。实时裁决（TEMP-DIAG `__CAMREF` 直写实验）：直写 home → 2 帧后被恢复 → **controls.update() 每帧用内部 spherical 重建 camera.position 覆盖外部写入实锤**。
+- **最终修复（三件套，全部保留）**：① trackHome 每帧引用 live CAM_HOME；② **camTween 段移至 controls.update() 之后**（tween 写入成为每帧最终状态，结束后 update 从新 position 重算平滑接管）——**这是生效的修复**；③ trackHome 期间绝对赋值（行为优先）。
+- **回归**：**switch-seq 探针 ALL PASS**——② Δ=0（rp=rh=20.8）、③ Δ=0（rp=rh=18.1）双向精确回位；UI 态清理/切换正确/零错误全绿。build 2.81s ✓ lint ✓。
+- **遥测转正**：TEMP-DIAG __CAMREF 删除，改为 `getState().camPos`（每帧实时，renderCount 同模式）；探针已切换。TDZ 插曲（__CAMREF 曾挂 camera 声明前致全引擎崩，diag 抓出即修）如实留档。
+- **归因诚实注记**：原缺陷的真实程度无法回溯证实（快照污染覆盖了历史数据）；修复后的保证是结构性的（update 之后的写入优先级+live home 跟随）。若需纯 HEAD 归因须 stash 实验（风险高不做）。

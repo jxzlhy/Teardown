@@ -126,7 +126,7 @@
               </div>
             </div>
             <div v-if="partTech.sources && partTech.sources.length" class="tech-src">
-              <a v-for="s in partTech.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener">{{ s.label }} ↗</a>
+              <a v-for="s in partTech.sources" :key="s.url" :href="s.url" target="_blank" rel="noopener">{{ s.label }} <Icon name="external" /></a>
             </div>
           </div>
         </div>
@@ -185,9 +185,9 @@
         <!-- 拆解进度读数（R5 参考调研）：滑杆隐含值的显性化，mono 百分比（ui.explode 已是 0–100） -->
         <span id="exReadout" v-if="!ui.step" aria-hidden="true">{{ Math.round(explodePct) }}<i>%</i></span>
         <div id="exWrap" class="step-ctl" v-else>
-          <button class="step-btn" @click="engine && engine.stepPrev()" :disabled="ui.step.i <= 0" aria-label="上一步">‹</button>
+          <button class="step-btn" @click="engine && engine.stepPrev()" :disabled="ui.step.i <= 0" aria-label="上一步"><Icon name="chevron-left" /></button>
           <span class="step-count">装配 {{ ui.step.i }}/{{ ui.step.n }}</span>
-          <button class="step-btn" @click="engine && engine.stepNext()" :disabled="ui.step.i >= ui.step.n" aria-label="下一步">›</button>
+          <button class="step-btn" @click="engine && engine.stepNext()" :disabled="ui.step.i >= ui.step.n" aria-label="下一步"><Icon name="chevron-right" /></button>
         </div>
       </div>
       <div class="tb-sep"></div>
@@ -360,10 +360,10 @@
             <span class="rate-k">总体</span>
             <span class="rate-stars" role="group" aria-label="总体">
               <button v-for="i in 5" :key="i" class="star" :class="{ on: i <= (myRating.overall || 0) }"
-                @click="setMyRating('overall', i)" :aria-label="`总体 ${i} 星`">★</button>
+                @click="setMyRating('overall', i)" :aria-label="`总体 ${i} 星`"><Icon name="star" /></button>
             </span>
             <button class="rate-expand" @click="rateExpanded = !rateExpanded" :aria-expanded="rateExpanded ? 'true' : 'false'">
-              细分评价 {{ rateExpanded ? '▴' : '▾' }}
+              细分评价 <Icon name="caret" :style="rateExpanded ? '' : 'transform:rotate(180deg)'" />
             </button>
           </div>
           <div class="rate-detail" v-show="rateExpanded">
@@ -371,7 +371,7 @@
               <span class="rate-k">{{ dim.zh }}</span>
               <span class="rate-stars" role="group" :aria-label="dim.zh">
                 <button v-for="i in 5" :key="i" class="star sm" :class="{ on: i <= (myRating[dim.key] || 0) }"
-                  @click="setMyRating(dim.key, i)" :aria-label="`${dim.zh} ${i} 星`">★</button>
+                  @click="setMyRating(dim.key, i)" :aria-label="`${dim.zh} ${i} 星`"><Icon name="star" /></button>
               </span>
             </div>
             <textarea class="rate-note" v-model="myNote" @change="saveMyNote" @blur="saveMyNote"
@@ -383,15 +383,15 @@
           MODEL CREDIT · {{ device.modelCredit }}
           <i v-if="creditUnverified" class="credit-flag" title="仅标注社区来源，作者与许可证尚未核实">来源待核实</i>
           <i v-if="licenseFlag" class="credit-flag warn" :title="licenseFlag.full">{{ licenseFlag.short }}</i>
-          <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 ↗</a>
+          <a v-if="device.modelSource" class="credit-link" :href="device.modelSource" target="_blank" rel="noopener noreferrer">模型主页 <Icon name="external" /></a>
         </div>
         <div class="d-tip">{{ device.glb ? (device.source || '官方实机模型') : '程序化建模' }} · {{ device.parts.length }} 组核心部件</div>
         <div class="info-actions-row">
           <button v-if="compareGroup" class="hud-glow-btn cmp-entry" @click="router.push('/compare/' + compareGroup.id + '?focus=' + device.id)">
-            代际对比 · {{ compareGroup.zh }}（{{ compareGroup.ids.length }} 型）↗
+            代际对比 · {{ compareGroup.zh }}（{{ compareGroup.ids.length }} 型）<Icon name="external" />
           </button>
           <button class="hud-glow-btn" :class="{ 'fav-on': deviceFav }" @click="toggleFav(device.id)">
-            {{ deviceFav ? '★ 已收藏' : '☆ 收藏' }}
+            <Icon :name="deviceFav ? 'star' : 'star-o'" /> {{ deviceFav ? '已收藏' : '收藏' }}
           </button>
         </div>
         <!-- 收藏馆管理（V2 第六章）：分类标签 + 个人备注（收藏后可用） -->
@@ -403,7 +403,7 @@
           <div class="fav-newcat">
             <input v-model="newCatName" @keydown.enter="addDeviceCat" maxlength="12"
               placeholder="新建分类…" aria-label="新建分类">
-            <button @click="addDeviceCat" aria-label="添加分类">＋</button>
+            <button @click="addDeviceCat" aria-label="添加分类"><Icon name="plus" /></button>
           </div>
           <textarea class="fav-note" v-model="deviceNote" @change="saveDeviceNote" @blur="saveDeviceNote"
             rows="2" maxlength="200" placeholder="收藏备注（仅本机可见）…" aria-label="收藏备注"></textarea>
@@ -479,6 +479,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import Icon from '../ui/Icon.vue';
 import { useRoute, useRouter } from 'vue-router';
 import gsap from 'gsap';
 import { createEngine } from '../engine/engine.js?v=30';
@@ -622,8 +623,11 @@ function onMobileMq(e){ isMobile.value = e.matches; }
 const metaById = Object.fromEntries(manifest.map(d => [d.id, d]));
 const FALLBACK_ID = metaById.action4 ? 'action4' : manifest[0].id;
 const config = ref(null);
-/* V3.0 MECHANICAL FORGE：forge- 前缀 = 程序化生成物，不进 manifest，按注册表分流（registry 确定性重建） */
-const forgeRequested = computed(() => isForgeId(route.params.id) && !!getForgeDevice(route.params.id));
+/* V3.0 MECHANICAL FORGE：forge- 前缀 = 程序化生成物，不进 manifest，按前缀分流（registry 确定性重建）。
+   审计 RS-16：只做纯字符串前缀判断——旧实现在此调用 getForgeDevice（同步整建一次几何，
+   仅判存在），令每台设备页都为全部生成器代码付费；无效 forge id 走 loadConfig 的
+   「未找到生成物」错误路径，如实报错而非静默回落。 */
+const forgeRequested = computed(() => isForgeId(route.params.id));
 const requestedId = computed(() => (forgeRequested.value ? route.params.id : (metaById[route.params.id] ? route.params.id : FALLBACK_ID)));
 const meta = computed(() => forgeRequested.value
   ? { id: requestedId.value, ...((config.value && config.value.id === requestedId.value) ? config.value : {}), forge: true }
@@ -646,7 +650,7 @@ function goDevice(d){ if(d && d.id !== device.value.id) router.push({ path: '/de
 let loadSeq = 0;
 async function loadConfig(id){
   if(isForgeId(id)){
-    const dev = getForgeDevice(id);
+    const dev = await getForgeDevice(id);   // RS-16：生成器按需动态加载
     if(!dev) throw new Error(`未找到生成物：${id}（可在 /forge 重新生成）`);
     return dev;
   }
@@ -1217,7 +1221,9 @@ onMounted(async () => {
   }
 });
 watch(() => route.params.id, async (id) => {
-  const rid = metaById[id] ? id : FALLBACK_ID;
+  /* AURORA I2（原观察记录）：forge id 不在 metaById，此处曾一律回落 FALLBACK——
+     hash 热切换到 forge 深链会静默装载错误设备；与挂载路径的 forgeRequested 分流同口径 */
+  const rid = (metaById[id] || isForgeId(id)) ? id : FALLBACK_ID;
   if(!engine) return;
   const seq = ++loadSeq;
   showGuide.value = false; infoOpen.value = false; viewStripOpen.value = false;

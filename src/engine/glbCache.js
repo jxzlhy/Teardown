@@ -55,11 +55,13 @@ async function loadBuffer(url, onProgress, signal, priority){
       if(hit){
         const buf = await hit.arrayBuffer();
         remember(url, buf.byteLength);   // 命中即刷新 LRU 时间
+        lastSource = 'cache';
         onProgress && onProgress(buf.byteLength, buf.byteLength);
         return buf;
       }
     }catch{}
   }
+  lastSource = 'network';
   const init = { signal };
   if(priority) init.priority = priority;
   const res = await fetch(url, init);
@@ -138,3 +140,8 @@ export async function prefetchGlb(url){
 export function fetchGlb(url, onProgress, signal){
   return join(assetUrl(url), onProgress, signal, null);
 }
+
+/* 最近一次 loadBuffer 的来源（'cache' | 'network'）——AURORA PHASE 4 装载打点用。
+   观测性字段：并发合并/切台竞态下反映的是完成那次装载的实际来源，不作业务判定。 */
+let lastSource = 'network';
+export function lastFetchSource(){ return lastSource; }
