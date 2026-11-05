@@ -33,6 +33,7 @@ export default makeDevice({
   targetWidth: 10,
   normalize: 'full',
   glb: '/assets/braun-sk55.glb',
+  realSizeMM: 580,   /* 真实最大外形尺寸（Radiomuseum/Vinyl Engine 口径 580×244×290mm，「白雪公主之棺」）：测量工具 mm 标定基准 */
   tour: ['shell', 'platter', 'arm', 'controls', 'grille', 'chassis'],
   xrayShellIds: ['shell'],
   demos: [

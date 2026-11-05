@@ -57,6 +57,8 @@ export default makeDevice({
       note:'端盖螺栓紧固于中壳两侧（ epitrochoid 型线腔体封闭）' },
     { id:'fx-sump-rear', type:'fixed', from:'sump', to:'rear-housing', kinematic:'exact',
       note:'油底壳固装于后端盖' },
+    { id:'vs-apex-housing', type:'visual_only', from:'rotor', to:'mid-housing', kinematic:'approx',
+      note:'转子三尖端径向密封刮片（apex seals，含于转子部件）沿 epitrochoid 型线壁面滑动接触——隔离三工作室；滑动接触无标准机构边类型，visual_only 如实标注' },
   ] },
   parts: [
     { id: 'rotor', zh: '三角转子与偏心轴', en: 'ROTOR & ECCENTRIC', real: true,

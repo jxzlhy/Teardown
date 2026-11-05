@@ -420,6 +420,22 @@ export default {
     'JISHEN_029':'shell','JISHEN_030':'shell','JISHEN_031':'shell','挤压':'shell'
   },
   realPartIds: ['shell','cover-glass','lens','front-screen','rear-screen','shutter','qs','io-door','battery-cover','mount'],
+  /* AURORA 后/V5.1 内容深度：Action 4 核心机构（DJI 官方口径）——镜头组三轴增稳云台+
+     磁吸快拆 mount（Quick Release）+翻转屏。镜头组/云台含于 lens 部件（未逐轴拆件）汇总声明。 */
+  mech: { edges: [
+    { id:'rv-shell-lens', type:'revolute', from:'shell', to:'lens', kinematic:'exact',
+      note:'镜头组（含 1/1.3″ 传感器总成）经三轴增稳云台相对壳体增稳回转（云台机构含于 lens 部件汇总口径）' },
+    { id:'mg-mount-shell', type:'linkage', from:'mount', to:'shell', kinematic:'exact',
+      note:'底部快拆 mounting 耳（磁吸+双爪 Quick Release）与壳体锁接——装拆为操作机构' },
+    { id:'fx-cover-glass-lens', type:'fixed', from:'cover-glass', to:'lens', kinematic:'exact',
+      note:'镜头保护镜磁吸附于镜头组前端' },
+    { id:'fx-shutter-shell', type:'revolute', from:'shutter', to:'shell', kinematic:'exact',
+      note:'顶部快门键/模式拨轮摇臂绕壳体支点摆动（操作件回转）' },
+    { id:'fx-io-door-shell', type:'revolute', from:'io-door', to:'shell', kinematic:'exact',
+      note:'侧仓门（电池/存储）绕壳侧轴翻开' },
+    { id:'fx-batterycover-shell', type:'revolute', from:'battery-cover', to:'shell', kinematic:'exact',
+      note:'电池舱盖翻扣于壳体' },
+  ] },
   xrayShellIds: ['shell','battery-cover','io-door','front-screen','rear-screen','mount','shutter','qs'],
   /* 逐步装配组序（内件先装）：镁合金机身→镜组入腔→主板散热→电池→双屏→盖板合拢→外部五金 */
   assembleStep: [

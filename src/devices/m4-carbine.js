@@ -35,6 +35,7 @@ export default makeDevice({
   glb: '/assets/m4-carbine.glb',
   tour: ['receiver','handguard','magazine','grip','stock'],
   xrayShellIds: ['receiver','handguard','stock'],
+  realSizeMM: 858.5,   /* 真实最大外形尺寸（Colt 官方：伸缩托展开全长 774.7–858.5mm 上限，枪管 368.3mm）：测量工具 mm 标定基准 */
   mapByPosition(name, p, rel){
     /* 旋转后 Z 为枪长轴：枪托 +z 端、枪口 -z 端 */
     if(rel.z > 0.72) return 'stock';

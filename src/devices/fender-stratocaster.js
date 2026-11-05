@@ -32,6 +32,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+x',
   glb: '/assets/fender-stratocaster.glb',
+  realSizeMM: 990,   /* 真实最大外形尺寸（Fender 官方弦长 648mm + 标准整体长 ~990mm 口径）：测量工具 mm 标定基准 */
   mapByPosition(name, p, rel, ext, mat) {
     if (mat !== 'Fender') return 'podium';
     const biggest = Math.max(ext.x, ext.y, ext.z);

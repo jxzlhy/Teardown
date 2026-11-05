@@ -34,6 +34,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/regency-tr1.glb',
+  realSizeMM: 127,   /* 真实最大外形尺寸（Smithsonian 藏件口径 127×87×35mm，首台商用晶体管收音机）：测量工具 mm 标定基准 */
   excludeMeshes: ['Object_7'],
   mappingPrefix: {
     'Object_4': 'body',

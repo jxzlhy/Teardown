@@ -71,6 +71,16 @@ export default {
   },
   unmappedTo: 'shell',
   realPartIds: ['shell','gimbal','battery','powertrain'],
+  /* AURORA 后/V5.1 内容深度：Avata 2 一体护罩穿越机机构（DJI 官方口径：护罩不可折叠）。
+     云台俯仰单轴（穿越机云台通常仅俯仰轴增稳）如实声明；四动力组含于 powertrain。 */
+  mech: { edges: [
+    { id:'rv-shell-gimbal', type:'revolute', from:'shell', to:'gimbal', kinematic:'exact',
+      note:'超广角云台相机俯仰轴增稳回转（穿越机云台典型单轴口径，横滚由机身姿态承担）' },
+    { id:'fx-powertrain-shell', type:'fixed', from:'powertrain', to:'shell', kinematic:'exact',
+      note:'四动力组（电机+桨+护罩一体）固装于一体式壳体' },
+    { id:'fx-battery-shell', type:'fixed', from:'battery', to:'shell', kinematic:'exact',
+      note:'电池插装于机身后部（顶插式）' },
+  ] },
   assembledPos: {
     'shell': [0,0,0], 'gimbal': [0,0,0], 'battery': [0,0.9,0], 'powertrain': [0,0,0]
   },

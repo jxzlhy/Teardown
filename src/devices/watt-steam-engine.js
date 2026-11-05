@@ -35,6 +35,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/watt-steam-engine.glb',
+  realSizeMM: 1830,   /* 真实最大外形尺寸（Wirtualne Muzea Małopolska 数字化实测：立式 1.06×1.83×0.43m，19 世纪 Bourdon 制实物）：测量工具 mm 标定基准 */
   /* 位置分层聚类（GLB JSON/inspect 实测）：
      base 底座支脚 y<0.6 / frame 立框横梁 0.6≤y<1.05（ramka/belka/back/inside）
      cylinder 汽缸传动带 1.05≤y<1.25（Cylinder 族+Cube/moga 密集层）

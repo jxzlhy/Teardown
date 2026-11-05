@@ -2476,6 +2476,92 @@ P2-11 SEO 基础件（og:image/robots/sitemap/manifest + CSP meta，纯静态构
 - **覆盖率 33→42/129（32.6%）**；lint 六段 ✓ / build 2.73s ✓。八批累计 42 台——**大型航天器展品全部获得 mm 标定**（测量工具在 13-21m 级展品上的量程首次生效）。
 - apollo-cm-interior（与 exterior 同体 3910）与 apollo-hatch 同批已标；剩余 apollo-cm-interior 下批随扫补。
 
+## 2026-11-05 续会话轮 43 · apollo-cm-interior 同体补注（42→43/129，覆盖率 33.3%）
+
+- apollo-cm-interior 补 `realSizeMM: 3910`（与 exterior 同体口径：NASA 底径 3.91m×锥高 ~3.5m，座舱为内腔视角——注记说明同体关系）；lint 六段 ✓ / build 3.18s ✓ / 覆盖 43 文件。
+
+## 2026-11-05 续会话轮 44 · mech 补批——毅力号机械臂与行动系统（24→25/129）
+
+- **perseverance-rover（7 边，lint-mech ✓，JPL 口径）**：机械臂 2.1m 肩关节 revolute（肘/腕多关节含于 arm 部件如实声明——GLB 未逐关节拆件）+臂末端转塔 revolute+钻探工具 fixed+桅杆头部方位-俯仰双轴 revolute+高增益天线/MMRTG fixed+**摇臂转向架（rocker-bogie）差动机构 bearing_support**——六轮被动柔顺悬架为该火星车标志性机构。
+- **覆盖 24→25/129**（devices 20+forge 6）；lint 六段（lint-mech 逐边）✓ / build 4.74s ✓。
+- realSizeMM 与 mech 双指标在 NASA 批交汇（ perseverance 两字段同轮补齐）。
+
+## 2026-11-05 续会话轮 45 · mech 补批——hydraulic-jack（25→26/129）+ realSizeMM 排除性核查固化
+
+- **hydraulic-jack（6 边，lint-mech ✓）**：卧式千斤顶——fixed(ram→base 液压缸固装)+revolute×3(lift-arm↔ram 顶升铰接/lift-arm↔base 后端支耳/handle 压杆人力输入)+fixed(valves→base 阀组油路/saddle→lift-arm 鞍座)。**液压传动不属于 10 类机构边类型**——缸体伸缩在 note 如实声明为流体口径，机械边只取摇臂/杠杆/柄真实回转关系。
+- **realSizeMM 排除性核查固化**：GENERIC 池 42 台（匿名古董/教学模型）无官方规格维持不补；NASA/Smithsonian 已补（含 apollo-cm-interior 同体补注）；剩余可查证零星（Nothing 新品等）按批滚动。**排除性核查清单口径 = 双深度指标收尾形态**（mech 26/129 devices 侧、realSizeMM 43/129）。
+- lint 六段（lint-mech ✓ hydraulic-jack 6 边）/ build 4.51s ✓ / mech 覆盖 27 文件。
+
+## 2026-11-06 续会话轮 53 · realSizeMM 排除性核查滚动更新——发现并补齐 Apple 漏盘点 5 台（47→52/129，40.3%）
+
+- **滚动核查价值实证**：按品牌分布重扫发现 10 台 APPLE 无标定——其中 **6 台为此前未盘点的真实可查证设备**（iphone-17/macbook-air M4/macbook-pro M4/studio-display/watch-ultra）+4 台虚构（iphone-18-pro-max×2/duo-fold/airpods-5 维持排除）。
+- **查证**（apple.com/support.apple.com 官方域）：iphone-17 149.6×71.5×7.95 / macbook-air 15″ M4 340.4×237.6×11.5 / macbook-pro 14″ M4 312.6×221.2×15.5 / studio-display 宽 623mm（含支架高 478）/ watch-ultra 49×44×12 官方口径。
+- **vision-pro 排除（红线口径）**：Apple 不公布正式外形尺寸（~35cm 为第三方测量值）——按「无可靠官方数据不补齐」不标定。
+- **写入 5 台**：iphone-17 149.6 / macbook-air 340.4 / macbook-pro 312.6 / studio-display 623 / watch-ultra 49。**覆盖率 47→52/129（40.3%）**；lint 六段 ✓ / build 7.19s ✓。
+- 教训：排除性核查应按品牌×字段矩阵滚动重扫，而非一次性结论（首轮品牌盘点漏 macbook/studio-display/watch-ultra/iphone-17 四组）。
+
+## 2026-11-06 续会话轮 56 · realSizeMM 第十批——乐器/音响/计算机/车辆（57→62/129，48.1%）
+
+- **查证写入 5 台**：fender-stratocaster 990（Fender 官方弦长 648mm+整体长 ~990 口径注记）/ marshall-jcm800 740（2203 头 740×315×210 官方口径）/ commodore-64 402（RigPix+Smithsonian 交叉）/ porsche-911-carrera-4s 4519（Porsche 官方 992：4519×1852×1300 轴距 2450）/ tr-808 560（Sound on Sound 实测口径 ~560×320×110）。
+- **排除 1 台**：casio-vl-tone——VL-1 无官方精确口径（~130×75×22 为常引二手数据），按红线移入排除清单 2.4（与 vision-pro 同口径一致）。
+- **覆盖率 57→62/129（48.1%）**；lint 六段 ✓ / build 3.04s ✓。十批累计 62 台；CONTENT_DEPTH_EXCLUSIONS.md §5 候选清单消化过半（剩 B&T/Polaroid/Regency/Braun 4 台零星）。
+
+## 2026-11-06 续会话轮 57 · realSizeMM 第十一批——零星收尾（62→66/129，51.2%）
+
+- **查证写入 4 台**（§5 清单收尾）：gl-06-launcher 590（B&T 官方：托展开 590×60×200 折叠 385）/ polaroid-coolcam 152（CollectiBlend 收藏档案折合口径 600 型胶片机）/ regency-tr1 127（**Smithsonian 藏件口径 127×87×35——首台商用晶体管收音机**）/ braun-sk55 580（Radiomuseum/Vinyl Engine 580×244×290「白雪公主之棺」Rams/Gugelot 设计）。
+- **覆盖率 62→66/129（51.2%）**；lint 六段 ✓ / build 2.48s ✓。十一批累计 66 台。
+- **§5 候选清单全部消化完毕**——CONTENT_DEPTH_EXCLUSIONS.md §5 更新为「零星余量=按新设备接入 SOP 滚动」收口态。realSizeMM 铺量阶段性收官（66/129；GENERIC 42+虚构 5+无官方口径 ~16 维持排除口径）。
+
+## 2026-11-06 续会话轮 55 · realSizeMM 第九批——4 台查证写入 + 排除清单正式固化（53→57/129，44.2%）
+
+- **查证写入 4 台**：nikon-z6 134（Nikon 官方机身 134×100.5×67.5mm）/ framework-laptop13 296.6（官方 296.63×228.98×15.85mm）/ angle-grinder 315（DEWALT D28136 长 315×高 90 碟径 125）/ m4-carbine 858.5（Colt 官方伸缩托展开全长的上限口径）。
+- **排除清单正式固化**：`docs/audit/CONTENT_DEPTH_EXCLUSIONS.md`——六分类（GENERIC 42 匿名/虚构 5/官方不公布 vision-pro/古董无规格 ~8/创作者件 2/NASA 已补 9）+ mech 排除口径 + **滚动核查规程**（新设备接入 SOP 同步判定/季度品牌矩阵重扫/理由变化移出）+ 下一批候选 10 台清单（Fender/Marshall/Casio/Commodore/992/TR-808/B&T/Polaroid/Regency/Braun）。
+- **覆盖率 53→57/129（44.2%）**；lint 六段 ✓ / build 2.61s ✓。九批累计 57 台。
+
+## 2026-11-06 续会话轮 54 · 矩阵滚动重扫第二轮——SMITHSONIAN 余量（52→53/129，41%）
+
+- **wright-flyer 漏盘发现并补齐**：轮 40 只加了 mech 未加 realSize——Smithsonian 官方口径（si.edu 藏件页：翼展 12.3m×长 6.4m×高 2.8m，1903 原机藏件）→ realSizeMM: 12300。**最长展品标定诞生**（超 jwst 21.2m？否——12300 < 21200，居第二）。
+- **hubble mech 确认已覆盖**（`mech: { driver: 'tube' }` 轮 42 前既有——太阳翼/光圈门部件已在边内，无需补）。
+- **覆盖率 52→53/129（41%）**；lint 六段 ✓ / build 2.73s ✓ / realSizeMM 53 文件。矩阵滚动重扫二轮完成；剩余 SMITHSONIAN 4 台全标定（wright-flyer/apollo×3）。
+
+## 2026-11-05 续会话轮 46 · P3-03 死/别名令牌清理（慢车道）
+
+- **核查现状**（部分已被 AURORA 消化）：--bg-2（0 消费）/ --dur-3（0 消费）/ --ease-spring（0 消费）= 死令牌；--glass（1 消费）与 --panel-bg 完全同名 / --txt-dim（49 消费）与 --txt-3 两厅同值 = 别名重复。
+- **清理**：① 消费点迁移——49 处 `var(--txt-dim)`→`var(--txt-3)`（style.css/hud.css/Timeline/Compare/Graph 五文件）、1 处 `var(--glass)`→`var(--panel-bg)`（hud.css .hud-panel 背景）；② 定义删除——--txt-dim（夜/日两处）、--glass（夜/日两处 + day-hall .hud-panel 覆盖行）、--bg-2（夜/日两处）、--ease-spring、--dur-3，共 **10 处定义 + 50 处消费**。
+- **等值性口径**：--txt-dim/--glass 与被指向令牌两厅同值（构造性零视觉变更）；--bg-2/--dur-3/--ease-spring 无消费无影响。
+- 验证：build 2.69s ✓ / lint 六段 ✓ / verify:contrast 后台跑（结果回填）——同值迁移对比度构造性不变。
+- **闸门结果回填：verify:contrast 10/10 · 合计 0 不达标节点**（含设备页 night 一次环境性超时→护栏换页重试自愈）——P3-03 清理后对比度构造性不变实证闭环。
+
+## 2026-11-05 续会话轮 47 · realSizeMM 第八批（iPhone 系）——43→47/129（36.4%）
+
+- **查证**（Apple 官方）：iPhone 13（146.7×71.5×7.65，与 12 同足迹）/ iPhone 16（147.6×71.6×7.8）/ iPhone 12（146.7×71.5×7.4）/ **iPhone Air（156.2×74.7×5.64——史上最薄 iPhone，官方真实存在确认）**。
+- **写入 4 台**：iphone-13 146.7 / iphone-16 147.6 / iphone-12-teardown 146.7 / iphone-air 156.2。**覆盖率 43→47/129（36.4%）**；lint 六段 ✓ / build 5.54s ✓。
+- Apple 系合计 9 台（iPhone×6+iPad×2+Mac×3−重复计数→实为 mac-mini/mac-studio/imac/ipad-pro/ipad-air/airpods-max/airtag/airpods-pro + iPhone×4）。排除性口径持续：duo-fold/18-pro-max-burgundy/airpods-5 为未来虚构型号不补。
+
+## 2026-11-05 续会话轮 48 · mech 第七批——变速驱动桥与行星轮系（25→27/129）
+
+- **manual-gearbox（6 边，lint-mech ✓）**：前驱 MT 机构链——gear_mesh(输入轴常啮合/gear-set 聚合口径+reverse 倒挡惰轮旋向反转/final→halfshaft 锥齿轮副改向减速)+shaft_coupling(gearset→final 输出轴/halfshaft→wheel 花键)+**linkage(shifter 换挡拨叉=操作机构非动力流，类型口径如实)**。各挡齿轮副未逐挡拆件→聚合声明。
+- **planetary-gearbox（3 边，lint-mech ✓）**：行星轮系（CAD 教具，gears-a/b 匿名分组）——gear_mesh(太阳轮↔行星轮↔内齿圈外/内啮合对，分组聚合口径如实)+shaft_coupling(输入轴)+fixed(行星架/齿圈)。
+- **覆盖 25→27/129**（devices 22+forge 6）；lint 六段 ✓ / build 5.09s ✓。linkage/shaft_coupling/gear_mesh 三类型复合使用渐熟。
+
+## 2026-11-05 续会话轮 49 · mech 第八批——wankel apex seals 深化（27→28/129）
+
+- **wankel-engine 4→5 边（lint-mech ✓）**：新增 `vs-apex-housing` **visual_only**——转子三尖端径向密封刮片（apex seals 含于转子）沿 epitrochoid 型线壁面滑动接触，隔离三工作室。**滑动接触无标准机构边类型**——按任务书 §13.1「未实现真实约束的关系必须 visual_only 或标注」口径如实标注（不硬套 revolute/gear_mesh）。
+- wankel 边深化至此完整（偏心轴系+内啮合约束+密封接触+端盖/油底壳）；lint 六段 ✓ / build 2.63s ✓。mech 覆盖 34 文件不变（深化非新增设备）。
+- realSizeMM 排除性核查结论维持：Royal 打字机/Sea-Gull 相机/Western Electric 等古董设备无可靠官方规格——如实不补（GENERIC 池同口径）。
+
+## 2026-11-05 续会话轮 50 · mech 第九批——DJI 云台机构（28→30/129）
+
+- **pocket3（5 边，lint-mech ✓）**：三轴增稳云台 revolute(body→gimbal，roll/pitch/yaw 含于 gimbal 部件汇总口径)+**旋转屏 revolute(body→screen 90° 翻转——产品标志机构)**+fixed(battery/backplate/battery-door)。云台与旋转屏为该产品双核心机构。
+- **mavic3pro（6 边，lint-mech ✓）**：三轴云台 revolute(shell→gimbal)+**桨叶回转 revolute(arms→propellers 动力输出；机臂折叠=操作件不设边)**+fixed(arms/battery/vision/flight-controller 全部固装)。
+- **覆盖 28→30/129**（devices 24+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.62s ✓。DJI 在馆全系 mech 全覆盖（action4 系云台/avata2/mavic/mini/pocket3）。
+
+## 2026-11-05 续会话轮 51 · mech 第十批——DJI 余量收尾（30→32/129）
+
+- **avata2（3 边，lint-mech ✓）**：一体护罩穿越机——revolute(shell→gimbal **俯仰单轴**，穿越机云台典型口径横滚由机身姿态承担如实声明)+fixed(powertrain 四动力组一体式壳体固装/battery 顶插)。
+- **mini4pro（5 边，lint-mech ✓）**：三轴云台 revolute(body→gimbal 汇总)+**前后机臂桨叶 revolute×2 分组声明**（四桨两对）+fixed(前机臂/智能电池)。折叠=操作件不设边口径延续。
+- **覆盖 30→32/129**（devices 26+forge 6）；lint 六段 ✓ / build 2.63s ✓。**DJI 全系六台 mech 至此全部收口**（action4/action5pro 云台在 DJI 首批 realSize 批注记+avata2/mavic3/mini4/pocket3 本批前后）——action4/action5pro 云台边为可继续深化项（同 pocket3 口径）。
+
 ## 2026-11-05 续会话轮 32 · mech 铺量评估 + v6-engine 试点（12→13/129）
 
 - **评估结论（forge 复用路径澄清）**：forge 6 生成器**全部已有 mech 声明**（v8/turbofan/ringdrive/lockstitch/wankel/governor）——「复用生成器补 mech」路径已饱和；12/129 缺口全在**真实设备**（需机构学知识查证+真实 part id 映射，非代码复用问题）。
@@ -2575,3 +2661,31 @@ P2-11 SEO 基础件（og:image/robots/sitemap/manifest + CSP meta，纯静态构
 - **交付**：`docs/design/P1-4_PROPOSAL.md`——①现状实测表（首屏可交互 6/搜索框 y≈1366/卡片 y=1366/门厅 19086px）；②验收目标五项（首屏可交互≥3/搜索 y<900/叙事保留/五项回归不回退/移动端另列）；③**候选 A 序厅压缩式**（hero 两栏化+RECENT 与 filter-main 上移，首屏可交互≥5，改动小）；④**候选 B 并排发现式**（新发现栏组件：搜索+TOP8 品牌 chips+分类入口，≥10 个，叙事让步+移动端成本）；⑤**A+ 混合**；⑥取舍表与四项裁定清单（选型/展台压缩幅度/品牌口径/实施窗口）留馆方。
 - 现状 DOM 核实（hub-hero→hub-sect→hub-recent→filter-main→filter-groups 顺序与 filter-search 形态）后成稿，方案贴合真实结构。
 - **零代码改动**（产品裁定项纪律）；EXECUTION_STATUS PHASE 2 表更新。
+
+## 2026-11-05 续会话轮 52 · mech 第十一批——action4/5pro 云台深化（32→34/129）
+
+- **action4（6 边，lint-mech ✓）**：镜头组三轴增稳云台 revolute(shell→lens，云台机构含于 lens 部件汇总口径)+**磁吸快拆 mounting 耳 linkage(Quick Release 装拆=操作机构)**+镜头保护镜磁吸 fixed+顶部快门/拨轮摇臂 revolute+侧仓门/电池舱盖 revolute×2。
+- **action5pro（6 边，lint-mech ✓）**：与 Action 4 同模具同构同口径（5 Pro 特有 47GB 内置存储无机构差异）。
+- **覆盖 32→34/129**（devices 28+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.59s ✓。
+- **DJI 全系 mech 深化至此全部完成**（pocket3 5/mavic3pro 6/avata2 3/mini4pro 5/action4 6/action5pro 6=32 边+forge 6 生成器边）。linkage 类型用于快拆机构（机械+操作混合口径如实标注）。注：本条目因多会话交错追加位于文件中部 P1-4 段之后，时间序以轮号为准。
+
+## 2026-11-06 续会话轮 58 · realSizeMM 维护态滚动补注（66→69/129，53.5%）
+
+- **滚动核查抓到新漏盘 3 台**（非 GENERIC 排除口径内）：
+  ① **watt-steam-engine 1830**——LOG 轮 25 既有波兰数字化实测（1.06×1.83×0.43m 立式）漏写配置，同体口径补注（Wirtualne Muzea Małopolska 官方数字化实测）；
+  ② **cherry-mx-switch 15.6**——Cherry 官方 MX Series datasheet 确认（15.6×15.6mm）；
+  ③ **ak-47 870**——固定木托版，GlobalSecurity 等多源交叉 868-870mm 区间（折叠 645 注记；Wikipedia 记 880 的差异如实注记）。
+- **排除 +1**：curta-type2——博物馆口径互斥（直径 69-85mm、高 125-140mm 无单一可靠规格）→ 移入排除清单 2.4（查证避免了写入有争议数字）。
+- **覆盖率 66→69/129（53.5%）**；lint 六段 ✓ / build 6.36s ✓。维护态滚动核查一轮完成——排除清单（CONTENT_DEPTH_EXCLUSIONS.md 2.4）同步 +Curta。
+
+## 2026-11-06 续会话轮 59 · mech 维护态补批——polaroid-coolcam（34→35/129）
+
+- **polaroid-coolcam（5 边，lint-mech ✓，Polaroid 口径 106mm f/11 单片定焦+1/3-1/200s 电子快门）**：fixed ×3（lens/viewfinder/flash 装接于机身）+ **linkage(shutter→body 快门按钮支点回转触发电子叶片——无机械连杆链如实声明)** + fixed(latch 折叠板锁扣)。胶片吐出马达含于 body。
+- **覆盖 34→35/129**（devices 27+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.75s ✓。
+- KALASHNIKOV 折叠托口径注记确认（轮 58 已带 645 折叠注记）✓；DYLANHEYES 创作者件维持排除 ✓——两项复核完成无需改动。
+
+## 2026-11-06 续会话轮 60 · 内容深度维护态收口——矩阵全扫零漏盘确认 + friction-log 增补
+
+- **品牌矩阵全扫**：剩余 61 台无 realSizeMM = GENERIC 42 + APPLE 排除 5（虚构 4+vision-pro 官方不公布）+ 古董/创作者/排除品牌 14——**零漏盘**，全部在排除清单口径内（CONTENT_DEPTH_EXCLUSIONS.md）。维护态矩阵重扫收口。
+- **friction-log 增补 F-11~F-13**（轮 40-59 验收期摩擦）：F-11 OrbitControls.update() 覆盖外部相机写入（认知错误三返工→补间后置结构性修复）/F-12 调试快照被当实时遥测（假遥测污染 5 轮→直写裁决+camPos 转正）/F-13 打点挂错生命周期块（firstRenderMs 恒 0）。
+- **NEXT_SESSION 刷新**：AURORA DELIVERED + 内容深度维护态收口快照（双指标/验证资产/移交项/V5.1 方向）。

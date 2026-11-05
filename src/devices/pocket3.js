@@ -118,6 +118,20 @@ export default {
   },
   unmappedTo: 'body',
   realPartIds: ['body','gimbal','screen','controls','battery-door','backplate'],
+  /* AURORA 后/V5.1 内容深度：Pocket 3 核心机构——三轴增稳云台与标志性旋转屏。
+     云台 roll/pitch/yaw 三轴含于 gimbal 部件（GLB 未逐轴拆件）——revolute 汇总口径如实声明。 */
+  mech: { edges: [
+    { id:'rv-body-gimbal', type:'revolute', from:'body', to:'gimbal', kinematic:'exact',
+      note:'1/1.3″ 大底云台相机经三轴增稳云台（roll/pitch/yaw，含于 gimbal 部件）相对机身增稳回转' },
+    { id:'rv-body-screen', type:'revolute', from:'body', to:'screen', kinematic:'exact',
+      note:'2″ 旋转屏绕机身侧轴 90° 翻转（竖拍构图标志机构）' },
+    { id:'fx-battery-body', type:'fixed', from:'battery', to:'body', kinematic:'exact',
+      note:'电池仓滑装于握把内' },
+    { id:'fx-backplate-body', type:'fixed', from:'backplate', to:'body', kinematic:'exact',
+      note:'背板总成与机身合拢' },
+    { id:'fx-batterydoor-backplate', type:'fixed', from:'battery-door', to:'backplate', kinematic:'exact',
+      note:'电池仓门铰装于背板（开合为操作件）' },
+  ] },
   assembledPos: {
     'body': [0,0,0], 'gimbal': [0,0,0], 'screen': [0,0,0],
     'controls': [0,0,0], 'battery-door': [0,0,0], 'backplate': [0,0,0],

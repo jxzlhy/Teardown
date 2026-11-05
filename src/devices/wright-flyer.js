@@ -35,6 +35,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/wright-flyer.glb',
+  realSizeMM: 12300,   /* 真实最大外形尺寸（Smithsonian 官方：翼展 12.3m×长 6.4m×高 2.8m，1903 原机藏件）：测量工具 mm 标定基准 */
   mappingPrefix: {
     'CC03-Flyer-Engine-Mesh': 'engine',
     'CC03-Flyer-Filler-Mesh': 'airframe',

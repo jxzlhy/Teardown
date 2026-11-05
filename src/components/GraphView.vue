@@ -686,7 +686,7 @@ function onWheel(e){
   border:1px solid var(--glass-line); border-radius:999px; padding:5px 13px;
   background:var(--glass-bg); min-width:170px;
 }
-.gb-search svg{ width:13px; height:13px; color:var(--txt-dim); flex:none; }
+.gb-search svg{ width:13px; height:13px; color:var(--txt-3); flex:none; }
 .gb-search input{
   background:none; border:none; outline:none; color:var(--txt);
   font-family:var(--sans); font-size:12px; letter-spacing:.04em; width:100%;
@@ -714,7 +714,7 @@ function onWheel(e){
 #graphTimeStrip .ts-l{ font-family:var(--mono); font-size:9px; letter-spacing:.2em; color:var(--txt-3); }
 #graphTimeStrip .ts-v{ font-family:var(--mono); font-size:11px; color:var(--acc); min-width:38px; }
 #graphTimeStrip input[type=range]{ width:110px; accent-color:var(--acc); }
-#graphTimeStrip .ts-note{ font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--txt-dim); white-space:nowrap; }
+#graphTimeStrip .ts-note{ font-family:var(--mono); font-size:9px; letter-spacing:.08em; color:var(--txt-3); white-space:nowrap; }
 #graphTimeStrip .ts-clear{
   background:none; border:1px solid var(--glass-line-strong); border-radius:999px;
   color:var(--txt-2); font-size:10px; padding:3px 10px; cursor:pointer; font-family:var(--mono);
@@ -758,7 +758,7 @@ function onWheel(e){
   border-bottom:1px solid rgba(199,146,234,.08);
 }
 .tp-dev:hover{ color:var(--acc); }
-.tp-dev i{ font-family:var(--mono); font-style:normal; font-size:9px; letter-spacing:.12em; color:var(--txt-dim); }
+.tp-dev i{ font-family:var(--mono); font-style:normal; font-size:9px; letter-spacing:.12em; color:var(--txt-3); }
 .tp-src{ display:inline-block; margin:0 12px 6px 0; font-size:10.5px; color:var(--acc-dim); text-decoration:none; border-bottom:1px dashed rgba(69,224,255,.25); }
 .tp-src:hover{ color:var(--acc); }
 .fade-enter-active, .fade-leave-active{ transition:opacity .25s ease, transform .25s ease; }

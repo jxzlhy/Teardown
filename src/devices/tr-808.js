@@ -31,6 +31,7 @@ export default makeDevice({
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/tr-808.glb',
+  realSizeMM: 560,   /* 真实最大外形尺寸（Sound on Sound 实测口径 ~560×320×110mm）：测量工具 mm 标定基准 */
   /* 策展导览：机壳→总控→走带→切换→三组按键→红灯→电源→脚/钉 */
   tour: ['frame','huge-button','transport','shift-flipper','big-buttons','beat-buttons','small-buttons','light','power','legs','screws'],
   xrayShellIds: ['frame'],

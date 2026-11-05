@@ -31,6 +31,7 @@ export default makeDevice({
   camDist: 1.05,
   normalize: 'full',
   glb: '/assets/polaroid-coolcam.glb',
+  realSizeMM: 152,   /* 真实最大外形尺寸（CollectiBlend 收藏档案：折合 ~152×114×89mm，600 型胶片机）：测量工具 mm 标定基准 */
   /* 策展导览：镜头→取景器→闪光灯→快门→开关→锁扣→腕带→机身 */
   tour: ['lens','viewfinder','flash','shutter','switch','latch','strap','body'],
   xrayShellIds: ['body','viewfinder'],
@@ -50,6 +51,21 @@ export default makeDevice({
     'ViewFinderGlass_LP_TransparenyMat_0': 'viewfinder',
   },
   realPartIds: ['body', 'lens', 'viewfinder', 'flash', 'shutter', 'switch', 'latch', 'strap'],
+  /* AURORA 后/V5.1 内容深度：600 型拍立得机构（Polaroid 口径：106mm f/11 单片定焦镜、
+     1/3-1/200s 电子快门、固定焦点）。快门为电子控制叶片（无机械连杆链）——按钮触发
+     以 linkage 操作件口径声明；胶片吐出为马达传动（含于 body）。 */
+  mech: { edges: [
+    { id:'fx-lens-body', type:'fixed', from:'lens', to:'body', kinematic:'exact',
+      note:'106mm f/11 单片定焦镜头固装于机身前板' },
+    { id:'fx-viewfinder-body', type:'fixed', from:'viewfinder', to:'body', kinematic:'exact',
+      note:'逆伽利略取景器固装于机身' },
+    { id:'fx-flash-body', type:'fixed', from:'flash', to:'body', kinematic:'exact',
+      note:'闪光灯组件（含电容）固装于机身前板右侧' },
+    { id:'lk-shutter-body', type:'linkage', from:'shutter', to:'body', kinematic:'exact',
+      note:'快门按钮经支点回转触发电子快门（1/3-1/200s 电子叶片，无机械连杆链）' },
+    { id:'fx-latch-body', type:'fixed', from:'latch', to:'body', kinematic:'exact',
+      note:'前折叠板锁扣固装于机身（开合露出胶片仓与风琴腔）' },
+  ] },
   parts: [
     { id: 'body', zh: '机身与暗盒仓', en: 'BODY & FILM DOOR', real: true,
       ex: [0, 0, 0.8], lo: [0, 1.3, 0], tag: '600 型相纸的家',

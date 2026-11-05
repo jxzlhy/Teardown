@@ -50,13 +50,13 @@ onMounted(async () => {
 <style scoped>
 #timelineView{ position:fixed; inset:0; background:#04070c; overflow:hidden; }
 /* 页头基样（.page-header / .gb-title）已合并进 PageHeader.vue */
-.tl-note{ font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--txt-dim); flex:none; }
+.tl-note{ font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--txt-3); flex:none; }
 #tlScroll{ position:absolute; inset:74px 16px 16px; overflow-y:auto; padding:6px 4px 40px; }
 /* 展厅分带：衬线展区题 + mono 年代跨度（带宽约束保证可读行长） */
 .tl-band{ margin-bottom:34px; max-width:980px; }
 .tl-bandhead{ display:flex; align-items:baseline; gap:14px; margin-bottom:14px; padding-bottom:9px; border-bottom:1px solid rgba(69,224,255,.14); }
 .tl-bandhead h3{ margin:0; font-family:var(--name); font-size:24px; font-weight:900; letter-spacing:.12em; color:var(--acc); }
-.tl-range{ font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--txt-dim); }
+.tl-range{ font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--txt-3); }
 .tl-count{ font-family:var(--mono); font-size:9px; letter-spacing:.2em; color:var(--txt-3); margin-left:auto; }
 /* 时序脊柱：连续轴线 + 菱形节点，年份右对齐在轴左侧 */
 .tl-items{ position:relative; display:flex; flex-direction:column; }
@@ -85,7 +85,7 @@ onMounted(async () => {
 .tl-item.link:hover{ background:var(--acc-08); }
 .tl-item.link:hover::before{ border-color:var(--acc); background:var(--acc-16); }
 .tl-item.link:hover .tl-label{ color:var(--acc); }
-.tl-foot{ margin-top:18px; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:.16em; color:var(--txt-dim); }
+.tl-foot{ margin-top:18px; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:.16em; color:var(--txt-3); }
 @media (max-width:700px){
   #tlBar{ left:10px; right:10px; }
   .tl-note{ display:none; }

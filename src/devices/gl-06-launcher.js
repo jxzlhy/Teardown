@@ -27,6 +27,7 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/game-ready-pbr-grenade-launcher-gl-06-c06031637904402c85179bfce8b73e28',
   targetWidth: 9.5,
   glb: '/assets/gl-06-launcher.glb',
+  realSizeMM: 590,   /* 真实最大外形尺寸（B&T 官方口径：托展开 590×60×200mm，折叠 385mm）：测量工具 mm 标定基准 */
   tour: ['receiver','barrel','frame-housing','trigger-group','grip','rear-stock','scope','sight'],
   xrayShellIds: ['receiver','frame-housing'],
   normalize: 'full',

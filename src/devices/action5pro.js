@@ -93,6 +93,22 @@ export default {
   },
   unmappedTo: 'shell',
   realPartIds: ['shell','cover-glass','lens','front-screen','rear-screen','shutter','qs','io-door','battery-cover','mount'],
+  /* AURORA 后/V5.1 内容深度：Action 5 Pro 机构（与 Action 4 同模具同构，DJI 官方口径）——
+     云台边与操作件边同 action4 口径；5 Pro 特有 47GB 内置存储（无机构差异）。 */
+  mech: { edges: [
+    { id:'rv-shell-lens', type:'revolute', from:'shell', to:'lens', kinematic:'exact',
+      note:'镜头组（含传感器总成）经三轴增稳云台相对壳体增稳回转（云台机构含于 lens 部件汇总口径）' },
+    { id:'mg-mount-shell', type:'linkage', from:'mount', to:'shell', kinematic:'exact',
+      note:'底部快拆 mounting 耳（磁吸+双爪 Quick Release）与壳体锁接——装拆为操作机构' },
+    { id:'fx-cover-glass-lens', type:'fixed', from:'cover-glass', to:'lens', kinematic:'exact',
+      note:'镜头保护镜磁吸附于镜头组前端' },
+    { id:'fx-shutter-shell', type:'revolute', from:'shutter', to:'shell', kinematic:'exact',
+      note:'顶部快门键/模式拨轮摇臂绕壳体支点摆动（操作件回转）' },
+    { id:'fx-io-door-shell', type:'revolute', from:'io-door', to:'shell', kinematic:'exact',
+      note:'侧仓门（电池/存储）绕壳侧轴翻开' },
+    { id:'fx-batterycover-shell', type:'revolute', from:'battery-cover', to:'shell', kinematic:'exact',
+      note:'电池舱盖翻扣于壳体' },
+  ] },
   orientationProbe: null,
   frontAxis: '+z',
   labelAnchorDx: {},

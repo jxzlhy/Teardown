@@ -34,6 +34,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 14.0,
   glb: '/assets/iphone-17.glb',
+  realSizeMM: 149.6,   /* 真实最大外形尺寸（Apple 官方规格 149.6×71.5×7.95mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→框→板→影像→电池→底部→后玻璃 */
   tour: ['display','frame','board','camera','camera-island','battery','coil','speaker','usb-pcb','back-glass'],
   xrayShellIds: ['display','back-glass','frame'],

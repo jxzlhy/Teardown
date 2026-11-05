@@ -32,6 +32,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 12.0,
   glb: '/assets/iphone-air.glb',
+  realSizeMM: 156.2,   /* 真实最大外形尺寸（Apple 官方规格 156.2×74.7×5.64mm——史上最薄 iPhone）：测量工具 mm 标定基准 */
   /* 策展导览：屏→主板（高原内）→影像→脊柱电池→相机高原→底部→钛铝后壳 */
   tour: ['display','board','camera','battery','camera-plateau','usb-pcb','back-cover'],
   xrayShellIds: ['display','back-cover'],

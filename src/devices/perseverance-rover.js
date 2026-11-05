@@ -30,6 +30,25 @@ export default makeDevice({
   camDist: 1.1,
   glb: '/assets/perseverance-rover.glb',
   realSizeMM: 2900,   /* 真实最大外形尺寸（JPL Fact Sheet：长 2.9m×宽 2.7m×高 2.2m，不含机械臂）：测量工具 mm 标定基准 */
+  /* AURORA 后/V5.1 内容深度：毅力号机械臂与行动系统机构关系（JPL 事实页口径）。
+     机械臂五关节含于 arm 部件（GLB 未逐关节拆件）——revolute 汇总口径如实声明；
+     摇臂悬架（rocker-bogie）为被动柔顺机构，转动副含于 suspension 部件。 */
+  mech: { edges: [
+    { id:'rv-arm-body', type:'revolute', from:'body', to:'arm', kinematic:'exact',
+      note:'2.1m 机械臂肩关节回转（肘/腕多关节含于 arm 部件，GLB 未逐关节拆件）' },
+    { id:'rv-arm-turret', type:'revolute', from:'arm', to:'turret', kinematic:'exact',
+      note:'臂末端转塔（Turret）多工具轮回转' },
+    { id:'rv-drill-turret', type:'fixed', from:'drill', to:'turret', kinematic:'exact',
+      note:'钻探工具（PD）装接于转塔工位' },
+    { id:'rv-masthead-body', type:'revolute', from:'body', to:'mast-head', kinematic:'exact',
+      note:'桅杆头部（ChemCam/SuperCam/主相机）方位-俯仰双轴回转' },
+    { id:'rv-antennas-body', type:'fixed', from:'antennas', to:'body', kinematic:'exact',
+      note:'高增益天线/UMHF 固装于车体甲板' },
+    { id:'rtg-body', type:'fixed', from:'rtg', to:'body', kinematic:'exact',
+      note:'MMRTG 核电源固装于车体尾甲板' },
+    { id:'rv-suspension-body', type:'bearing_support', from:'suspension', to:'body', kinematic:'exact',
+      note:'摇臂转向架（rocker-bogie）差动机构与车体铰接——六轮被动柔顺悬架' },
+  ] },
   /* 策展导览：车体→行动系统→电源→感知/通信→机械臂/钻→附件 */
   tour: ['body','wheels','suspension','rtg','mast-head','antennas','hazcams','arm','turret','drill','calibration-target','shell'],
   xrayShellIds: ['body','shell'],

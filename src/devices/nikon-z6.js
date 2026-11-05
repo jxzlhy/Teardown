@@ -36,6 +36,7 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/nikon-z6-with-nikkor-24-70-f4-93775837f09141fd91bf1b41a0c0953e',
   targetWidth: 9,
   glb: '/assets/nikon-z6.glb',
+  realSizeMM: 134,   /* 真实最大外形尺寸（Nikon 官方：机身 134×100.5×67.5mm）：测量工具 mm 标定基准 */
   /* 策展导览（2026-11-01 V2 3.4 映射校正后）：镜头→卡口环→机身→主板→电池 */
   tour: ['lens','mount-ring','body','board','battery'],
   xrayShellIds: ['body'],

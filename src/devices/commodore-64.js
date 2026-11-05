@@ -33,6 +33,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/commodore-64.glb',
+  realSizeMM: 402,   /* 真实最大外形尺寸（RigPix/Smithsonian 交叉口径 402×74×205mm）：测量工具 mm 标定基准 */
   mapByPosition(name, p, rel, ext, mat) {
     if (p.z < -0.8 && p.y > 0.8) return 'monitor';      // 后方抬升 = 显示器
     if (p.z > 1.2 && Math.abs(p.x) < 2) return 'console'; // 前中 = 主机键盘

@@ -30,6 +30,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 9.0,
   glb: '/assets/watch-ultra.glb',
+  realSizeMM: 49,   /* 真实最大外形尺寸（Apple 官方口径 49×44×12mm 壳体）：测量工具 mm 标定基准 */
   /* 策展导览：屏→壳→表冠→动作键→扬声器→传感器→天线带→电池→马达→表带 */
   tour: ['display','case','crown','action-button','speaker','sensor','antenna-band','battery','taptic','band'],
   xrayShellIds: ['display','case','band'],

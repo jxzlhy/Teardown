@@ -30,6 +30,7 @@ export default makeDevice({
   targetWidth: 7,
   normalize: 'full',
   glb: '/assets/cherry-mx-switch.glb',
+  realSizeMM: 15.6,   /* 真实最大外形尺寸（Cherry 官方 MX Series datasheet：轴体 15.6×15.6mm）：测量工具 mm 标定基准 */
   /* 策展导览：轴心上盖→轴心→弹簧→底座→LED→灯座→隐藏件 */
   tour: ['top-housing','stem','spring','bottom-housing','led','led-seat','hidden'],
   xrayShellIds: ['top-housing','bottom-housing'],

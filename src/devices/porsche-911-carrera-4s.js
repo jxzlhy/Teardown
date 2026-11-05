@@ -28,6 +28,7 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/porsche-911-carrera-4s.glb',
+  realSizeMM: 4519,   /* 真实最大外形尺寸（Porsche 官方 992 Carrera 4S：4519×1852×1300mm，轴距 2450mm）：测量工具 mm 标定基准 */
   tour: ['body','glass','chassis','bumpers','wheels-front','wheels-rear','interior'],
   xrayShellIds: ['body','glass'],
   mappingPrefix: {

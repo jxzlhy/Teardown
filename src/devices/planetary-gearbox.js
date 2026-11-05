@@ -41,6 +41,16 @@ export default makeDevice({
     return left ? 'hardware-a' : 'hardware-b';
   },
   realPartIds: ['gears-a', 'gears-b', 'hardware-a', 'hardware-b'],
+  /* AURORA 后/V5.1 内容深度：行星轮系（CAD 教具）。gears-a/b 为匿名分组——
+     太阳轮/行星轮/内齿圈的具体归属按 CAD 语义判读（LOG 记录），啮合关系以分组口径如实声明。 */
+  mech: { edges: [
+    { id:'gm-ab-sun', type:'gear_mesh', from:'gears-a', to:'gears-b', kinematic:'exact',
+      note:'行星轮系啮合组：中心轮（太阳轮）↔行星轮↔内齿圈的外/内啮合对（分组聚合口径）' },
+    { id:'sh-hw-a-gearsa', type:'shaft_coupling', from:'hardware-a', to:'gears-a', kinematic:'exact',
+      note:'输入轴（硬件组 A）同轴驱动中心轮' },
+    { id:'fx-hw-b-gearsb', type:'fixed', from:'hardware-b', to:'gears-b', kinematic:'exact',
+      note:'行星架/内齿圈（硬件组 B）固接——输出或锁定取决于工况' },
+  ] },
   parts: [
     { id: 'gears-a', zh: '第一排行星轮系', en: 'GEAR SET A', real: true,
       ex: [-2.2, 0, 0.8], lo: [0, 1.2, 0], tag: '太阳轮 · 行星轮 · 齿圈',

@@ -38,6 +38,7 @@ export default makeDevice({
   camDist: 1.15,
   normalize: 'full',
   glb: '/assets/iphone-13.glb',
+  realSizeMM: 146.7,   /* 真实最大外形尺寸（Apple 官方规格 146.7×71.5×7.65mm）：测量工具 mm 标定基准 */
   tour: ['display','frame','board','camera','camera-module','flash','battery','coil','speaker','usb-pcb','internals','back-glass'],
   xrayShellIds: ['display','back-glass','frame'],
   materialMapping: {

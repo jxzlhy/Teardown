@@ -43,6 +43,22 @@ export default makeDevice({
     return 'base';
   },
   realPartIds: ['saddle','lift-arm','hydraulic-ram','base','handle','valves'],
+  /* AURORA 后/V5.1 内容深度：卧式千斤顶机构关系（液压传动不属于机构边类型——
+     液压缸伸缩在 note 如实声明；机械边取摇臂/杠杆/柄的真实回转关系）。 */
+  mech: { edges: [
+    { id:'fx-ram-base', type:'fixed', from:'hydraulic-ram', to:'base', kinematic:'exact',
+      note:'液压缸缸体固装于底座（柱塞伸缩推升——液压传动为流体口径，不作机构边类型）' },
+    { id:'rv-liftarm-ram', type:'revolute', from:'lift-arm', to:'hydraulic-ram', kinematic:'exact',
+      note:'顶升臂与柱塞顶端铰接（柱塞直线顶升转臂回转）' },
+    { id:'rv-liftarm-base', type:'revolute', from:'lift-arm', to:'base', kinematic:'exact',
+      note:'顶升臂后端铰接于底座支耳（四杆闭环之二）' },
+    { id:'fx-valves-base', type:'fixed', from:'valves', to:'base', kinematic:'exact',
+      note:'阀组（溢流/释压/吸排单向阀）固装于底座油路' },
+    { id:'rv-handle-base', type:'revolute', from:'handle', to:'base', kinematic:'exact',
+      note:'压杆绕基座铰点摆动驱动液压泵（人力输入）' },
+    { id:'fx-saddle-liftarm', type:'fixed', from:'saddle', to:'lift-arm', kinematic:'exact',
+      note:'鞍座托盘固装于顶升臂前端' },
+  ] },
   parts: [
     { id:'saddle', zh:'承重鞍座', en:'SADDLE', real:true,
       ex:[0,2.6,0], lo:[0,1.0,0], tag:'顶部承重面 · 防滑纹',

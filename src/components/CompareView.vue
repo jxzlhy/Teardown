@@ -82,7 +82,7 @@ const rows = computed(() => {
 /* 页头基样（.page-header / .gb-title）已合并进 PageHeader.vue；
    代际对比标题沿用名字层字体，:deep 穿透覆盖共享基样 */
 #cmpBar :deep(.gb-title h2){ font-family:var(--name); font-size:17px; font-weight:800; letter-spacing:.06em; }
-.cmp-note{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--txt-dim); flex:none; }
+.cmp-note{ font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--txt-3); flex:none; }
 #cmpScroll{ position:absolute; inset:74px 16px 16px; overflow:auto; }
 .cmp-table{ border-collapse:separate; border-spacing:0 4px; width:100%; min-width:640px; }
 .cmp-table th, .cmp-table td{

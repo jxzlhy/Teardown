@@ -82,6 +82,22 @@ export default {
   },
   unmappedTo: 'shell',
   realPartIds: ['shell','gimbal','propellers','arms','vision'],
+  /* AURORA 后/V5.1 内容深度：Mavic 3 Pro 机构——三轴云台+动力系统（DJI 官方口径）。
+     四机臂折叠为操作机构（折叠态产品形态），不设折叠边；桨叶回转 revolute。 */
+  mech: { edges: [
+    { id:'rv-shell-gimbal', type:'revolute', from:'shell', to:'gimbal', kinematic:'exact',
+      note:'哈苏 4/3 主摄经三轴增稳云台（roll/pitch/yaw）相对机身增稳回转' },
+    { id:'rv-arms-propellers', type:'revolute', from:'arms', to:'propellers', kinematic:'exact',
+      note:'四组桨叶绕机臂电机轴回转（动力输出；折叠为操作件不设边）' },
+    { id:'fx-arms-shell', type:'fixed', from:'arms', to:'shell', kinematic:'exact',
+      note:'四机臂固接于机身框架' },
+    { id:'fx-battery-shell', type:'fixed', from:'battery', to:'shell', kinematic:'exact',
+      note:'大容量电池插装于机身后部' },
+    { id:'fx-vision-shell', type:'fixed', from:'vision', to:'shell', kinematic:'exact',
+      note:'全向视觉感知模组阵列固装于机身' },
+    { id:'fx-fc-shell', type:'fixed', from:'flight-controller', to:'shell', kinematic:'exact',
+      note:'飞控固装于机身中央（含 IMU/气压计冗余）' },
+  ] },
   xrayShellIds: ['shell'],
   tour: ['propellers','arms','vision','gimbal','shell','flight-controller','battery'],
   /* 视觉原理演示（Phase 5）：选中螺旋桨绕桨轴旋转（真实为四桨对转，此处同向降速示意） */

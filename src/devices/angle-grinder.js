@@ -34,6 +34,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/angle-grinder.glb',
+  realSizeMM: 315,   /* 真实最大外形尺寸（DEWALT D28136 官方口径：长 315×高 90mm，碟径 125mm）：测量工具 mm 标定基准 */
   mappingPrefix: {
     'body':      'body',
     'joint1':    'gearhead',

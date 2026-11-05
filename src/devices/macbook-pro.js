@@ -36,6 +36,7 @@ export default makeDevice({
   thumbDir: [0.9, 0.35, 1.4],   /* 半开形态：压低视角让屏幕占比更大 */
   camDist: 1.2,
   glb: '/assets/macbook-pro.glb',
+  realSizeMM: 312.6,   /* 真实最大外形尺寸（Apple 官方规格 14″ M4：312.6×221.2×15.5mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→顶壳→主板→双风扇→电池→扬声器→底壳 */
   tour: ['display-assembly','top-case','board','fan-l','fan-r','battery','speaker-l','speaker-r','bottom-case'],
   xrayShellIds: ['top-case','bottom-case','display-assembly'],

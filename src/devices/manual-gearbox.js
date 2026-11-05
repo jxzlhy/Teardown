@@ -61,6 +61,22 @@ export default makeDevice({
   tour: ['input-shaft', 'gear-set', 'reverse', 'shifter', 'final-drive', 'halfshaft', 'wheel', 'suspension'],
   /* 无独立外壳网格（开放式总成），不设 xrayShellIds */
   realPartIds: ['input-shaft', 'gear-set', 'reverse', 'shifter', 'final-drive', 'halfshaft', 'wheel', 'suspension'],
+  /* AURORA 后/V5.1 内容深度：前驱变速驱动桥机构链（手动 MT 口径）。
+     gear-set 内各挡齿轮副未逐挡拆件——啮合关系以 gear-set 聚合声明；倒挡独立拆件单列。 */
+  mech: { edges: [
+    { id:'gm-input-gearset', type:'gear_mesh', from:'input-shaft', to:'gear-set', kinematic:'exact',
+      note:'输入轴常啮合齿轮与各挡从动轮常啮合（前进挡动力进入齿轮组）' },
+    { id:'gm-reverse-idler', type:'gear_mesh', from:'input-shaft', to:'reverse', kinematic:'exact',
+      note:'倒挡经中间惰轮再次啮合——旋向反转（与前进挡反向）' },
+    { id:'sh-gearset-final', type:'shaft_coupling', from:'gear-set', to:'final-drive', kinematic:'exact',
+      note:'输出轴将选定挡位扭矩传入主减速器（最终驱动）' },
+    { id:'gm-final-halfshaft', type:'gear_mesh', from:'final-drive', to:'halfshaft', kinematic:'exact',
+      note:'主减速器锥齿轮副改向减速后经差速器分至两侧半轴' },
+    { id:'sh-halfshaft-wheel', type:'shaft_coupling', from:'halfshaft', to:'wheel', kinematic:'exact',
+      note:'半轴经花键同轴驱动车轮' },
+    { id:'sl-shifter-gearset', type:'linkage', from:'shifter', to:'gear-set', kinematic:'exact',
+      note:'换挡杆经拨叉选/换结合套——挡位选择为操作机构（非动力流）' },
+  ] },
   parts: [
     { id: 'input-shaft', zh: '输入轴', en: 'INPUT SHAFT', real: true,
       ex: [0, 1.2, 2.6], lo: [0, 1.2, 0.3], tag: '动力入口 · 离合器端花键',

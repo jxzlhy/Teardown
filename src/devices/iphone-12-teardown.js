@@ -32,6 +32,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+x',
   glb: '/assets/iphone-12-teardown.glb',
+  realSizeMM: 146.7,   /* 真实最大外形尺寸（Apple 官方规格 146.7×71.5×7.4mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→骨架→主板→摄像/传感→声学→底部→密封→后盖 */
   tour: ['display','frame','chassis','board','board-cover','front-cam','sensor','earpiece','camera','flash','speaker','taptic','coil','port','sim','mic','buttons','antenna','wires','seals','screws','back-cover','shell'],
   xrayShellIds: ['display','back-cover','frame','shell'],

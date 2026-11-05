@@ -60,6 +60,20 @@ export default {
   },
   unmappedTo: 'body',
   realPartIds: ['body','gimbal','arms-front','arms-rear','propellers'],
+  /* AURORA 后/V5.1 内容深度：Mini 4 Pro 机构链（DJI 官方口径：展开含桨 298×373×101mm）。
+     机臂折叠为操作件不设边；桨叶回转 revolute；云台三轴汇总。 */
+  mech: { edges: [
+    { id:'rv-body-gimbal', type:'revolute', from:'body', to:'gimbal', kinematic:'exact',
+      note:'1/1.3″ 云台相机三轴增稳回转（roll/pitch/yaw 含于 gimbal 部件汇总口径）' },
+    { id:'rv-armsf-propellers', type:'revolute', from:'arms-front', to:'propellers', kinematic:'exact',
+      note:'前机臂双桨绕电机轴回转' },
+    { id:'rv-armsr-propellers', type:'revolute', from:'arms-rear', to:'propellers', kinematic:'exact',
+      note:'后机臂双桨绕电机轴回转' },
+    { id:'fx-arms-body', type:'fixed', from:'arms-front', to:'body', kinematic:'exact',
+      note:'前机臂固接于机身' },
+    { id:'fx-battery-body', type:'fixed', from:'battery', to:'body', kinematic:'exact',
+      note:'智能飞行电池插装于机尾' },
+  ] },
   assembledPos: {
     'body': [0,0,0], 'gimbal': [0,0,0], 'arms-front': [0,0,0],
     'arms-rear': [0,0,0], 'propellers': [0,0,0], 'battery': [0,0,0]

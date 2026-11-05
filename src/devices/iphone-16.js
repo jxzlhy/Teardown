@@ -43,6 +43,7 @@ export default makeDevice({
   camDist: 1.15,
   normalize: 'full',
   glb: '/assets/iphone-16.glb',
+  realSizeMM: 147.6,   /* 真实最大外形尺寸（Apple 官方规格 147.6×71.6×7.8mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→边框→主板→摄像→电池→底部→后玻璃 */
   tour: ['display','frame','board','camera-module','camera','battery','coil','usb-pcb','port','speaker','buttons','back-glass'],
   xrayShellIds: ['display','back-glass','frame'],

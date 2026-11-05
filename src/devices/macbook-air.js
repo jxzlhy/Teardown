@@ -34,6 +34,7 @@ export default makeDevice({
   thumbDir: [0.9, 0.35, 1.4],
   camDist: 1.2,
   glb: '/assets/macbook-air.glb',
+  realSizeMM: 340.4,   /* 真实最大外形尺寸（Apple 官方规格 15″ M4：340.4×237.6×11.5mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→顶壳→主板→电池→双扬声器→底壳（无风扇叙事） */
   tour: ['display-assembly','top-case','board','battery','speaker-l','speaker-r','bottom-case'],
   xrayShellIds: ['top-case','bottom-case','display-assembly'],

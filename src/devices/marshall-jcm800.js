@@ -32,6 +32,7 @@ export default makeDevice({
   camDist: 1.1,
   normalize: 'full',
   glb: '/assets/marshall-jcm800.glb',
+  realSizeMM: 740,   /* 真实最大外形尺寸（Marshall JCM800 2203 头官方口径 740×315×210mm）：测量工具 mm 标定基准 */
   materialMapping: {
     'base_body_mat': 'cabinet',
     'text': 'badge',

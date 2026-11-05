@@ -31,6 +31,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '-z',
   glb: '/assets/ak-47.glb',
+  realSizeMM: 870,   /* 真实最大外形尺寸（固定木托版，GlobalSecurity 等多源交叉 868–870mm 区间；折叠托 645mm）：测量工具 mm 标定基准 */
   /* 策展导览：不完全分解叙事（机匣核心→枪机→导气→枪管→发射机→附件） */
   tour: ['receiver','bolt-group','recoil-spring','dust-cover','gas-tube','gas-block','handguard','barrel','front-sight-block','sights','trigger','safety','grip','magazine','stock','bayonet','cleaning-rod'],
   xrayShellIds: ['dust-cover','handguard','stock','grip','magazine'],
