@@ -40,6 +40,7 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/galaxy-s22-ultra.glb',
+  realSizeMM: 163.3,   /* 真实最大外形尺寸（Samsung 官方规格 163.3×77.9×8.9mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→边框→主板→影像→电池→底部→S Pen→后玻璃 */
   tour: ['display','frame','board','camera-island','flash','sensor','battery','coil','usb-pcb','port','speaker','pen','back-glass'],
   xrayShellIds: ['display','back-glass','frame'],

@@ -32,6 +32,7 @@ export default makeDevice({
   targetWidth: 12.0,
   camDist: 1.15,
   glb: '/assets/ipad-pro.glb',
+  realSizeMM: 281.6,   /* 真实最大外形尺寸（Apple 官方规格 13″ M4：281.6×215.5×5.1mm——史上最薄 Apple 产品）：测量工具 mm 标定基准 */
   /* 策展导览：屏→机身→妙控键盘→板→电池→影像 */
   tour: ['display-front','body','keyboard-base','board','battery','camera'],
   xrayShellIds: ['display-front','body','keyboard-base'],

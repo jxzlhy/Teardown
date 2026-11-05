@@ -29,6 +29,7 @@ export default makeDevice({
   targetWidth: 12,
   normalize: 'full',
   glb: '/assets/sony-tc510.glb',
+  realSizeMM: 333,   /* 真实最大外形尺寸（Sony TC-510 官方口径 333×136×296mm，便携开盘机）：测量工具 mm 标定基准 */
   tour: ['front-panel','knob','deck','lid','sticker'],
   xrayShellIds: ['lid','front-panel'],
   mapping: {

@@ -28,6 +28,7 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.1,
   glb: '/assets/hubble-telescope.glb',
+  realSizeMM: 13200,   /* 真实最大外形尺寸（NASA 官方：长 13.2m×最大径 4.3m）：测量工具 mm 标定基准 */
   tour: ['tube','aperture-door','science-section','radiators','aft-shroud','antennas','solar-array-l','solar-array-r'],
   xrayShellIds: ['tube','aft-shroud'],
   draco: true,

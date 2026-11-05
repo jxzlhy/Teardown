@@ -42,6 +42,7 @@ export default {
   accent: '#ffb35c',
   targetWidth: 8.2,
   glb: '/assets/avata2.glb',
+  realSizeMM: 212,   /* 真实最大外形尺寸（DJI 官方规格 185×212×64mm，一体式护罩不可折叠）：测量工具 mm 标定基准 */
   /* 策展导览：壳→云台→动力→电池 */
   tour: ['shell','gimbal','powertrain','battery'],
   xrayShellIds: ['shell'],

@@ -24,6 +24,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 14.4,   /* 高 163mm 为最大维 */
   glb: '/assets/phone3.glb',
+  realSizeMM: 163.7,   /* 真实最大外形尺寸（官方规格 163.7×76.6×9.0mm）：测量工具 mm 标定基准 */
   tour: ['screen','frame','midframe','internals','battery','camera','usb','sim','buttons','glyph','back-panel','logo'],
   xrayShellIds: ['screen','back-panel','frame'],
   normalize: 'full',

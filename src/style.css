@@ -587,6 +587,23 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 /* 折叠时内容随面板整体隐藏（visibility 继承），保留 DOM 供过渡；指针事件由容器关闭 */
 /* rail 头部：折叠开关 + 导航模式切换（V2 双模式） */
 .rail-head{ display:flex; align-items:center; width:100%; border-bottom:1px solid rgba(69,224,255,.1); }
+/* AURORA PHASE 3 · I3：部件导航搜索（glass/pill token 体系） */
+.rail-search{ position:relative; padding:8px 10px 6px; border-bottom:1px solid var(--glass-line-faint); }
+.rail-search input{
+  width:100%; box-sizing:border-box; padding:6px 26px 6px 10px;
+  font-size:var(--fs-11); color:var(--txt-1);
+  background:var(--glass-bg); border:1px solid var(--glass-line); border-radius:7px;
+  outline:none;
+}
+.rail-search input:focus{ border-color:var(--pill-line-hover); }
+.rail-search input::placeholder{ color:var(--txt-3); }
+.rail-search-clear{
+  position:absolute; right:16px; top:50%; transform:translateY(-58%);
+  display:flex; align-items:center; padding:3px; cursor:pointer;
+  background:none; border:none; color:var(--txt-3);
+}
+.rail-search-clear:hover{ color:var(--acc); }
+.rail-empty{ padding:10px 14px; font-size:var(--fs-11); color:var(--txt-3); }
 .rail-toggle{
   flex:1; display:flex; align-items:center; justify-content:space-between;
   padding:12px 6px 10px 14px; background:none; border:none; cursor:pointer; text-align:left;

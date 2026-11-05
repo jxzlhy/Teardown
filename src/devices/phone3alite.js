@@ -24,6 +24,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 14.6,   /* 高 164.1mm 为最大维 */
   glb: '/assets/phone3alite.glb',
+  realSizeMM: 164.1,   /* 真实最大外形尺寸（官方支持页 164.1×78.1×8.3mm）：测量工具 mm 标定基准 */
   tour: ['screen','frame','midframe','internals','camera','buttons','glyph'],
   xrayShellIds: ['screen','frame'],
   normalize: 'full',

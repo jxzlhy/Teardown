@@ -31,6 +31,7 @@ export default makeDevice({
   targetWidth: 11.5,
   camDist: 1.15,
   glb: '/assets/ipad-air.glb',
+  realSizeMM: 247.6,   /* 真实最大外形尺寸（Apple 官方规格 11″ M3：247.6×178.5×6.1mm）：测量工具 mm 标定基准 */
   /* 策展导览：屏→机身→板→电池→影像→配件 */
   tour: ['display-front','body','board','battery','camera','accessory'],
   xrayShellIds: ['display-front','body'],

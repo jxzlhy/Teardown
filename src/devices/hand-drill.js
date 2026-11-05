@@ -40,6 +40,15 @@ export default makeDevice({
     'vintage_hand_drill_head': 'chuck-head',
   },
   realPartIds: ['body', 'gears', 'crank', 'chuck-head'],
+  /* AURORA 后/V5.1 内容深度：手摇曲柄钻传动链——曲柄→齿轮增速/换向→钻夹头（人力输入）。 */
+  mech: { edges: [
+    { id:'gm-crank-gears', type:'gear_mesh', from:'crank', to:'gears', kinematic:'exact',
+      note:'曲柄直驱输入齿轮，经齿轮系增速换向（人力输入，速比未标定不作数值声明）' },
+    { id:'sh-gears-chuck', type:'shaft_coupling', from:'gears', to:'chuck-head', kinematic:'exact',
+      note:'输出齿轮经主轴同轴耦合驱动钻夹头' },
+    { id:'bs-body-gears', type:'bearing_support', from:'body', to:'gears', kinematic:'exact',
+      note:'齿轮系轴支承于机身轴孔' },
+  ] },
   parts: [
     { id: 'body', zh: '本体与主轴', en: 'FRAME & SPINDLE', real: true,
       ex: [0, 0, 0.8], lo: [0, 1.2, 0], tag: '铸铁框架 · 手感即精度',

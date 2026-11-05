@@ -33,6 +33,7 @@ export default makeDevice({
   thumbDir: [0.8, 0.05, 1.35],   /* 正面平视：双耳罩侧面轮廓 + 头带 */
   camDist: 1.05,
   glb: '/assets/airpods-max.glb',
+  realSizeMM: 187.3,   /* 真实最大外形尺寸（Apple 官方规格 187.3×168.6×83.4mm）：测量工具 mm 标定基准 */
   /* 策展导览： canopy→头带框架→轭臂→耳罩与驱动器→电池 */
   tour: ['canopy','band-frame','yoke','earcup-l','driver-l','earcup-r','driver-r','battery'],
   xrayShellIds: ['earcup-l','earcup-r','canopy'],

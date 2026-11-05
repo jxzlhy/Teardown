@@ -28,6 +28,7 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/countach-lpi800-4.glb',
+  realSizeMM: 4870,   /* 真实最大外形尺寸（官方口径 4870×2099×1139mm，轴距 2700mm）：测量工具 mm 标定基准 */
   tour: ['body','front-hood','engine-bay','cockpit','wheels-front','wheels-rear'],
   xrayShellIds: ['body'],
   mapByPosition(name, p, rel, ext){

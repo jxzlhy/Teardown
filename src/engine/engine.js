@@ -106,6 +106,18 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   controls.autoRotate = false;
   controls.autoRotateSpeed = 0.7;
 
+  /* AURORA PHASE 6 设备分级（一次性探测，声明于 composerRT 之前供 samples 联动） */
+  function detectDeviceTier(){
+    try{
+      const mem = navigator.deviceMemory;                 // Chrome 近似 GB；Safari/Firefox undefined
+      const cores = navigator.hardwareConcurrency || 4;
+      if(mem !== undefined && mem <= 4) return 'low';
+      if(mem !== undefined && mem >= 8 && cores >= 8) return 'high';
+      return 'mid';
+    }catch{ return 'mid'; }
+  }
+  const deviceTier = detectDeviceTier();
+
   /* ---------- 后期：OutlinePass（选中/悬停描边）+ 辉光 ---------- */
   /* 剖切 stencil 封盖要求渲染目标带 stencil buffer（composer 默认 RT 没有）：
      自建 HalfFloat+stencil RT 传入，renderTarget2 由 composer 克隆继承同配置。
@@ -113,7 +125,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
      composer 输出无效（白付成本），RT 无 samples 则全馆锯齿裸奔；缩略图模式
      （adaptive=false）保持旧输出一致性不加 samples。 */
   const composerRT = new THREE.WebGLRenderTarget(innerWidth, innerHeight,
-    { type: THREE.HalfFloatType, stencilBuffer: true, samples: (hooks.adaptive !== false) ? 4 : 0 });
+    { type: THREE.HalfFloatType, stencilBuffer: true, samples: (hooks.adaptive !== false) ? (deviceTier === 'low' ? 2 : 4) : 0 });
   const composer = new EffectComposer(renderer, composerRT);
   composer.setSize(innerWidth, innerHeight);   // 让 composer 记住 CSS 口径（乘自身 pixelRatio）
   composer.addPass(new RenderPass(scene, camera));
@@ -134,9 +146,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   composer.addPass(new OutputPass());
 
   /* ---------- 自适应画质：帧率不达标时逐级降档（只降不升，避免振荡）
-     L2 满配 → L1 pixelRatio 1.5 / 阴影 1024 → L0 pixelRatio 1 / 关辉光/描边 / 阴影 512 ---------- */
+     L2 满配 → L1 pixelRatio 1.5 / 阴影 1024 → L0 pixelRatio 1 / 关辉光/描边 / 阴影 512
+     AURORA PHASE 6：设备分级决定**起步档**——low 档（内存≤4GB）从 L1 起步，避免首屏
+     帧率骤降触发看门狗连锁降档；mid（其余/探测不可用）/high 现状不变。
+     纹理运行时降采样经评估缓行（2048 已是 lint 闸门口径）。 ---------- */
   const adaptive = hooks.adaptive !== false;
-  let quality = 2, fpsAcc = 0, fpsFrames = 0, fpsWindow = 0, watchdogStep = false;
+  let quality = adaptive && deviceTier === 'low' ? 1 : 2, fpsAcc = 0, fpsFrames = 0, fpsWindow = 0, watchdogStep = false;
   let renderCount = 0, frameMsAcc = 0;   // AURORA：渲染帧计数与帧耗累计（均值经 getState 暴露）
   function applyQuality(l){
     quality = l;
@@ -488,8 +503,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const _bb = new THREE.Box3();
 
   /* ---------- 高亮（克制：金属材质上过亮会经 Bloom 泛白；有 OutlinePass 时进一步调低） ---------- */
+  /* AURORA PHASE 3 · I4 选中层次（任务书 §6.2）：选中时**其他零件弱化**——
+     部件材质透明度渐变至 0.32（baseOpacity×dimK），取消选中/悬停收敛后逐帧还原并
+     恢复原 transparent 标志。xray/isolate 模式下不启用（它们的材质透明语义独立，避免叠加）。 */
+  const DIM_LEVEL = 0.32;
   function applyGlow(dt, t){
     const kBase = outlineOn && quality > 0 ? 0.06 : 0.12;
+    const dimOn = !!state.selected && modes.state.mode !== 'xray' && modes.state.mode !== 'isolate';
     for(const p of state.parts){
       const target = p.data.id===state.selected ? 0.7 : (p.data.id===state.hovered ? 0.4 : 0);
       p.glow += (target-p.glow)*Math.min(dt*9, 1);
@@ -500,6 +520,26 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           if(!m.emissive) return;
           m.emissive.copy(m.userData.baseEmissive).lerp(ACCENT, Math.min(k,1)*kBase);
           m.emissiveIntensity = m.userData.baseEI + k*0.1;
+        });
+      }
+      /* 非选中弱化：dimK 逐帧收敛；材质只在偏离稳态时写（收敛/还原后停写） */
+      const dimT = (dimOn && p.data.id !== state.selected) ? DIM_LEVEL : 1;
+      p.dimK = p.dimK === undefined ? 1 : p.dimK;
+      p.dimK += (dimT - p.dimK) * Math.min(dt*7, 1);
+      const settled = dimT === 1 && p.dimK > 0.999;
+      if(!settled){
+        const kk = clamp(p.dimK, DIM_LEVEL, 1);
+        p.mats.forEach(m=>{
+          if(m.userData.__baseOpacity === undefined){
+            m.userData.__baseOpacity = m.opacity;
+            m.userData.__baseTransparent = m.transparent;
+          }
+          m.transparent = true;
+          m.opacity = m.userData.__baseOpacity * kk;
+          if(dimT === 1 && kk >= 0.999){   // 还原闭环：精确回原状（含 transparent 标志）
+            m.opacity = m.userData.__baseOpacity;
+            m.transparent = m.userData.__baseTransparent;
+          }
         });
       }
     }
@@ -2136,6 +2176,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       frameMsAvg: renderCount ? +(frameMsAcc / renderCount).toFixed(2) : 0,
       loadTiming: state.loadTiming || null,
       camPos: camera.position.toArray().map(v => +v.toFixed(2)),
+      deviceTier,   // AURORA PHASE 6：low/mid/high（探针与降档诊断用）
       /* parts/partsById 含 THREE 对象，不进响应式/跨页传输，只出计数字段 */
       partsCount: state.parts.length,
     }),

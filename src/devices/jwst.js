@@ -36,6 +36,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/jwst.glb',
+  realSizeMM: 21200,   /* 真实最大外形尺寸（NASA：展开遮阳板 21.2×14.2m，网球场面级）：测量工具 mm 标定基准 */
   /* 名字规则路由（1600 网格 521 族）：族前缀 → 部件；位置兜底走背板 */
   mapByPosition(name, p, rel) {
     const n = name.replace(/^James_Webb_Space_Telescope:/, '').replace(/^(asm_|hr_)[a-z0-9_]*?_v\d{3}:/, '').split(':')[0];

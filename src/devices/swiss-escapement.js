@@ -54,6 +54,32 @@ export default makeDevice({
     'Pin2_0': 'banking-pins',
   },
   realPartIds: ['fixtures', 'escape-wheel', 'pallets', 'lever', 'balance-axle', 'impulse-pin', 'balance-wheel', 'hairspring', 'banking-pins'],
+  /* AURORA 后/V5.1 内容深度：瑞士杠杆式擒纵（Swiss lever escapement）机构关系——
+     机构学来源：Horopedia「Swiss Lever Escapement」/ Wikipedia Lever escapement（标准原理）。
+     动力端（发条轮系）不在展件内，故不设 driver；擒纵轮齿与杠杆瓦为间歇啮合（非连续），
+     gear_mesh 为最近似类型并如实注记。 */
+  mech: { edges: [
+    { id:'gm-escapewheel-pallets', type:'gear_mesh', from:'escape-wheel', to:'pallets', kinematic:'exact',
+      note:'擒纵轮齿与杠杆进/出瓦交替锁接-释放（间歇啮合：每摆动周期放行一齿，齿冲面传冲）' },
+    { id:'fx-pallets-lever', type:'fixed', from:'pallets', to:'lever', kinematic:'exact',
+      note:'进/出瓦（红宝石）镶固于杠杆叉臂' },
+    { id:'lk-lever-impulsepin', type:'linkage', from:'lever', to:'impulse-pin', kinematic:'exact',
+      note:'杠杆叉槽与摆轮冲钉往复冲击传递（释放/给冲相位）' },
+    { id:'fx-impulsepin-balancewheel', type:'fixed', from:'impulse-pin', to:'balance-wheel', kinematic:'exact',
+      note:'冲钉固装于摆轮滚盘' },
+    { id:'fx-hairspring-balanceaxle', type:'fixed', from:'hairspring', to:'balance-axle', kinematic:'exact',
+      note:'游丝内桩固接摆轴（外桩侧固定于夹板）——摆轮-游丝谐振回路' },
+    { id:'fx-balancewheel-axle', type:'fixed', from:'balance-wheel', to:'balance-axle', kinematic:'exact',
+      note:'摆轮刚接于摆轴' },
+    { id:'bs-balanceaxle-fixtures', type:'bearing_support', from:'balance-axle', to:'fixtures', kinematic:'exact',
+      note:'摆轴榫支承于夹板宝石轴承' },
+    { id:'bs-escapewheel-fixtures', type:'bearing_support', from:'escape-wheel', to:'fixtures', kinematic:'exact',
+      note:'擒纵轮轴支承于夹板轴孔' },
+    { id:'bs-lever-fixtures', type:'bearing_support', from:'lever', to:'fixtures', kinematic:'exact',
+      note:'杠杆轴支承于夹板轴孔' },
+    { id:'fx-bankingpins-fixtures', type:'fixed', from:'banking-pins', to:'fixtures', kinematic:'exact',
+      note:'限位钉固定于夹板，限制杠杆往复转角（锁接安全间隙）' },
+  ] },
   parts: [
     { id: 'fixtures', zh: '支架夹具', en: 'FIXTURES', real: true,
       ex: [0, -0.8, 0], lo: [0, 1.0, 0], tag: '演示底座 · 石板夹持',

@@ -43,6 +43,17 @@ export default makeDevice({
   tour: ['engine', 'airframe', 'wings'],
   /* 无独立外壳网格（开放骨架结构），不设 xrayShellIds */
   realPartIds: ['engine', 'airframe', 'wings'],
+  /* AURORA 后/V5.1 内容深度：1903 飞行者动力传动（机构学史料明确）——
+     直列四缸水冷引擎经自行车链条（双链）驱动翼后两具推式螺旋桨（反向对转消扭）。
+     链条/桨轴/螺旋桨含于 engine 部件（1953 年前拆解件未细分）——传动关系如实声明于 note。 */
+  mech: { edges: [
+    { id:'bl-engine-prop', type:'gear_mesh', from:'engine', to:'airframe', kinematic:'approx',
+      note:'引擎曲轴经双自行车链条减速驱动翼后两具推式螺旋桨（反向对转消除扭矩反作用——链条与桨含于部件未独立拆件，速比史料口径 1:1.5）' },
+    { id:'fx-engine-airframe', type:'fixed', from:'engine', to:'airframe', kinematic:'exact',
+      note:'引擎安装于下翼右侧翼梁间的框架（与飞行方向反向布置）' },
+    { id:'fx-wings-airframe', type:'fixed', from:'wings', to:'airframe', kinematic:'exact',
+      note:'双翼与尾翼组张线支撑固接于骨架（翘曲操纵为柔性变形非机构边）' },
+  ] },
   postLoad: ({ partsById }) => {
     /* 白布翼+白光布光下过曝（radial 同款）：整体压暗 */
     for (const pid of ['engine', 'airframe', 'wings']) {

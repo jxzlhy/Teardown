@@ -30,6 +30,7 @@ export default makeDevice({
   targetWidth: 11,
   camDist: 1.05,
   glb: '/assets/parker-solar-probe.glb',
+  realSizeMM: 3000,   /* 真实最大外形尺寸（APL 官方：本体高 ~3m×径 ~1m，热盾前伸）：测量工具 mm 标定基准 */
   /* 策展导览：热盾→太阳翼→液冷→载荷→天线→悬臂 */
   tour: ['bus', 'solar-wings', 'cooling', 'instruments', 'hga', 'mag-boom'],
   xrayShellIds: ['bus'],

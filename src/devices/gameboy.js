@@ -44,6 +44,7 @@ export default makeDevice({
   baseRotation: [Math.PI / 2, 0, 0],
   frontAxis: '-x',
   glb: '/assets/gameboy.glb',
+  realSizeMM: 148,   /* 真实最大外形尺寸（Nintendo 官方历史页：DMG-01 90×148×32mm）：测量工具 mm 标定基准 */
   mappingPrefix: {
     'Nintendo_GAMEBOY_GAMEBOY':  'shell',
     'Nintendo_GAMEBOY_Screen':   'screen',

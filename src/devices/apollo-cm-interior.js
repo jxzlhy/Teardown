@@ -36,6 +36,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/apollo-cm-interior.glb',
+  realSizeMM: 3910,   /* 真实最大外形尺寸（与 apollo-cm-exterior 同体：NASA 底径 3.91m×锥高 ~3.5m，座舱为内腔视角）：测量工具 mm 标定基准 */
   /* merge 后网格无名 → 位置特征路由（GLB JSON 实测中心/面数）：
      graffiti 429 面 z≈-43 薄层 / seats 中心 y≈160 / panel z≈7 / hull 其余 */
   mapByPosition(name, p, rel) {

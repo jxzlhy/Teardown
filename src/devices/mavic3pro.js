@@ -54,6 +54,7 @@ export default {
   accent: '#45e0ff',
   targetWidth: 9.5,          // 翼展方向
   glb: '/assets/mavic3pro.glb',
+  realSizeMM: 347.5,   /* 真实最大外形尺寸（DJI 官方规格：展开 347.5×290.8×107.7mm / 折叠 231.1×98×95.4mm）：测量工具 mm 标定基准 */
   frontAxis: '+x',           // GLB 原生机头朝 +X（云台部件聚类在 +X 侧）
   mapping: {
     'cam_shell':'gimbal', '_HOLDER_1__1':'gimbal', 'LENS01':'gimbal', 'LENS02':'gimbal',

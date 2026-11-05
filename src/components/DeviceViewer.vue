@@ -39,7 +39,7 @@
     <aside v-if="!thumbMode" id="rail" class="hud-panel" :class="{ open: railOpen }">
       <div class="rail-head">
         <button class="rail-toggle" @click="toggleRail" :aria-expanded="railOpen ? 'true' : 'false'" title="展开 / 收起部件导航（紧凑 ↔ 展开）">
-          <span class="hud-eyebrow">部件清单 <b class="rail-count">{{ device.parts.length }}</b></span>
+          <span class="hud-eyebrow">部件清单 <b class="rail-count">{{ filteredParts.length }}<template v-if="partQuery"> / {{ device.parts.length }}</template></b></span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
         </button>
         <button class="rail-mode" @click="toggleRailMode" :title="railMode === 'list' ? '切换宫格导航' : '切换清单导航'" :aria-label="railMode === 'list' ? '切换宫格导航' : '切换清单导航'">
@@ -50,29 +50,37 @@
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
       </div>
+      <!-- AURORA PHASE 3 · I3 零件导航搜索（任务书 §6.4）：中/英/编号即时过滤，编号保持全馆原序 -->
+      <div class="rail-search">
+        <input v-model="partQuery" type="search" placeholder="搜索部件（中文名 / 英文 / 编号）"
+          aria-label="搜索部件" @keydown.esc="partQuery = ''" />
+        <button v-if="partQuery" class="rail-search-clear" @click="partQuery = ''" aria-label="清空搜索"><Icon name="close" /></button>
+      </div>
       <div class="rail-list" v-if="railMode === 'list'">
-        <button v-for="(p, i) in device.parts" :key="p.id"
+        <button v-for="p in filteredParts" :key="p.id"
           class="prow" :class="{ active: ui.selected === p.id }"
           @click="pickFromList(p.id)"
           @pointerenter="engine && engine.setHover(p.id)"
           @pointerleave="engine && engine.setHover(null)">
-          <span class="idx">{{ String(i+1).padStart(2,'0') }}</span>
+          <span class="idx">{{ String(p.idx + 1).padStart(2,'0') }}</span>
           <!-- 两行行结构（R3 参考调研）：CN 名主行 + EN 全名副行 -->
           <span class="pcol">
             <span class="pname">{{ p.zh }}</span>
             <span class="pen">{{ p.en }}</span>
           </span>
         </button>
+        <p v-if="!filteredParts.length" class="rail-empty">没有匹配「{{ partQuery }}」的部件</p>
       </div>
       <div class="rail-grid" v-else>
-        <button v-for="(p, i) in device.parts" :key="p.id"
+        <button v-for="p in filteredParts" :key="p.id"
           class="gcell" :class="{ active: ui.selected === p.id }"
           @click="pickFromList(p.id)"
           @pointerenter="engine && engine.setHover(p.id)"
           @pointerleave="engine && engine.setHover(null)">
-          <b>{{ String(i+1).padStart(2,'0') }}</b>
+          <b>{{ String(p.idx + 1).padStart(2,'0') }}</b>
           <span>{{ p.zh }}</span>
         </button>
+        <p v-if="!filteredParts.length" class="rail-empty">没有匹配的部件</p>
       </div>
     </aside>
     <!-- 折叠态：序号圆点列（hover 展开名称） -->
@@ -1096,6 +1104,20 @@ function toggleRail(){
 }
 /* 零件导航模式（V2）：'list' 清单 | 'grid' 宫格；记忆用户偏好 */
 const railMode = ref((() => { try{ return localStorage.getItem('teardown-rail-mode') === 'grid' ? 'grid' : 'list'; }catch{ return 'list'; } })());
+/* AURORA PHASE 3 · I3：部件搜索（中文名/英文名/编号即时过滤；idx 保留全馆原序，编号不因过滤漂移） */
+const partQuery = ref('');
+const filteredParts = computed(() => {
+  const q = partQuery.value.trim().toLowerCase();
+  const all = (device.value && device.value.parts) || [];
+  if (!q) return all.map((p, idx) => ({ ...p, idx }));
+  const numQ = q.replace(/^0+/, '');
+  return all
+    .map((p, idx) => ({ ...p, idx }))
+    .filter(p =>
+      (p.zh || '').toLowerCase().includes(q) ||
+      (p.en || '').toLowerCase().includes(q) ||
+      String(p.idx + 1) === numQ);
+});
 function toggleRailMode(){
   railMode.value = railMode.value === 'list' ? 'grid' : 'list';
   railOpen.value = true;   // 切模式时展开，所见即所得
@@ -1228,6 +1250,7 @@ watch(() => route.params.id, async (id) => {
   const seq = ++loadSeq;
   showGuide.value = false; infoOpen.value = false; viewStripOpen.value = false;
   ui.value.booted = false;
+  partQuery.value = '';   // 切台清空部件搜索词（新台从全量清单开始）
   if(route.query.e || route.query.p || route.query.t) router.replace({ query: {} }).catch(() => {});
   pendingDeeplink = null;
   config.value = null;

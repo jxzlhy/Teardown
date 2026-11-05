@@ -43,6 +43,21 @@ export default makeDevice({
     return rel.z < 0.3 ? 'flywheel' : 'crank';
   },
   realPartIds: ['valvetrain','head','block','pistons','crank','flywheel','ancillaries'],
+  /* AURORA 后/V5.1 内容深度：单缸四冲程机构关系（曲轴独立拆件，全链真实关系可精确声明） */
+  mech: { driver: 'crank', edges: [
+    { id:'sc-crank-pistons', type:'slider_crank', from:'crank', to:'pistons', kinematic:'approx',
+      note:'活塞沿缸轴往复经连杆驱动曲轴（连杆含于活塞组部件，摆动以平动近似）' },
+    { id:'fx-flywheel-crank', type:'fixed', from:'flywheel', to:'crank', kinematic:'exact',
+      note:'飞轮刚性固接于曲轴端部，储能平顺转速' },
+    { id:'bs-block-crank', type:'bearing_support', from:'block', to:'crank', kinematic:'exact',
+      note:'曲轴主轴颈支承于缸体曲轴箱轴承' },
+    { id:'fx-head-block', type:'fixed', from:'head', to:'block', kinematic:'exact',
+      note:'缸盖经缸垫螺栓紧固于缸体' },
+    { id:'rv-valvetrain-head', type:'bearing_support', from:'valvetrain', to:'head', kinematic:'exact',
+      note:'气门传动经凸轮轴支承于缸盖（凸轮轴随动）' },
+    { id:'fx-ancillaries-block', type:'fixed', from:'ancillaries', to:'block', kinematic:'exact',
+      note:'附件（进气歧管/发电机等）安装于缸体' },
+  ] },
   parts: [
     { id:'valvetrain', zh:'气门传动（顶部）', en:'VALVETRAIN', real:true,
       ex:[0,2.4,.4], lo:[0,1.3,0], tag:'凸轮轴 · 挺柱 · 弹簧',

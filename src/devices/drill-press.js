@@ -50,6 +50,18 @@ export default makeDevice({
   },
   realPartIds: ['column-body', 'table', 'belt-cover', 'belt', 'pulleys', 'feed-handle',
     'chuck-bit', 'depth-stop', 'switch', 'power-plug'],
+  /* AURORA 后/V5.1 内容深度：台式钻床传动链——电机→塔轮皮带（三级变速）→主轴→钻夹头。
+     电机含于柱身部件；feed-handle 与主轴的进给铰接属操作机构（手动态，不作机构边）。 */
+  mech: { edges: [
+    { id:'bl-pulleys', type:'belt_drive', from:'pulleys', to:'belt', kinematic:'approx',
+      note:'电机塔轮经三级 V 带变速驱动主轴塔轮（速比随换挡变化，不作数值声明）' },
+    { id:'sh-pulleys-bit', type:'shaft_coupling', from:'pulleys', to:'chuck-bit', kinematic:'exact',
+      note:'主轴塔轮同轴经主轴锥孔驱动钻夹头与钻头回转' },
+    { id:'fx-beltcover-column', type:'fixed', from:'belt-cover', to:'column-body', kinematic:'exact',
+      note:'皮带罩铰装于立柱（护罩）' },
+    { id:'bs-column-pulleys', type:'bearing_support', from:'column-body', to:'pulleys', kinematic:'exact',
+      note:'主轴塔轮支承于立柱头部轴承座' },
+  ] },
   parts: [
     { id: 'column-body', zh: '立柱与机座', en: 'COLUMN & HEAD', real: true,
       ex: [0, 0.2, -0.6], lo: [0, 1.3, 0], tag: '铸铁立柱 · 一切精度的基准',

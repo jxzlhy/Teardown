@@ -45,6 +45,21 @@ export default makeDevice({
     return 'block';
   },
   realPartIds: ['pistons','rods','plugs','hoses','drive-front','block'],
+  /* AURORA 后/V5.1 内容深度：V6 机构关系（与 v8-engine 同族口径，机构学：往复式内燃机）
+     曲轴未独立拆件（含于缸体部件）——边 from 用 block 并在 note 如实声明；
+     连杆组独立拆件，故曲柄滑块传动拆为大端支承+小端铰接两段真实关系。 */
+  mech: { edges: [
+    { id:'sc-block-pistons', type:'slider_crank', from:'block', to:'pistons', kinematic:'approx',
+      note:'V6 双列十二活塞沿缸轴往复；曲轴含于缸体部件（未独立拆件），连杆摆动以平动近似' },
+    { id:'bs-block-rods', type:'bearing_support', from:'block', to:'rods', kinematic:'exact',
+      note:'连杆大端支承于曲轴连杆颈（曲轴位于缸体部件内）' },
+    { id:'rv-rods-pistons', type:'revolute', from:'rods', to:'pistons', kinematic:'exact',
+      note:'连杆小端经活塞销与活塞铰接（往复平面内摆动）' },
+    { id:'belt-block-front', type:'belt_drive', from:'block', to:'drive-front', kinematic:'approx',
+      note:'曲轴前端皮带轮经附件带驱动轮系（速比未标定，不作数值声明）' },
+    { id:'fx-plugs-block', type:'fixed', from:'plugs', to:'block', kinematic:'exact',
+      note:'火花塞螺纹紧固于缸盖安装孔' },
+  ] },
   parts: [
     { id:'block', zh:'缸体与缸盖', en:'BLOCK + HEADS', real:true,
       ex:[0,.6,1.8], lo:[0,1.4,0], tag:'V 型缸体 · 缸盖 · 歧管',

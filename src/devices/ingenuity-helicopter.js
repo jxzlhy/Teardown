@@ -33,6 +33,7 @@ export default makeDevice({
   targetWidth: 6.5,
   camDist: 1.15,
   glb: '/assets/ingenuity-helicopter.glb',
+  realSizeMM: 1210,   /* 真实最大外形尺寸（NASA/JPL：共轴反转旋翼径 1.21m）：测量工具 mm 标定基准 */
   /* 策展导览：能源→旋翼系统→机身→起落架 */
   tour: ['solar-panel', 'rotor-upper', 'rotor-lower', 'avionics', 'landing-legs'],
   xrayShellIds: ['avionics'],

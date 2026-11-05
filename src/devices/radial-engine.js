@@ -50,6 +50,20 @@ export default makeDevice({
   /* X-Ray 外壳：气缸环与曲轴箱即发动机本体，桨毂作半透明目标（沿用旧口径） */
   xrayShellIds: ['hub'],
   realPartIds: ['crankcase', 'cylinders', 'crankshaft', 'pistons', 'hub', 'mount'],
+  /* AURORA 后/V5.1 内容深度：星型发动机机构关系——主副连杆系（一个主连杆+n 副连杆）
+     为星型机构学特征； Piston→crankshaft 关系按 master-rod 口径以 slider_crank 近似声明。 */
+  mech: { driver: 'crankshaft', edges: [
+    { id:'sc-crankshaft-pistons', type:'slider_crank', from:'crankshaft', to:'pistons', kinematic:'approx',
+      note:'星型多缸活塞经主副连杆系驱动曲轴（各缸相位均布，副连杆运动以主连杆口径近似）' },
+    { id:'fx-hub-crankshaft', type:'fixed', from:'hub', to:'crankshaft', kinematic:'exact',
+      note:'螺旋桨输出端刚性固接于曲轴' },
+    { id:'bs-crankcase-crankshaft', type:'bearing_support', from:'crankcase', to:'crankshaft', kinematic:'exact',
+      note:'曲轴支承于机匣主轴承' },
+    { id:'fx-cylinders-crankcase', type:'fixed', from:'cylinders', to:'crankcase', kinematic:'exact',
+      note:'气缸排螺栓紧固于机匣（星型均布）' },
+    { id:'fx-mount-crankcase', type:'fixed', from:'mount', to:'crankcase', kinematic:'exact',
+      note:'发动机安装架固接于机匣后部' },
+  ] },
   demos: [
     { partId: 'hub', label: '螺旋桨轴旋转 · 星型发动机输出端', spinPivot: 'center', spin: 'auto' },
     { partId: 'pistons', label: '活塞连杆均布相位往复 · 示意',

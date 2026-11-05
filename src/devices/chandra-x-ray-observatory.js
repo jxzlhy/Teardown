@@ -31,6 +31,7 @@ export default makeDevice({
   targetWidth: 11,
   camDist: 1.05,
   glb: '/assets/chandra-x-ray-observatory.glb',
+  realSizeMM: 19500,   /* 真实最大外形尺寸（NASA/CXC 官方：含展开太阳翼 19.5m 跨×13.8m 本体长）：测量工具 mm 标定基准 */
   tour: ['xray-mirrors', 'instrument-module', 'bus-body', 'forward-foil', 'solar-wings'],
   xrayShellIds: ['bus-body'],
   normalize: 'full',

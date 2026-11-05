@@ -73,6 +73,7 @@ export default makeDevice({
   modelCredit: 'Flipper Zero shell by flipperdevices (GPL-3.0), via flipperzero-3d-models',
   targetWidth: 11.0,
   glb: '/assets/flipper-zero.glb',
+  realSizeMM: 100.3,   /* 真实最大外形尺寸（官方文档 100.3×40×25.6mm）：测量工具 mm 标定基准 */
   /* 策展导览：壳→LCD→主板→电池 */
   tour: ['shell','lcd','board','battery'],
   xrayShellIds: ['shell'],

@@ -107,6 +107,20 @@ export default makeDevice({
     'vintage_grandfather_clock_01_MinuteHand': 'minute-hand',
   },
   realPartIds: ['case', 'hour-hand', 'minute-hand'],
+  /* AURORA 后/V5.1 内容深度：重力摆钟机构关系（标准摆钟原理：重锤经链驱动·摆谐振·轮系走针）。
+     擒纵机构含于机芯部件（未独立拆件）——摆/锤/针的支承与传动关系如实声明。 */
+  mech: { edges: [
+    { id:'bl-weights-movement', type:'belt_drive', from:'weights', to:'movement', kinematic:'approx',
+      note:'重锤经钟链/缆绳拉动轮系上链（重力驱动，速率由摆控制不作数值声明）' },
+    { id:'fx-case-movement', type:'fixed', from:'case', to:'movement', kinematic:'exact',
+      note:'机芯固装于钟壳托板' },
+    { id:'rv-movement-pendulum', type:'revolute', from:'movement', to:'pendulum', kinematic:'exact',
+      note:'摆杆绕机芯吊点摆动（擒纵叉与摆的冲动含于机芯部件）' },
+    { id:'rv-movement-minhand', type:'revolute', from:'movement', to:'minute-hand', kinematic:'exact',
+      note:'分针经轮系摩擦装接于机芯回转' },
+    { id:'rv-movement-hrhand', type:'revolute', from:'movement', to:'hour-hand', kinematic:'exact',
+      note:'时针经轮系摩擦装接于机芯回转' },
+  ] },
   builders,
   demos: [
     { partId: 'pendulum', label: '摆锤真实周期摆动（~2s，示意）', wobble: [0.055, 0, 0], wobbleF: Math.PI },

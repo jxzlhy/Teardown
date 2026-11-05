@@ -31,6 +31,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+x',
   glb: '/assets/smeg-toaster.glb',
+  realSizeMM: 310,   /* 真实最大外形尺寸（Smeg 官方产品页 TSF01 310×198×195mm）：测量工具 mm 标定基准 */
   /* 匿名网格：按语义判读 + 位置/尺寸聚类（见 AUTONOMOUS_LOG） */
   mapping: {
     'Object_10': 'shell',

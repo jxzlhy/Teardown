@@ -31,6 +31,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 7.5,
   glb: '/assets/airpods-pro.glb',
+  realSizeMM: 60.6,   /* 真实最大外形尺寸（Apple 官方规格：充电盒 60.6×45.2×21.7mm）：测量工具 mm 标定基准 */
   /* 策展导览：双耳塞→双驱动器→仓体→仓电池→仓盖 */
   tour: ['bud-l','bud-r','driver-l','driver-r','case-bottom','case-battery','case-lid'],
   xrayShellIds: ['bud-l','bud-r','case-bottom','case-lid'],

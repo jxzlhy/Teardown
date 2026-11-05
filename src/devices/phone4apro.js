@@ -23,6 +23,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 14.6,   /* 高 163.7mm 为最大维 */
   glb: '/assets/phone4apro.glb',
+  realSizeMM: 163.7,   /* 真实最大外形尺寸（官方支持页 163.7×76.6×8.0mm，最薄 Nothing 手机）：测量工具 mm 标定基准 */
   tour: ['screen','midframe','camera-island','glyph','usb','buttons'],
   xrayShellIds: ['screen','glyph'],
   normalize: 'full',

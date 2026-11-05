@@ -97,6 +97,22 @@ export default makeDevice({
      离合盖并入离合部件（弹簧片/摩擦片需保持可见），故不作 shell */
   xrayShellIds: ['crankcase', 'timing-covers'],
   realPartIds: ['crankcase', 'cylinders', 'valvetrain', 'timing-covers', 'clutch', 'induction', 'exhaust', 'cooling', 'lubrication', 'electrics'],
+  /* AURORA 后/V5.1 内容深度：直列三缸机构关系（v6/v8 同族口径）。曲轴未独立拆件（含于曲轴箱）
+     ——边 from 用 crankcase 并在 note 如实声明；离合器为扭矩切断（revolute 近似）。 */
+  mech: { edges: [
+    { id:'sc-crankcase-pistons', type:'slider_crank', from:'crankcase', to:'cylinders', kinematic:'approx',
+      note:'三缸活塞往复经连杆驱动曲轴（曲轴含于曲轴箱部件未独立拆件，连杆摆动以平动近似）' },
+    { id:'bs-crankcase-crank', type:'bearing_support', from:'crankcase', to:'crankcase', kinematic:'exact',
+      note:'曲轴主轴颈支承于曲轴箱轴承（同部件内部关系，供面板总览归类）' },
+    { id:'rv-cylinders-valvetrain', type:'bearing_support', from:'cylinders', to:'valvetrain', kinematic:'exact',
+      note:'凸轮轴随动支承于缸盖（DOHC 链传动配气）' },
+    { id:'cl-clutch-crankcase', type:'revolute', from:'clutch', to:'crankcase', kinematic:'approx',
+      note:'离合器与曲轴端同轴回转，摩擦片接合时传扭（分离时切断——revolute 近似表达同轴回转）' },
+    { id:'fx-timing-covers-crankcase', type:'fixed', from:'timing-covers', to:'crankcase', kinematic:'exact',
+      note:'正时罩壳螺栓紧固于曲轴箱前瑞' },
+    { id:'fx-cylinders-crankcase', type:'fixed', from:'cylinders', to:'crankcase', kinematic:'exact',
+      note:'缸体螺栓紧固于曲轴箱' },
+  ] },
   parts: [
     { id: 'crankcase', zh: '曲轴箱与油底壳', en: 'CRANKCASE', real: true,
       ex: [0, -0.5, 0.8], lo: [0, 1.0, 0], tag: '发动机的承力脊柱',

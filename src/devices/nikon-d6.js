@@ -35,6 +35,7 @@ export default makeDevice({
   modelSource: 'https://sketchfab.com/3d-models/nikon-d6-a258ee3070fe43abb8686cab42ef86d4',
   targetWidth: 8.5,
   glb: '/assets/nikon-d6.glb',
+  realSizeMM: 163,   /* 真实最大外形尺寸（Nikon 官方规格：机身 160×163×92mm）：测量工具 mm 标定基准 */
   /* 策展导览：镜头→卡口→机身→主板→电池→顶盖→握持→背盖→底板 */
   tour: ['lens','mount','body','board','battery','top-plate','grip','back','bottom-plate'],
   xrayShellIds: ['body','back','top-plate','grip','bottom-plate'],

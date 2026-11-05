@@ -35,6 +35,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 13.8,   /* 展开高 165.1mm 为最大维 */
   glb: '/assets/zflip7.glb',
+  realSizeMM: 166.7,   /* 真实最大外形尺寸（Samsung 官方规格：展开 166.7×75.2×6.5mm / 折叠 85.5×75.2×13.7mm）：测量工具 mm 标定基准 */
   /* 策展导览：外屏→铰链→两半机身→内屏→电子件（折叠机叙事） */
   tour: ['display-cover','hinge','half-top','half-bottom','display-main','mainboard','subboard','battery1','battery2','camera-module','camera','coil','speaker','usb'],
   xrayShellIds: ['display-cover','display-main','half-top','half-bottom'],

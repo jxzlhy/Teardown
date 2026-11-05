@@ -39,6 +39,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 6.5,
   glb: '/assets/airtag.glb',
+  realSizeMM: 31.9,   /* 真实最大外形尺寸（Apple 官方规格：直径 31.9mm×厚 8.0mm）：测量工具 mm 标定基准 */
   /* 策展导览：抛光壳→钢背→纽扣电池→扬声器 */
   tour: ['top-shell','steel-back','coin-battery','speaker'],
   xrayShellIds: ['top-shell'],

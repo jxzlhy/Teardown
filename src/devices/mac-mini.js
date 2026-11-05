@@ -35,6 +35,7 @@ export default makeDevice({
   targetWidth: 12.7,
   camDist: 1.12,
   glb: '/assets/mac-mini.glb',
+  realSizeMM: 127,   /* 真实外形尺寸（Apple 官方规格 127×127×50mm，M4 2024）：测量工具 mm 标定基准 */
   /* 策展导览：机身→前后 IO→主板→风扇→电源→底脚 */
   tour: ['body','io-front','io-rear','board','fan','psu','feet'],
   xrayShellIds: ['body'],

@@ -30,6 +30,7 @@ export default makeDevice({
   camDist: 1.2,
   normalize: 'full',
   glb: '/assets/porsche-911-930.glb',
+  realSizeMM: 4291,   /* 真实最大外形尺寸（1986 车型年官方口径 4291×1775×~1310mm，轴距 2272mm）：测量工具 mm 标定基准 */
   tour: ['body','glass','lights','wheels','spoiler','trim-chrome','interior','livery','plate'],
   xrayShellIds: ['body','glass'],
   mapping: {

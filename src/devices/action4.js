@@ -404,6 +404,7 @@ export default {
   accent: '#45e0ff',
   targetWidth: 7.05,
   glb: '/assets/action4.glb',
+  realSizeMM: 70.5,   /* 真实最大外形尺寸（DJI 官方规格 70.5×44.2×32.8mm）：测量工具 mm 标定基准 */
   mapping: {
     'JISHEN_09':'lens','JISHEN_010':'lens','JISHEN_022':'lens','JISHEN_023':'lens',
     'JISHEN_024':'lens','JISHEN_025':'lens','JISHEN_026':'lens','JISHEN_027':'lens',

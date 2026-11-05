@@ -46,6 +46,18 @@ export default makeDevice({
   tour: ['rotor', 'front-housing', 'mid-housing', 'rear-housing', 'sump'],
   /* 无独立外壳（剖切态即展品形态），不设 xrayShellIds */
   realPartIds: ['rotor', 'front-housing', 'mid-housing', 'rear-housing', 'sump'],
+  /* AURORA 后/V5.1 内容深度：汪克尔偏心轴系（forge wankel 同族口径，3:1 相位约束）。
+     偏心轴与内齿圈含于 housing 类部件（未独立拆件）——revolute 偏心关系与内啮合约束如实声明。 */
+  mech: { edges: [
+    { id:'rv-eccentric-rotor', type:'revolute', from:'mid-housing', to:'rotor', kinematic:'exact',
+      note:'偏心轴颈插入转子中央轴承：轴公转带动转子中心偏回转（3:1 相位，轴含于 housing 类部件）' },
+    { id:'gm-internal-housing', type:'gear_mesh', from:'mid-housing', to:'rotor', kinematic:'exact',
+      note:'内齿圈（概念上含于中壳侧壁）与转子内齿圈 3:1 内啮合约束公转-自转相位（概念齿环口径）' },
+    { id:'fx-housings', type:'fixed', from:'mid-housing', to:'front-housing', kinematic:'exact',
+      note:'端盖螺栓紧固于中壳两侧（ epitrochoid 型线腔体封闭）' },
+    { id:'fx-sump-rear', type:'fixed', from:'sump', to:'rear-housing', kinematic:'exact',
+      note:'油底壳固装于后端盖' },
+  ] },
   parts: [
     { id: 'rotor', zh: '三角转子与偏心轴', en: 'ROTOR & ECCENTRIC', real: true,
       ex: [0.8, 0.2, 0.2], lo: [0, 1.1, 0], tag: '发动机的心脏 · 偏心三弧面',

@@ -35,6 +35,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 13.4,   /* 展开宽 143.1mm 为最大维 */
   glb: '/assets/zfold7.glb',
+  realSizeMM: 158.4,   /* 真实最大外形尺寸（Samsung 官方规格：展开 158.4×143.2×4.2mm / 折叠 158.4×72.8×8.9mm）：测量工具 mm 标定基准 */
   /* 策展导览：外屏→铰链（折叠机核心）→内屏→两半机身→电子件 */
   tour: ['display-cover','hinge','display-inner','half-left','half-right','mainboard','subboard','battery1','battery2','camera-module','camera','coil','speaker','usb','logo'],
   xrayShellIds: ['display-cover','display-inner','half-left','half-right'],

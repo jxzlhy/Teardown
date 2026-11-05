@@ -42,6 +42,16 @@ export default makeDevice({
     'large_gear_0': 'ring-gear',
   },
   realPartIds: ['input-shaft', 'pinion', 'output-shaft', 'ring-gear'],
+  /* AURORA 后/V5.1 内容深度：准双曲面齿轮副——输入轴与主动小齿轮同体（轴向输入），
+     经准双曲面齿副偏置交问到 ring-gear（从动大轮与输出轴同体）。 */
+  mech: { edges: [
+    { id:'fx-inputpinion', type:'fixed', from:'input-shaft', to:'pinion', kinematic:'exact',
+      note:'主动小齿轮刚接于输入轴（螺旋齿轴向输入）' },
+    { id:'gm-pinion-ring', type:'gear_mesh', from:'pinion', to:'ring-gear', kinematic:'exact',
+      note:'准双曲面齿副交错轴啮合（小齿轮轴线低于大轮轴线——偏置距为该齿轮副核心特征）' },
+    { id:'fx-ringoutput', type:'fixed', from:'ring-gear', to:'output-shaft', kinematic:'exact',
+      note:'从动大轮法兰刚接于输出轴' },
+  ] },
   postLoad: ({ partsById }) => {
     /* 白色渲染件过曝：整体压暗并微调金属感 */
     for (const p of Object.values(partsById)) {

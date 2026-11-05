@@ -29,6 +29,7 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.1,
   glb: '/assets/perseverance-rover.glb',
+  realSizeMM: 2900,   /* 真实最大外形尺寸（JPL Fact Sheet：长 2.9m×宽 2.7m×高 2.2m，不含机械臂）：测量工具 mm 标定基准 */
   /* 策展导览：车体→行动系统→电源→感知/通信→机械臂/钻→附件 */
   tour: ['body','wheels','suspension','rtg','mast-head','antennas','hazcams','arm','turret','drill','calibration-target','shell'],
   xrayShellIds: ['body','shell'],

@@ -74,6 +74,7 @@ export default {
   accent: '#7ee787',
   targetWidth: 7.05,
   glb: '/assets/action5pro.glb',
+  realSizeMM: 70.5,   /* 真实最大外形尺寸（DJI 官方规格 70.5×44.2×32.8mm，与 Action 4 同模具）：测量工具 mm 标定基准 */
   /* 策展导览：与 action4 同构（镜头→传感→主板→散热→电池→外壳→屏幕） */
   tour: ['lens','sensor','mainboard','thermal','battery','battery-cover','shell','rear-screen','front-screen','mount','shutter','qs','io-door','cover-glass'],
   xrayShellIds: ['shell','battery-cover','io-door','front-screen','rear-screen','mount','shutter','qs'],

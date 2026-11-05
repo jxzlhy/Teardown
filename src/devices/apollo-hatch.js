@@ -35,6 +35,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/apollo-hatch.glb',
+  realSizeMM: 990,   /* 真实最大外形尺寸（Smithsonian 收藏件口径：统一舱门 ~990×790mm 外框）：测量工具 mm 标定基准 */
   /* 3 组件按材质名映射（CAD 分组，逐组件隔离截图核验语义）：
      default.056 = 门上五金群（锁闩×12/铰链/通风阀/齿轮箱/窗框圈）
      default.057 = 舱门主体板（圆窗开口 + 红边密封 + 背面加强筋）

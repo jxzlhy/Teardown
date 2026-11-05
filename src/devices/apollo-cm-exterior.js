@@ -35,6 +35,7 @@ export default makeDevice({
   normalize: 'full',
   frontAxis: '+z',
   glb: '/assets/apollo-cm-exterior.glb',
+  realSizeMM: 3910,   /* 真实最大外形尺寸（NASA：指令舱底径 3.91m×锥高 ~3.5m）：测量工具 mm 标定基准 */
   /* 2 组件位置路由（merge 后扫描坐标实测）：top 锥段中心 y≈285 */
   mapByPosition(name, p, rel) {
     if (p.y > 220) return 'nose-section';

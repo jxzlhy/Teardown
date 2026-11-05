@@ -44,6 +44,7 @@ export default {
   targetWidth: 12,
   normalize: 'full',         // 资产为沿 X 平铺布局，按整体包围盒归一化
   glb: '/assets/mini4pro.glb',
+  realSizeMM: 373,   /* 真实最大外形尺寸（DJI 官方规格：展开含桨 298×373×101mm / 折叠 148×94×64mm）：测量工具 mm 标定基准 */
   /* 策展导览：机身→云台→前后机臂→桨→电池 */
   tour: ['body','gimbal','arms-front','arms-rear','propellers','battery'],
   xrayShellIds: ['body'],

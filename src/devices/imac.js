@@ -34,6 +34,7 @@ export default makeDevice({
   targetWidth: 13.5,
   camDist: 1.3,
   glb: '/assets/imac.glb',
+  realSizeMM: 547,   /* 真实最大外形尺寸（Apple 官方规格：含支架 547×461×147mm，iMac 24″ M4）：测量工具 mm 标定基准 */
   /* 策展导览：屏体→下巴→主板→风扇→扬声器→支架→底座→键鼠 */
   tour: ['display-body','chin','board','fan','speaker','stand','foot','keyboard','mouse'],
   xrayShellIds: ['display-body'],

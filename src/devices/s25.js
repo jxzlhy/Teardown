@@ -36,6 +36,7 @@ export default makeDevice({
   distribution: 'local-demo-only',
   targetWidth: 13.2,
   glb: '/assets/s25.glb',
+  realSizeMM: 146.9,   /* 真实最大外形尺寸（Samsung 官方规格 146.9×70.5×7.2mm）：测量工具 mm 标定基准 */
   /* 策展导览：与 s25-ultra 同构（屏→框→板→影像→电池→底部→后盖） */
   tour: ['display','frame','mainboard','camera','camera-island','battery','coil','taptic','speaker','usb','usb-pcb','sim','back-cover','logo'],
   xrayShellIds: ['display','back-cover','frame'],

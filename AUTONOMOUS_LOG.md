@@ -2427,3 +2427,151 @@ P2-11 SEO 基础件（og:image/robots/sitemap/manifest + CSP meta，纯静态构
 - **回归**：**switch-seq 探针 ALL PASS**——② Δ=0（rp=rh=20.8）、③ Δ=0（rp=rh=18.1）双向精确回位；UI 态清理/切换正确/零错误全绿。build 2.81s ✓ lint ✓。
 - **遥测转正**：TEMP-DIAG __CAMREF 删除，改为 `getState().camPos`（每帧实时，renderCount 同模式）；探针已切换。TDZ 插曲（__CAMREF 曾挂 camera 声明前致全引擎崩，diag 抓出即修）如实留档。
 - **归因诚实注记**：原缺陷的真实程度无法回溯证实（快照污染覆盖了历史数据）；修复后的保证是结构性的（update 之后的写入优先级+live home 跟随）。若需纯 HEAD 归因须 stash 实验（风险高不做）。
+
+## 2026-11-05 续会话轮 22 · AURORA PHASE 3 正文首切片——I3 零件导航搜索
+
+- **交付**（任务书 §6.4 零件导航「搜索」能力）：DeviceViewer rail（清单/宫格双模式）加 `.rail-search` 输入框——中文名/英文名/编号（原序号，含前导零容错）即时过滤；**idx 保留全馆原序**（过滤不使编号漂移，编号仍是跨页引用锚）；rail-count 显示「命中/总数」；空态如实提示（「没有匹配「xx」的部件」）；切台自动清空搜索词（新台从全量清单开始）；样式走 glass/pill token 体系（AURORA PHASE 1 产物复用）；清空按钮复用 Icon close。
+- **验证**：build 3.65s ✓ / lint ✓ / **DOM 级行为断言**（dev server 页内输入驱动）：「模组」2 命中（中文）✓、「camera」1 命中（英文）✓、「03」→ 编号命中且 idx 显示 03 ✓、无匹配空态文案 ✓、清空恢复 12 全量 ✓。**首轮测试词「镜头/lens」0 命中为正确行为**（iphone-13 部件名本不含这些词——数据核对澄清后以正确词复测）。
+- 改动文件：src/components/DeviceViewer.vue（rail 模板×2 模式 + partQuery/filteredParts computed + 切台清空）、src/style.css（.rail-search 族样式）。
+
+## 2026-11-05 续会话轮 25 · AURORA PHASE 6 首切片——设备分级自适应起步档
+
+- **交付**：engine.js 设备分级（一次性探测 `detectDeviceTier`：navigator.deviceMemory≤4GB→low；≥8GB 且 cores≥8→high；其余/探测不可用→mid，try 兜底）——① **起步档联动**：low 从 L1 起步（quality=1，pixelRatio 1.5/阴影 1024），避免首屏帧率骤降触发看门狗连锁降档；mid/high 现状不变（只降不升机制天然接管）；② **MSAA samples 联动**：low 档 composer RT samples 2（其余 4）；③ `getState().deviceTier` 暴露（探针/降档诊断用）。
+- **实测**：build 2.78s ✓ lint ✓；headless 分级探测（dm=32GB/cores=10 → tier=high → quality 2 起步现状不变=回归安全）+ 移动视口渲染 33fps 正常。
+- **诚实边界**：low 档逻辑为极简 if 链（代码审查验证），**真机 low 档效果（deviceMemory≤4GB 设备）待真机验证**（headless 只读属性不可伪造）；纹理运行时降采样**评估后缓行**（2048 已是 lint-assets 闸门口径，运行时再降收益存疑风险高——与 LOD 同判）。
+- 改动文件：src/engine/engine.js（detectDeviceTier + quality 起步 + samples 联动 + getState 暴露 ~20 行）。
+
+## 2026-11-05 续会话轮 38 · mech 第四批铺量——四台动力/传动机械（17→21/129）
+
+- **triple-engine（6 边，lint-mech ✓）**：直列三缸 v6/v8 同族口径——slider_crank(crankcase→cylinders，曲轴含于曲轴箱如实声明)+bearing_support(cylinders→valvetrain 凸轮轴随动)+**revolute(clutch，摩擦片接合传扭的近似表达)+fixed(timing-covers/cylinders)**。同部件内部关系（曲轴主轴颈）标注「供面板总览归类」——口径注记。
+- **hypoid-gear（3 边，lint-mech ✓）**：准双曲面齿轮副本体——fixed(input→pinion 小齿轮刚接)+**gear_mesh(pinion→ring-gear 交错轴啮合，偏置距为核心特征如实注记)**+fixed(ring-gear→output 法兰刚接)。
+- **hand-drill（3 边，lint-mech ✓）**：手摇传动链 gear_mesh(crank→gears，人力输入速比未标定不声明)+shaft_coupling(gears→chuck 同轴)+bearing_support(body→gears)。
+- **drill-press（4 边，lint-mech ✓）**：台钻传动链 belt_drive(pulleys→belt 三级 V 带变速，速比随挡不声明)+shaft_coupling(pulleys→chuck-bit 主轴同轴)+fixed(belt-cover 护罩)+bearing_support(column→pulleys 立柱头部轴承)。
+- **覆盖 17→21/129**（devices 16 文件+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.75s ✓。
+- 新类型首用：shaft_coupling（同轴耦合）/ linkage（轮 35 已用）——10 类关系逐步铺开。口径纪律延续：无数值速比声明、approx/exact 如实。
+
+## 2026-11-05 续会话轮 39 · mech 第五批——十字头与偏心轴系（21→23/129）
+
+- **watt-steam-engine（4 边，lint-mech ✓）**：slider_crank(cylinder→flywheel，十字头直线导轨与杆系含于 cylinder 部件如实声明——174 网格位置聚类未独立拆件)+fixed(flywheel→frame 轴承支承/cylinder→frame 汽缸固装+导轨同体/frame→base)。动力端蒸汽回路不作机构边（流体非机构）。
+- **wankel-engine（4 边，lint-mech ✓）**：偏心轴系（forge wankel 同族口径 3:1 相位）——revolute(mid-housing→rotor 偏心轴颈公转)+gear_mesh(mid-housing→rotor 内齿圈 3:1 内啮合约束)+fixed(mid→front 端盖/sump→rear 油底壳)。**抓回一次自违反**：曾误写 from:'housing-group'（虚构 id）——发稿前自查修正为 mid-housing（真实 id）。
+- **覆盖 21→23/129**（devices 18 文件+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.73s ✓。
+
+## 2026-11-05 续会话轮 40 · mech 第六批——wright-flyer 链传动（23→24/129）
+
+- **wright-flyer（3 边，lint-mech ✓）**：1903 飞行者动力传动（机构学史料明确：直列四缸水冷引擎经双自行车链条驱动翼后两具推式螺旋桨**反向对转消扭**，速比史料口径 1:1.5）——链条/桨轴/螺旋桨含于 engine 部件（未独立拆件）如实声明；翘曲操纵为柔性变形非机构边（不硬凑）。
+- **覆盖 23→24/129**（devices 19+forge 6）；lint 六段 ✓ / build 2.69s ✓。
+- mech 铺量至此覆盖全部高确定性机构设备；剩余候选需逐台机构学查证（value/成本比下降），铺量节奏转缓为按批自选。
+
+## 2026-11-05 续会话轮 41 · realSizeMM 第七批铺量——平板/折叠屏/超跑（27→33 台，覆盖率 25.6%）
+
+- **查证**：iPad Pro 13″ M4（281.6×215.5×5.1——**史上最薄 Apple 产品**，apple.com/ipad-pro/specs）/ iPad Air 11″ M3（247.6×178.5×6.1，**M3 精确补查**——先前只查了 M2 同模具，support.apple.com/122241）/ S25+（158.4×75.8×7.3）/ Z Flip7（展开 166.7×75.2×6.5 / 折叠 85.5×75.2×13.7）/ Z Fold7（展开 158.4×143.2×4.2 / 折叠 158.4×72.8×8.9）/ Countach LPI 800-4（4870×2099×1139，轴距 2700）。
+- **写入 6 台**（折叠机双口径注记；车辆级第二个 4870）：ipad-pro 281.6 / ipad-air 247.6 / s25-plus 158.4 / zflip7 166.7 / zfold7 158.4 / countach-lpi800-4 4870。
+- **覆盖率 27→33/129（25.6%）**；lint 六段 ✓ / build 2.76s ✓。七批累计 33 台。
+- 排除性核查结论：剩余 ~95 台中 GENERIC 匿名模型（42 台）与 NASA/Smithsonian 航天器（需 fact sheet 精确查证）为主——铺量转入按查证成本分批。
+
+## 2026-11-05 续会话轮 42 · realSizeMM 第八批铺量——NASA/Smithsonian 航天器（33→42 台，覆盖率 32.6%）
+
+- **查证**（官方域）：Hubble（NASA/ESA：长 13.2m×最大径 4.3m）/ Perseverance（JPL Fact Sheet：2.9×2.7×2.2m 不含机械臂）/ Ingenuity（JPL：共轴旋翼径 1.21m）/ JWST（NASA：展开遮阳板 21.2×14.2m 网球场面级）/ Chandra（CXC：含展开太阳翼 19.5m 跨×13.8m 本体）/ Spitzer（高 4.5m×径 2.1m）/ Parker（APL：本体高 ~3m）/ Apollo CM（NASA NSSDC：底径 3.91m×锥高 ~3.5m）/ 统一舱门（Smithsonian 收藏件 ~990×790mm 外框）。
+- **写入 9 台**（部分设备如 apollo-cm-interior 与 exterior 同体径——共用标定口径随下批补注）：hubble 13200 / perseverance 2900 / ingenuity 1210 / jwst 21200 / chandra 19500（含翼注记）/ spitzer 4500 / parker 3000 / apollo-cm-exterior 3910 / apollo-hatch 990。
+- **覆盖率 33→42/129（32.6%）**；lint 六段 ✓ / build 2.73s ✓。八批累计 42 台——**大型航天器展品全部获得 mm 标定**（测量工具在 13-21m 级展品上的量程首次生效）。
+- apollo-cm-interior（与 exterior 同体 3910）与 apollo-hatch 同批已标；剩余 apollo-cm-interior 下批随扫补。
+
+## 2026-11-05 续会话轮 32 · mech 铺量评估 + v6-engine 试点（12→13/129）
+
+- **评估结论（forge 复用路径澄清）**：forge 6 生成器**全部已有 mech 声明**（v8/turbofan/ringdrive/lockstitch/wankel/governor）——「复用生成器补 mech」路径已饱和；12/129 缺口全在**真实设备**（需机构学知识查证+真实 part id 映射，非代码复用问题）。
+- **v6-engine 试点（5 边，lint-mech ✓）**：与 v8-engine 同族往复式内燃机口径——slider_crank(block→pistons)+bearing_support(block→rods 连杆大端)+revolute(rods→pistons 小端铰接)+belt_drive(block→drive-front)+fixed(plugs↔block)。**机构学纪律**：曲轴未独立拆件（含于缸体）→边 from 用 block 并在 note 如实声明；连杆独立拆件故传动拆为大端支承+小端铰接两段真实关系；无数值速比声明（未标定不虚标）。全部边引用 realPartIds 内真实 id。
+- 覆盖 12→13/129；lint（含 lint-mech）✓ build 2.91s ✓。
+- 下批候选（机构关系明确+可查证）：v6 同族方式铺 angle-grinder 外剩余动力机械；挂钟类擒纵需机构学来源逐台查证。
+
+## 2026-11-05 续会话轮 35 · mech 第三批——擒纵与摆钟（15→17/129）
+
+- **机构学来源查证**：Swiss lever escapement 标准原理（Horopedia「Swiss Lever Escapement」/ Wikipedia Lever escapement / 学术动力学 PDF）——lock→release/impulse→lock 三相位、杠杆瓦与擒纵轮齿间歇啮合、摆轮冲钉经叉槽传冲。
+- **swiss-escapement（10 边，lint-mech ✓）**——擒纵机构教具的**全机构链**：gear_mesh(escape-wheel→pallets 间歇啮合，非连续如实注记)+fixed(pallets→lever 瓦镶固/impulse-pin→balance-wheel 冲钉装盘/hairspring→balance-axle 内桩游丝回路/balance-wheel→axle 刚接/banking-pins→fixtures 限位)+linkage(lever→impulse-pin 冲击传递)+bearing_support(摆轴/擒纵轮/杠杆三轴支承于夹板)。**动力端（发条轮系）不在展件内——不设 driver 如实口径**。
+- **grandfather-clock（5 边，lint-mech ✓）**：belt_drive(weights→movement 重锤钟链重力驱动)+fixed(case→movement 机芯固装)+revolute×3(movement→pendulum 摆锤吊点/movement→两针摩擦装接回转)。擒纵含于机芯部件如实注记（未独立拆件）。
+- **覆盖 15→17/129**（devices 侧 12 文件+forge 6）；lint 六段（lint-mech 逐边）✓ / build 2.66s ✓。
+- alarm-clock/pocket-watch 机芯未独立拆件（无可指机构件）——**如实跳过**（不硬凑）。
+
+## 2026-11-05 续会话轮 36 · realSizeMM 第五批铺量——Nothing 系+Porsche（20→24 台，覆盖率 18.6%）
+
+- **存在性核查先行**：phone4apro（「Phone (4a) Pro」）Web 确认**官方真实产品**（2026-03 发布 $499，TechRadar/GSMArena/Phone Scoop）——未误杀；尺寸取官方支持页 163.66×76.62×7.95mm。
+- **查证写入 4 台**：phone3 163.7（官方 163.7×76.6×9.0）/ phone3alite 164.1（官方支持页 164.1×78.1×8.3）/ phone4apro 163.7 / porsche-911-930 **4291**（1986 车型年 4291×1775×~1310，轴距 2272——首个车辆级展品，维度跨档注记）。
+- **覆盖率 20→24/129（18.6%）**；lint 六段 ✓ / build 4.03s ✓。五批累计 24 台。
+- WebSearch 配额曾超限一次（nothing.tech 域过滤查询）——改无域过滤查询后恢复。
+
+## 2026-11-05 续会话轮 37 · realSizeMM 第六批铺量（24→27 台，覆盖率 21%）
+
+- **查证**：Sony TC-510 实为**便携开盘机**（非磁带座——型号认知修正）：333×136×296mm（thevintageknob/hifi-wiki/官方维修手册 PDF 交叉）/ Walther P99 官方手册 9×19mm 版 180×135×~31mm（carl-walther.de）/ Smeg TSF01 官方产品页 310×198×195mm。
+- **写入 3 台**（最大维口径）：sony-tc510 333 / walther-p99 180 / smeg-toaster 310。Western Electric 无独立设备文件（GENERIC 池）——不在本批。
+- **覆盖率 24→27/129（21%）**；lint 六段 ✓ / build 2.71s ✓。六批累计 27 台。
+
+## 2026-11-05 续会话轮 34 · realSizeMM 第四批铺量——手机/掌机/相机（14→20 台，覆盖率 15.5%）
+
+- **查证**（官方域/官方规格）：Nintendo Switch 2（116×272×13.9 Joy-Con 2 装态，nintendo.com tech-specs）/ Switch OLED（102×242×13.9）/ Samsung S25 Ultra（162.8×77.6×8.2）/ S25（146.9×70.5×7.2）/ Galaxy S22 Ultra（163.3×77.9×8.9，Samsung Newsroom）/ Nikon D6（机身 160×163×92mm）。
+- **写入 6 台**（最大维口径）：switch2 272 / switch-oled 242 / s25-ultra 162.8 / s25 146.9 / galaxy-s22-ultra 163.3 / nikon-d6 163。
+- **覆盖率 14→20/129（15.5%）**；lint 六段 ✓ / build 2.66s ✓。四批累计 20 台：DJI 全系 6 + Apple 5 + Nintendo 3 + Samsung 3 + Nikon 1 + Flipper 1 + pocket3 计入 DJI。
+
+## 2026-11-05 续会话轮 33 · mech 铺量第二批——两台内燃机（13→15/129）
+
+- **combustion-engine（6 边，lint-mech ✓）**：单缸四冲程全链——slider_crank(crank→pistons)+fixed(flywheel↔crank 刚接)+bearing_support(block→crank 主轴颈)+fixed(head/block 缸垫螺栓)+bearing_support(valvetrain 凸轮轴随动)+fixed(ancillaries)。曲轴独立拆件→全链精确声明（无 v6 的「含于缸体」近似）。
+- **radial-engine（5 边，lint-mech ✓）**：星型发动机机构学特征=主副连杆系——slider_crank(crankshaft→pistons，副连杆以主连杆口径近似声明)+fixed(hub/cylinders/mount 三处刚接)+bearing_support(crankcase 主轴承)。driver='crankshaft'（运动态面板可显示曲轴转角）。
+- **覆盖 13→15/129**（devices 侧 10 文件+forge 6 生成器=16 文件含 mech）；lint 六段（含 lint-mech 逐边校验）✓ / build 2.71s ✓。
+- 口径纪律延续：不虚构 part id、未标定速比不声明、近似/精确分级如实（kinematic 字段）。
+
+## 2026-11-05 续会话轮 26 · AURORA PHASE 4 收口——glbCache 容量校准 + 冷/热对比 + PHASE 7 清单固化
+
+- **容量校准（结论：无需调整）**：`GLB_CACHE_CAP=512MB` vs **全馆 129 台 GLB 实测 428MB（使用率 84%）**——全馆装得下、零淘汰压力；扩容预留：约 150 台时触发 LRU（机制已验证可自动接管）。**淘汰行为 Node 直测四项全绿**（cache-policy 纯函数口径）：① 现状回放 428/512 零淘汰 ✓ ② 超限 300MB cap 淘汰 39 台且严格按 LRU at 升序 ✓ ③ keepUrl 刚写入保护 ✓ ④ 畸形 meta（null/负 size/非数字 at）不崩溃 ✓。
+- **冷/热缓存装载对比（PHASE 4 数据项交付）**：3 台×冷热全链（loadTiming 六环节）——done：iphone-13 冷 259/热 257ms；action4 冷 509/热 1100ms（**热轮 756ms fetch 异常抖动如实标注**——Cache Storage 大文件读取受负载影响）；v8-engine 冷 315/热 290ms，**缓存命中 fetch 收益实证 v8 52→19ms**。分环节占比结论：fetch 占比小（<15%），done 由 parse/scene 主导——**再压 fetch 收益有限，缓存价值=二次进入零网络等待**。数据 /tmp/aurora-load-baseline.json。
+- **PHASE 7 终验清单固化**：`docs/audit/V5_AURORA_FINAL_QA_CHECKLIST.md`——四线（视觉 7/交互 5/性能 6/回归 4）逐项状态与证据索引 + 裁定挂账五项（P1-4 裁定/KTX2 缓行/真机/sitemap/CSP/许可复核）+ §17 十四项素材索引。
+- 门禁：本轮零代码改动（容量校准=确认现状+数据交付；淘汰机制既有代码验证通过）。
+
+## 2026-11-05 续会话轮 27 · AURORA 交付定稿——§17 十四项报告 + 摩擦记录
+
+- **交付报告定稿**：`docs/audit/V5_AURORA_DELIVERY_REPORT.md`（任务书 §17 十四项全覆盖）：版本核定/前后对比表/八阶段状态（0/1/3/4/5/7 ✅、2/6 🟡 裁定与真机挂账）/UI 十项/Skills 四项/性能六项/前后数据八行（idle 半帧率/Δ=0/装载 259-1100ms/registry −95%）/测试五套件终态/构建/未解决七项（P1-4 裁定/KTX2 缓行/真机/sitemap/许可/hash 竞态观察/工作区入库待授权）/回滚（单文件级+无数据迁移）/V5.1 五条建议（P1-4 先行/真机专项/内容深度回归/KTX2 条件立项/红线保持）。**裁定：V5.0.10 按 §46 完成定义标记 DELIVERED（含挂账移交），§18 不转 V5.1 约束解除**。
+- **摩擦记录落地**：`docs/audit/V5_AURORA_FRICTION_LOG.md`——friction-log Skill 的 GitHub 通道不适用本项目（诚实标注），采用其条目模式本地落地 **F-01~F-10 十条**（饱和慢误判/假遥测/confirm 挂 CDP/TDZ/OrbitControls 覆盖三返工/contrast 护栏/firstRender 打点错位/CDP 序列化/Promise 判据/测试词未核对），含模式总结三类（环境口径先行/工具产品同步/假设验证成本）。
+- EXECUTION_STATUS PHASE 2/7 表更新（报告与摩擦档链接）。
+
+## 2026-11-05 续会话轮 28 · V5.1 开篇——验证资产转正（AURORA 遗产固化）
+
+- **交付**：/tmp 两个取证探针转正为常驻工具（AURORA 交付后资产防丢失）：
+  ① `tools/switch-seq-verify.mjs`（切台序列：action4→iphone-13→action4 往返 + 脏状态 + UI 态清理六项 + 相机半径量纲 Δ<1.5 + console 零错误）；
+  ② `tools/load-timing-verify.mjs`（装载分环节基线：3 台×冷热×attempt 护栏，产物落 docs/audit/load-timing-baseline.json）。
+  工程化：ROOT 相对解析（fileURLToPath）、端口环境变量化（SWITCH_PORT=8290/LOAD_PORT=8291）、package.json 新增 `verify:switch` / `verify:load-timing` 两命令。
+- **验证**：node --check 语法 ✓；**转正版 switch-seq 端到端 ALL PASS（8/8，Δ=0 双向）**——与 /tmp 版行为一致，转正无回归。
+- 依赖：两工具依赖本轮已转正的 getState() 打点（loadTiming.id/doneMs/camPos/renderCount）与 TEMP 遥测转正成果——AURORA 基建与验证资产形成闭环。
+- 改动文件：新增 tools/switch-seq-verify.mjs、tools/load-timing-verify.mjs；package.json（+2 scripts）。
+
+## 2026-11-05 续会话轮 29 · V5.1 内容深度——realSizeMM 首批铺量（1→5 台，Web 官方查证）
+
+- **查证流程（先查证后写）**：WebSearch 逐台官方域查证——DJI（action4：70.5×44.2×32.8mm，dji.com/osmo-action-4/specs）/ Apple（mac-mini M4：127×127×50mm，apple.com specs；mac-studio：**197×197×95mm**）/ Flipper（flipper-zero：100.3×40×25.6mm，docs.flipper.net）。
+- **Web 查证纠正记忆错误一处**：mac-studio 我原记 142mm——官方实为 **197mm**（查证前写入会错）——「先查证后写」原则的直接价值实证。
+- **写入 4 台**（realSizeMM 单数值=最大外形，注释带官方三维+来源，pocket3 同格式）：action4 70.5 / mac-mini 127 / mac-studio 197 / flipper-zero 100.3。**覆盖率 1→5/129**。
+- **验证**：lint 六段 ✓（含资产 129 合规）/ build 2.50s ✓。测量工具 mm 标定对这 4 台+pocket3 生效。
+- 后续批次：DJI 全系（mavic/avata/穿越机）、Apple 剩余（airpods 系列盒体）、Nintendo//framework 等按官方规格页可查证设备逐台铺——每批 Web 查证+lint 后入库。
+
+## 2026-11-05 续会话轮 30 · realSizeMM 第二批铺量——DJI 全系收口（5→9 台，覆盖率 7%）
+
+- **查证**（dji.com 官方域逐台）：avata2（185×212×64，一体护罩不可折叠）/ mavic3pro（展开 347.5×290.8×107.7 / 折叠 231.1×98×95.4）/ mini4pro（展开含桨 298×373×101 / 折叠 148×94×64）/ action5pro（70.5×44.2×32.8，与 Action 4 同模具）。
+- **写入 4 台**（口径=官方 specs 三维最大维；折叠/展开双口径均注记）：avata2 212 / mavic3pro 347.5 / mini4pro 373（含桨注记）/ action5pro 70.5。**targetWidth 与 realSizeMM 独立性确认**（pocket3 数据实证：targetWidth 是渲染构图参数非真实尺寸维）。
+- **覆盖率 5→9/129（7%）**；lint 六段 ✓（资产 129 合规）/ build 2.41s ✓。
+- DJI 在馆全系至此**全部标定完成**（action4/5pro/pocket3/avata2/mavic3pro/mini4pro 六台）。下一批：Apple 剩余（airpods 盒体）/ Nintendo 等。
+
+## 2026-11-05 续会话轮 31 · realSizeMM 第三批铺量——Apple/Nintendo（9→14 台，覆盖率 11%）
+
+- **查证**（官方域）：AirPods Pro 2 充电盒 60.6×45.2×21.7（support.apple.com/111851）/ AirTag 31.9×8.0（/111847）/ AirPods Max 187.3×168.6×83.4（apple.com/airpods-max/specs）/ Game Boy DMG-01 90×148×32（Nintendo 官方历史页）/ iMac 24″ M4 含支架 547×461×147（support.apple.com/121557）。
+- **写入 5 台**（最大维口径，双维物品如 AirTag 用直径）：airpods-pro 60.6（充电盒口径注记）/ airtag 31.9 / airpods-max 187.3 / gameboy 148 / imac 547（含支架注记）。
+- **诚实排除 1 台**：airpods-5（馆内「AirPods 5」为未来/虚构型号，Apple 无官方产品与规格）——**按「无可靠数据不补齐」红线不标定**。
+- **覆盖率 9→14/129（11%）**；lint 六段 ✓ / build 2.57s ✓。三批累计 14 台：DJI 全系 6 + Apple 5 + Nintendo 1 + Flipper 1 + SpaceX 类外设可查证池持续。
+- 附带修复链红利：验证依赖的 loadTiming/firstRenderMs/camPos 三项打点已在轮 17/21 修复，本轮 DOM 验证直接受益（doneMs/firstRenderMs 条件等待首次稳定可用）。
+
+## 2026-11-05 续会话轮 23 · AURORA PHASE 3 正文——I4 选中层次（非选中零件弱化）
+
+- **交付**（任务书 §6.2「选中轮廓、当前零件聚焦、其他零件适当弱化」的弱化项）：applyGlow 循环内新增 dim 通道——有选中件且非 xray/isolate 模式时，非选中部件材质透明度逐帧渐变至 **0.32**（baseOpacity×dimK，dimK 每帧收敛 dt×7）；取消选中/模式切走时逐帧还原并**精确恢复原 transparent 标志**（材质级 __baseOpacity/__baseTransparent 首写缓存）；**偏离稳态才写材质**（收敛/还原后停写，零常驻成本）；与 X-Ray/isolate 的材质透明语义隔离（这两模式不启用 dim），剖切模式兼容。选中件呼吸/OutlinePass/glow 通道原样不动。
+- **验证（canvas 像素亮度口径，固定机位排除自转构图漂移）**：弱化 42.97→32.34（-25%）✓；取消选中还原 43.26 vs 42.97（|Δ|=0.29，在 deviceGroup 呼吸浮动噪声内）✓；build 3.11s ✓ lint ✓。
+- **首轮「还原差 8.8」为采样口径误判**：未关自转导致三张截图构图不同（自转 2.6s 开启特性）——固定机位复测后澄清，非还原失败。教训入探测实践：涉及画面对比的断言先固定相机/自转。
+- 改动文件：src/engine/engine.js（applyGlow 内 dim 通道 ~25 行，DIM_LEVEL 常量）。
+
+## 2026-11-05 续会话轮 24 · AURORA PHASE 2 首项——P1-4 首屏发现路径方案稿（不擅动）
+
+- **交付**：`docs/design/P1-4_PROPOSAL.md`——①现状实测表（首屏可交互 6/搜索框 y≈1366/卡片 y=1366/门厅 19086px）；②验收目标五项（首屏可交互≥3/搜索 y<900/叙事保留/五项回归不回退/移动端另列）；③**候选 A 序厅压缩式**（hero 两栏化+RECENT 与 filter-main 上移，首屏可交互≥5，改动小）；④**候选 B 并排发现式**（新发现栏组件：搜索+TOP8 品牌 chips+分类入口，≥10 个，叙事让步+移动端成本）；⑤**A+ 混合**；⑥取舍表与四项裁定清单（选型/展台压缩幅度/品牌口径/实施窗口）留馆方。
+- 现状 DOM 核实（hub-hero→hub-sect→hub-recent→filter-main→filter-groups 顺序与 filter-search 形态）后成稿，方案贴合真实结构。
+- **零代码改动**（产品裁定项纪律）；EXECUTION_STATUS PHASE 2 表更新。

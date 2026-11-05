@@ -36,6 +36,7 @@ export default makeDevice({
   targetWidth: 13.0,
   camDist: 1.15,
   glb: '/assets/switch-2.glb',
+  realSizeMM: 272,   /* 真实最大外形尺寸（Nintendo 官方规格：主机+Joy-Con 2 装态 116×272×13.9mm）：测量工具 mm 标定基准 */
   normalize: 'full',
   mapByPosition(name, p, rel){
     /* 资产平放：主机宽度沿 Z，Joy-Con 2 磁吸在 Z 两端 */

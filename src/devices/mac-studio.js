@@ -31,6 +31,7 @@ export default makeDevice({
   targetWidth: 12.5,
   camDist: 1.25,
   glb: '/assets/mac-studio.glb',
+  realSizeMM: 197,   /* 真实外形尺寸（Apple 官方规格 197×197×95mm）：测量工具 mm 标定基准 */
   /* 策展导览：机身→主板→双风扇→顶板→后 IO→底座 */
   tour: ['body','board','fan-a','fan-b','top-plate','io-rear','base'],
   xrayShellIds: ['body','top-plate'],

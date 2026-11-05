@@ -32,6 +32,7 @@ export default makeDevice({
   targetWidth: 13.0,
   camDist: 1.1,
   glb: '/assets/switch-oled.glb',
+  realSizeMM: 242,   /* 真实最大外形尺寸（Nintendo 官方规格：OLED 主机+Joy-Con 装态 102×242×13.9mm）：测量工具 mm 标定基准 */
   tour: ['console','joycon-l','joycon-r','board','fan','battery'],
   xrayShellIds: ['console','joycon-l','joycon-r'],
   normalize: 'full',

@@ -48,6 +48,19 @@ export default makeDevice({
   },
   tour: ['base', 'frame', 'cylinder', 'flywheel'],
   realPartIds: ['base', 'frame', 'cylinder', 'flywheel'],
+  /* AURORA 后/V5.1 内容深度：瓦特蒸汽机机构关系（十字头传动为该机型核心机构学特征）。
+     活塞杆/十字头/连杆含于 cylinder 部件（174 网格位置聚类拆分，未独立拆件）——
+     十字头直线导轨与连杆关系如实声明于 note；重力飞轮储能平顺转速。 */
+  mech: { edges: [
+    { id:'bl-cylinder-flywheel', type:'slider_crank', from:'cylinder', to:'flywheel', kinematic:'approx',
+      note:'蒸汽推动活塞往复，经活塞杆-十字头-连杆转为飞轮回转（十字头沿导轨直线运动，杆系含于 cylinder 部件）' },
+    { id:'fx-flywheel-frame', type:'fixed', from:'flywheel', to:'frame', kinematic:'exact',
+      note:'飞轮轴支承于立框支架轴承' },
+    { id:'fx-cylinder-frame', type:'fixed', from:'cylinder', to:'frame', kinematic:'exact',
+      note:'汽缸体固装于立框支架（十字头导轨同体）' },
+    { id:'fx-frame-base', type:'fixed', from:'frame', to:'base', kinematic:'exact',
+      note:'立框支架螺栓紧固于底座' },
+  ] },
   parts: [
     { id: 'base', zh: '底座与支脚', en: 'BASE & LEGS', real: true,
       ex: [0, -0.8, 0.4], lo: [0, 1.1, 0.2], tag: '四脚立式 · 演示台架',

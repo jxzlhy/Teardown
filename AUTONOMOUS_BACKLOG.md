@@ -5,7 +5,9 @@
 
 | 优先级 | 事项 | 价值 | 风险 | 验证方式 | 状态 |
 |---|---|---|---|---|---|
-| P2 | **P2-11 SEO 基础件**——og:image（复用 public/thumbs）+ robots.txt + sitemap.xml + manifest.webmanifest + CSP meta（实测不破坏 Draco/Cache Storage） | 分享卡片与可索引性 | 低：纯构建期/静态产物 | build + dist 检查 + og:image 200 断言 | **🟡 大部分完成（2026-11-04，AURORA PHASE 1）**：og:image+twitter:card+manifest+robots.txt 已上线（dist 三件 200 ✓）；**遗留**：sitemap（待部署域名；hash 路由设备页需预渲染才可索引）、CSP meta（需含 Draco worker/blob 的实测窗口）——两项并入 AURORA PHASE 7 终验窗口 |
+| P2 | **P2-11 SEO 基础件**——og:image（复用 public/thumbs）+ robots.txt + sitemap.xml + manifest.webmanifest + CSP meta（实测不破坏 Draco/Cache Storage） | 分享卡片与可索引性 | 低：纯构建期/静态产物 | build + dist 检查 + og:image 200 断言 | **🟡 大部分完成（2026-11-04，AURORA PHASE 1）**：og:image+twitter:card+manifest+robots.txt 已上线（dist 三件 200 ✓）；**遗留**：sitemap（待部署域名；hash 路由设备页需预渲染才可索引）、CSP meta（需含 Draco worker/blob 的实测窗口）——两项并入终验窗口 |
+| P2 | **P1-4 首屏发现路径实施**——按馆方裁定（A/B/A+/第三方向，见 docs/design/P1-4_PROPOSAL.md 四项裁定清单）实施并走五项验收 | 首屏发现能力 | 中低：A 小改动/B 中 | 方案 §2 五项指标 + 双厅截图 + smoke | **待馆方裁定**（方案稿已交付 2026-11-05） |
+| P2 | **V5.0.10 AURORA 工作区改动分批入库**——AURORA 全部切片（engine.js 渲染/切台/打点/分级、style.css 令牌、Icon.vue、library.js、registry 懒加载、诊断与工具链、文档七件）按切片语义分批提交 | 回滚粒度 | 低 | 分批 build+lint | **待用户授权**（AURORA 交付报告 §11/§12 挂账） |
 | P2 | 设备页 A→B 同文档 hash 热切换 config 不换新（如 iphone-13 → forge 深链仅变 hash 时部件清单停留旧设备、永久 LOADING）——**既有问题非本轮回归**（干净 HEAD worktree 复现，2026-11-04 无头取证） | 设备切换正确性 | 中：需先人工浏览器复测定级 | 人工复现 → 定级 → 修 route watcher 或 loadDevice 时序 | 待定级（PROJECT_ISSUES 观察记录） |
 | P2 | GraphView 品牌标签重叠 + 设备搜索定位输入框 | 星图可读性 | 低：Canvas 绘制层 | 截图 + 标签间距断言 | **已完成**（2026-11-01 续轮 8：两阶段标签去碰撞 + 搜索定位/脉冲/未命中徽标；`"WALTHER` 系标签重叠视觉切片，数据无引号） |
 | P3 | 移动端 dock 溢出项（标签/导览/截图/帮助）加滚动渐隐提示 | 移动可发现性 | 低 | 390×844 截图 | 待办（2026-10-31 审计遗留） |

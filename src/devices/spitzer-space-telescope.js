@@ -32,6 +32,7 @@ export default makeDevice({
   targetWidth: 7,
   camDist: 1.05,
   glb: '/assets/spitzer-space-telescope.glb',
+  realSizeMM: 4500,   /* 真实最大外形尺寸（官方口径：高 4.5m×径 2.1m）：测量工具 mm 标定基准 */
   tour: ['telescope-aperture', 'cryo-tube', 'thermal-foil', 'bus-frame', 'solar-panels'],
   xrayShellIds: ['bus-frame'],
   normalize: 'full',
