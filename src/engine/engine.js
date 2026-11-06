@@ -191,11 +191,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const rim2 = new THREE.DirectionalLight(0x8a5cff, 0.55); rim2.position.set(9, -4, -8); scene.add(rim2);
   const front = new THREE.PointLight(0x45e0ff, 8, 22, 2); front.position.set(0, 1.2, 7.5); scene.add(front);
 
-  let grid, glow, shadowPlane, particles, axisX, axisZ, axisMat;
+  let grid, glow, glowWarm, warmLight, reticle, shadowPlane, particles, axisX, axisZ, axisMat;
   {
-    /* V2 第五章 极简方向式坐标装置：环 6→3 + 地面 XYZ 轴线（X 沿东西 / Z 沿南北），
-       让模型成为视觉中心；gizmo（右下角罗盘）负责与相机同步的方向读数 */
-    grid = new THREE.PolarGridHelper(15, 12, 3, 72, 0x14364a, 0x0b1e2c);
+    /* V2 第五章 极简方向式坐标装置 → V5.1 P1-S3 样式移植（参考站细方格地面，自研重写）：
+       极坐标环阵 → GridHelper(30, 60) 细密方格低透明铺底；地面 XYZ 轴线保留；
+       gizmo（右下角罗盘）负责与相机同步的方向读数 */
+    grid = new THREE.GridHelper(30, 60, 0x1c4f70, 0x102c42);
+    grid.material.transparent = true; grid.material.opacity = 0.7;
     grid.position.y = -3.9; scene.add(grid);
 
     axisMat = new THREE.LineBasicMaterial({ color: 0x1e4a63, transparent: true, opacity: 0.9 });
@@ -213,6 +215,50 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     glow = new THREE.Mesh(new THREE.CircleGeometry(8, 48),
       new THREE.MeshBasicMaterial({ map:gtex, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending }));
     glow.rotation.x = -Math.PI/2; glow.position.y = -3.89; scene.add(glow);
+
+    /* V5.1 P1-S4 · 地面暖辉 + 暖色底光（参考站电影光口径）：橙色径向渐变铺在模型后侧地面，
+       与暖点光（-6.5,-1.2,-5.5 后左低位）共同构成"冷主光 + 暖逆光"的双色氛围；日厅双隐 */
+    const wc = document.createElement('canvas'); wc.width = wc.height = 512;
+    const wg = wc.getContext('2d');
+    const wgr = wg.createRadialGradient(256,256,20,256,256,250);
+    wgr.addColorStop(0,'rgba(255,150,70,.42)'); wgr.addColorStop(.55,'rgba(255,130,50,.12)'); wgr.addColorStop(1,'rgba(255,130,50,0)');
+    wg.fillStyle = wgr; wg.fillRect(0,0,512,512);
+    const wtex = new THREE.CanvasTexture(wc); wtex.colorSpace = THREE.SRGBColorSpace;
+    glowWarm = new THREE.Mesh(new THREE.CircleGeometry(7.5, 48),
+      new THREE.MeshBasicMaterial({ map:wtex, transparent:true, opacity:0.8, depthWrite:false, blending:THREE.AdditiveBlending }));
+    glowWarm.rotation.x = -Math.PI/2; glowWarm.position.set(-2.2, -3.885, -1.6); scene.add(glowWarm);
+    warmLight = new THREE.PointLight(0xff9a45, 70, 34, 2);
+    warmLight.position.set(-5.5, -0.8, -4.5); scene.add(warmLight);
+    if(hooks.adaptive === false){ glowWarm.visible = false; warmLight.visible = false; }   // thumb 模式：保持既有缩略图光影口径
+
+    /* V5.1 P3-S3 · 弹出件 reticle：虚线圆环 + 4 角刻线（参考站部件标示形态，自研实现）。
+       单位半径几何 + 逐帧按部件包围球缩放；billboard 朝相机；depthTest 关（叠显不遮挡） */
+    reticle = new THREE.Group();
+    {
+      const SEGS = 96, pts = [];
+      for(let i = 0; i <= SEGS; i++){
+        const a = i / SEGS * Math.PI * 2;
+        pts.push(new THREE.Vector3(Math.cos(a), Math.sin(a), 0));
+      }
+      const ringMat = new THREE.LineDashedMaterial({
+        color:0x45e0ff, transparent:true, opacity:0.62, dashSize:0.085, gapSize:0.065, depthTest:false });
+      const ring = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), ringMat);
+      ring.computeLineDistances();
+      reticle.add(ring);
+      for(let i = 0; i < 4; i++){
+        const a = i / 4 * Math.PI * 2 + Math.PI / 4;
+        const tick = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(Math.cos(a) * 1.07, Math.sin(a) * 1.07, 0),
+          new THREE.Vector3(Math.cos(a) * 1.2, Math.sin(a) * 1.2, 0),
+        ]), ringMat);
+        tick.computeLineDistances();
+        reticle.add(tick);
+      }
+    }
+    reticle.visible = false;
+    reticle.renderOrder = 25;
+    reticle.name = 'popReticle';
+    scene.add(reticle);
 
     shadowPlane = new THREE.Mesh(new THREE.CircleGeometry(9.5, 48), new THREE.ShadowMaterial({ opacity:0.38 }));
     shadowPlane.rotation.x = -Math.PI/2; shadowPlane.position.y = -3.88;
@@ -241,78 +287,127 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           ⑤外缘渐变弧光 ×2（顶点色沿弧长黑→accent→黑 + Additive：黑即不可见，纯氛围非数据）。
      坐标语义沿用网格/轴线（setGridVisible）与 gizmo，与盘面刻度视觉分离。
      不参与拾取（raycaster 只查 pickMeshes）；thumb 模式整组隐藏；双厅共享几何，setPedestalHall 只切材质。 */
-  let plinth, plinthRing, plinthCap, plinthFace, plinthBase, plinthRim;
+  let plinth, plinthRing, plinthCap, stageDial, plinthBase, plinthRim;
+  let dialMats = [], plumbLine = null;
   let setPlinthTop = () => {};   // 装载后由 finalize 按设备 hull 底面调用（创建块内赋值）
+  /* V5.1 P1 · 展台三型（任务书 §4.1/§4.2）：category → 展台类型；device.presn.plinth 可覆盖。
+     缩放只作用 x/z（半径放大），y 不缩放避免底座升沉；bbox 驱动的 k 由 finalize 写入。 */
+  let plinthScaleK = 1;
+  /* V5.1 P8-S1 · Viewer Presentation Config（任务书 §11.1）：每设备展示配置统一入口。
+     device.presn 可逐台覆盖，未声明的键回退默认值——单一事实源，展示层不再散落读取。
+     现有键：plinth（precision/industrial/large，null=按 category 映射）；
+     预留：labelsMode/spaceAid（用户会话偏好优先，仅在无偏好时作为初始档）。 */
+  function presnFor(device){
+    const p = (device && device.presn) || {};
+    return {
+      plinth: ['precision', 'industrial', 'large'].includes(p.plinth) ? p.plinth : null,
+      labelsMode: ['auto', 'all', 'off'].includes(p.labelsMode) ? p.labelsMode : null,
+      spaceAid: ['off', 'simple', 'standard', 'engineering'].includes(p.spaceAid) ? p.spaceAid : null,
+    };
+  }
+  function plinthTypeFor(device){
+    const explicit = presnFor(device).plinth;
+    if(explicit) return explicit;
+    const c = (device && device.category) || '';
+    if(/汽车|航天|飞机|飞行器/.test(c)) return 'large';
+    if(/发动机|机械|工具|枪械|市政/.test(c)) return 'industrial';
+    return 'precision';
+  }
+  function applyPlinthPreset(device){
+    const type = plinthTypeFor(device);
+    const bb = new THREE.Box3().setFromObject(deviceGroup);
+    /* V5.1 P10-S1 · k 改按 XZ 足印驱动（原 3D maxDim/9.5 会低估大件——内燃机 XZ 超出盘缘）：
+       盘半径须 ≥ 足印半宽 + 8% 边距；类型系数与足印 k 相乘后**统一钳制 ≤1.9**
+       （足印钳 1.6 × large 1.35 曾叠加到 2.16——盘比车还大的反向失配） */
+    const sz = bb.isEmpty() ? new THREE.Vector3(8, 8, 8) : bb.getSize(new THREE.Vector3());
+    const xzSpan = Math.max(sz.x, sz.z);
+    const typeMul = type === 'large' ? 1.35 : type === 'industrial' ? 1.06 : 1;
+    plinthScaleK = clamp(clamp(xzSpan / (PED_BASE_R * 2 * 0.92), 0.85, 1.6) * typeMul, 0.85, 1.9);
+    plinth.scale.set(plinthScaleK, 1, plinthScaleK);
+    /* V5.1 P1-S4 · 铅垂点线：台面 → 设备顶（参考站中心轴虚线贯通口径）。实心设备装配态时
+       线段隐入机身（无害）；浮动设备与爆炸态显形为中心轴参照。plumbLine 是 plinth 子节点且
+       plinth 位于原点（local==world），setPlinthTop 已把 position.y 写为台面世界高——几何只存相对长度 */
+    if(plumbLine && !bb.isEmpty()){
+      const topWorld = bb.max.y - 0.05;
+      const len = Math.max(0.1, topWorld - plumbLine.position.y);
+      plumbLine.geometry.dispose();
+      plumbLine.geometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, len, 0),
+      ]);
+      plumbLine.computeLineDistances();
+    }
+    return { type, k: +plinthScaleK.toFixed(2), xzSpan: +xzSpan.toFixed(2) };
+  }
   const PED_BASE_R = 4.2;
+  /* V5.1 P1-S4 · 底座形态移植（参考站"薄盘展台"）：高鼓墩身 → 薄盘（0.16 厚锥盘）+ 薄基板，
+     台缘亮环（emissive Torus）承担参考站的 rim ring 视觉；台面锚定地面（浮动设备模型悬于其上，
+     与参考站一致），落地钳制仅保留"模型底低于地面时台面随之下沉"。 */
   {
     plinth = new THREE.Group();
+    plinth.name = 'plinth';   // 观测点名（P10-S1 探针读 scale.x 验证足印适配）
 
-    const sideMat = new THREE.MeshStandardMaterial({ color:0x0c141d, metalness:.55, roughness:.42 });
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R, PED_BASE_R + 0.14, 0.5, 72), sideMat);
-    body.position.y = -3.9 - 0.25;
+    const sideMat = new THREE.MeshStandardMaterial({ color:0x0d1722, metalness:.55, roughness:.42 });
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R + 0.14, PED_BASE_R + 0.02, 0.16, 72), sideMat);
+    body.position.y = -3.9 - 0.08;
     body.receiveShadow = true;
 
-    const capMat = new THREE.MeshStandardMaterial({ color:0x13202e, metalness:.4, roughness:.55 });
+    const capMat = new THREE.MeshStandardMaterial({ color:0x18283a, metalness:.4, roughness:.55 });
     plinthCap = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R + 0.14, PED_BASE_R + 0.14, 0.03, 72), capMat);
     plinthCap.position.y = -3.895;
     plinthCap.receiveShadow = true;
 
     const baseMat = new THREE.MeshStandardMaterial({ color:0x080e15, metalness:.6, roughness:.5 });
-    plinthBase = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R + 0.55, PED_BASE_R + 0.72, 0.22, 72), baseMat);
-    plinthBase.position.y = -3.9 - 0.5 - 0.11;
+    plinthBase = new THREE.Mesh(new THREE.CylinderGeometry(PED_BASE_R + 0.34, PED_BASE_R + 0.42, 0.1, 72), baseMat);
+    plinthBase.position.y = -4.05 - 0.05;
     plinthBase.receiveShadow = true;
 
     plinthRing = new THREE.Mesh(
-      new THREE.TorusGeometry(PED_BASE_R + 0.1, 0.02, 10, 96),
-      new THREE.MeshStandardMaterial({ color:0x0a2a36, emissive:0x45e0ff, emissiveIntensity:0.55, metalness:.3, roughness:.4 }));
+      new THREE.TorusGeometry(PED_BASE_R + 0.13, 0.028, 10, 96),
+      new THREE.MeshStandardMaterial({ color:0x0a2a36, emissive:0x45e0ff, emissiveIntensity:0.95, metalness:.3, roughness:.4 }));
     plinthRing.rotation.x = -Math.PI / 2;
     plinthRing.position.y = -3.9;
 
-    /* ④ 雷达刻度盘面：RingGeometry 平面 UV 按 r/outer 映射，画布半径据此精确换算（R()）。
-       双厅复用同一张白色线稿纹理，setPedestalHall 只调 material.color/opacity。 */
-    const FACE_R_IN = PED_BASE_R + 0.46, FACE_R_OUT = PED_BASE_R + 1.5;
-    const faceTex = (() => {
-      const S = 1024, c = document.createElement('canvas'); c.width = c.height = S;
-      const g = c.getContext('2d'); g.translate(S/2, S/2);
-      const u = S / 2;
-      const R = (world) => (world / FACE_R_OUT) * u;
-      const ring = (r, w, a, dash) => {
-        g.beginPath(); g.arc(0, 0, R(r), 0, Math.PI * 2);
-        g.lineWidth = w; g.strokeStyle = `rgba(255,255,255,${a})`;
-        g.setLineDash(dash || []); g.stroke(); g.setLineDash([]);
-      };
-      ring(FACE_R_OUT - 0.02, 3, .8);                  // 外缘实线
-      ring(PED_BASE_R + 1.08, 1.5, .42, [10, 8]);      // 中环虚线
-      ring(PED_BASE_R + 0.66, 1, .26, [3, 7]);         // 内环细虚线
-      ring(PED_BASE_R + 0.5, 1, .2);                   // 内侧收边
-      /* 三级放射刻度：2° 短刻 / 10° 中刻 / 30° 长刻，收在刻度带内 */
-      const tIn = R(PED_BASE_R + 1.14), tOut = R(FACE_R_OUT - 0.07);
-      for(let d = 0; d < 360; d += 2){
-        const m30 = d % 30 === 0, m10 = d % 10 === 0;
-        const a = d * Math.PI / 180;
-        const r2 = tIn + (tOut - tIn) * (m30 ? 1 : m10 ? .58 : .3);
-        g.lineWidth = m30 ? 3 : m10 ? 2 : 1;
-        g.strokeStyle = m30 ? 'rgba(255,255,255,.9)' : m10 ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.3)';
-        g.beginPath();
-        g.moveTo(Math.cos(a) * tIn, Math.sin(a) * tIn);
-        g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
-        g.stroke();
+    /* ④ 陈列刻度盘（V5.1 P1-S3 参考站样式移植，自研几何实现——替代旧 canvas 雷达盘面）：
+       细环 ×2 + 72 放射刻度（每 6 主刻加长）+ 断弧 Torus，全部 Additive 细线；
+       整组随主循环 0.035rad/s 慢旋（陈列动画，非数据）。几何线稿在掠射角下比纹理锐利，
+       且随 plinth x/z 缩放自适应（applyPlinthPreset / hull 缩放自动生效）。 */
+    const FACE_R_OUT = PED_BASE_R + 1.5;
+    stageDial = new THREE.Group();
+    const dialAdd = (op) => new THREE.MeshBasicMaterial({
+      color:0x45e0ff, transparent:true, opacity:op, depthWrite:false,
+      blending:THREE.AdditiveBlending, side:THREE.DoubleSide });
+    const flat = (m, y) => { m.rotation.x = -Math.PI / 2; m.position.y = y; return m; };
+    stageDial.add(flat(new THREE.Mesh(
+      new THREE.RingGeometry(PED_BASE_R + 0.4, PED_BASE_R + 0.408, 180), dialAdd(0.4)), 0));
+    stageDial.add(flat(new THREE.Mesh(
+      new THREE.RingGeometry(FACE_R_OUT + 0.14, FACE_R_OUT + 0.146, 180), dialAdd(0.22)), 0));
+    { // 72 刻度：r1 起步，主刻（每 6 枚）+0.16 / 副刻 +0.07（P1-S4 提亮加长，参考站刻度环可见度口径）
+      const N = 72, r1 = PED_BASE_R + 0.98;
+      const tp = new Float32Array(N * 6);
+      for(let i = 0; i < N; i++){
+        const a = i / N * Math.PI * 2, len = i % 6 === 0 ? 0.16 : 0.07;
+        const j = i * 6;
+        tp[j]   = Math.cos(a) * r1;        tp[j+1] = 0; tp[j+2] = Math.sin(a) * r1;
+        tp[j+3] = Math.cos(a) * (r1+len);  tp[j+4] = 0; tp[j+5] = Math.sin(a) * (r1+len);
       }
-      /* 30° 分段弧块：刻度带内侧短弧（工程分段语汇，非数据） */
-      g.lineWidth = 5; g.strokeStyle = 'rgba(255,255,255,.35)';
-      for(let d = 0; d < 360; d += 30){
-        g.beginPath();
-        g.arc(0, 0, R(PED_BASE_R + 1.03), d * Math.PI / 180, (d + 11) * Math.PI / 180);
-        g.stroke();
-      }
-      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8; return tex;
-    })();
-    plinthFace = new THREE.Mesh(
-      new THREE.RingGeometry(FACE_R_IN, FACE_R_OUT, 128, 1),
-      new THREE.MeshBasicMaterial({ map:faceTex, color:0x9fc3d4, transparent:true, opacity:.85, depthWrite:false }));
-    plinthFace.rotation.x = -Math.PI/2;
-    plinthFace.position.y = -3.878;
-    plinthFace.renderOrder = 2;
+      const tg = new THREE.BufferGeometry();
+      tg.setAttribute('position', new THREE.BufferAttribute(tp, 3));
+      stageDial.add(new THREE.LineSegments(tg, new THREE.LineBasicMaterial({
+        color:0x45e0ff, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending })));
+    }
+    { // 断弧：细 Torus 弧段（1.12π），叠在刻度环上方，慢旋时成为盘面动势焦点
+      const arc = new THREE.Mesh(
+        new THREE.TorusGeometry(PED_BASE_R + 1.16, 0.008, 4, 90, Math.PI * 1.12), dialAdd(0.6));
+      arc.rotation.x = -Math.PI / 2;
+      arc.rotation.z = 0.38;
+      arc.position.y = 0.012;
+      stageDial.add(arc);
+    }
+    stageDial.position.y = -3.878;
+    stageDial.renderOrder = 2;
+    stageDial.name = 'stageDial';   // 观测点名（探针/验证脚本遍历用，与 __RAW/__CAM 同约定）
+    dialMats = [];
+    stageDial.traverse(o => { if(o.material) dialMats.push(o.material); });
 
     /* ⑤ 外缘渐变弧光 ×2：RingGeometry 扇段 + 顶点色正弦渐变（Additive 下黑=不可见）。
        细线克制口径：0.044 世界单位宽，亮度由 setPedestalHall 按厅收敛。 */
@@ -340,35 +435,55 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     };
     plinthRim.add(mkArc(96, Math.PI * 0.08, 1), mkArc(58, Math.PI * 0.72, .62));
 
-    plinth.add(body, plinthCap, plinthBase, plinthRing, plinthFace, plinthRim);
+    /* 铅垂点线（V5.1 P1-S3 坐标空间移植）：台面中心 → 设备下部 45% 高度的中心轴参照。
+       LineDashedMaterial 需按实际长度重建几何（虚线段长不随 scale 拉伸）；空间辅助
+       standard/engineering 档显示（applySpaceAid），off/simple 收起 */
+    plumbLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+      new THREE.LineDashedMaterial({ color:0x45e0ff, transparent:true, opacity:0.3, dashSize:0.14, gapSize:0.11 }));
+    plumbLine.position.y = -3.9;   // 默认台面高（groundKeep/未调 setPlinthTop 的设备不至于悬在场景中部）
+    plumbLine.visible = false;
+    plumbLine.renderOrder = 1;
+    plumbLine.name = 'plumbLine';   // 观测点名（部件 axisLine 也是 LineDashedMaterial，探针需按名区分）
+
+    plinth.add(body, plinthCap, plinthBase, plinthRing, stageDial, plinthRim, plumbLine);
     scene.add(plinth);
     if(hooks.adaptive === false) plinth.visible = false;   // thumb 模式（旧缩略图一致性）
 
     /* V3 §9.1 接地：台面高度随设备 hull 底面动态调整（博物馆展台本就该各件不同高）。
        墩身向下延伸至地面（y=-4.05），底座步层固定于地面——只长高、不悬空。
-       device.groundOffset（米）可逐台微调；'keep' 保持固定台面（-3.9，兼容特殊机位调校）。 */
+       device.groundOffset（米）可逐台微调；'keep' 保持固定台面（-3.9，兼容特殊机位调校）。
+       V5.1 P1-S4：台面锚定地面（topY 不高于 -3.92——浮动设备模型悬于薄盘上方，参考站口径）；
+       落地钳制改为仅"模型底低于地面时台面随之下沉"（Math.min）。 */
     const PLINTH_FLOOR = -4.05;
+    const BODY_H = 0.16;
     setPlinthTop = (topY) => {
       const dy = topY - (-3.9);
-      body.scale.y = (0.5 + dy) / 0.5;
-      body.position.y = -3.9 - 0.25 + dy / 2;
+      body.scale.y = (BODY_H + dy) / BODY_H;
+      body.position.y = -3.9 - BODY_H / 2 + dy / 2;
       plinthCap.position.y = -3.895 + dy;
       plinthRing.position.y = -3.9 + dy;
-      plinthFace.position.y = -3.878 + dy;
+      stageDial.position.y = -3.878 + dy;
       plinthRim.children.forEach(a => { a.position.y = -3.87 + dy; });
-      plinthBase.position.y = PLINTH_FLOOR - 0.11;
+      plinthBase.position.y = PLINTH_FLOOR - 0.05;
+      if(plumbLine) plumbLine.position.y = topY;   // 铅垂线从台面起（长度由 applyPlinthPreset 按设备写）
     };
   }
   function setPedestalHall(mode){
     const day = mode === 'day';
-    plinth.children[0].material.color.setHex(day ? 0xdde4ea : 0x0c141d);
+    plinth.children[0].material.color.setHex(day ? 0xdde4ea : 0x0d1722);
     plinth.children[0].material.roughness = day ? .65 : .42;
-    plinthCap.material.color.setHex(day ? 0xf0f4f8 : 0x13202e);
+    plinthCap.material.color.setHex(day ? 0xf0f4f8 : 0x18283a);
     plinthBase.material.color.setHex(day ? 0xcfd8de : 0x080e15);
-    plinthRing.material.emissiveIntensity = day ? 0.28 : 0.5;
-    /* 盘面：夜厅冷青刻线；日厅暖石墨浅刻线（纸面画廊口径，参考 VNT-16 白模厅的克制） */
-    plinthFace.material.color.setHex(day ? 0x6f6553 : 0x9fc3d4);
-    plinthFace.material.opacity = day ? .5 : .7;
+    plinthRing.material.emissiveIntensity = day ? 0.35 : 0.95;
+    /* 刻度盘：夜厅冷青 Additive 细线；日厅换 Normal 混合暖石墨浅刻线
+       （Additive 在纸面上发灰即隐——参考站为纯夜厅应用，日厅口径沿用 V3 白模厅克制） */
+    dialMats.forEach(m => {
+      m.blending = day ? THREE.NormalBlending : THREE.AdditiveBlending;
+      m.color.setHex(day ? 0x6f6553 : 0x45e0ff);
+      m.opacity = day ? 0.46 : Math.min(0.7, m.userData.baseOp || (m.userData.baseOp = m.opacity));
+    });
+    if(plumbLine) plumbLine.material.color.setHex(day ? 0x6f6553 : 0x45e0ff);
     /* 弧光：日厅收敛为点缀（Additive 在纸面上会发灰，压低即隐） */
     plinthRim.children.forEach(a => { a.material.opacity = day ? .1 : .6; });
   }
@@ -376,8 +491,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   /* 坐标辅助：网格显隐（V2）——网格与轴线一起，地面光晕与接触阴影保留 */
   function setGridVisible(v){
     state.gridVisible = !!v;
-    grid.visible = !!v;
-    axisX.visible = !!v; axisZ.visible = !!v;
+    /* V5.1 P1：统一走空间辅助档位（旧布尔开关兼容映射——开=standard 关=off），
+       避免与 setSpaceAid 双写 grid.visible 的单一事实源冲突 */
+    state.spaceAid = v ? 'standard' : 'off';
+    applySpaceAid();
   }
 
   /* ---------- 设备容器与状态 ---------- */
@@ -393,11 +510,13 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     fog: 0x04070c, fogDensity: 0.02, hemi: [0x44525f, 0x0a0e14, 0.55],
     key: 2.4, rim1: 1.1, rim2: 0.55, front: 8, exposure: 1.12,
     bloom: 0.42, grid: [0x14364a, 0x0b1e2c], glowOpacity: 1, shadow: 0.38, stars: true,
+    warm: 70, glowWarmOpacity: 0.8,   // V5.1 P1-S4：暖逆光 + 地面暖辉（参考站电影光口径）
   };
   const DAY = {
     fog: 0xd9e2ea, fogDensity: 0.013, hemi: [0xf2f6fa, 0x99a3ad, 0.95],
     key: 2.0, rim1: 0.3, rim2: 0.16, front: 3, exposure: 1.0,
     bloom: 0.16, grid: [0xa9b7c3, 0x96a5b2], glowOpacity: 0.22, shadow: 0.26, stars: false,
+    warm: 2, glowWarmOpacity: 0,   // 日厅：暖光收敛为极弱点缀（纸面不留橙池）
   };
   function makeHallBg(top, mid, base){
     const c = document.createElement('canvas'); c.width = c.height = 1024;
@@ -431,6 +550,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         exposure: renderer.toneMappingExposure, bloomS: bloom.strength,
         fogC: scene.fog.color.clone(), fogD: scene.fog.density,
         glowO: glow.material.opacity, shadowO: shadowPlane.material.opacity, gridO: grid.material.opacity,
+        glowWarmO: glowWarm.material.opacity, warmI: warmLight.intensity,
         axisO: axisMat.opacity,
       },
       to: C, mode,
@@ -456,8 +576,11 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     scene.fog.color.lerpColors(A.fogC, new THREE.Color(B.fog), k);
     scene.fog.density = A.fogD + (B.fogDensity - A.fogD) * k;
     glow.material.opacity = A.glowO + (B.glowOpacity - A.glowO) * k;
+    /* V5.1 P1-S4：暖辉/暖光随双厅渐变 */
+    glowWarm.material.opacity = A.glowWarmO + (B.glowWarmOpacity - A.glowWarmO) * k;
+    warmLight.intensity = A.warmI + (B.warm - A.warmI) * k;
     shadowPlane.material.opacity = A.shadowO + (B.shadow - A.shadowO) * k;
-    grid.material.opacity = A.gridO + ((hallTween.mode === 'day' ? 0.35 : 1) - A.gridO) * k;
+    grid.material.opacity = A.gridO + ((hallTween.mode === 'day' ? 0.35 : 0.7) - A.gridO) * k;
     axisMat.opacity = A.axisO + ((hallTween.mode === 'day' ? 0.4 : 0.9) - A.axisO) * k;  }
 
   const state = {
@@ -470,15 +593,22 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     stepCur: 0,                      // 已装配组数（连续值，动画用）
     stepTarget: 0, stepSpeed: 2.0, stepGroups: null, stepExitPending: false, stepEmitPending: false,
     demos: null, demoActive: null,   // 视觉原理演示（Phase 5）：device.demos + 当前激活标签
+    hiddenParts: [],                 // V5.1 P2 · 单部件隐藏（任务书 §6.1 Hide/Show）——id 数组经 getState 暴露
     loadTiming: null,                // AURORA PHASE 4：装载分环节打点（loadDevice 每次装载重建）
+    plinthType: null,                // V5.1 P1：展台三型（precision/industrial/large，装载时选型）
     demoSpeed: 1, demoClock: 0,      // V4.0 MI②：统一演示时钟（积分 dt×speed）与播放速度乘子
     selected: null, hovered: null,
     labelsMode: 'auto',              // 'auto' | 'all' | 'off'
+    spaceAid: 'standard',            // V5.1 P1 空间辅助档位：'off' | 'simple' | 'standard' | 'engineering'
     scrubbing: false,
     camTween: null, modelStatus: '',
     tour: null,                      // { ids, i, wait, playing }
     flewTo: null,                    // 最近 flyToPart 的部件（点空白飞回全景的依据）
+    popped: null,                    // V5.1 P3-S3 单件拆解：当前弹出部件 id（点同件归位/点他件轮换）
+    popMoving: false,                // 弹出/归位动画进行中（R1 全速渲染判据）
   };
+  let bboxHelper = null;   // engineering 档包围盒辅助（声明前置见 applySpaceAid 注记）
+  applySpaceAid();   // V5.1 P1-S3：初始档位（standard）落盘——铅垂点线等空间辅助件随默认档显隐（state 声明后才可调，避开 TDZ）
 
   /* ---------- 查看模式（X 光/隔离/剖切） ---------- */
   const modes = createViewModes({
@@ -522,8 +652,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           m.emissiveIntensity = m.userData.baseEI + k*0.1;
         });
       }
-      /* 非选中弱化：dimK 逐帧收敛；材质只在偏离稳态时写（收敛/还原后停写） */
-      const dimT = (dimOn && p.data.id !== state.selected) ? DIM_LEVEL : 1;
+      /* 非选中弱化：dimK 逐帧收敛；材质只在偏离稳态时写（收敛/还原后停写）。
+         V5.1 P3/P4 · 三级层次：选中件 → 相连件（mech 边对端，保持原亮度）→ 其他弱化。 */
+      const dimT = (dimOn && p.data.id !== state.selected && !(state._connSet && state._connSet.has(p.data.id))) ? DIM_LEVEL : 1;
       p.dimK = p.dimK === undefined ? 1 : p.dimK;
       p.dimK += (dimT - p.dimK) * Math.min(dt*7, 1);
       const settled = dimT === 1 && p.dimK > 0.999;
@@ -571,6 +702,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     bvhJob++;              // 打断在途的增量 BVH 构建任务
     state.parts = []; state.partsById = {}; state.pickMeshes = [];
     state.selected = null; state.hovered = null; state.flewTo = null;
+    state.popped = null; state.popMoving = false; state.popUntil = 0;   // V5.1 P3-S3：切台清弹出态
     state.explodeCurrent = 0; state.explodeTarget = 0; state.explodeBasis = null;
     state.explodeSpeed = 0.9; state.explodeLayout = 'axis';
     state.stepMode = false; state.stepCur = 0; state.stepTarget = 0;
@@ -698,6 +830,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     performance.mark('gewu-load-start');
     disposeDevice();
     state.device = device;
+    state.hiddenParts = [];   // V5.1 P2：切台清空单件隐藏集（新台从全可见开始）
     state.demos = Array.isArray(device.demos) ? device.demos : null;
     state.demoActive = null;
     /* 每设备相机距离：大尺寸设备按比例拉远；竖屏另乘取景修正 */
@@ -948,6 +1081,12 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         p.group.worldToLocal(_v);
         p.anchor.position.copy(_v);
       }
+      /* V5.1 P3-S3 · 弹出件 reticle 缓存：部件包围球心（世界系相对 group 原点）+ 半径 */
+      if(!_bb.isEmpty()){
+        p.popCenter = _bb.getCenter(new THREE.Vector3()).sub(p.group.position).sub(deviceGroup.position);
+        /* reticle 半径取最长边半长×1.35（包围球对角线会把扁平件圆环撑过大半台） */
+        p.popRadius = Math.max(..._bb.getSize(new THREE.Vector3()).toArray()) / 2;
+      }
       if(p.axisLine){
         p.axisLine.geometry.setFromPoints([p.base.clone(), p.base.clone().add(p.worldOffset || p.offset)]);
         p.axisLine.computeLineDistances();
@@ -973,9 +1112,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
           const q = Math.max(1, Math.ceil(mins.length * 0.25));
           const mid = q >> 1;
           const robustBottom = mins.length ? (q % 2 ? mins[mid] : (mins[mid-1] + mins[mid]) / 2) : -3.9;
-          /* 落地式钳制：模型底低于地面（-3.9）时展台隐没于地面（历史形态）——
-             展台永不高于地面，避免切入落地式机身的下半段 */
-          setPlinthTop(Math.max(robustBottom - 0.02, -3.92) - (device.groundOffset || 0));
+          /* V5.1 P1-S4 · 台面锚定地面：浮动设备（无人机等）台面不随 hull 底面抬升——
+             模型悬于薄盘上方（参考站口径）；仅当模型底低于地面（落地式切入地面）时台面随之下沉 */
+          setPlinthTop(Math.min(robustBottom - 0.02, -3.92) - (device.groundOffset || 0));
         }
       } }
     /* 径向布局半径：装配态部件基准位置的包围球半径 */
@@ -1024,6 +1163,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       aspect: +(innerWidth / Math.max(innerHeight, 1)).toFixed(3),
       maxDist: controls.maxDistance,
     };
+    /* V5.1 P1 · 展台三型自适应：category/presn 选型 + bbox 驱动 x/z 缩放（装载完成实测） */
+    const _pp = applyPlinthPreset(device);
+    state.plinthType = _pp.type;
     scheduleBVH();   // 悬停/点击拾取与测量共用 BVH（审计 P0-2）
     const community = isCommunityModel(device);
     state.modelStatus = device.glb ? ((community ? 'COMMUNITY' : 'OFFICIAL') + ' · ' + device.en) : 'PROCEDURAL';
@@ -1067,6 +1209,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.explodeTarget = t;
     state.explodeSpeed = 0.9;
     state.userInteracted = true;
+    if(t <= 0.001) state.popped = null;   // V5.1 P3-S3：全局归位=弹出件一并回位
     stopTour(false);
     invalidateMeasure();   // 部件位移后测量点位失效（工具保持开启，重测即可）
     controls.autoRotate = false;
@@ -1389,6 +1532,18 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
   function selectPart(id){
     state.selected = id;
+    /* V5.1 P3/P4 · mech 联动（§6.6）：选中件的相连件集合缓存——I4 弱化豁免用。
+       数据源=device.mech.edges（from/to 端真实引用，无 mech 不建集合）。 */
+    state._connSel = id || null;
+    state._connSet = null;
+    if(id && state.device && state.device.mech && Array.isArray(state.device.mech.edges)){
+      const set = new Set();
+      for(const e of state.device.mech.edges){
+        if(e.from === id && e.to !== id) set.add(e.to);
+        else if(e.to === id && e.from !== id) set.add(e.from);
+      }
+      state._connSet = set;
+    }
     if(!id) state.flewTo = null;
     syncOutlineEnabled();
     emit();
@@ -1398,6 +1553,18 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     const restore = state.flewTo;
     selectPart(null);
     if(restore) resetView();
+  }
+  /* ---------- V5.1 P3-S3 · 单件拆解（参考站点击交互移植，自研实现） ----------
+     点击部件 = 选中 + 飞近 + 该件单独弹出；再点同件=归位，点他件=轮换弹出。
+     与全局拆解正交：部件实际离位量 = max(全局插值, 单件弹出量 p.popK)。
+     触发面：模型点击（pickAt）与清单点击（Vue pickFromList）；导览/深链/逐步装配不触发。
+     setExplode(0)（全局归位）同时清空弹出件——「归位」语义=全部回位。 */
+  function popPart(id){
+    state.popped = (id && state.popped !== id && state.partsById[id]) ? id : null;
+    if(state.popped) state.popUntil = performance.now() + 2400;   // 弹出动画期保持全速渲染
+    invalidateMeasure();
+    emit();
+    return state.popped;
   }
   /* 点击部件 = 相机飞近：包围盒中心 + 对角线×2.2（竖屏按水平视场修正保证部件完整），复用 camTween 缓动 0.8s */
   function flyToPart(id){
@@ -1438,6 +1605,75 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.labelsMode = v === true ? 'auto' : v === false ? 'off' : (['auto','all','off'].includes(v) ? v : 'auto');
     emit();
   }
+  /* ---------- V5.1 P2 · 单部件 Hide/Show（任务书 §6.1 统一部件交互） ----------
+     hidden 集合独立于 X-Ray/Isolate（其透明语义走 modes isoLerp）；mainLoop 末尾
+     后置强制 visible=false——任何模式重放/归位动画都不会把隐藏件带回来。 */
+  function setPartHidden(id, hidden){
+    const p = state.partsById[id];
+    if(!p) return false;
+    if(hidden) state.hiddenParts.push(id);
+    else state.hiddenParts = state.hiddenParts.filter(x => x !== id);
+    p.group.visible = !hidden;
+    if(!hidden && state.selected === id) selectPart(id);   // 重新显示时恢复选中态可见
+    emit();
+    return true;
+  }
+  function showAllParts(){
+    for(const id of state.hiddenParts){
+      const p = state.partsById[id];
+      if(p) p.group.visible = true;
+    }
+    state.hiddenParts = [];
+    emit();
+  }
+  /* ---------- V5.1 P1 空间辅助分级（任务书 §4.3） ----------
+     off：全隐 ｜ simple：仅地面网格 ｜ standard（默认）：网格+地面 XYZ 轴线（V2 坐标装置现状）
+     engineering：+ 模型包围盒辅助（Box3Helper，装载后/切档时按 deviceGroup 实测计算）。
+     轴线读数数值由 DeviceViewer 层经 getState().camPos 呈现（相机世界坐标，CAM 标注区分口径）。
+     bboxHelper 声明前置：applySpaceAid 的初始调用在 state 声明后立即执行（P1-S3），
+     不能让 else-if 分支读到 TDZ 的 let（曾致 createEngine 整体抛出、__ENGINE 不挂载）。 */
+  const SPACE_AID_MODES = ['off', 'simple', 'standard', 'engineering'];
+  function applySpaceAid(){
+    const m = state.spaceAid;
+    grid.visible = m !== 'off';
+    axisX.visible = axisZ.visible = (m === 'standard' || m === 'engineering');
+    /* V5.1 P1-S3：铅垂点线归入空间辅助（standard/engineering 显示——中心轴参照，off/simple 收起） */
+    if(plumbLine) plumbLine.visible = (m === 'standard' || m === 'engineering');
+    if(m === 'engineering'){
+      if(!bboxHelper){
+        bboxHelper = new THREE.Box3Helper(new THREE.Box3(), 0x2a6a8a);
+        bboxHelper.material.transparent = true;
+        bboxHelper.material.opacity = 0.55;
+        scene.add(bboxHelper);
+      }
+      const bb = new THREE.Box3().setFromObject(deviceGroup);
+      if(!bb.isEmpty()){
+        bboxHelper.box.copy(bb);
+        bboxHelper.visible = true;
+      } else {
+        bboxHelper.visible = false;
+      }
+    } else if(bboxHelper){
+      bboxHelper.visible = false;
+    }
+  }
+  function setSpaceAid(mode){
+    if(!SPACE_AID_MODES.includes(mode)) return false;
+    state.spaceAid = mode;
+    applySpaceAid();
+    emit();
+    return true;
+  }
+  function cycleSpaceAid(){
+    const i = SPACE_AID_MODES.indexOf(state.spaceAid);
+    return setSpaceAid(SPACE_AID_MODES[(i + 1) % SPACE_AID_MODES.length]);
+  }
+  /* engineering 档 bbox 刷新：装载完成与爆炸/归位收敛点调用（非逐帧 traverse） */
+  function refreshSpaceAidBBox(){
+    if(state.spaceAid !== 'engineering' || !bboxHelper) return;
+    const bb = new THREE.Box3().setFromObject(deviceGroup);
+    if(!bb.isEmpty()){ bboxHelper.box.copy(bb); bboxHelper.visible = true; }
+  }
   function setAutoRotate(on){
     controls.autoRotate = on;
     state.userInteracted = true;
@@ -1460,6 +1696,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const VIEW_PRESETS = {
     front: [0, 0.42, 1], back: [0, 0.42, -1], left: [-1, 0.42, 0], right: [1, 0.42, 0],
     interior: [0.15, 0.08, 0.3],   // 内部：低角度近距离（联动 X-Ray 由 UI 侧协调）
+    /* V5.1 P1 · 顶/底视角（任务书 §9.1）：up 共线规避——方向向量带 0.02 z 偏移， */
+    top: [0, 1, 0.02], bottom: [0, -1, 0.02],
   };
   function flyToView(preset){
     if(!VIEW_PRESETS[preset]) return false;
@@ -1485,6 +1723,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
        必须在 selectPart 之前保存——selectPart(null) 会清 flewTo（历史顺序缺陷） */
     const wasFlew = state.flewTo;
     selectPart(id);
+    /* V5.1 P3-S3：点击部件 = 单件弹出（轮换：点他件时前件归位）；已弹出件再点=仅重聚焦不误触归位
+       （弹出件常悬停在视线前方遮挡区域，误触会把「重看一眼」变成「收回」）；stepMode 不接管 */
+    if(id && !state.stepMode && fly !== false && state.popped !== id) popPart(id);
     if(fly !== false){
       if(id) flyToPart(id);
       else if(wasFlew) resetView();
@@ -1728,6 +1969,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   const clock = new THREE.Clock();
   let lastHalf = 0, running = true, booted = false;
   let lastEmitExp = -1;
+  let lastEmitExN = -1;   // V5.1 P3-S3：弹出件进出也触发 emit（单件拆解不改变 explode% 曾漏报计数）
 
   function emit(){
     onChange({
@@ -1737,6 +1979,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       modelStatus: state.modelStatus,
       labelsOn: state.labelsMode !== 'off',
       labelsMode: state.labelsMode,
+      spaceAid: state.spaceAid,
+      hiddenParts: state.hiddenParts,
+      explodedParts: state.explodedParts || 0,   // V5.1 P2：已离位部件数（§6.4 拆解统计）
+      popped: state.popped,                       // V5.1 P3-S3：单件拆解弹出件 id（emit/getState 双路同步）
       autoRotate: controls.autoRotate,
       viewMode: modes.state.mode,
       isolateId: modes.state.isolateId,
@@ -1815,6 +2061,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       state.explodeCurrent = clamp(
         state.explodeCurrent + dir*Math.min(rawDt*state.explodeSpeed, Math.abs(state.explodeTarget-state.explodeCurrent)), 0, 1);
       if(state.explodeCurrent === state.explodeTarget) state.explodeSpeed = 0.9;
+      refreshSpaceAidBBox();   // 爆炸/归位收敛点：engineering 档包围盒刷新
     }
     const ex = state.explodeCurrent;
     const n = state.parts.length || 1;
@@ -1825,6 +2072,8 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     state.focusFloatK = state.focusFloatK ?? 0;
     state.focusFloatK += (floatTarget - state.focusFloatK) * Math.min(1, dt * 3.5);
     const floatK = state.focusFloatK > 0.001 ? easeIO(clamp(state.focusFloatK, 0, 1)) : 0;
+    let exN = 0;   // V5.1 P2：已离位部件计数（任务书 §6.4 拆解统计）
+    let popMoving = false;   // V5.1 P3-S3：弹出/归位动画进行中（R1 全速判据）
     for(const p of state.parts){
       let lt;
       if(state.stepMode){
@@ -1833,15 +2082,41 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
         const stag = (p.idx/n)*0.32;
         lt = clamp((ex-stag)/(1-0.32), 0, 1);
         lt = easeIO(lt);
+        /* V5.1 P3-S3 · 单件弹出量（独立于全局插值，指数趋近 2.6/s≈0.4s）；
+           部件实际离位 = max(全局, 弹出)——全局归位后弹出件仍在外，popPart(null) 才收回 */
+        const popTgt = state.popped === p.data.id ? 1 : 0;
+        p.popK = p.popK || 0;
+        p.popK += (popTgt - p.popK) * Math.min(1, dt * 2.6);
+        if(popTgt === 0 && p.popK < 0.002) p.popK = 0;
+        if(Math.abs(p.popK - popTgt) > 0.004) popMoving = true;
+        lt = Math.max(lt, p.popK);
       }
       const wo = p.worldOffset || p.offset;
-      /* 选中零件的拆分悬浮偏移（仅装配态生效） */
+      /* 选中零件的拆分悬浮偏移（仅装配态生效；弹出态已到 1，天然被 max 覆盖） */
       if(floatK > 0 && state.selected === p.data.id){
         lt = clamp(lt + floatK * 0.3, 0, 1);
       }
       p.group.position.copy(p.base).addScaledVector(wo, lt);
       if(!isFinite(p.group.position.x)) p.group.position.copy(p.base);
       if(p.axisLine){ p.axisLine.material.opacity = lt*0.38; p.axisLine.visible = lt>0.03; }
+      /* V5.1 P2 · 全局拆解统计（任务书 §6.4）：lt>0.02 记为「已离位」——
+         与渲染状态同源（本循环刚写入 position），零额外遍历成本 */
+      if(lt > 0.02) exN++;
+    }
+    state.explodedParts = exN;
+    state.popMoving = popMoving;
+    /* V5.1 P3-S3 · reticle 跟随弹出件：中心=部件包围球心（popCenter 缓存，finalize 实测），
+       直径=包围球×1.6，billboard 朝相机 */
+    if(reticle){
+      const pp = state.popped && state.partsById[state.popped];
+      if(pp && pp.popCenter){
+        reticle.visible = true;
+        reticle.position.copy(pp.group.position).add(pp.popCenter).add(deviceGroup.position);
+        reticle.quaternion.copy(camera.quaternion);
+        reticle.scale.setScalar(Math.max(0.3, pp.popRadius * 1.35));
+      }else{
+        reticle.visible = false;
+      }
     }
     modes.tick(dt);
     applyGlow(dt, t);
@@ -1911,11 +2186,22 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
 
     deviceGroup.position.y = reducedMotion ? 0 : Math.sin(t*0.7)*0.1;
     if(!reducedMotion) particles.rotation.y = t*0.012;
+    /* V5.1 P1-S3 · 陈列刻度盘慢旋（参考站 0.035rad/s 口径，自研实现）：
+       与星点同级的最轻量环境动势；reducedMotion 静止；R1 idle 半率采样下随渲染帧自然变慢（诚实节奏）。
+       软渲染环境装载饱和慢为已知既有特性（无头冻结记忆条目），非本改动引入——探针按 300s 规程判定 */
+    if(!reducedMotion && stageDial) stageDial.rotation.y = t * 0.035;
 
     composer.render();
     try{ updateLabelsFrame(); }
     catch(e){ hooks.onLabelError && hooks.onLabelError(String((e && e.message) || e)); }
     updateMeasureTip();
+    /* V5.1 P2：隐藏件后置强制——任何模式重放/归位动画/装载流程都不会把隐藏件带回 */
+    if(state.hiddenParts.length){
+      for(const id of state.hiddenParts){
+        const p = state.partsById[id];
+        if(p && p.group.visible) p.group.visible = false;
+      }
+    }
 
     /* 帧率采样 → 自适应降档（watchdog 步进的帧不计入，否则 rAF 挂起环境会误判卡顿） */
     if(adaptive && booted && !viaWatchdog){
@@ -1935,7 +2221,10 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       emit();
     } else {
       const pct = Math.round(ex*100);
-      if(pct !== lastEmitExp){ lastEmitExp = pct; emit(); }
+      /* V5.1 P3-S3：已离位数变化（单件弹出/归位不改变 explode%）同样触发 UI 同步 */
+      if(pct !== lastEmitExp || state.explodedParts !== lastEmitExN){
+        lastEmitExp = pct; lastEmitExN = state.explodedParts; emit();
+      }
     }
     renderCount++; frameMsAcc += performance.now() - _fms0;
     /* AURORA：装载完成（doneMs 已写）后的首个渲染帧 → firstRenderMs。
@@ -1964,6 +2253,9 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
     if(performance.now() < inputUntil) return true;            // 拖拽/缩放/惯性期
     if(hoverDirty || hallTween || state.camTween) return true;
     if(Math.abs(state.explodeCurrent - state.explodeTarget) > 0.0004) return true;
+    /* V5.1 P3-S3：弹出/归位动画期与动画余波窗口保持全速 */
+    if(state.popMoving) return true;
+    if(state.popUntil && performance.now() < state.popUntil) return true;
     if(state.stepMode && state.stepGroups && Math.abs(state.stepCur - state.stepTarget) > 0.0004) return true;
     const ft = (state.selected && state.explodeCurrent < 0.2 && !state.stepMode) ? 1 : 0;
     if(Math.abs(ft - (state.focusFloatK ?? 0)) > 0.001) return true;   // 拆分悬浮渐变
@@ -2119,7 +2411,7 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
   }
 
   return {
-    loadDevice, setExplode, setExplodeLayout, selectPart, deselect, setHover, setLabels, setAutoRotate,
+    loadDevice, setExplode, setExplodeLayout, selectPart, deselect, setHover, setLabels, setAutoRotate, setSpaceAid, cycleSpaceAid, setPartHidden, showAllParts, popPart,   // V5.1 P3-S3：单件拆解
     setHallMode, setGridVisible,
     setDemoSpeed: (v) => { state.demoSpeed = clamp(Number(v) || 1, 0.25, 3); emit(); return state.demoSpeed; },
     /* V4.0 MI⑤：模型质量诊断（五类×四级，任务书 §8；只诊断不修复） */
@@ -2164,6 +2456,15 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       const p = state.partsById[id];
       return p ? { x: +p.group.rotation.x.toFixed(4), y: +p.group.rotation.y.toFixed(4), z: +p.group.rotation.z.toFixed(4) } : null;
     },
+    /* V5.1 P3-S3 · 纯查询拾取（无副作用）：单件拆解后部件会占据新屏幕区域，
+       验证脚本需要先找「真正空白」的点击点——dry-run 版 pickAt。 */
+    getPickIdAt: (x, y) => {
+      pointer.x = (x / innerWidth) * 2 - 1;
+      pointer.y = -(y / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObjects(state.pickMeshes, false)[0];
+      return hit ? hit.object.userData.partId : null;
+    },
     getState: () => ({ ...state,
       booted, autoRotate: controls.autoRotate, quality,   // V4.1：自适应画质档（0-2）可观测，探针/测试用
       viewMode: modes.state.mode, isolateId: modes.state.isolateId, clipCap: modes.state.capKind,
@@ -2176,7 +2477,19 @@ export function createEngine(canvas, labelsRoot, hooks = {}){
       frameMsAvg: renderCount ? +(frameMsAcc / renderCount).toFixed(2) : 0,
       loadTiming: state.loadTiming || null,
       camPos: camera.position.toArray().map(v => +v.toFixed(2)),
+      explodedParts: state.explodedParts || 0,   // V5.1 P2：已离位部件数（§6.4 拆解统计）
+      popped: state.popped,                       // V5.1 P3-S3：单件拆解弹出件 id
+      /* V5.1 P8-S1 · 能力检测（任务书 §11.3）：按真实数据声明可用功能——
+         UI 层据此不得为无数据能力显示可用入口（防虚假入口红线） */
+      capabilities: {
+        explode: state.parts.length > 1,                                 // 多部件才可拆
+        sizeAssist: !!(state.device && state.device.realSizeMM),         // 可信真实尺寸（mm 标定测量）
+        mech: !!(state.device && state.device.mech),                     // 机构关系
+        tour: !!(state.device && state.device.tour),                     // 策展巡览
+        labels: state.parts.length > 0,                                  // 部件标注
+      },
       deviceTier,   // AURORA PHASE 6：low/mid/high（探针与降档诊断用）
+      plinthType: state.plinthType || null,   // V5.1 P1：precision/industrial/large
       /* parts/partsById 含 THREE 对象，不进响应式/跨页传输，只出计数字段 */
       partsCount: state.parts.length,
     }),

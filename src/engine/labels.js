@@ -34,6 +34,13 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `${p.data.zh}${p.data.en ? ' · ' + p.data.en : ''}`);
       el.innerHTML = `<span class="pl-idx">${String(p.idx + 1).padStart(2, '0')}</span><span class="pl-name">${p.data.zh}</span>`;
+      /* V5.1 P3 · 参数摘要卡：tag（简短说明）惰性注入——仅选中件展开显示，数据源 device.parts[].tag */
+      if(p.data.tag){
+        const tagEl = document.createElement('span');
+        tagEl.className = 'pl-tag';
+        tagEl.textContent = p.data.tag;
+        el.appendChild(tagEl);
+      }
       if(onHover){
         el.addEventListener('pointerenter', () => onHover(p.data.id));
         el.addEventListener('pointerleave', () => onHover(null));
@@ -71,6 +78,27 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
   function update(opt){
     const W = opt.W, H = opt.H;
     const visible = [];
+
+    /* V5.1 P3-S2 · 面板 rect 避让（参考项目同款机制）：左右 UI 面板实measure——
+       左=rail 展开右缘，右=详情卡/信息浮层左缘。先读后写无强制布局循环。
+       safeL/safeR 夹紧 clamp 边界（标签不与面板重叠）。 */
+    let safeL = EDGE, safeR = W - EDGE;
+    try{
+      const rail = document.getElementById('rail');
+      if(rail && rail.getBoundingClientRect().right > 8) safeL = Math.max(safeL, rail.getBoundingClientRect().right + 8);
+      /* V5.1 P5：右侧常驻面板两态——CORE PROFILE（未选中）与详情卡（选中）取更靠左者 */
+      const card = document.getElementById('ctxCard');
+      if(card){
+        const cr = card.getBoundingClientRect();
+        if(cr.width > 40) safeR = Math.min(safeR, cr.left - 8);
+      }
+      const core = document.getElementById('corePanel');
+      if(core){
+        const cr = core.getBoundingClientRect();
+        if(cr.width > 40) safeR = Math.min(safeR, cr.left - 8);
+      }
+    }catch{}
+    if(safeR - safeL < 120) safeR = safeL + 120;   // 视区过窄退化：保底标签宽
 
     for(const it of items){
       it.show = wanted(it, opt);
@@ -114,8 +142,8 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
         it.boxY = boxY;
         lastY = boxY;
         it.boxX = it.side > 0 ? it.ax + OFFSET_X : it.ax - OFFSET_X - it.boxW;
-        if(it.boxX < EDGE) it.boxX = EDGE;
-        if(it.boxX + it.boxW > W - EDGE) it.boxX = W - EDGE - it.boxW;
+        if(it.boxX < safeL) it.boxX = safeL;
+        if(it.boxX + it.boxW > safeR) it.boxX = Math.max(safeL, safeR - it.boxW);
       }
     }
 
@@ -147,6 +175,7 @@ export function createLabelSystem(root, { onHover, onSelect } = {}){
       el.style.transform = `translate(${it.boxX.toFixed(1)}px,${it.boxY.toFixed(1)}px)`;
       el.classList.add('on');
       el.classList.toggle('hot', hot);
+      el.classList.toggle('sel', sel);   // V5.1 P3：选中件摘要卡形态（.pl-tag 随 .sel 展开）
       it.path.style.display = '';
       it.path.setAttribute('d', d);
       it.path.classList.toggle('sel', sel);

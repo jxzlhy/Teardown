@@ -2689,3 +2689,44 @@ P2-11 SEO 基础件（og:image/robots/sitemap/manifest + CSP meta，纯静态构
 - **品牌矩阵全扫**：剩余 61 台无 realSizeMM = GENERIC 42 + APPLE 排除 5（虚构 4+vision-pro 官方不公布）+ 古董/创作者/排除品牌 14——**零漏盘**，全部在排除清单口径内（CONTENT_DEPTH_EXCLUSIONS.md）。维护态矩阵重扫收口。
 - **friction-log 增补 F-11~F-13**（轮 40-59 验收期摩擦）：F-11 OrbitControls.update() 覆盖外部相机写入（认知错误三返工→补间后置结构性修复）/F-12 调试快照被当实时遥测（假遥测污染 5 轮→直写裁决+camPos 转正）/F-13 打点挂错生命周期块（firstRenderMs 恒 0）。
 - **NEXT_SESSION 刷新**：AURORA DELIVERED + 内容深度维护态收口快照（双指标/验证资产/移交项/V5.1 方向）。
+
+## 2026-11-06 续会话轮 61 · V5.1 P5-S1 页面壳底座重构 + P1-S3/S4 底座与坐标空间·光影移植（参考站对齐）
+
+- **P5-S1（任务书 §8 操作布局）**：模型详情页页面壳按参考站骨架重构——顶栏三段式（STRUCTURE DECONSTRUCTION/位次 eyebrow + EN 型号大字 + 中央舞台状态实时映射 + SYS/FPS 遥测）；左 rail INDEX 头 + COMPONENT MANIFEST 大标题 + 行尾状态圈 + DECONSTRUCTION PROGRESS 脚块；右侧 CORE PROFILE 常驻面板（规格 2×2 瓦片自顶栏迁入，选中件让位详情卡）；dock 两级（全部拆解/自动巡视/自动旋转/重置视角四枚标签钮 + 工具行）；四角括框 + 左下 QUICK GUIDE 迷你卡 + 右下 EXPLODE SEQUENCE 读数。FPS=renderCount 增量真实遥测（gizmo 循环内采样，零新循环）。labels.js safeR 避让扩入 corePanel。全部既有 DOM id/浮层栈/移动端 sheet 保留。
+- **P1-S3（底座/坐标空间移植 I）**：canvas 雷达盘面 → **几何陈列刻度盘**（细环×2 + 72 放射刻度每 6 主刻 + 断弧 Torus 1.12π，0.035rad/s 慢旋）；PolarGrid → **GridHelper(30,60) 细方格**；**铅垂虚线**（台面→设备顶，standard/engineering 档显隐）。§15 口径：只研究参考站实现思路，代码全自研。
+- **P1-S4（底座形态/光影移植 II，用户对照图反馈驱动）**：高鼓墩身 → **0.16 薄盘 + 台缘亮环**（emissive 夜 0.95）；**台面锚定地面**（浮动设备模型悬于盘上——mini4pro 高鼓形态根因，Math.max→Math.min 落地钳制仅保留下沉半边）；刻度环提亮加长；**暖色电影光**（warmLight 0xff9a45 夜 70 后左低位 + glowWarm 地面暖辉盘，hallTween 双通道渐变，thumb 隐藏保缩略图口径）；网格提亮（0x1c4f70/0x102c42 夜 0.7）。
+- **重大缺陷修复**：初始 applySpaceAid() 读 TDZ 中的 `let bboxHelper` → **createEngine 整体抛出、__ENGINE 不挂载**（与软渲染慢装载症状叠加成 1 小时追鬼影）——HEAD worktree 对照法定归因（HEAD 133s vs 工作树 117s settle 持平，慢装载=环境性）。修复=声明前置。记忆库 headless 条目 +12：**booted≠装载完成（判据 modelStatus 进 OFFICIAL 系）**。
+- **验证**：stage 专项探针 12/12 ALL GREEN（mini4pro：薄盘/暖光 70/断弧 3.519π/铅垂线 5.85 贯通/慢旋 Δ/日厅 Normal 混合/零页面错误）；**hud-verify ALL PASS**（新底座断言 + 拆解读数轮询口径修 68% 假阴性）；coordaid ✓（GridHelper 探针同步）/ pedestal ✓ / lint:devices ✓（129 GLB 0 违规）/ build 2.94s ✓。
+- **视觉证据**：docs/design/screenshots/2026-11-06-v51-stage/（s1 夜厅全景/s2 日厅/s3 mini4pro 爆炸薄盘悬浮+s4 顶视刻度盘/shot-w1 暖光版）——与参考站对照：薄盘亮环/刻度环/细网格/铅垂虚线/冷主光+暖逆光双色氛围全轴对齐。
+- **行为变更留档**：台面锚定地面退役 V3「各件不同高」浮升口径（用户裁定参考站形态优先）；groundOffset/groundKeep 逐台微调保留。
+- **下一项**：P6 多类别抽查（齿轮箱/汽车/大型设备新底座观感）+ §17 门禁表滚动更新；P5 移动端批核验。
+
+## 2026-11-07 续会话轮 62 · V5.1 P3-S3 单件拆解交互（用户指定移植）+ P6 多类别底座抽查收口
+
+- **P3-S3（参考站点击交互移植，代码自研）**：点击部件（模型/清单）= 选中 + 飞近 + **该件单独弹出**（轮换：点他件前件归位；已弹出件再点仅重聚焦防误触）；引擎 `popPart` + `state.popped/popK`（指数趋近 2.6/s，与全局拆解正交——实际离位 = max(全局, popK)）+ **虚线圆环 reticle**（96 段 LineDashed + 4 角刻线，billboard，按部件最长边半长 ×1.35 缩放，finalize 缓存包围球）；面板「已拆解 · EXPLODED」徽标 + 拆解/归位钮；顶栏 STRUCTURE VIEW / rail DECONSTRUCTED 状态词；清单 .pop 呼吸圈。emit/getState 双路补 popped + **已离位数变化触发 emit**（首轮 0/12 计数漏报，截图复验抓出）。全局归位（SPACE 至 0）清弹出。
+- **P6 多类别抽查**：`tools/v51-p6-category-verify.mjs`——hypoid-gear/planetary-gearbox（industrial）+ porsche-911-carrera-4s/countach-lpi800-4（large）四台三型选型/薄盘/刻度盘断言 + 装配/爆炸/日厅/顶视 8 张截图 **ALL GREEN**；§17 门禁 #22 收口。
+- **验证基建三轮加固（环境定性全部落档）**：① **"Waiting failed" 无超时 = Vue router hash 重写终止 puppeteer WaitTask**——四个工具全部改轮询 evaluate（导航免疫，300s 规程内）；② smoke 装载等待 280s+轮询化；③ 空白点击点改 `getPickIdAt`（新引擎纯查询 API）实测选取——单件拆解 + CORE PROFILE 面板后固定坐标不可靠（原 1350,150 落入面板属正确接管）；④ 讲解卡断言放宽为「有策展词渲染」、演示采样窗 5s（dt 钳制 + 帧饥饿）。
+- **验证终局**：**smoke 28/28 冒烟通过**（负载 6.5 时全绿；负载 17-20 时全套件超时——并发重套件必互杀，此后一律串行）/ pop 探针 10/10 / P6 ALL GREEN / hud-verify ALL PASS / stage 探针 12/12 / coordaid+pedestal ✓ / lint ✓ / build ✓。
+- **下一项**：P5 移动端批核验 / P8 Presentation Config 化 / P9 性能批（按任务书顺序）。
+
+## 2026-11-07 续会话轮 63 · V5.1 P5-S2 移动端批核验（任务书 §10 收口）
+
+- **探针 `tools/v51-p5-mobile-verify.mjs` 12/12 ALL GREEN**：底座重构后的移动端形态（CORE PROFILE/指引卡/序列读数/rail 隐藏、mpChips+两级 dock 在场、双行横滑）+ 触屏单件拆解链路（轮换弹出/reticle/sheet 徽标/归位钮）+ 剖切条浮层基线 + 375/430 无横向溢出 + 零页面错误。
+- **产品修复**：移动端 sheet 底部 padding 64→100px（两级 dock 高 91px，旧值下操作行被 dock 压住）。
+- **口径校准**：mpChips 点击=轮换弹出（断言随动）；sheet 内部滚动（46vh）操作行滚到底再量。
+- 真机项维持挂账；下一项：P8 Presentation Config 化 / P9 性能批。
+
+## 2026-11-07 续会话轮 64 · V5.1 P8-S1 Presentation Config + P9 性能批（双收口）
+
+- **P8-S1（任务书 §11.1/§11.3）**：engine `presnFor(device)`——每设备展示配置单一事实源（plinth 逐台覆盖生效，labelsMode/spaceAid 预留）；`getState().capabilities` 五键能力检测（explode/sizeAssist/mech/tour/labels 按真实数据，防虚假入口红线的数据基础）；jet-engine 首个 presn 策展（涡轮发动机→large 大地台，§4.1 类型 C）。探针 6/6 ALL GREEN。
+- **§11.2 裁定留档**：现有 parts 系统即 Part Interaction Adapter（七字段映射表入执行日志），不另建数据体系。
+- **P9 性能批**：switch-seq ALL PASS（往返零错误/相机尺度恢复）+ 新增泄漏抽查探针——A→B→A 场景 mesh/几何计数精确回基线（漂移 0），新增陈列对象零累积、设备几何完整释放。
+- 验证工具新增：`v51-p8-presn-verify.mjs`、`v51-p9-leak-verify.mjs`。
+- **下一项**：P10 视觉设计验收批（§13 十三问逐检）/ P11 自动化测试批 / 真机项挂账。
+
+## 2026-11-07 续会话轮 65 · V5.1 P10 视觉设计验收批（§13 十三问逐检）+ P10-S1 展台足印适配修复
+
+- **截图扫**：`tools/v51-p10-visual-sweep.mjs` 六尺寸设备 × 夜/日 × 装配/爆炸 = 18 张（2026-11-07-v51-p10/）。
+- **P10-S1 产品修复**：展台 k 改 **XZ 足印驱动**（原 3D maxDim/9.5 低估大件——combustion-engine 143 部件超出盘缘）；类型系数与足印 k 相乘后统一钳制 ≤1.9（反向失配 2.16→1.9）。实测 k 三台：0.85/1.25/1.9；复扫确认贴合。
+- **§13 十三问逐检 12✅ + 1🟡**（rim2 紫色轮廓光在银色大件上偏强——V2 夜厅身份留档观察，未改）；明细表入执行日志。
+- **下一项**：P11 自动化测试批收口（回归索引）/ 真机挂账。

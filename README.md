@@ -17,7 +17,8 @@ npm run smoke      # 端到端冒烟回归（详见 package.json）
 | 文档 | 说明 |
 | --- | --- |
 | [docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md](docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md) | **自主研发总任务书 v2.0.0（长期总纲 · 28 部分 51 章：最高目标/真实性红线/资产标准/四类体验能力/机械模拟分级/PHASE 01-07 路线/GOAL 模式/停止条件）** |
-| [docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md](docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md) | **V5.0.10 AURORA 体验与性能专项任务书（当前执行中：体验第一优先级/性能第二，PHASE 0-7；独立专项，不转长期 goal）** |
+| [docs/roadmap/GEWU_V5_1_MODEL_EXPERIENCE_LAB.md](docs/roadmap/GEWU_V5_1_MODEL_EXPERIENCE_LAB.md) | **V5.1 MODEL EXPERIENCE LAB 任务书（当前执行中：模型详情页 3D 展示系统升级——展示空间/拆解交互/技术标注/操作布局，参考 drone-threejs-app）** |
+| [docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md](docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md) | V5.0.10 AURORA 体验与性能专项任务书（已交付：体验第一优先级/性能第二，PHASE 0-7） |
 | [AGENTS.md](AGENTS.md) | 自主研发总则（长期工作规则） |
 | [TECH.md](TECH.md) | 技术架构与收口记录 |
 | [MODEL_INVENTORY.md](MODEL_INVENTORY.md) | 自动生成的模型清单（勿手改） |

@@ -5,41 +5,56 @@
     <div id="fx-scan"></div>
     <div v-if="bootScanRun" id="bootScan" class="hud-scan once"></div>
 
+    <!-- V5.1 P5 · 展台取景框：四角 L 括号框定 3D 视区（纯装饰，不接事件不挡画布） -->
+    <div class="stage-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
     <!-- 开场大字（boot 演出专用，结束移除） -->
     <div v-if="bootTitleShow" id="bootTitle">
       <span class="bt-en">{{ device.en }}</span>
       <span class="bt-zh">{{ device.name }}</span>
     </div>
 
-    <!-- 顶部细导航条 -->
-    <header v-if="!thumbMode" id="topbar" class="hud-panel hud-corner">
+    <!-- 顶部状态条（V5.1 P5 底座重构，参考站骨架）：品牌块 | 中央舞台状态 | 遥测+总览 -->
+    <header v-if="!thumbMode" id="topbar" class="hud-panel">
       <router-link class="tb-back" to="/" aria-label="返回门厅">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
       </router-link>
-      <div class="tb-name">
-        <span class="tb-model">{{ device.en }}</span>
-        <h1>{{ device.name }}</h1>
+      <div class="tb-brand">
+        <div class="tb-eyebrow">STRUCTURE DECONSTRUCTION / {{ stageIndex }}</div>
+        <div class="tb-title">
+          <b>{{ device.en }}</b>
+          <span class="tb-cn">{{ device.name }}</span>
+        </div>
       </div>
-      <!-- 关键规格 chip（R2 参考调研）：数值大 / 标签小，档案数据前置到顶栏；≤1080px 隐藏 -->
-      <div class="tb-specs" v-if="specChips.length">
-        <span class="tb-spec" v-for="([k, v], i) in specChips" :key="i">
-          <b>{{ v }}</b><i>{{ k }}</i>
+      <!-- 中央舞台状态：视图模式/拆解态实时映射（真实引擎状态，非装饰文案） -->
+      <div class="tb-center" aria-live="polite">
+        <i></i><span>{{ stageState }} · REAL-TIME 3D</span><i></i>
+      </div>
+      <div class="tb-right">
+        <span class="tb-status" :title="ui.modelStatus">
+          <i class="hud-dot" :class="statusTone"></i><em>{{ statusShort }}</em>
         </span>
+        <!-- FPS：引擎 renderCount 增量派生的真实渲染帧率（gizmo 循环内 600ms 采样，零新循环） -->
+        <span class="tb-fps" title="引擎渲染帧率（按需渲染，静止时自动降频）">FPS <b>{{ fps }}</b></span>
+        <button class="hud-icon" :class="{ on: infoOpen }" @click="infoOpen = !infoOpen" aria-label="设备总览">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v6"/></svg>
+          <span class="tip tip-below">总览</span>
+        </button>
       </div>
-      <span class="tb-status" :title="ui.modelStatus">
-        <i class="hud-dot" :class="statusTone"></i><em>{{ statusShort }}</em>
-      </span>
-      <button class="hud-icon" :class="{ on: infoOpen }" @click="infoOpen = !infoOpen" aria-label="设备总览">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v6"/></svg>
-        <span class="tip tip-below">总览</span>
-      </button>
     </header>
 
-    <!-- 左侧部件清单：可折叠 rail（两种导航模式：清单列表 / 宫格面板，V2） -->
+    <!-- 左侧部件清单（V5.1 P5 底座重构）：INDEX 头 / COMPONENT MANIFEST 大标题 / 清单 / 拆解进度脚块 -->
     <aside v-if="!thumbMode" id="rail" class="hud-panel" :class="{ open: railOpen }">
+      <div class="rail-meta">
+        <span class="hud-eyebrow">INDEX / {{ stageIndex }}</span>
+        <span class="rail-state">{{ explodeStateWord }}</span>
+      </div>
       <div class="rail-head">
         <button class="rail-toggle" @click="toggleRail" :aria-expanded="railOpen ? 'true' : 'false'" title="展开 / 收起部件导航（紧凑 ↔ 展开）">
-          <span class="hud-eyebrow">部件清单 <b class="rail-count">{{ filteredParts.length }}<template v-if="partQuery"> / {{ device.parts.length }}</template></b></span>
+          <span class="rail-title-wrap">
+            <span class="hud-eyebrow">COMPONENT MANIFEST</span>
+            <span class="rail-title">部件清单 <b class="rail-count">{{ filteredParts.length }}<template v-if="partQuery"> / {{ device.parts.length }}</template></b></span>
+          </span>
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
         </button>
         <button class="rail-mode" @click="toggleRailMode" :title="railMode === 'list' ? '切换宫格导航' : '切换清单导航'" :aria-label="railMode === 'list' ? '切换宫格导航' : '切换清单导航'">
@@ -56,9 +71,14 @@
           aria-label="搜索部件" @keydown.esc="partQuery = ''" />
         <button v-if="partQuery" class="rail-search-clear" @click="partQuery = ''" aria-label="清空搜索"><Icon name="close" /></button>
       </div>
+      <!-- V5.1 P2 · 单部件 Hide/Show（任务书 §6.1）：隐藏件计数 + 一键全部显示 -->
+      <div v-if="hiddenCount" class="rail-hiddenbar">
+        <span>已隐藏 {{ hiddenCount }}</span>
+        <button @click="engine && engine.showAllParts()" aria-label="全部显示">全部显示</button>
+      </div>
       <div class="rail-list" v-if="railMode === 'list'">
         <button v-for="p in filteredParts" :key="p.id"
-          class="prow" :class="{ active: ui.selected === p.id }"
+          class="prow" :class="{ active: ui.selected === p.id, dimmed: isHidden(p.id) }"
           @click="pickFromList(p.id)"
           @pointerenter="engine && engine.setHover(p.id)"
           @pointerleave="engine && engine.setHover(null)">
@@ -68,6 +88,13 @@
             <span class="pname">{{ p.zh }}</span>
             <span class="pen">{{ p.en }}</span>
           </span>
+          <!-- V5.1 P2 · 单件 Hide/Show：点击不冒泡（选择与隐藏是两个动作） -->
+          <span class="prow-eye" role="button" tabindex="-1"
+            :title="isHidden(p.id) ? '显示部件' : '隐藏部件'"
+            :aria-label="(isHidden(p.id) ? '显示部件：' : '隐藏部件：') + p.zh"
+            @click.stop="toggleHidden(p.id)"><Icon :name="isHidden(p.id) ? 'eye-off' : 'eye'" /></span>
+          <!-- V5.1 P5 · 行尾状态圈：选中/单件弹出点亮（对应参考站清单圆点指示） -->
+          <span class="pstat" :class="{ on: ui.selected === p.id || ui.popped === p.id, pop: ui.popped === p.id, off: isHidden(p.id) }" aria-hidden="true"></span>
         </button>
         <p v-if="!filteredParts.length" class="rail-empty">没有匹配「{{ partQuery }}」的部件</p>
       </div>
@@ -81,6 +108,15 @@
           <span>{{ p.zh }}</span>
         </button>
         <p v-if="!filteredParts.length" class="rail-empty">没有匹配的部件</p>
+      </div>
+      <!-- V5.1 P5 · 拆解进度脚块：全局拆解度 + 操作提示（参考站 DECONSTRUCTION PROGRESS 位） -->
+      <div class="rail-foot">
+        <div class="rail-prog">
+          <span class="hud-eyebrow">DECONSTRUCTION</span>
+          <b class="rail-pct">{{ Math.round(explodePct) }}<i>%</i></b>
+        </div>
+        <div class="rail-bar" role="progressbar" :aria-valuenow="Math.round(explodePct)" aria-valuemin="0" aria-valuemax="100" aria-label="拆解进度"><i :style="{ width: explodePct + '%' }"></i></div>
+        <p class="rail-hint">↳ 点击部件，逐层观察内部结构</p>
       </div>
     </aside>
     <!-- 折叠态：序号圆点列（hover 展开名称） -->
@@ -108,6 +144,36 @@
       </button>
     </div>
 
+    <!-- V5.1 P5 · 右侧 CORE PROFILE 常驻面板（未选中件时的展品档案首页；选中后让位详情卡，
+         桌面专属——移动端走 mpChips + sheet 体系）。数据全部来自设备元数据，无虚构条目 -->
+    <aside v-if="showCorePanel" id="corePanel" class="hud-panel hud-corner">
+      <div class="cp-head">
+        <span class="hud-eyebrow">CORE PROFILE</span>
+        <span class="cp-id">{{ device.en }}</span>
+      </div>
+      <div class="cp-eyebrow" v-if="device.category || device.brand">{{ [device.category, device.brand].filter(Boolean).join(' · ') }}</div>
+      <div class="cp-title">{{ device.name }}</div>
+      <div class="ctx-desc cp-desc">{{ device.description }}</div>
+      <!-- 关键规格 2×2 瓦片（原顶栏 chips 迁入；最多 4 条，不足不占位） -->
+      <div class="cp-grid" v-if="coreSpecs.length">
+        <div class="cp-cell" v-for="([k, v], i) in coreSpecs" :key="i">
+          <b>{{ v }}</b><i>{{ k }}</i>
+        </div>
+      </div>
+      <div class="cp-status">
+        <span>RENDER · {{ qualityLabel }}</span>
+        <span>LAYOUT · {{ ui.layout === 'radial' ? 'RADIAL' : 'AXIS' }}</span>
+        <span>{{ device.glb ? 'OFFICIAL GLB' : 'PROCEDURAL' }}</span>
+      </div>
+      <div class="cp-cta">
+        <span class="cp-cta-txt">选择部件，展开技术参数<b>CLICK ANY MODULE TO INSPECT</b></span>
+        <button class="hud-icon" @click="infoOpen = true" aria-label="打开设备总览">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M7.5 12h9" opacity=".0"/><path d="M15.5 8.5l-9 9M15.5 8.5h-4M15.5 8.5v4"/></svg>
+          <span class="tip tip-below">完整档案</span>
+        </button>
+      </div>
+    </aside>
+
     <!-- 上下文详情卡：仅选中部件时滑入（移动端变底部 sheet） -->
     <Transition name="ctx">
       <aside v-if="selectedPart && !thumbMode" id="ctxCard" ref="sheetEl" class="hud-panel hud-corner" :key="selectedPart.id">
@@ -117,6 +183,12 @@
           <img v-if="partThumb" class="ctx-thumb" :src="partThumb" alt="" aria-hidden="true">
         </div>
         <h2>{{ selectedPart.zh }}<small>{{ selectedPart.en }}</small></h2>
+        <!-- V5.1 P3-S3 · 单件拆解状态徽标（参考站部件档案「已拆解 / EXPLODED」口径） -->
+        <div class="ctx-state">
+          <span class="ctx-state-badge" :class="{ out: isPopped }">
+            <i class="hud-dot" :class="{ ok: isPopped }"></i>{{ isPopped ? '已拆解 · EXPLODED' : '已装配 · ASSEMBLED' }}
+          </span>
+        </div>
         <div class="ctx-tag">{{ selectedPart.tag }}</div>
         <div class="ctx-desc">{{ selectedPart.desc }}</div>
         <div class="ctx-tech" v-if="partTech">
@@ -168,6 +240,7 @@
           <p class="mech-note">活塞相位 = sin(θ + φ缸)（解析精确）；转角由演示统一时钟驱动。</p>
         </div>
         <div class="ctx-actions">
+          <button class="hud-glow-btn" :class="{ on: isPopped }" @click="togglePop">{{ isPopped ? '归位' : '拆解' }}</button>
           <button class="hud-glow-btn primary" @click="engine && engine.flyToPart(selectedPart.id)">聚焦 <kbd>F</kbd></button>
           <button class="hud-glow-btn" @click="closeDetail">关闭 <kbd>Esc</kbd></button>
         </div>
@@ -176,13 +249,15 @@
 
     <!-- 底部图标 dock（点击任意工具时收起二级菜单条——V2 第四章 4.2 统一菜单管理） -->
     <div v-if="!thumbMode" id="dock" class="hud-panel" @click.capture="onDockClick">
-      <div class="dock-group">
-        <button class="hud-glow-btn primary dock-explode" id="btnExplode"
+      <!-- 主操作行（V5.1 P5 参考站 dock 位）：全部拆解 | 滑杆读数 | 自动巡视 | 自动旋转 | 重置视角 -->
+      <div class="dock-row dock-primary">
+        <button class="dock-btn primary dock-explode" id="btnExplode"
           @click="toggleExplode"
           @pointerdown="lpStart" @pointerup="lpEnd" @pointerleave="lpEnd" @pointercancel="lpEnd">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
             <path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M18.4 5.6l-4.2 4.2M9.8 14.2l-4.2 4.2"/>
-          </svg>{{ explodePct > 50 ? '组装' : '拆解' }}
+          </svg>
+          <span class="db-txt"><span class="db-cn">{{ explodePct > 50 ? '组装' : '全部拆解' }}</span><span class="db-en">{{ explodePct > 50 ? 'ASSEMBLE ALL' : 'EXPLODE ALL' }}</span></span>
         </button>
         <div id="exWrap" v-if="!ui.step">
           <input type="range" id="exSlider" min="0" max="1000" :value="sliderValue"
@@ -192,14 +267,29 @@
         </div>
         <!-- 拆解进度读数（R5 参考调研）：滑杆隐含值的显性化，mono 百分比（ui.explode 已是 0–100） -->
         <span id="exReadout" v-if="!ui.step" aria-hidden="true">{{ Math.round(explodePct) }}<i>%</i></span>
+        <!-- V5.1 P2 · 全局拆解统计（任务书 §6.4）：已离位部件数（explode/step 两态通用） -->
+        <span id="exParts" v-if="!ui.step" aria-hidden="true">{{ explodedPartsCount }}<i>/{{ device.parts.length }} 件</i></span>
         <div id="exWrap" class="step-ctl" v-else>
           <button class="step-btn" @click="engine && engine.stepPrev()" :disabled="ui.step.i <= 0" aria-label="上一步"><Icon name="chevron-left" /></button>
           <span class="step-count">装配 {{ ui.step.i }}/{{ ui.step.n }}</span>
           <button class="step-btn" @click="engine && engine.stepNext()" :disabled="ui.step.i >= ui.step.n" aria-label="下一步"><Icon name="chevron-right" /></button>
         </div>
+        <div class="tb-sep"></div>
+        <button class="dock-btn" :class="{ on: !!tour }" @click="toggleTour" aria-label="自动巡视">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5l13 7.5-13 7.5v-15z"/></svg>
+          <span class="db-txt"><span class="db-cn">自动巡视</span><span class="db-en">AUTO TOUR</span></span>
+        </button>
+        <button class="dock-btn" :class="{ on: ui.autoRotate }" @click="engine && engine.setAutoRotate(!ui.autoRotate)" aria-label="自动旋转">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4"/></svg>
+          <span class="db-txt"><span class="db-cn">自动旋转</span><span class="db-en">AUTO ORBIT</span></span>
+        </button>
+        <button class="dock-btn" @click="resetCam" aria-label="重置视角">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12v9M12 12l8-4.5M12 12L4 7.5" stroke-dasharray="2.5 2.5"/></svg>
+          <span class="db-txt"><span class="db-cn">重置视角</span><span class="db-en">RESET VIEW</span></span>
+        </button>
       </div>
-      <div class="tb-sep"></div>
-      <div class="dock-group">
+      <!-- 工具行：视图模式 / 测量 / 逐步装配 / 视角 / 双厅 / 标签 / 截图 / 沉浸 / 帮助 / 切台 -->
+      <div class="dock-row dock-tools">
         <span class="dock-glabel" aria-hidden="true">视图</span>
         <button class="hud-icon" :class="{ on: !ui.viewMode }" @click="engine && engine.setMode(null)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zM12 11L4 6.5M12 11l8-4.5M12 11v9"/></svg>
@@ -225,9 +315,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 17h4v4H4zM10 12h4v9h-4zM16 7h4v14h-4z" stroke-dasharray="0"/><path d="M3 20L20 3" stroke-dasharray="2.5 2.5"/></svg>
           <span class="tip">逐步装配 <kbd>B</kbd></span>
         </button>
-      </div>
-      <div class="tb-sep"></div>
-      <div class="dock-group">
+        <div class="tb-sep"></div>
         <button class="hud-icon" :class="{ on: viewStripOpen }" @click="viewStripOpen = !viewStripOpen" aria-label="视角预设">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke-dasharray="2.5 2.5"/></svg>
           <span class="tip">视角 <kbd>V</kbd></span>
@@ -241,17 +329,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><path d="M9 12h6"/></svg>
           <span class="tip">标签 {{ labelsName }} <kbd>L</kbd></span>
         </button>
-        <button class="hud-icon" :class="{ on: ui.autoRotate }" @click="engine && engine.setAutoRotate(!ui.autoRotate)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4"/></svg>
-          <span class="tip">自动旋转</span>
-        </button>
         <button class="hud-icon" @click="shoot">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.4"/></svg>
           <span class="tip">截图 <kbd>S</kbd></span>
-        </button>
-        <button class="hud-icon" :class="{ on: tour }" @click="toggleTour">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5l13 7.5-13 7.5v-15z"/></svg>
-          <span class="tip">自动导览 <kbd>T</kbd></span>
         </button>
         <button class="hud-icon" :class="{ on: immersiveMode }" @click="toggleImmersive">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
@@ -261,11 +341,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.6 2.6 0 1 1 3.6 2.4c-.9.4-1.2 1-1.2 1.9M12 16.6h.01"/></svg>
           <span class="tip">帮助 <kbd>?</kbd></span>
         </button>
-      </div>
-      <div class="tb-sep tb-sep-nav"></div>
-      <div class="dock-group dock-nav">
-        <button v-if="prevDevice" class="hud-icon nav" @click="goDevice(prevDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span class="tip">{{ prevDevice.name }}</span></button>
-        <button v-if="nextDevice" class="hud-icon nav" @click="goDevice(nextDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg><span class="tip">{{ nextDevice.name }}</span></button>
+        <div class="tb-sep tb-sep-nav"></div>
+        <div class="dock-group dock-nav">
+          <button v-if="prevDevice" class="hud-icon nav" @click="goDevice(prevDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg><span class="tip">{{ prevDevice.name }}</span></button>
+          <button v-if="nextDevice" class="hud-icon nav" @click="goDevice(nextDevice)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5l7 7-7 7"/></svg><span class="tip">{{ nextDevice.name }}</span></button>
+        </div>
       </div>
     </div>
 
@@ -284,6 +364,7 @@
       <button class="hud-chip" :class="{ on: viewPreset === 'left' }" @click="flyView('left')">左侧 <kbd>7</kbd></button>
       <button class="hud-chip" :class="{ on: viewPreset === 'right' }" @click="flyView('right')">右侧 <kbd>8</kbd></button>
       <button class="hud-chip" :class="{ on: viewPreset === 'interior' }" @click="flyView('interior')">内部 <kbd>9</kbd></button>
+      <button class="hud-chip" :class="{ on: viewPreset === 'top' }" @click="flyView('top')">顶部 <kbd>0</kbd></button>
       <button class="hud-chip" @click="resetCam">复位 <kbd>R</kbd></button>
     </div>
 
@@ -424,6 +505,8 @@
     <!-- 坐标辅助装置（V2 重设计）：方位陀螺 gizmo + 网格开关 -->
     <div v-if="!thumbMode" id="coordAid">
       <canvas id="gizmo" ref="gizmoRef" width="128" height="128" @click="viewStripOpen = !viewStripOpen" title="视角方位 · 点击展开视角条" aria-label="视角方位罗盘"></canvas>
+      <div id="axisReadout" ref="axisReadoutEl" aria-label="相机世界坐标读数"></div>
+      <!-- V5.1 P1 · XYZ 世界坐标读数：drawGizmo 循环内签名脏检查直写本元素（R1 降频兼容） -->
       <button id="gridToggle" class="hud-icon" :class="{ on: gridOn }" @click="toggleGrid" aria-label="网格显隐">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="16.5" rx="9" ry="3.6"/><ellipse cx="12" cy="16.5" rx="4.5" ry="1.8"/><path d="M12 12.9v7.2M3 16.5h18"/></svg>
       </button>
@@ -434,6 +517,28 @@
 
     <!-- 沉浸模式下的浮动恢复按钮 -->
     <button v-if="!thumbMode" id="immersiveExit" class="hud-glow-btn" @click="toggleImmersive">退出沉浸 · H</button>
+
+    <!-- V5.1 P5 · 左下操作指引迷你卡（纯信息，不拦截画布事件；完整快捷键见 ? 帮助） -->
+    <div v-if="!thumbMode" id="quickGuide" aria-hidden="true">
+      <div class="qg-head">
+        <span class="hud-eyebrow">操作指引 · QUICK GUIDE</span>
+        <span class="qg-live"><i class="hud-dot ok"></i>LIVE</span>
+      </div>
+      <div class="qg-row"><b>拖拽</b><span>旋转视角</span><b>滚轮</b><span>缩放镜头</span></div>
+      <div class="qg-row"><b>点击</b><span>选择部件</span><b>SPACE</b><span>拆解 / 归位</span></div>
+      <div class="qg-kbd"><kbd>R</kbd> 复位 <kbd>N</kbd> 双厅 <kbd>?</kbd> 全部快捷键</div>
+    </div>
+
+    <!-- V5.1 P5 · 右下拆解序列读数：已离位部件数 + 序刻度（explode/step 两态通用真实数据） -->
+    <div v-if="!thumbMode" id="exSeq" aria-hidden="true">
+      <div class="exs-head">
+        <span class="hud-eyebrow">EXPLODE SEQUENCE</span>
+        <b class="exs-n">{{ String(explodedPartsCount).padStart(2,'0') }} / {{ String(device.parts.length).padStart(2,'0') }}</b>
+      </div>
+      <div class="exs-ticks">
+        <i v-for="p in device.parts" :key="p.id" :class="{ on: p.idx < explodedPartsCount }"></i>
+      </div>
+    </div>
 
     <div class="overlay" :class="{ hide: !showGuide }">
       <div id="guideCard" class="hud-panel hud-corner">
@@ -540,7 +645,8 @@ const floatSlots = computed(() => {
   return slots;
 });
 const floatY = (slot) => {
-  const base = isMobile.value ? 66 : 86;
+  /* V5.1 P5：dock 改两级行（高约 100px），浮层基线从 86/66 抬到 134/118 避让 */
+  const base = isMobile.value ? 118 : 134;
   const lift = isMobile.value && sheetH.value ? sheetH.value + 20 : 0;   // 移动端详情 sheet 让位（原 has-sheet 机制收编）
   return (base + slot * 46 + lift) + 'px';
 };
@@ -558,6 +664,12 @@ function toggleHall(){ hall.value = hall.value === 'day' ? 'night' : 'day'; appl
    gizmo 每帧读相机朝向画罗盘（指针=观察方位角，扇区标注当前机位名）；
    点击 gizmo 联动视角条。rAF 循环随组件卸载停止。 */
 const gizmoRef = ref(null);
+const axisReadoutEl = ref(null);   // V5.1 P1：XYZ 世界坐标读数元素
+let lastAxisSig = '';
+/* V5.1 P5 · FPS 读数：引擎 renderCount 增量 / 墙钟间隔（600ms 采样，gizmo 循环内零新循环）。
+   按需渲染下静止时会显示降频后的真实渲染率——如实反映引擎节奏，不做假 60 */
+const fps = ref('--');
+let fpsLastT = 0, fpsLastC = 0;
 const gridOn = ref(true);
 function toggleGrid(){
   gridOn.value = !gridOn.value;
@@ -599,6 +711,39 @@ function drawGizmo(){
     /* 俯仰读数 */
     g.fillStyle = 'rgba(200,220,235,.85)';
     g.fillText(`${Math.round(pitch * 180 / Math.PI)}°`, C, C + 22);
+  }
+  /* V5.1 P1 · XYZ 世界坐标读数（并入既有 gizmo rAF 循环，零新循环）：
+     读 getState().camPos（渲染帧实时遥测）→ toFixed(2) 签名比较 → 变化才写 DOM。
+     R1 idle 降频时相机静止签名恒等 → 零 DOM 写，天然兼容。 */
+  if(axisReadoutEl.value && engine && engine.getState){
+    const p = engine.getState().camPos;
+    if(p){
+      const sig = p[0].toFixed(2) + '|' + p[1].toFixed(2) + '|' + p[2].toFixed(2);
+      if(sig !== lastAxisSig){
+        lastAxisSig = sig;
+        const f = (n) => (n >= 0 ? '+' : '') + n.toFixed(2);
+        axisReadoutEl.value.textContent = '';
+        const tag = document.createElement('span'); tag.className = 'ax-tag'; tag.textContent = 'CAM';
+        axisReadoutEl.value.append(tag);
+        for(const [ax, v] of [['X', p[0]], ['Y', p[1]], ['Z', p[2]]]){
+          const s = document.createElement('span'); s.className = 'ax-v';
+          s.textContent = ax + ' ' + f(v);
+          axisReadoutEl.value.append(s);
+        }
+      }
+    }
+  }
+  /* V5.1 P5 · FPS 采样（同循环尾部）：renderCount 差值 ÷ 墙钟差值，600ms 一拍 */
+  if(engine && engine.getState){
+    const now = performance.now();
+    if(fpsLastT && now - fpsLastT >= 600){
+      const st = engine.getState();
+      fps.value = String(Math.min(999, Math.max(0, Math.round((st.renderCount - fpsLastC) * 1000 / (now - fpsLastT)))));
+      fpsLastT = now; fpsLastC = st.renderCount;
+    }else if(!fpsLastT){
+      const st = engine.getState();
+      fpsLastT = now; fpsLastC = st.renderCount;
+    }
   }
   gizmoRaf = requestAnimationFrame(drawGizmo);
 }
@@ -904,9 +1049,38 @@ watch([() => tour.value && tour.value.i, () => tour.value && tour.value.note], (
 });
 onBeforeUnmount(() => { if('speechSynthesis' in window) speechSynthesis.cancel(); });
 const explodePct = computed(() => ui.value.explode);
-/* 顶栏关键规格 chip（R2）：取档案规格前 3 条前置展示（缺失字段留空不造） */
-const specChips = computed(() => (device.value.specs || []).slice(0, 3));
+const explodedPartsCount = computed(() => ui.value.explodedParts || 0);   // V5.1 P2：已离位部件数
+/* V5.1 P5 · CORE PROFILE 规格瓦片：档案规格前 4 条（缺失字段留空不造） */
+const coreSpecs = computed(() => (device.value.specs || []).slice(0, 4));
 const qualityLabel = computed(() => ['LOW', 'MED', 'HIGH'][ui.value.quality ?? 2] || 'HIGH');
+/* V5.1 P5 · 顶栏品牌块序号：展品在馆藏中的位次（forge 生成物不在 manifest，显示 --） */
+const stageIndex = computed(() => deviceIndex.value >= 0 ? String(deviceIndex.value + 1).padStart(2, '0') : '--');
+/* V5.1 P5 · 中央舞台状态：视图模式/拆解态的真实引擎映射（顶栏一行文案，非装饰） */
+const stageState = computed(() => {
+  if (!ui.value.booted) return 'BOOTING';
+  if (ui.value.step) return 'STEP ASSEMBLY';
+  const vm = ui.value.viewMode;
+  if (vm === 'xray') return 'X-RAY VIEW';
+  if (vm === 'isolate') return 'ISOLATE VIEW';
+  if (vm === 'clip') return 'SECTION VIEW';
+  /* V5.1 P3-S3：单件弹出态 = STRUCTURE VIEW（参考站口径） */
+  if (ui.value.popped && ui.value.explodeTarget <= 0.5) return 'STRUCTURE VIEW';
+  return ui.value.explodeTarget > 0.5 ? 'EXPLODED VIEW' : 'ASSEMBLED VIEW';
+});
+/* V5.1 P5 · rail 头部状态词（ASSEMBLED / DECONSTRUCTED / EXPLODED，与中央状态同源） */
+const explodeStateWord = computed(() => {
+  if (ui.value.explodeTarget > 0.5) return 'EXPLODED';
+  if (ui.value.popped) return 'DECONSTRUCTED';   // V5.1 P3-S3：单件弹出中
+  return 'ASSEMBLED';
+});
+/* V5.1 P3-S3 · 选中件是否处于单件弹出态（详情卡状态徽标 + 拆解/归位钮） */
+const isPopped = computed(() => !!selectedPart.value && ui.value.popped === selectedPart.value.id);
+function togglePop(){
+  if (!engine || !selectedPart.value) return;
+  engine.popPart(isPopped.value ? null : selectedPart.value.id);
+}
+/* V5.1 P5 · 右侧 CORE PROFILE 常驻面板显示条件：桌面 + 未选中件 + 总览未开（选中让位详情卡） */
+const showCorePanel = computed(() => !thumbMode && !isMobile.value && !selectedPart.value && !infoOpen.value && !!(device.value.en));
 const sliderValue = computed(() => Math.round((scrubbing.value ? manualSlider : ui.value.explode) * 10));
 const labelsName = computed(() => ({ auto: '自动', all: '全部', off: '关闭' })[ui.value.labelsMode] || '自动');
 
@@ -963,12 +1137,13 @@ function bootTimeline(){
     /* 减少动态：跳过开场编排，直接给出可操作界面 */
     bootTitleShow.value = false;
     bootScanRun.value = true;
-    gsap.set(['#topbar', '#rail', '#dock', '#mpChips'], { clearProps: 'all' });
+    gsap.set(['#topbar', '#rail', '#dock', '#mpChips', '#corePanel', '#quickGuide', '#exSeq'], { clearProps: 'all' });
     showToast('点击部件查看详情 · ? 帮助', 2600);
     return;
   }
   const wide = window.matchMedia('(min-width: 701px)').matches;
-  const targets = wide ? ['#topbar', '#rail', '#dock'] : ['#topbar', '#mpChips', '#dock'];
+  /* V5.1 P5：新底座面板（CORE PROFILE / 指引卡 / 拆解序列）与既有三件同批入场 */
+  const targets = wide ? ['#topbar', '#rail', '#dock', '#corePanel', '#quickGuide', '#exSeq'] : ['#topbar', '#mpChips', '#dock'];
   gsap.set(targets, { opacity: 0 });
   if(wide) gsap.set('#rail', { x: -20 });
   gsap.set('#topbar', { y: -14 });
@@ -981,6 +1156,8 @@ function bootTimeline(){
     .to('#topbar', { y: 0, opacity: 1, duration: .5 }, 1.6)
     .to(wide ? '#rail' : '#mpChips', { x: 0, opacity: 1, duration: .5 }, 1.72)
     .to('#dock', { y: 0, opacity: 1, duration: .5 }, 1.84)
+    /* V5.1 P5：CORE PROFILE / 指引卡 / 拆解序列随底座同批淡入（避免 2.6s clearProps 瞬现） */
+    .to(wide ? ['#corePanel', '#quickGuide', '#exSeq'] : [], { opacity: 1, duration: .5 }, 1.95)
     .call(() => { bootScanRun.value = true; }, null, 2.3)
     .call(() => showToast('SPACE 一键拆解 · 点击部件查看详情 · ? 帮助', 3400), null, 2.6)
     .call(() => gsap.set(targets, { clearProps: 'all' }), null, 2.6);
@@ -1082,6 +1259,14 @@ function pickFromList(id){
   if(!engine) return;
   engine.selectPart(id);
   engine.flyToPart(id);
+  if(ui.value.popped !== id) engine.popPart(id);   // V5.1 P3-S3：清单点击 = 单件弹出（已弹出件再点仅重聚焦，防误触归位）
+}
+/* V5.1 P2 · 单部件 Hide/Show（任务书 §6.1）：选择与隐藏是两个动作——眼睛按钮独立于行点击 */
+const isHidden = (id) => ui.value.hiddenParts ? ui.value.hiddenParts.includes(id) : false;
+const hiddenCount = computed(() => (ui.value.hiddenParts || []).length);
+function toggleHidden(id){
+  if(!engine) return;
+  engine.setPartHidden(id, !isHidden(id));
 }
 function shoot(){
   if(!engine) return;
@@ -1164,7 +1349,14 @@ function onKey(e){
   else if(e.code === 'Digit7'){ viewStripOpen.value = true; flyView('left'); }
   else if(e.code === 'Digit8'){ viewStripOpen.value = true; flyView('right'); }
   else if(e.code === 'Digit9'){ viewStripOpen.value = true; flyView('interior'); }
+  else if(e.code === 'Digit0'){ viewStripOpen.value = true; flyView('top'); }   // V5.1 P1：顶视角
   else if(e.code === 'KeyV'){ viewStripOpen.value = !viewStripOpen.value; }
+  else if(e.code === 'KeyG'){
+    /* V5.1 P1：空间辅助四档循环（off→simple→standard→engineering）——G 键 */
+    const r = engine && engine.cycleSpaceAid();
+    const names = { off: '隐藏', simple: '简洁', standard: '标准', engineering: '工程' };
+    if(r) showToast('空间辅助：' + (names[(engine.getState().spaceAid)] || r), 1200);
+  }
   else if(e.code === 'KeyN'){ toggleHall(); }
   else if(e.code === 'KeyM'){ toggleMeasure(); }
   else if(e.code === 'KeyB'){ toggleStep(); }
@@ -1239,7 +1431,7 @@ onMounted(async () => {
     console.error(err);
     loadFailed.value = true;
     showToast('设备配置加载失败', 2400);
-    gsap.set(['#topbar', '#rail', '#dock'], { clearProps: 'all' });   // 引擎挂了也要让 UI 可见
+    gsap.set(['#topbar', '#rail', '#dock', '#corePanel', '#quickGuide', '#exSeq'], { clearProps: 'all' });   // 引擎挂了也要让 UI 可见
   }
 });
 watch(() => route.params.id, async (id) => {

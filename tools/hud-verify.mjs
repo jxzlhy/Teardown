@@ -116,12 +116,32 @@ try{
     await sleep(3600);   // 开场演出收尾 + UI 入场完成
     await shot('d1-night-overview');
 
-    /* 顶栏规格 chip（R2） */
-    const chips = await page.evaluate(() => [...document.querySelectorAll('#topbar .tb-spec')].map(s => ({
+    /* V5.1 P5 · 顶栏底座重构：品牌块 + 中央舞台状态 + FPS 读数 */
+    const shell = await page.evaluate(() => ({
+      eyebrow: document.querySelector('#topbar .tb-eyebrow')?.textContent.trim() || '',
+      title: document.querySelector('#topbar .tb-title b')?.textContent.trim() || '',
+      center: document.querySelector('#topbar .tb-center span')?.textContent.trim() || '',
+      fps: document.querySelector('#topbar .tb-fps b')?.textContent.trim() || '',
+    }));
+    check('顶栏底座：品牌 eyebrow/型号大字/中央舞台状态/FPS 读数齐全',
+      /^STRUCTURE DECONSTRUCTION \/ ?\d{2}$/.test(shell.eyebrow.replace(/\s+/g, ' ')) && !!shell.title &&
+      /VIEW · REAL-TIME 3D/.test(shell.center) && /^\d+$/.test(shell.fps), JSON.stringify(shell));
+
+    /* CORE PROFILE 面板（规格瓦片自顶栏 chips 迁入，V5.1 P5） */
+    const chips = await page.evaluate(() => [...document.querySelectorAll('#corePanel .cp-cell')].map(s => ({
       k: s.querySelector('i')?.textContent.trim(), v: s.querySelector('b')?.textContent.trim(),
     })));
-    check('顶栏规格 chip ×3（来自设备档案）',
-      chips.length === 3 && chips.every(c => c.k && c.v), JSON.stringify(chips));
+    check('CORE PROFILE 规格瓦片（来自设备档案，≥3）',
+      chips.length >= 3 && chips.every(c => c.k && c.v), JSON.stringify(chips));
+
+    /* 底座三新件：四角括框 / 左下指引卡 / 右下拆解序列刻度 */
+    const chrome = await page.evaluate(() => ({
+      frame: document.querySelectorAll('.stage-frame i').length,
+      guide: !!document.querySelector('#quickGuide'),
+      seqTicks: document.querySelectorAll('#exSeq .exs-ticks i').length,
+    }));
+    check('取景框四角 + 指引卡 + 拆解序列刻度（=部件数）',
+      chrome.frame === 4 && chrome.guide && chrome.seqTicks >= DEV.minParts, JSON.stringify(chrome));
 
     /* rail 两行行结构（R3） */
     const rail = await page.evaluate(() => {
@@ -135,10 +155,16 @@ try{
     check('rail 两行行结构（CN+EN 副行）齐全',
       rail.n >= DEV.minParts && rail.twoLine === rail.n && rail.count === String(rail.n), JSON.stringify(rail));
 
-    /* 拆解进度读数（R5）：格式为 0–100% 且接近满拆（ui.explode 本身是 0–100 百分比） */
+    /* 拆解进度读数（R5）：格式为 0–100% 且接近满拆（ui.explode 本身是 0–100 百分比）。
+       软渲染饱和下补间推进慢（rAF 2-4/s）——固定 1.8s 会读到中途值（68% 假阴性）：
+       轮询等待读数 ≥90（30s 上限），数值在变=补间在推进（时序判定口径） */
     await page.evaluate(() => window.__ENGINE.setExplode(1));
-    await sleep(1800);
-    const readout = await page.evaluate(() => document.querySelector('#exReadout')?.textContent.trim());
+    let readout = '';
+    for(let i = 0; i < 30; i++){
+      await sleep(1000);
+      readout = await page.evaluate(() => document.querySelector('#exReadout')?.textContent.trim() || '');
+      if(/^\d{1,3}%$/.test(readout) && parseInt(readout) >= 90) break;
+    }
     check('拆解进度读数随 explode 更新（≤3 位百分比，≥90%）',
       /^\d{1,3}%$/.test(readout || '') && parseInt(readout) >= 90, readout);
     await page.evaluate(() => window.__ENGINE.setExplode(0));
@@ -188,10 +214,10 @@ try{
     check('日厅 CSS 主题生效', await page.evaluate(() => document.documentElement.dataset.hall === 'day'));
     const mp = await page.evaluate(() => ({
       chips: document.querySelectorAll('#mpChips .hud-chip').length,
-      topSpecHidden: !document.querySelector('#topbar .tb-specs')
-        || getComputedStyle(document.querySelector('#topbar .tb-specs')).display === 'none',
+      coreHidden: !document.querySelector('#corePanel')
+        || getComputedStyle(document.querySelector('#corePanel')).display === 'none',
     }));
-    check('移动端：chips 横滑行 + 顶栏规格 chip 隐藏', mp.chips >= DEV.minParts && mp.topSpecHidden, JSON.stringify(mp));
+    check('移动端：chips 横滑行 + CORE PROFILE 常驻面板隐藏', mp.chips >= DEV.minParts && mp.coreHidden, JSON.stringify(mp));
     await shot('m1-day-mobile');
     await page.evaluate(() => document.querySelector('#mpChips button')?.click());
     await sleep(900);

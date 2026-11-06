@@ -6,7 +6,8 @@
 > 后续任何 AI 接手本项目时，**必须先阅读**以下文件，再开始工作：
 
 0. `docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md` — **自主研发总任务书 v2.0.0（2026-11-03 用户下达原文，28 部分 51 章 + 最终任务声明）**：长期总纲——最高目标与最终判断标准（§1–3）、历史保护（§4）、真实性红线（§6.2/§50 共 18 条不可违反约束）、模型资产与数据体系（§7–9）、四类体验能力 SHOWCASE/EXPLORATION/ENGINEERING/CREATION（§10）、机械模拟三分级（§13）、Create Studio（§14）、PHASE 01–07 路线（§30）、审计制度（§29）、GOAL 模式（§41）、停止与收尾（§47–48）。本清单其余条目为该总纲之下的专项规范，总纲不替代它们。
-0b. `docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md` — **V5.0.10 AURORA 专项任务书（2026-11-04 用户下达原文，18 节，执行中）**：体验第一/性能第二的独立专项；基线审查档 `docs/audit/V5_AURORA_BASELINE_AUDIT.md`，执行状态档 `docs/roadmap/GEWU_V5_AURORA_EXECUTION_STATUS.md`；§12 十条保护红线与总纲 §50 同级遵守。
+0b. `docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md` — **V5.0.10 AURORA 专项任务书（2026-11-04 用户下达原文，18 节，已 DELIVERED 2026-11-05）**：体验第一/性能第二的独立专项；基线审查档 `docs/audit/V5_AURORA_BASELINE_AUDIT.md`，执行状态档 `docs/roadmap/GEWU_V5_AURORA_EXECUTION_STATUS.md`，交付报告 `docs/audit/V5_AURORA_DELIVERY_REPORT.md`；§12 十条保护红线与总纲 §50 同级遵守。
+0c. `docs/roadmap/GEWU_V5_1_MODEL_EXPERIENCE_LAB.md` — **V5.1 MODEL EXPERIENCE LAB 专项任务书（2026-11-06 用户下达原文，当前执行中）**：模型详情页 3D 展示系统升级（P0 审计→P1 展示空间→P2 拆解→P3 标注→P4 相机→P5 移动端→P6 兼容验收）；参考 drone-threejs-app（**无开源许可——只研究思路不得复制代码/模型/贴图**，任务书 §15）；执行记录 `docs/audit/V5_1_MODEL_EXPERIENCE_EXECUTION_LOG.md`；以 AURORA 产出（I3/I4/R1-R3/loadTiming/camPos/deviceTier/realSizeMM/mech）为地基不重复开发。
 1. `AGENTS.md` — 自主研发总则（最高工作规则）。
 2. `docs/design/UI_UX_REFACTOR_SPEC.md` — **UI/UX 系统性审计与界面重构规范（用户于 2026-10-31 下达的完整指令原文）**。凡涉及 UI/UX 改造、页面重构、设计系统调整，必须优先遵循该规范：先读 UI Skill（`frontend-design` / `impeccable` / `frontend-skill`）→ 审计（记入 `docs/design/UI_UX_AUDIT.md`）→ 设计系统（`docs/design/DESIGN_SYSTEM.md`）→ 分阶段重构（阶段档案入 `docs/phases/`）→ 真实浏览器验证 → Design QA 复查。
 3. `TECH.md` — 技术架构现状。

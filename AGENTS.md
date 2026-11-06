@@ -5,7 +5,8 @@
 > 馆名沿革：2026-10-31 由「拆解馆」更名「格物馆」，见 docs/design/BRAND.md；历史文档保留原名不改。
 > V2 补充任务书（2026-11-01）：`docs/roadmap/GEWUGUAN_V2_REQUIREMENTS_SUPPLEMENT.md` 为权威版——零件导航紧凑/展开双模式、浮层统一管理（Tooltip 永不被二级菜单遮挡）、坐标辅助装置（方案A/B/C 融合）、收藏馆自定义分类、六维评分+个人备注、模型质量诊断与追溯；真实性约束（§1.2/§8.5）为最高级别。
 > 自主研发总任务书（2026-11-03，v2.0.0 完整重建版，用户下达原文）：`docs/roadmap/GEWU_AUTONOMOUS_MASTER_DEVELOPMENT_MISSION.md`——28 部分 51 章长期总纲（最高目标/真实性红线/模型资产标准/SHOWCASE·EXPLORATION·ENGINEERING·CREATION 四类体验能力/机械模拟三分级/PHASE 01-07 路线/GOAL 模式/停止条件），其第 50 章 18 条不可违反约束为最高优先级；历史专项规范（V2/V3/V4 任务书等）继续有效，总纲不替代它们。
-> **V5.0.10 AURORA 专项（2026-11-04 用户下达，当前执行中）**：`docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md`——体验第一优先级/性能第二优先级的独立专项（PHASE 0 基线审查 → 1 设计系统 → 2 全局 UI → 3 交互升级 → 4 资产管线 → 5 渲染引擎 → 6 自适应 → 7 终验）；Skills 全面激活（§4 必须真实使用并逐项记录）；验收须实测数据（§11）；专项完成前不转 V5.1/长期 goal（§18）。执行状态档：`docs/roadmap/GEWU_V5_AURORA_EXECUTION_STATUS.md`。
+> **V5.0.10 AURORA 专项（2026-11-04 用户下达）**：`docs/roadmap/GEWU_V5_AURORA_EXPERIENCE_PERFORMANCE.md`——体验第一优先级/性能第二优先级的独立专项（PHASE 0 基线审查 → 1 设计系统 → 2 全局 UI → 3 交互升级 → 4 资产管线 → 5 渲染引擎 → 6 自适应 → 7 终验）；Skills 全面激活（§4 必须真实使用并逐项记录）；验收须实测数据（§11）；专项完成前不转 V5.1/长期 goal（§18）。执行状态档：`docs/roadmap/GEWU_V5_AURORA_EXECUTION_STATUS.md`。**已 DELIVERED（2026-11-05）**。
+> **V5.1 MODEL EXPERIENCE LAB 专项（2026-11-06 用户下达，当前执行中）**：`docs/roadmap/GEWU_V5_1_MODEL_EXPERIENCE_LAB.md`——模型详情页 3D 展示系统与交互体验升级（P0 审计→P1 展示空间→P2 拆解交互→P3 标注面板→P4 相机巡览→P5 移动端→P6 兼容验收；参考 drone-threejs-app 抽象设计模式，**不得复制其代码/模型/贴图**——参考仓库无开源许可声明，§15 版权边界为最高优先约束之一）；执行记录 `docs/audit/V5_1_MODEL_EXPERIENCE_EXECUTION_LOG.md`；以 AURORA 产出为地基不重复开发。
 
 ## 1. 最高目标
 

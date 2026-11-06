@@ -512,6 +512,15 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .p-label:focus-visible{ outline:1px solid var(--acc); outline-offset:2px; }
 .p-label.hot{ border-color:var(--acc); box-shadow:0 0 14px rgba(69,224,255,.35), inset 0 0 10px rgba(69,224,255,.12); }
 .p-label.hot .pl-name{ color:var(--acc); }
+/* V5.1 P3 · 选中件摘要卡：.sel 时 tag 简短说明展开（数据源 parts[].tag，无则不占位） */
+.p-label .pl-tag{
+  display:none; font-size:var(--fs-10); line-height:1.5; color:var(--txt-2);
+  letter-spacing:.02em; white-space:normal; max-width:180px;
+  border-left:1px solid rgba(69,224,255,.3); padding-left:7px; margin-left:1px;
+}
+.p-label.sel{ background:rgba(4,10,16,.9); border-color:var(--acc); }
+.p-label.sel .pl-tag{ display:block; }
+html[data-hall="day"] .p-label .pl-tag{ color:var(--txt-2); border-left-color:rgba(9,47,71,.4); }
 
 #fx-scan{
   position:absolute; inset:0; z-index:3; pointer-events:none;
@@ -536,11 +545,11 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 #bootScan{ position:absolute; inset:0; z-index:7; pointer-events:none; }
 
-/* ---------- 顶部细导航条 ---------- */
+/* ---------- 顶部状态条（V5.1 P5 底座重构）：品牌块 | 中央舞台状态 | 遥测 ---------- */
 #topbar{
   position:absolute; top:18px; left:24px; right:24px; z-index:6;
-  display:flex; align-items:center; gap:13px;
-  height:54px; padding:8px 10px 8px 12px;
+  display:flex; align-items:center; gap:16px;
+  height:64px; padding:8px 10px 8px 12px;
   /* 条状面板不切角：内部按钮的 hover tooltip 定位在面板外，切角多边形会把它们裁掉 */
   clip-path:none;
 }
@@ -552,29 +561,44 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 .tb-back svg{ width:16px; height:16px; }
 .tb-back:hover{ color:var(--acc); border-color:var(--acc); background:var(--acc-08); }
-.tb-name{ display:flex; align-items:baseline; gap:12px; flex:1; min-width:0; }
-.tb-model{ font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.3em; color:var(--acc); white-space:nowrap; }
-.tb-name h1{
-  font-family:var(--name); font-size:var(--fs-18); font-weight:800; letter-spacing:.04em; color:var(--txt-1);
+/* 品牌块：eyebrow 序号 + EN 型号大字（视觉锚点）+ CN 名 */
+.tb-brand{ flex:none; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.tb-eyebrow{ font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.3em; color:var(--acc); white-space:nowrap; }
+.tb-title{ display:flex; align-items:baseline; gap:10px; min-width:0; }
+.tb-title b{
+  font-family:var(--name); font-size:var(--fs-20); font-weight:900; letter-spacing:.08em; color:var(--txt-1);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
+.tb-title .tb-cn{ font-family:var(--sans); font-size:var(--fs-12); font-weight:600; letter-spacing:.14em; color:var(--txt-3); white-space:nowrap; }
+/* 中央舞台状态：两侧引线 + 实时视图态文案 */
+.tb-center{
+  flex:1; min-width:0; display:flex; align-items:center; gap:14px;
+  justify-content:center;
+}
+.tb-center i{ flex:1; max-width:180px; height:1px; background:linear-gradient(90deg, transparent, var(--glass-line-strong)); }
+.tb-center i:last-child{ background:linear-gradient(90deg, var(--glass-line-strong), transparent); }
+.tb-center span{
+  font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.32em; color:var(--txt-3);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* 右侧遥测簇：模型状态 + FPS + 总览 */
+.tb-right{ display:flex; align-items:center; gap:14px; flex:none; }
 .tb-status{
-  display:flex; align-items:center; gap:7px; flex:none;
+  display:flex; align-items:center; gap:7px;
   font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.2em; color:var(--txt-3);
 }
 .tb-status .hud-dot{ width:5px; height:5px; }
+.tb-fps{
+  font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.18em; color:var(--txt-3);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.tb-fps b{ color:var(--txt-2); font-weight:600; margin-left:2px; }
 #topbar .hud-icon{ width:34px; height:34px; }
-/* 顶栏规格 chip（R2 参考调研）：数值大/标签小两行，档案数据前置；≤1080px 让位 */
-.tb-specs{ display:flex; align-items:center; gap:18px; margin-right:4px; }
-.tb-spec{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-width:0; }
-.tb-spec b{ font-family:var(--mono); font-size:var(--fs-12-5); font-weight:600; color:var(--txt-1); letter-spacing:.02em; white-space:nowrap; }
-.tb-spec i{ font-style:normal; font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.22em; color:var(--txt-3); white-space:nowrap; }
-@media (max-width: 1080px){ .tb-specs{ display:none; } }
 
 /* ---------- 左侧部件 rail（可折叠） ---------- */
 #rail{
-  position:absolute; left:24px; top:88px; width:236px; z-index:5;
-  display:flex; flex-direction:column; max-height:calc(100vh - 200px);
+  position:absolute; left:24px; top:96px; width:248px; z-index:5;
+  display:flex; flex-direction:column; max-height:calc(100vh - 96px - 130px);
   /* V2 操作栏动画：visibility 延迟隐藏——收起时整面板（含内容）一起滑出，无瞬切 */
   opacity:0; transform:translateX(-18px); pointer-events:none; visibility:hidden;
   transition:opacity .3s ease, transform .3s var(--ease-out), visibility 0s linear .3s;
@@ -582,9 +606,34 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 #rail.open{ opacity:1; transform:none; pointer-events:auto; visibility:visible;
   transition:opacity .3s ease, transform .3s var(--ease-out); }
 /* 折叠时内容随面板整体隐藏（visibility 继承），保留 DOM 供过渡；指针事件由容器关闭 */
+/* V5.1 P5 · INDEX 元信息头：馆藏位次 + 装配态词 */
+.rail-meta{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 14px 9px; border-bottom:1px solid var(--glass-line-faint);
+}
+.rail-meta .hud-eyebrow{ letter-spacing:.2em; }
+.rail-state{
+  font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.22em; color:var(--txt-3);
+  transition:color var(--dur-1);
+}
+.rail-state::before{ content:""; display:inline-block; width:5px; height:5px; border-radius:50%; margin-right:6px; vertical-align:1px; background:var(--glass-line-strong); }
 /* rail 头部：折叠开关 + 导航模式切换（V2 双模式） */
 .rail-head{ display:flex; align-items:center; width:100%; border-bottom:1px solid rgba(69,224,255,.1); }
+/* V5.1 P5 · COMPONENT MANIFEST 大标题块 */
+.rail-title-wrap{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.rail-title{
+  font-family:var(--name); font-size:var(--fs-17); font-weight:800; letter-spacing:.1em; color:var(--txt-1);
+  white-space:nowrap;
+}
 /* AURORA PHASE 3 · I3：部件导航搜索（glass/pill token 体系） */
+/* V5.1 P1 · XYZ 世界坐标读数（coordAid 内，gizmo 罗盘下方；mono 数字 CAM 标注区分口径） */
+#axisReadout{
+  display:flex; align-items:baseline; justify-content:center; gap:7px;
+  padding:5px 6px 3px; font-family:var(--mono); font-size:var(--fs-9);
+  color:var(--txt-3); letter-spacing:.04em; white-space:nowrap;
+}
+#axisReadout .ax-tag{ color:var(--acc); letter-spacing:.18em; font-size:var(--fs-8); }
+#axisReadout .ax-v{ color:var(--txt-2); }
 .rail-search{ position:relative; padding:8px 10px 6px; border-bottom:1px solid var(--glass-line-faint); }
 .rail-search input{
   width:100%; box-sizing:border-box; padding:6px 26px 6px 10px;
@@ -601,6 +650,28 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 .rail-search-clear:hover{ color:var(--acc); }
 .rail-empty{ padding:10px 14px; font-size:var(--fs-11); color:var(--txt-3); }
+/* V5.1 P2 · 单部件 Hide/Show：隐藏计数条 + 行内眼按钮 + 隐藏行淡化 */
+.rail-hiddenbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 12px; font-size:var(--fs-11); color:var(--warn);
+  background:color-mix(in srgb, var(--warn) 7%, transparent);
+  border-bottom:1px solid var(--glass-line-faint);
+}
+.rail-hiddenbar button{
+  cursor:pointer; padding:2px 9px; border-radius:6px;
+  font-size:var(--fs-10-5); color:var(--txt-1);
+  background:var(--glass-bg); border:1px solid var(--glass-line);
+}
+.rail-hiddenbar button:hover{ color:var(--acc); border-color:var(--pill-line-hover); }
+.prow .prow-eye{
+  display:none; flex:none; margin-left:auto; padding:3px; cursor:pointer;
+  color:var(--txt-3); border-radius:5px;
+}
+.prow .prow-eye svg{ width:13px; height:13px; display:block; }
+.prow:hover .prow-eye{ display:flex; }
+.prow .prow-eye:hover{ color:var(--acc); }
+.prow.dimmed{ opacity:.38; }
+.prow.dimmed .prow-eye{ display:flex; color:var(--warn); }
 .rail-toggle{
   flex:1; display:flex; align-items:center; justify-content:space-between;
   padding:12px 6px 10px 14px; background:none; border:none; cursor:pointer; text-align:left;
@@ -618,7 +689,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 /* 宫格导航面板：两列宫格，编号 + 部件名（部件多时优于长清单） */
 .rail-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:6px;
-  padding:8px 10px 10px; overflow-y:auto;
+  padding:8px 10px 10px; overflow-y:auto; min-height:0;
   scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent;
 }
 .rail-grid::-webkit-scrollbar{ width:4px; }
@@ -639,7 +710,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .gcell:hover, .gcell.active{ background:var(--acc-08); border-color:color-mix(in srgb, var(--acc) 45%, transparent); }
 .gcell:hover b, .gcell.active b{ color:var(--acc); }
 .gcell.active span{ color:var(--acc); }
-.rail-list{ overflow-y:auto; padding:6px 0; scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent; }
+.rail-list{ overflow-y:auto; min-height:0; padding:6px 0; scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent; }
 .rail-list::-webkit-scrollbar{ width:4px; }
 .rail-list::-webkit-scrollbar-thumb{ background:rgba(69,224,255,.25); }
 .prow{
@@ -656,7 +727,29 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .prow .pen{ font-family:var(--mono); font-size:var(--fs-8); letter-spacing:.12em; color:var(--txt-3); text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .prow.active{ background:var(--acc-08); border-left-color:var(--acc); }
 .prow.active .idx, .prow.active .pname{ color:var(--acc); }
-.rail-count{ font-size:var(--fs-13); font-weight:500; letter-spacing:.08em; color:var(--txt-1); opacity:.9; margin-left:4px; }
+.rail-count{ font-size:var(--fs-13); font-weight:500; letter-spacing:.08em; color:var(--acc); opacity:.9; margin-left:6px; }
+/* V5.1 P5 · 行尾状态圈：清单行选中点亮（对应参考站部件清单圆点列） */
+.pstat{
+  flex:none; width:7px; height:7px; border-radius:50%; margin-left:2px;
+  border:1px solid var(--glass-line-strong); background:transparent;
+  transition:background var(--dur-1), border-color var(--dur-1), box-shadow var(--dur-1);
+}
+.pstat.on{ background:var(--acc); border-color:var(--acc); box-shadow:0 0 8px var(--acc-16); }
+.pstat.pop{ background:var(--acc); border-color:var(--acc); box-shadow:0 0 10px var(--acc-dim); animation:hudPulse 1.8s infinite; }
+.pstat.off{ border-style:dashed; opacity:.6; }
+
+/* ---------- V5.1 P5 · rail 拆解进度脚块（DECONSTRUCTION PROGRESS） ---------- */
+.rail-foot{
+  flex:none; padding:10px 14px 12px; border-top:1px solid var(--glass-line-faint);
+  display:flex; flex-direction:column; gap:7px;
+}
+.rail-prog{ display:flex; align-items:baseline; justify-content:space-between; }
+.rail-prog .hud-eyebrow{ letter-spacing:.2em; }
+.rail-pct{ font-family:var(--mono); font-size:var(--fs-14); font-weight:600; color:var(--acc); font-variant-numeric:tabular-nums; }
+.rail-pct i{ font-style:normal; font-size:var(--fs-9); color:var(--txt-3); margin-left:1px; }
+.rail-bar{ height:2px; border-radius:2px; background:var(--acc-08); overflow:hidden; }
+.rail-bar i{ display:block; height:100%; background:var(--acc); box-shadow:0 0 6px var(--acc-16); transition:width .3s var(--ease-out); }
+.rail-hint{ font-size:var(--fs-10-5); letter-spacing:.06em; color:var(--txt-3); line-height:1.6; }
 
 /* rail 折叠态：序号圆点列（hover 弹出名称） */
 #railDots{
@@ -711,13 +804,49 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 .rdot:hover::after{ opacity:1; transform:translateY(-50%) translateX(0); }
 
-/* ---------- 上下文详情卡（选中部件时滑入） ---------- */
+/* ---------- 上下文详情卡（选中部件时滑入；V5.1 P5 顶锚位与 CORE PROFILE 同槽） ---------- */
 #ctxCard{
-  position:absolute; right:24px; bottom:100px; z-index:5;
-  width:340px; max-height:min(56vh, 560px); overflow-y:auto;
+  position:absolute; right:24px; top:96px; bottom:auto; z-index:5;
+  width:340px; max-height:calc(100vh - 96px - 130px); overflow-y:auto;
   padding:16px 18px 18px;
   scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent;
 }
+/* ---------- V5.1 P5 · 右侧 CORE PROFILE 常驻面板（未选中件时的展品档案） ---------- */
+#corePanel{
+  position:absolute; right:24px; top:96px; z-index:5;
+  width:340px; max-height:calc(100vh - 96px - 130px); overflow-y:auto;
+  padding:15px 18px 16px;
+  scrollbar-width:thin; scrollbar-color:rgba(69,224,255,.25) transparent;
+}
+#corePanel::-webkit-scrollbar{ width:4px; }
+#corePanel::-webkit-scrollbar-thumb{ background:rgba(69,224,255,.25); }
+.cp-head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.cp-id{ font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.18em; color:var(--txt-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cp-eyebrow{ margin-top:10px; font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.26em; color:var(--acc); text-transform:uppercase; }
+.cp-title{ margin-top:4px; font-family:var(--name); font-size:var(--fs-22); font-weight:900; letter-spacing:.04em; color:var(--txt-1); line-height:1.3; }
+.cp-desc{ margin-top:7px; }
+/* 规格 2×2 瓦片：数值大字 + 标签小字（原顶栏 chips 迁入，R2 版式延续） */
+.cp-grid{ margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.cp-cell{
+  display:flex; flex-direction:column; gap:2px; padding:8px 10px;
+  background:var(--glass-bg); border:1px solid var(--glass-line-faint); border-radius:7px; min-width:0;
+}
+.cp-cell b{ font-family:var(--mono); font-size:var(--fs-12-5); font-weight:600; color:var(--txt-1); letter-spacing:.02em; word-break:break-word; }
+.cp-cell i{ font-style:normal; font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.18em; color:var(--txt-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* 展品状态行：渲染档位 / 布局 / 资产来源（真实遥测） */
+.cp-status{
+  margin-top:11px; padding-top:9px; border-top:1px solid var(--glass-line-faint);
+  display:flex; flex-wrap:wrap; gap:4px 14px;
+  font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.16em; color:var(--txt-3);
+}
+/* 底部 CTA：指引 + 完整档案入口 */
+.cp-cta{
+  margin-top:11px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:9px 10px 9px 12px; border:1px solid var(--glass-line-faint); border-radius:8px;
+  background:var(--acc-bg);
+}
+.cp-cta-txt{ display:flex; flex-direction:column; gap:2px; min-width:0; font-size:var(--fs-11-5); color:var(--txt-2); letter-spacing:.04em; }
+.cp-cta-txt b{ font-family:var(--mono); font-weight:400; font-size:var(--fs-8-5); letter-spacing:.2em; color:var(--txt-3); }
 #ctxCard::-webkit-scrollbar{ width:4px; }
 #ctxCard::-webkit-scrollbar-thumb{ background:rgba(69,224,255,.25); }
 .ctx-eyebrow{ margin-bottom:8px; }
@@ -730,6 +859,18 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .ctx-thumb{ width:100%; height:100%; display:block; object-fit:cover; }
 .ctx-tag{ margin-top:9px; font-size:var(--fs-12-5); color:var(--acc); letter-spacing:.08em; }
 .ctx-desc{ margin-top:7px; font-size:var(--fs-12); line-height:1.85; color:#aebfd2; }
+/* V5.1 P3-S3 · 部件档案拆解状态徽标（参考站「已拆解 / EXPLODED」位） */
+.ctx-state{ margin-top:8px; display:flex; align-items:center; }
+.ctx-state-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.18em; color:var(--txt-3);
+  padding:3px 9px; border:1px solid var(--glass-line); border-radius:999px;
+}
+.ctx-state-badge .hud-dot{ width:5px; height:5px; background:var(--glass-line-strong); box-shadow:none; animation:none; }
+.ctx-state-badge.out{
+  color:var(--acc); border-color:color-mix(in srgb, var(--acc) 45%, transparent); background:var(--acc-bg);
+}
+.ctx-state-badge.out .hud-dot{ background:var(--acc); box-shadow:0 0 8px var(--acc-16); animation:hudPulse 1.8s infinite; }
 
 /* ---------- 部件详情卡「原理」区（知识库词条；命中才渲染） ---------- */
 .ctx-tech{ margin-top:11px; border:1px solid rgba(69,224,255,.14); border-radius:8px; background:var(--acc-bg); }
@@ -765,13 +906,36 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .ctx-leave-to{ opacity:0; transform:translateX(30px); }
 .sheet-grip{ display:none; }
 
-/* ---------- 底部图标 dock ---------- */
+/* ---------- 底部操作 dock（V5.1 P5 两级重构）：主操作标签钮行 + 工具图标行 ---------- */
 #dock{
   position:absolute; z-index:6; left:50%; bottom:22px; transform:translateX(-50%);
-  display:flex; align-items:center; gap:8px;
-  padding:8px 12px; max-width:min(96vw, 980px);
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:10px 12px 7px; max-width:min(96vw, 900px);
   clip-path:none;   /* 同顶栏：tooltip 在面板外，不切角 */
 }
+.dock-row{ display:flex; align-items:center; gap:6px; max-width:100%; }
+/* 主操作标签钮：图标 + CN/EN 双行（参考站 dock 位语义） */
+.dock-btn{
+  appearance:none; display:flex; align-items:center; gap:8px;
+  padding:7px 13px; border:1px solid var(--glass-line-strong); border-radius:8px;
+  background:var(--glass-bg); color:var(--txt-2); cursor:pointer;
+  transition:all var(--dur-1) var(--ease-out); white-space:nowrap;
+}
+.dock-btn svg{ width:19px; height:19px; flex:none; }
+.dock-btn:hover{ color:var(--acc); border-color:var(--acc); background:var(--acc-08); box-shadow:0 0 14px var(--acc-16); }
+.dock-btn.on{
+  color:var(--acc); border-color:color-mix(in srgb, var(--acc) 55%, transparent);
+  background:var(--acc-08); box-shadow:inset 0 0 10px var(--acc-08);
+}
+.dock-btn.primary{
+  color:var(--acc); border-color:color-mix(in srgb, var(--acc) 55%, transparent);
+  background:linear-gradient(135deg, var(--acc-16), var(--acc-08)); font-weight:600;
+}
+.dock-btn.primary:hover{ box-shadow:0 0 20px var(--acc-16); }
+.db-txt{ display:flex; flex-direction:column; gap:1px; align-items:flex-start; min-width:0; }
+.db-cn{ font-family:var(--sans); font-size:var(--fs-12); font-weight:600; letter-spacing:.14em; line-height:1.2; }
+.db-en{ font-family:var(--mono); font-size:var(--fs-8-5); font-weight:400; letter-spacing:.18em; color:var(--txt-3); line-height:1.2; }
+.dock-btn:hover .db-en, .dock-btn.on .db-en{ color:var(--acc-dim); }
 .dock-group{ display:flex; align-items:center; gap:5px; }
 /* 组微标：只桌面显示，标出「视图」组语义（审计 P2-1） */
 .dock-glabel{
@@ -783,7 +947,6 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .dock-nav .hud-icon{ color:var(--txt-3); }
 .dock-nav .hud-icon:hover{ color:var(--acc); }
 .tb-sep{ width:1px; height:26px; background:rgba(69,224,255,.15); flex:none; }
-.dock-explode{ min-width:86px; }
 #exWrap{ display:flex; align-items:center; margin-left:4px; position:relative; }
 /* 滑杆端点标记：0 态也可辨识为可拖轨道（审计 P2-2） */
 #exWrap::before, #exWrap::after{
@@ -805,6 +968,13 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   font-variant-numeric:tabular-nums; user-select:none;
 }
 #exReadout i{ font-style:normal; font-size:var(--fs-8-5); color:var(--txt-3); margin-left:1px; }
+/* V5.1 P2 · 全局拆解统计：已离位部件数（dock 读数旁，mono 同族） */
+#exParts{
+  flex:none; margin-left:6px; padding-left:8px; border-left:1px solid var(--glass-line-faint);
+  font-family:var(--mono); font-size:var(--fs-10-5); letter-spacing:.06em; color:var(--txt-2);
+  font-variant-numeric:tabular-nums; user-select:none;
+}
+#exParts i{ font-style:normal; font-size:var(--fs-8-5); color:var(--txt-3); margin-left:1px; }
 #exSlider::-webkit-slider-thumb, #clipStrip input::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%;
   background:var(--bg-1); border:2px solid var(--acc); box-shadow:0 0 8px var(--acc-16); cursor:grab;
@@ -941,6 +1111,53 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 }
 #btnStart:hover{ box-shadow:0 0 24px var(--acc-16); }
 
+/* ---------- V5.1 P5 · 展台取景框：四角 L 括号（参考站 viewport 角标语义，纯装饰） ---------- */
+.stage-frame{ position:absolute; inset:14px; z-index:4; pointer-events:none; }
+.stage-frame i{ position:absolute; width:22px; height:22px; border:0 solid var(--glass-line-strong); opacity:.8; }
+.stage-frame i:nth-child(1){ left:0; top:0; border-left-width:1.5px; border-top-width:1.5px; }
+.stage-frame i:nth-child(2){ right:0; top:0; border-right-width:1.5px; border-top-width:1.5px; }
+.stage-frame i:nth-child(3){ left:0; bottom:0; border-left-width:1.5px; border-bottom-width:1.5px; }
+.stage-frame i:nth-child(4){ right:0; bottom:0; border-right-width:1.5px; border-bottom-width:1.5px; }
+
+/* ---------- V5.1 P5 · 左下操作指引迷你卡（纯信息层，不拦截画布事件） ---------- */
+#quickGuide{
+  position:absolute; left:24px; bottom:22px; z-index:4; pointer-events:none;
+  display:flex; flex-direction:column; gap:6px;
+  padding:10px 14px 11px; max-width:230px;
+  background:var(--panel-bg); border:1px solid var(--glass-line-faint); border-radius:10px;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.qg-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.qg-head .hud-eyebrow{ letter-spacing:.14em; }
+.qg-live{ display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:var(--fs-8-5); letter-spacing:.2em; color:var(--txt-3); }
+.qg-live .hud-dot{ width:5px; height:5px; }
+.qg-row{ display:flex; align-items:baseline; gap:6px 10px; font-size:var(--fs-10-5); color:var(--txt-3); letter-spacing:.04em; }
+.qg-row b{ font-weight:600; color:var(--txt-2); white-space:nowrap; }
+.qg-row b:nth-child(3){ margin-left:auto; }
+.qg-kbd{
+  display:flex; align-items:center; gap:5px; margin-top:1px;
+  font-size:var(--fs-9-5); color:var(--txt-3); letter-spacing:.06em;
+}
+.qg-kbd kbd{
+  font-family:var(--mono); font-size:var(--fs-9); color:var(--acc); letter-spacing:.08em;
+  border:1px solid color-mix(in srgb, var(--acc) 35%, transparent); border-radius:4px; padding:1px 5px;
+}
+
+/* ---------- V5.1 P5 · 右下拆解序列读数（真实已离位部件数 + 序刻度） ---------- */
+#exSeq{
+  position:absolute; right:24px; bottom:22px; z-index:4; pointer-events:none;
+  display:flex; flex-direction:column; gap:7px; align-items:flex-end;
+  padding:10px 14px 11px;
+  background:var(--panel-bg); border:1px solid var(--glass-line-faint); border-radius:10px;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.exs-head{ display:flex; align-items:baseline; gap:12px; }
+.exs-head .hud-eyebrow{ letter-spacing:.14em; }
+.exs-n{ font-family:var(--mono); font-size:var(--fs-12); font-weight:600; color:var(--txt-1); letter-spacing:.1em; font-variant-numeric:tabular-nums; }
+.exs-ticks{ display:flex; gap:3px; }
+.exs-ticks i{ width:14px; height:3px; border-radius:1px; background:var(--acc-16); transition:background .3s, box-shadow .3s; }
+.exs-ticks i.on{ background:var(--acc); box-shadow:0 0 6px var(--acc-16); }
+
 /* ---------- 分段加载进度 ---------- */
 #loader{
   position:absolute; inset:0; z-index:10; display:flex; flex-direction:column;
@@ -986,11 +1203,14 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .viewer.immersive #topbar, .viewer.immersive #rail, .viewer.immersive #railDots,
 .viewer.immersive #dock, .viewer.immersive #ctxCard, .viewer.immersive #toast,
 .viewer.immersive #tourBar, .viewer.immersive #clipStrip, .viewer.immersive #mpChips,
-.viewer.immersive #viewStrip, .viewer.immersive #infoPop{
+.viewer.immersive #viewStrip, .viewer.immersive #infoPop,
+.viewer.immersive #corePanel, .viewer.immersive #quickGuide, .viewer.immersive #exSeq,
+.viewer.immersive .stage-frame{
   opacity:0; pointer-events:none; transition:opacity .35s ease;
 }
 .viewer.immersive canvas#scene{ cursor:grab; }
-#topbar, #rail, #dock, #ctxCard, #toast, #tourBar, #clipStrip, #mpChips, #infoPop, #viewStrip{ transition:opacity .35s ease; }
+#topbar, #rail, #dock, #ctxCard, #toast, #tourBar, #clipStrip, #mpChips, #infoPop, #viewStrip,
+#corePanel, #quickGuide, #exSeq{ transition:opacity .35s ease; }
 
 /* ---------- 缩略图拍摄模式（?thumb=1）：只留画布，供离线渲染脚本出图 ---------- */
 .viewer.thumb #topbar, .viewer.thumb #rail, .viewer.thumb #railDots, .viewer.thumb #dock,
@@ -998,6 +1218,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .viewer.thumb #viewStrip,
 .viewer.thumb #mpChips, .viewer.thumb #infoPop, .viewer.thumb #bootTitle, .viewer.thumb #bootScan,
 .viewer.thumb #fx-scan, .viewer.thumb #labels, .viewer.thumb #immersiveExit,
+.viewer.thumb #corePanel, .viewer.thumb #quickGuide, .viewer.thumb #exSeq, .viewer.thumb .stage-frame,
 .viewer.thumb .overlay{ display:none !important; }
 .viewer.thumb #loader{ opacity:0 !important; pointer-events:none; }
 
@@ -1005,16 +1226,22 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 @media (max-width: 1080px){
   #rail{ width:200px; }
   #ctxCard{ width:300px; }
+  #corePanel{ width:300px; }
   #infoPop{ width:300px; }
+  /* 窄桌面：角落信息件让位于画布（dock 两侧净空不足） */
+  #quickGuide, #exSeq, .tb-center{ display:none; }
 }
 @media (max-width: 860px){
   #topbar{ left:14px; right:14px; top:12px; }
-  .tb-model{ display:none; }
-  #rail{ left:14px; top:78px; }
+  .tb-title b{ font-size:var(--fs-17); }
+  .tb-title .tb-cn{ display:none; }
+  #rail{ left:14px; top:84px; }
   #railDots{ left:14px; }
-  #ctxCard{ right:14px; bottom:96px; width:280px; }
-  #dock{ bottom:14px; gap:6px; padding:7px 9px; }
+  #ctxCard{ right:14px; top:82px; width:280px; }
+  #corePanel{ right:14px; top:82px; width:280px; }
+  #dock{ bottom:14px; gap:4px; padding:7px 9px; }
   #exSlider{ width:90px; }
+  .db-en{ display:none; }
   .tb-sep-nav, .dock-nav{ display:none; }
   #infoPop{ right:14px; }
 }
@@ -1030,11 +1257,12 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   #mpChips::-webkit-scrollbar{ display:none; }
   #mpChips .hud-chip{ flex:none; }
   #rail, #railDots{ display:none !important; }
+  #corePanel{ display:none; }   /* 移动端常驻档案不占视区（桌面专属；双保险，逻辑侧 isMobile 同判） */
   #ctxCard{
-    left:0; right:0; bottom:0; width:100%; max-height:46vh;
+    left:0; right:0; top:auto; bottom:0; width:100%; max-height:46vh;
     border-radius:14px 14px 0 0; clip-path:none;
-    /* 底部预留 dock 高度+安全区：sheet 内容不被 dock 压住（审计 P1-1） */
-    padding:10px 16px calc(64px + env(safe-area-inset-bottom, 0px));
+    /* 底部预留 dock 高度+安全区：V5.1 两级 dock 实测高 91px——padding 同步抬升（审计 P1-1 口径延续） */
+    padding:10px 16px calc(100px + env(safe-area-inset-bottom, 0px));
     /* 内容（特写图+说明+规格）常超出 46vh：sheet 内部滚动保证可读 */
     overflow-y:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
@@ -1046,13 +1274,14 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
   .ctx-leave-to{ transform:translateY(100%); }
   .sheet-grip{ display:flex; justify-content:center; padding:2px 0 8px; cursor:pointer; }
   .sheet-grip i{ width:38px; height:4px; border-radius:2px; background:var(--glass-line-strong); }
-  #dock{
-    bottom:10px; overflow-x:auto; scrollbar-width:none;
-    /* 右缘渐隐：提示横向可滑动（溢出溢出部分被裁切时仍可读出“还有更多”） */
+  /* V5.1 P5：两级 dock 移动端改为纵向双行，各自横滑（右缘渐隐提示可滑） */
+  #dock{ bottom:10px; flex-direction:column; align-items:stretch; max-width:94vw; gap:2px; }
+  .dock-row{
+    overflow-x:auto; scrollbar-width:none; justify-content:flex-start;
     mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
     -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
   }
-  #dock::-webkit-scrollbar{ display:none; }
+  .dock-row::-webkit-scrollbar{ display:none; }
   #exWrap{ display:none; }
   #exReadout{ display:none; }
   #exWrap.step-ctl{ display:flex; }   /* 步进器保留：移动端唯一装配入口 */
@@ -1176,7 +1405,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 .fav-note:focus{ border-color:var(--acc); }
 .fav-at{ margin-top:6px; font-family:var(--mono); font-size:var(--fs-9); letter-spacing:.12em; color:var(--txt-3); }
 /* ---------- 坐标辅助装置（V2 重设计）：方位陀螺 gizmo + 网格开关 ---------- */#coordAid{
-  position:absolute; right:24px; bottom:86px; z-index:5;
+  position:absolute; right:24px; bottom:142px; z-index:5;   /* V5.1 P5：两级 dock 加高后随之抬升避让 */
   display:flex; flex-direction:column; align-items:center; gap:8px;
   transition:opacity .3s ease;
 }
@@ -1187,7 +1416,7 @@ canvas#scene{ position:absolute; inset:0; display:block; outline:none; }
 #gridToggle{ width:32px; height:32px; border-radius:8px; }
 html[data-hall="day"] #gizmo{ opacity:.92; }
 @media (max-width: 700px){
-  #coordAid{ right:10px; bottom:84px; }
+  #coordAid{ right:10px; bottom:126px; }
   #gizmo{ width:52px; height:52px; }
 }
 /* ---------- 减少动态偏好：关闭装饰动画与过渡（3D 侧由引擎 reducedMotion 处理） ---------- */
@@ -1430,8 +1659,6 @@ html[data-hall="day"] .prow.active{ border-left-color:var(--acc); }
 html[data-hall="day"] .dock-glabel{ color:var(--txt-3); }
 html[data-hall="day"] .dock-explode{ color:var(--acc); border-color:var(--acc); background:color-mix(in srgb, var(--acc) 6%, transparent); }
 /* 日厅 · 2026-11-03 设备页三区升级件（顶栏 chip / rail 计数 / 档案瓦片 / 进度读数） */
-html[data-hall="day"] .tb-spec b{ color:var(--txt-1); }
-html[data-hall="day"] .tb-spec i{ color:var(--txt-3); }
 html[data-hall="day"] .rail-count{ color:var(--txt-1); }
 html[data-hall="day"] .dp-model{ color:var(--txt-1); }
 html[data-hall="day"] #infoPop h3{ color:var(--txt-2); }
@@ -1440,6 +1667,24 @@ html[data-hall="day"] #infoPop .spec .v{ color:var(--txt-1); }
 html[data-hall="day"] #infoPop .spec .k{ color:var(--txt-3); }
 html[data-hall="day"] #exReadout{ color:var(--txt-2); }
 html[data-hall="day"] #exReadout i{ color:var(--txt-3); }
+/* V5.1 P5 · 新底座元素日厅覆盖（glass-* 为夜厅硬编码值，组件级切换到纸面 token） */
+html[data-hall="day"] .stage-frame i{ border-color:var(--hairline-strong); opacity:.9; }
+html[data-hall="day"] #quickGuide, html[data-hall="day"] #exSeq{ border-color:var(--hairline); }
+html[data-hall="day"] .rail-meta, html[data-hall="day"] .rail-foot{ border-color:var(--hairline); }
+html[data-hall="day"] .rail-bar{ background:var(--wash-2); }
+html[data-hall="day"] .rail-state::before{ background:var(--hairline-strong); }
+html[data-hall="day"] .pstat{ border-color:var(--hairline-strong); }
+html[data-hall="day"] .ctx-state-badge{ border-color:var(--hairline); }
+html[data-hall="day"] .ctx-state-badge.out{ border-color:color-mix(in srgb, var(--acc) 45%, transparent); }
+html[data-hall="day"] .cp-grid .cp-cell, html[data-hall="day"] .cp-cta, html[data-hall="day"] .cp-status{ border-color:var(--hairline); }
+html[data-hall="day"] .qg-kbd kbd{ border-color:color-mix(in srgb, var(--acc) 35%, rgba(95,80,55,.15)); }
+html[data-hall="day"] .exs-ticks i{ background:var(--wash-2); }
+html[data-hall="day"] .exs-ticks i.on{ background:var(--acc); }
+html[data-hall="day"] .dock-btn{ color:var(--txt); border-color:var(--hairline-strong); background:var(--wash-1); }
+html[data-hall="day"] .dock-btn:hover{ color:var(--acc); border-color:var(--acc); background:color-mix(in srgb, var(--acc) 5%, transparent); }
+html[data-hall="day"] .dock-btn.primary{ color:var(--acc); border-color:color-mix(in srgb, var(--acc) 50%, transparent); background:color-mix(in srgb, var(--acc) 6%, transparent); }
+html[data-hall="day"] .dock-btn.on{ color:var(--acc); border-color:var(--acc); background:color-mix(in srgb, var(--acc) 5%, transparent); }
+html[data-hall="day"] .db-en{ color:var(--txt-3); }
 /* hud.css 内联暗色 */
 html[data-hall="day"] .hud-glow-btn{ color:var(--txt); border-color:var(--hairline-strong); background:var(--wash-1); }
 html[data-hall="day"] .hud-glow-btn:hover{ color:var(--acc); border-color:var(--acc); }

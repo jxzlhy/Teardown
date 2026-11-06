@@ -11,6 +11,9 @@ export default makeDevice({
   en: 'TURBOJET ENGINE',
   category: '机械',
   brand: 'GENERIC',
+  /* V5.1 P8-S1 · 首个 Viewer Presentation Config 用例（§11.1）：涡轮发动机属航空级
+     大型机械（§4.1 类型 C），展台用 large 大地台（category 机械默认 industrial 的逐台覆盖） */
+  presn: { plinth: 'large' },
   tagline: '布雷顿循环四段 · 压气机-涡轮同轴',
   description: '一台涡轮喷气发动机教学模型，按四大段展示：进气风扇段、核心机（压气机-燃烧室-涡轮）、尾喷管与尾锥。它跑的是布雷顿循环——吸入空气、压缩、喷油燃烧、喷出加速：压气机与涡轮同轴对转，涡轮「偷」走一部分燃气能量就是为了回头驱动压气机，剩下的能量全部变成推力。',
   specs: [

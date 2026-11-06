@@ -19,7 +19,7 @@ console.log('gizmo:', JSON.stringify(g0));
 /* 网格开关 */
 await page.click('#gridToggle');
 await new Promise(r => setTimeout(r, 300));
-const gridOff = await page.evaluate(() => window.__ENGINE.getScene().traverse.length === undefined ? 'skip' : (() => { let v = null; window.__ENGINE.getScene().traverse(o => { if(o.type === 'PolarGridHelper') v = o.visible; }); return v; })());
+const gridOff = await page.evaluate(() => window.__ENGINE.getScene().traverse.length === undefined ? 'skip' : (() => { let v = null; window.__ENGINE.getScene().traverse(o => { if(o.type === 'GridHelper') v = o.visible; }); return v; })());   // V5.1 P1-S3：极坐标网格 → 细方格 GridHelper
 console.log('grid after toggle:', gridOff);
 await page.click('#gridToggle');
 /* 正面机位后 gizmo 应高亮「前」 */
